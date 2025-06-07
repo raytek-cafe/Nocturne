@@ -19,6 +19,11 @@
   min-width: 0;
   padding: 8px 16px;
 
+  @media -moz-pref("browser.ui.reducedRounding.enabled") {
+    border: 0;
+    border-radius: var(--border-radius-small);
+  }
+
   /* This button is deeper in the visual hierarchy than others (notably the
      buttons at the bottom of the panel), so it should be slightly smaller. */
   font-size: 90%;
@@ -27,12 +32,20 @@
     background-color: var(--button-background-color-hover);
     border-color: var(--button-border-color-hover);
     color: var(--button-text-color-hover);
+
+    @media -moz-pref("browser.ui.reducedRounding.enabled") {
+      color: var(--button-text-color);
+    }
   }
 
   &:hover:active {
     background-color: var(--button-background-color-active);
     border-color: var(--button-border-color-active);
     color: var(--button-text-color-active);
+
+    @media -moz-pref("browser.ui.reducedRounding.enabled") {
+      color: var(--button-text-color);
+    }
   }
 }
 
@@ -103,16 +116,30 @@
   border: var(--button-border);
   border-radius: var(--button-border-radius);
 
+  @media -moz-pref("browser.ui.reducedRounding.enabled") {
+    border: 0;
+    border-radius: var(--border-radius-small);
+  }
+
   &:hover {
     background-color: var(--button-background-color-hover);
     border-color: var(--button-border-color-hover);
     color: var(--button-text-color-hover);
+
+    @media -moz-pref("browser.ui.reducedRounding.enabled") {
+      color: var(--button-text-color);
+    }
   }
 
   &:hover:active {
     background-color: var(--button-background-color-active);
     border-color: var(--button-border-color-active);
     color: var(--button-text-color-active);
+
+    @media -moz-pref("browser.ui.reducedRounding.enabled") {
+      color: var(--button-text-color);
+      background-color: var(--button-background-color-hover);
+    }
   }
 }
 

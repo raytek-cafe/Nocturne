@@ -1829,6 +1829,9 @@ pref("services.sync.syncedTabs.syncDelayAfterTabChange", 5000);
 // Enable old about:config by default
 pref("browser.ui.oldaboutconfig", true);
 
+// Use smaller corner radii throughout browser chrome.
+pref("browser.ui.reducedRounding.enabled", true);
+
 // Whether the context menu should show the navigation items (Back, Forward,
 // Reload, Bookmark) as icons.
 pref("browser.menu.navigationIcons", true);
