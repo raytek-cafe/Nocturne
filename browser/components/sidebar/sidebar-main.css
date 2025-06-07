@@ -6,6 +6,9 @@
   :host {
     --button-size-icon: var(--tab-min-height);
     --button-min-height: var(--button-size-icon);
+    @media -moz-pref("browser.ui.reducedRounding.enabled") {
+      --button-border-radius: var(--border-radius-medium);
+    }
   }
 }
 
