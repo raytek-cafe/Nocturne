@@ -567,6 +567,11 @@
   border: var(--button-border);
   border-radius: var(--button-border-radius);
 
+  @media -moz-pref("browser.ui.reducedRounding.enabled") {
+    border-width: 0;
+    border-radius: var(--border-radius-small);
+  }
+
   > .button-box > .button-icon {
     margin: 0;
     width: 12px;

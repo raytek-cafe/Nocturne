@@ -21,6 +21,12 @@
   --default-focusring-width: 2px;
   --default-focusring: var(--default-focusring-width) dotted;
 
+  @media -moz-pref("browser.ui.reducedRounding.enabled") {
+    --button-border-radius: var(--border-radius-small);
+    --input-text-border-radius: var(--border-radius-small);
+    --toolbarbutton-border-radius: var(--border-radius-small);
+  }
+
   --animation-easing-function: cubic-bezier(0.07, 0.95, 0, 1);
 
   --search-engine-name-max-width: 15em;
