@@ -29,13 +29,13 @@ vendoring:
     - scripts
     - java
     - tests
-    - c/enc
-    - c/tools
 
   include:
     - c/include/
     - c/common/
     - c/dec/
+    - c/enc
+    - c/tools
 
   keep:
     - LICENSE
@@ -52,3 +52,10 @@ vendoring:
       to: '{vendor_dir}/dec'
     - action: delete-path
       path: '{vendor_dir}/c'
+    - action: move-dir
+      from: '{vendor_dir}/c/enc'
+      to: '{vendor_dir}/enc'
+    - action: move-dir
+      from: '{vendor_dir}/c/tools'
+      to: '{vendor_dir}/tools'
+
