@@ -607,7 +607,9 @@ mozilla::gfx::BackendType gfxWindowsPlatform::GetPreferredCanvasBackend() {
 }
 
 bool gfxWindowsPlatform::CreatePlatformFontList() {
-  if (DWriteEnabled()) {
+  // bug 630201 - older pre-RTM versions of Direct2D/DirectWrite cause odd
+  // crashers so block them altogether
+  if (StaticPrefs::gfx_dwrite_enabled() && IsNotWin7PreRTM() && DWriteEnabled()) {
     if (gfxPlatformFontList::Initialize(new gfxDWriteFontList)) {
       return true;
     }
