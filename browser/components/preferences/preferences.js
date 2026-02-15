@@ -13,7 +13,7 @@
 /* import-globals-from sync.js */
 /* import-globals-from experimental.js */
 /* import-globals-from moreFromMozilla.js */
-/* import-globals-from r3dfox.js */
+/* import-globals-from nocturne.js */
 /* import-globals-from findInPage.js */
 /* import-globals-from /browser/base/content/utilityOverlay.js */
 /* import-globals-from /toolkit/content/preferencesBindings.js */
@@ -198,7 +198,7 @@ function init_all() {
   register_module("paneSearch", gSearchPane);
   register_module("panePrivacy", gPrivacyPane);
   register_module("paneContainers", gContainersPane);
-  register_module("paneR3dfox", gR3dfoxPane);
+  register_module("paneNocturne", gNocturnePane);
   register_module("paneLibrewolf", gLibrewolfPane);
 
   if (Services.prefs.getBoolPref("browser.translations.newSettingsUI.enable")) {
