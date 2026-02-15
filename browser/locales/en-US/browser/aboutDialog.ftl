@@ -65,7 +65,7 @@ community-2 = { -brand-short-name } is designed by <label data-l10n-name="commun
 
 helpus = Want to help? <label data-l10n-name="helpus-getInvolvedLink">Contribute</label> to the dream of keeping a good computing experience alive!
 
-community-eclipse = You can also join the <label data-l10n-name="community-forum">Eclipse Community forum</label> or the <label data-l10n-name="community-discord">Discord server</label>!
+community-eclipse = You can also join the <label data-l10n-name="community-forum">raytek forum</label>!
 
 bottomLinks-license = Licensing Information
 bottom-links-terms = Terms of Use

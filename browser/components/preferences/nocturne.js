@@ -4,7 +4,7 @@
 
 /* import-globals-from preferences.js */
 
-var gR3dfoxPane = {
+var gNocturnePane = {
   init() {},
 };
 
@@ -14,16 +14,15 @@ Preferences.addAll([
   { id: "widget.non-native-theme.scrollbar.style", type: "int" },
   { id: "widget.native-controls.override-win-version", type: "int" },
   { id: "security.sandbox.content.level", type: "int" },
-  { id: "r3dfox.colors", type: "int" },
-  { id: "r3dfox.customizations.enabled", type: "bool" },
-  { id: "r3dfox.drag-space.enabled", type: "bool" },
-  { id: "r3dfox.backgrounds.enabled", type: "bool" },
-  { id: "r3dfox.transparent.menubar", type: "bool" },
-  { id: "r3dfox.translucent.navbar", type: "bool" },
-  { id: "r3dfox.aero.fog", type: "int" },
-  { id: "r3dfox.caption.text.color", type: "int" },
+  { id: "nocturne.colors", type: "int" },
+  { id: "nocturne.drag-space.enabled", type: "bool" },
+  { id: "nocturne.backgrounds.enabled", type: "bool" },
+  { id: "nocturne.transparent.menubar", type: "bool" },
+  { id: "nocturne.translucent.navbar", type: "bool" },
+  { id: "nocturne.aero.fog", type: "int" },
+  { id: "nocturne.caption.text.color", type: "int" },
   { id: "browser.urlbar.oneOffsInstant", type: "bool" },
-  { id: "r3dfox.view.image", type: "bool" },
+  { id: "nocturne.view.image", type: "bool" },
   { id: "browser.menu.navigationIcons", type: "bool",  inverted: true },
   { id: "browser.e10s.disabled", type: "bool" },
   { id: "security.csp.enable", type: "bool",  inverted: true },
@@ -45,5 +44,6 @@ Preferences.addAll([
   { id: "dom.webaudio.enabled", type: "bool",  inverted: true },
   { id: "browser.tabs.dropToPin.enabled", type: "bool",  inverted: true },
   { id: "browser.taskbarTabs.enabled", type: "bool",  inverted: true },
+  { id: "nocturne.ui.oldaboutconfig", type: "bool" },
 /*  { id: "browser.translations.enable", type: "bool" },*/
 ]);

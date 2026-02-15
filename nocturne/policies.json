@@ -1,7 +1,6 @@
 {
     "__COMMENT__ More Information": "https://github.com/mozilla/policy-templates/blob/master/README.md",
     "policies": {
-        "DisplayMenuBar": true,
         "AppUpdateURL": "https://localhost",
         "DisableFirefoxStudies": true,
         "DisableTelemetry": true,
@@ -18,6 +17,7 @@
         "SearchEngines": {
             "PreventInstalls": false,
             "Default": "DuckDuckGo",
+			"Remove": ["Amazon.com", "eBay", "Twitter", "Perplexity"],
             "Add": [
                 {
                     "Name": "DuckDuckGo Lite",

@@ -61,7 +61,7 @@ Preferences.addAll([
   { id: "browser.download.folderList", type: "int" },
   { id: "browser.download.dir", type: "file" },
 
-  /* r3dfox preferences */
+  /* Nocturne preferences */
 
   { id: "browser.tabs.hoverPreview.enabled", type: "bool" },
 
@@ -4621,7 +4621,7 @@ const AppearanceChooser = {
       infoBox.style.marginTop = "10px";
       infoBox.style.marginBottom = "5px";
       const text = document.createElement("div");
-      text.innerText = "This feature is disabled because ResistFingerprinting is enabled. This means r3dfox will force web content to display in a light theme.";
+      text.innerText = "This feature is disabled because ResistFingerprinting is enabled. This means Nocturne will force web content to display in a light theme.";
       infoBox.appendChild(text);
       const learnMore = document.createElement("a");
       learnMore.classList.add("text-link");

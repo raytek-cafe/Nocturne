@@ -1244,4 +1244,4 @@ file-picker-crashed-show-in-folder =
 
 onboarding-checklist-button-label = Finish setup
 
-identity-allow-site-data = r3dfox: Always store cookies/data for this site
+identity-allow-site-data = Nocturne: Always store cookies/data for this site
