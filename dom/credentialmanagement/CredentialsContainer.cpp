@@ -194,6 +194,12 @@ already_AddRefed<Promise> CredentialsContainer::Get(
       return promise.forget();
     }
 
+    if (aOptions.mMediation != CredentialMediationRequirement::Conditional &&
+        aOptions.mMediation != CredentialMediationRequirement::Optional &&
+        aOptions.mMediation != CredentialMediationRequirement::Required) {
+      return CreateAndRejectWithNotSupported(mParent, aRv);
+    }
+
     EnsureWebAuthnHandler();
     return mWebAuthnHandler->GetAssertion(aOptions.mPublicKey.Value(),
                                           conditionallyMediated,
@@ -267,6 +273,11 @@ already_AddRefed<Promise> CredentialsContainer::Create(
             mParent->GetExtantDoc(), u"publickey-credentials-create"_ns) ||
         !hasRequiredActivation) {
       return CreateAndRejectWithNotAllowed(mParent, aRv);
+    }
+
+    if (aOptions.mMediation != CredentialMediationRequirement::Optional &&
+        aOptions.mMediation != CredentialMediationRequirement::Required) {
+      return CreateAndRejectWithNotSupported(mParent, aRv);
     }
 
     EnsureWebAuthnHandler();

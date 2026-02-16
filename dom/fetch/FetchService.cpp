@@ -271,8 +271,7 @@ RefPtr<FetchServicePromises> FetchService::FetchInstance::Fetch() {
   if (mArgsType == FetchArgsType::WorkerFetch) {
     auto& args = mArgs.as<WorkerFetchArgs>();
     mFetchDriver->SetWorkerScript(args.mWorkerScript);
-    MOZ_ASSERT(args.mClientInfo.isSome());
-    mFetchDriver->SetClientInfo(args.mClientInfo.ref());
+    mFetchDriver->SetClientInfo(args.mClientInfo);
     mFetchDriver->SetController(args.mController);
     if (args.mCSPEventListener) {
       mFetchDriver->SetCSPEventListener(args.mCSPEventListener);
@@ -285,6 +284,7 @@ RefPtr<FetchServicePromises> FetchService::FetchInstance::Fetch() {
 
   if (mArgsType == FetchArgsType::MainThreadFetch) {
     auto& args = mArgs.as<MainThreadFetchArgs>();
+    mFetchDriver->SetClientInfo(args.mClientInfo);
     mFetchDriver->SetIsThirdPartyContext(Some(args.mIsThirdPartyContext));
   }
 

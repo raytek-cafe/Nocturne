@@ -416,11 +416,13 @@ rust-1.81.0:
 
 rust-nightly:
     description: Rust nightly source code
+    attributes:
+        cached_task: false
     fetch:
         type: git
         include-dot-git: true
         repo: https://github.com/rust-lang/rust/
-        branch: master
+        branch: main
 
 wasi-sdk-11:
     description: wasi-sdk-11 source code

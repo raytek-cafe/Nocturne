@@ -622,6 +622,8 @@ support-files = ["file_sanitizer_on_paste.sjs"]
 ["test_select_all_without_body.html"]
 support-files = ["file_select_all_without_body.html"]
 
+["test_selectable_input_event_dispatching_for_compositionend.html"]
+
 ["test_selection_move_commands.html"]
 support-files = ["!/gfx/layers/apz/test/mochitest/apz_test_utils.js"]
 

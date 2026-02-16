@@ -3583,6 +3583,7 @@ void nsRange::CreateOrUpdateCrossShadowBoundaryRangeIfNeeded(
   // Nodes at least needs to be in the same document.
   if (startNode && endNode &&
       startNode->GetComposedDoc() != endNode->GetComposedDoc()) {
+    ResetCrossShadowBoundaryRange();
     return;
   }
 
@@ -3594,6 +3595,13 @@ void nsRange::CreateOrUpdateCrossShadowBoundaryRangeIfNeeded(
     // Unlike normal ranges, shadow cross ranges don't work
     // when the nodes aren't in document.
     if (!aContainer->IsInComposedDoc()) {
+      return false;
+    }
+
+    // We don't allow ranges to span different NAC subtrees (because we don't
+    // notify when unbinding NAC roots historically). nsRange can already deal
+    // with the "same anonymous subtree" case.
+    if (aContainer->IsInNativeAnonymousSubtree()) {
       return false;
     }
 

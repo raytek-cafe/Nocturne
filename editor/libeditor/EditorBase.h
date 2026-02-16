@@ -2515,6 +2515,18 @@ class EditorBase : public nsIEditor,
   MOZ_CAN_RUN_SCRIPT void DispatchInputEvent();
 
   /**
+   * Return true if it's NOT blocked by the pref to dispatch `input` event
+   * immediately before `compositionend`.
+   */
+  [[nodiscard]] bool CanDispatchInputEventBeforeCompositionEnd() const;
+
+  /**
+   * Return true if it's NOT blocked by the pref to dispatch `input` event
+   * immediately after `compositionend`.
+   */
+  [[nodiscard]] bool CanDispatchInputEventAfterCompositionEnd() const;
+
+  /**
    * Called after a transaction is done successfully.
    */
   MOZ_CAN_RUN_SCRIPT void DoAfterDoTransaction(nsITransaction* aTransaction);

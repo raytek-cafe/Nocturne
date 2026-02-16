@@ -735,6 +735,10 @@ geckodriver-mac-notarization
 ----------------------------
 Apple notarization for mac geckodriver binary.
 
+mark-as-merged
+--------------
+Mark merge automation as completed in shipit.
+
 maybe-release
 -------------
 A shipitscript task that does the following:
@@ -891,9 +895,9 @@ generate-baseline-profile-firebase
 ----------------------------------
 Run baseline profile generation for Android on Firebase TestLab.
 
-update
-------------
-Run tests to see if the executable can be updated to the latest release.
+update-test
+-----------
+Run tests to see if the Firefox executable can be updated to the latest release.
 
 run-macrobenchmark-firebase
 ---------------------------

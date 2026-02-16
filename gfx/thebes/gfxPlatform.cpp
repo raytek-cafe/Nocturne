@@ -3540,6 +3540,14 @@ void gfxPlatform::ReInitFrameRate(const char* aPrefIgnored,
   gPlatform->mVsyncDispatcher->SetVsyncSource(vsyncSource);
 }
 
+/* static */
+void gfxPlatform::ResetHardwareVsyncSource() {
+  if (gPlatform->mGlobalHardwareVsyncSource) {
+    gPlatform->mGlobalHardwareVsyncSource->Shutdown();
+    gPlatform->mGlobalHardwareVsyncSource = nullptr;
+  }
+}
+
 const char* gfxPlatform::GetAzureCanvasBackend() const {
   BackendType backend{};
 

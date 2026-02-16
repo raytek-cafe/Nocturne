@@ -29,9 +29,9 @@ CONTEXTS_DIR = "docker-contexts"
 DIGEST_RE = re.compile("^[0-9a-f]{64}$")
 
 IMAGE_BUILDER_IMAGE = (
-    "mozillareleases/image_builder:5.0.0"
+    "mozillareleases/image_builder:5.1.0"
     "@sha256:"
-    "e510a9a9b80385f71c112d61b2f2053da625aff2b6d430411ac42e424c58953f"
+    "7fe70dcedefffffa03237ba5d456d42e0d7461de066db3f7a7c280a104869cd5"
 )
 
 transforms = TransformSequence()
@@ -169,9 +169,6 @@ def fill_template(config, tasks):
                 # FIXME: We aren't currently propagating the exit code
             },
         }
-        # Retry for 'funsize-update-generator' if exit status code is -1
-        if image_name in ["funsize-update-generator"]:
-            taskdesc["worker"]["retry-exit-status"] = [-1]
 
         worker = taskdesc["worker"]
 
