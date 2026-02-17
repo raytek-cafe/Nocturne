@@ -388,6 +388,11 @@ bool VideoData::UseUseNV12ForSoftwareDecodedVideoIfPossible(
     return false;
   }
 
+  // Only allow in GPU process to avoid RDD process memory leaks
+  if (!XRE_IsGPUProcess()) {
+    return false;
+  }
+
   if (StaticPrefs::gfx_video_convert_yuv_to_nv12_image_host_win()) {
     return false;
   }
@@ -447,7 +452,7 @@ Result<already_AddRefed<VideoData>, MediaResult> VideoData::CreateAndCopyData(
   // intermittent crashes with old drivers. See bug 1405110.
   // D3D11YCbCrImage can only handle YCbCr images using 3 non-interleaved planes
   // non-zero mSkip value indicates that one of the plane would be interleaved.
-  if (IsWin8OrLater() && !XRE_IsParentProcess() && aAllocator && aAllocator->SupportsD3D11() &&
+  if (IsWin8OrLater() && XRE_IsGPUProcess() && aAllocator && aAllocator->SupportsD3D11() &&
       !ConvertToNV12AtImageHost(aBuffer, aPicture, aAllocator) &&
       aBuffer.mPlanes[0].mSkip == 0 && aBuffer.mPlanes[1].mSkip == 0 &&
       aBuffer.mPlanes[2].mSkip == 0) {
