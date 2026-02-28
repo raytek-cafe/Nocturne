@@ -66,8 +66,11 @@
 
   @media (-moz-platform: windows-win8),
          (-moz-windows-default-theme),
-         (-moz-windows-glass)  {
-      @media not (-moz-windows-classic) {
+           {
+
+  }
+
+         {
       #TabsToolbar {
         color: black;
         --toolbarbutton-icon-fill: currentColor;
@@ -78,8 +81,24 @@
       }
     }
     }
+  
+    @media (-moz-platform: windows-win8),
+           (-moz-windows-glass) {
+    @media (-moz-windows-default-theme) {
+     @media not (-moz-windows-classic) {
+      #TabsToolbar {
+        color: black;
+        --toolbarbutton-icon-fill: currentColor;
+      }
+    }
+    }
+    @media not -moz-pref("sidebar.verticalTabs") {
+    #toolbar-menubar {
+      color: black;
+    }
+    }
   }
-
+  
   @media (-moz-windows-glass) {
     @media not -moz-pref("sidebar.verticalTabs") {
     /* Make the menubar text readable on aero glass (copied from browser-aero.css). */
