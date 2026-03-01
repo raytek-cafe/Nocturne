@@ -45,5 +45,7 @@ Preferences.addAll([
   { id: "browser.tabs.dropToPin.enabled", type: "bool",  inverted: true },
   { id: "browser.taskbarTabs.enabled", type: "bool",  inverted: true },
   { id: "nocturne.ui.oldaboutconfig", type: "bool" },
+  { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
+  { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
 /*  { id: "browser.translations.enable", type: "bool" },*/
 ]);
