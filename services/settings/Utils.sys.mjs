@@ -85,9 +85,11 @@ ChromeUtils.defineLazyGetter(lazy, "allowedCollections", () =>
 );
 
 ChromeUtils.defineLazyGetter(lazy, "allowedCollectionsFromDump", () =>
-  Services.prefs
-    .getStringPref("librewolf.services.settings.allowedCollectionsFromDump", "")
-    .split(",")
+  Services.prefs.getStringPref(
+    "librewolf.services.settings.allowedCollectionsFromDump",
+    "main/search-config-v2,main/search-config-icons"
+  )
+  .split(",")
 );
 
 XPCOMUtils.defineLazyPreferenceGetter(
