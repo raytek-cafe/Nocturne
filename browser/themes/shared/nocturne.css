@@ -20,38 +20,38 @@
 
 @media -moz-pref("nocturne.colors", 1) {
   :root {
-    --arrowpanel-border-color: light-dark(rgb(255, 60, 60), rgb(160, 60, 60)) !important;
-    --toolbar-field-focus-border-color: light-dark(rgb(255, 40, 40), rgb(160, 60, 60)) !important;
-    --sidebar-border-color: light-dark(rgb(255, 60, 60), rgb(160, 60, 60)) !important;
-    --lwt-toolbar-field-highlight: light-dark(rgb(255, 40, 40), rgb(160, 60, 60)) !important;
-    --newtab-primary-action-background: light-dark(rgb(255, 20, 20), rgb(255, 80, 80)) !important;
-    --newtab-primary-action-background-hover: light-dark(rgb(255, 40, 40), rgb(255, 60, 60)) !important;
-    --newtab-primary-action-background-active: light-dark(rgb(255, 40, 40), rgb(255, 40, 40)) !important;
-    --color-accent-primary: light-dark(rgb(255, 20, 20), rgb(255, 60, 60)) !important;
-    --color-accent-primary-hover: light-dark(rgb(255, 60, 60), rgb(255, 80, 80)) !important;
-    --color-accent-primary-active: light-dark(rgb(255, 60, 60), rgb(255, 60, 60)) !important;
-    --link-color: light-dark(rgb(255, 20, 20), rgb(255, 80, 80)) !important;
-    --link-color-hover: light-dark(rgb(255, 20, 20), rgb(255, 80, 80)) !important;
-    --link-color-active: light-dark(rgb(255, 60, 60), rgb(255, 60, 60)) !important;
-    --link-color-visited: light-dark(rgb(255, 20, 20), rgb(255, 80, 80)) !important;
-    --button-primary-bgcolor: light-dark(rgb(255, 20, 20), rgb(255, 100, 100)) !important;
-    --button-primary-hover-bgcolor: light-dark(rgb(255, 60, 60), rgb(255, 80, 80)) !important;
-    --button-primary-active-bgcolor: light-dark(rgb(255, 60, 60), rgb(255, 60, 60)) !important;
-    --toolbarbutton-icon-fill-attention: light-dark(rgb(255, 20, 20), rgb(255, 80, 80)) !important;
-    --download-progress-fill-color: light-dark(rgb(255, 40, 40), rgb(255, 80, 80)) !important;
-    --lwt-tab-line-color: light-dark(rgb(255, 40, 40), rgb(255, 80, 80)) !important;
+    --arrowpanel-border-color: light-dark(rgb(200, 30, 30), rgb(220, 20, 20)) !important;
+    --toolbar-field-focus-border-color: light-dark(rgb(220, 0, 0), rgb(255, 30, 30)) !important;
+    --sidebar-border-color: light-dark(rgb(200, 30, 30), rgb(220, 20, 20)) !important;
+    --lwt-toolbar-field-highlight: light-dark(rgb(220, 0, 0), rgb(255, 30, 30)) !important;
+    --newtab-primary-action-background: light-dark(rgb(220, 0, 0), rgb(220, 0, 0)) !important;
+    --newtab-primary-action-background-hover: light-dark(rgb(240, 20, 20), rgb(255, 30, 30)) !important;
+    --newtab-primary-action-background-active: light-dark(rgb(200, 0, 0), rgb(255, 30, 30)) !important;
+    --color-accent-primary: light-dark(rgb(220, 0, 0), rgb(220, 0, 0)) !important;
+    --color-accent-primary-hover: light-dark(rgb(240, 20, 20), rgb(255, 30, 30)) !important;
+    --color-accent-primary-active: light-dark(rgb(200, 0, 0), rgb(200, 0, 0)) !important;
+    --link-color: light-dark(rgb(220, 0, 0), rgb(220, 0, 0)) !important;
+    --link-color-hover: light-dark(rgb(255, 30, 30), rgb(255, 30, 30)) !important;
+    --link-color-active: light-dark(rgb(200, 0, 0), rgb(200, 0, 0)) !important;
+    --link-color-visited: light-dark(rgb(200, 30, 30), rgb(180, 40, 40)) !important;
+    --button-primary-bgcolor: light-dark(rgb(220, 0, 0), rgb(220, 0, 0)) !important;
+    --button-primary-hover-bgcolor: light-dark(rgb(240, 20, 20), rgb(255, 30, 30)) !important;
+    --button-primary-active-bgcolor: light-dark(rgb(200, 0, 0), rgb(200, 0, 0)) !important;
+    --toolbarbutton-icon-fill-attention: light-dark(rgb(220, 0, 0), rgb(220, 0, 0)) !important;
+    --download-progress-fill-color: light-dark(rgb(220, 0, 0), rgb(255, 30, 30)) !important;
+    --lwt-tab-line-color: light-dark(rgb(200, 0, 0), rgb(200, 0, 0)) !important;
     @media (-moz-content-prefers-color-scheme: dark), (prefers-color-scheme: dark) {
-      --color-accent-primary: rgb(255, 60, 60) !important;
-      --color-accent-primary-hover: rgb(255, 80, 80) !important;
-      --color-accent-primary-active: rgb(255, 60, 60) !important;
+      --color-accent-primary: rgb(220, 0, 0) !important;
+      --color-accent-primary-hover: rgb(255, 30, 30) !important;
+      --color-accent-primary-active: rgb(220, 0, 0) !important;
     }
 
     .urlbar-input::selection, .searchbar-textbox::selection {
-      background: light-dark(rgb(255, 80, 80), rgb(160, 60, 60)) !important;
+      background: light-dark(rgb(200, 30, 30), rgb(255, 60, 60)) !important;
     }
 
     .bookmark-item:is(toolbarbutton)[dragover="true"][open="true"] {
-      background: light-dark(rgb(255, 80, 80), rgb(160, 60, 60)) !important;
+      background: light-dark(rgb(200, 30, 30), rgb(255, 60, 60)) !important;
     }
 
     .tab-drop-indicator {
