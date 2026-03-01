@@ -3644,3 +3644,7 @@ pref("distribution.mozillaonline.ignore", true);
 #ifdef XP_MACOSX
   pref("browser.macAppMenu.setAsDefaultShown", false);
 #endif
+
+// Icon larp stuff
+pref("nocturne.legacyiconbehavior.enabled", true);
+pref("nocturne.smalliconbehavior.enabled", true);
