@@ -46,5 +46,7 @@ Preferences.addAll([
   { id: "browser.urlbar.formatting.enabled", type: "bool",  inverted: true },
   { id: "geo.enabled", type: "bool",  inverted: true },
   { id: "nocturne.ui.oldaboutconfig", type: "bool" },
+  { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
+  { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
 /*  { id: "browser.translations.enable", type: "bool" },*/
 ]);
