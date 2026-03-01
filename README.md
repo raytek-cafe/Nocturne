@@ -36,6 +36,10 @@ Ability to visit websites on ports that Firefox rejects!
 
 Ability to disable e10s! (Experimental and kinda broken)
 
+Ability to revert the icons to use the legacy way (nocturne.legacyiconbehavior.enabled)
+
+Ability to bring back the 16x16 icon back (nocturne.smalliconbehavior.enabled)
+
 ## Credits
 
 If I've forgotten to put your name here, please let me know and I'll add it.

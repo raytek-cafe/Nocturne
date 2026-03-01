@@ -53,6 +53,8 @@ for (let preference of [
   { id: "prompts.tab_modal.sound.enabled", type: "bool" },
   { id: "cookiebanners.service.mode", type: "int" },
   { id: "cookiebanners.service.mode.privateBrowsing", type: "int" },
+  { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
+  { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
   /* { id: "browser.translations.enable", type: "bool" },*/
 ]) {
   if (!Preferences.get(preference.id)) {
