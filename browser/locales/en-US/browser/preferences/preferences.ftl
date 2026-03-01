@@ -220,6 +220,16 @@ nocturne-switch-to-tab =
 
 nocturne-switch-to-tab-desc = This should reverse the behavior of switching to an already open tab in the urlbar (require Shift/Ctrl/Alt to switch to open tab instead of preventing it), however it's a bit buggy currently and just disables it.
 
+nocturne-legacy-icon =
+    .label = Use Separate Icons
+
+nocturne-legacy-icon-desc = When enabled, small icons use icon group ID 32512, while large taskbar icons use icon group ID 1. Useful for legacy IE theme recreations.
+
+nocturne-small-icon =
+    .label = Use 16x16 icons for titlebar and small taskbar
+
+nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
+
 nocturne-advanced-header = Advanced configurations
 
 nocturne-accessibility = Accessibility services

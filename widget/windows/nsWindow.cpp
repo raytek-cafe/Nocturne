@@ -1107,11 +1107,54 @@ const wchar_t kShellLibraryName[] =  L"shell32.dll";
       }
     }
     ::FreeLibrary(hDLL);
-    HICON icon = ::LoadIconW(
-        ::GetModuleHandleW(nullptr),
-        MAKEINTRESOURCEW(usePrivateAumid ? IDI_PBMODE : IDI_APPICON));
-    SetBigIcon(icon);
-    SetSmallIcon(icon);
+    bool loadSmallIconProperly = 
+        Preferences::GetBool("nocturne.smalliconbehavior.enabled", true);
+      bool useSeparateIcons =
+          Preferences::GetBool("nocturne.legacyiconbehavior.enabled", true);
+          
+    if (usePrivateAumid) {
+      HICON icon = ::LoadIconW(::GetModuleHandleW(nullptr),
+                               MAKEINTRESOURCEW(IDI_PBMODE));
+      SetBigIcon(icon);
+      SetSmallIcon(icon);
+    } else {
+      HICON smallIcon;
+      if (loadSmallIconProperly) {
+        smallIcon = (HICON)::LoadImageW(
+            ::GetModuleHandleW(nullptr), MAKEINTRESOURCEW(IDI_APPICON), IMAGE_ICON,
+            ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON),
+            LR_DEFAULTCOLOR);
+      } else {
+        smallIcon = ::LoadIconW(::GetModuleHandleW(nullptr),
+                               MAKEINTRESOURCEW(IDI_APPICON));
+      }
+
+      if (useSeparateIcons) {
+        // @MOD : Recreated the behavior that was in Firefox 128-, Not the exact same code
+        // as it changed how it worked on 129+ but close enough for the purpose that this
+        // is meant to do.
+        // BUGBUG: Never combine + big taskbar is not accurate to how it was in 115/128
+        // BUT most use cases for this is for IE6- larp and that doesn't use the big taskbar
+        // so I won't be fixing that. Just adding this note to remind me that's not accurate.
+        // Load 32512 for small icon if using separate icons
+        if (loadSmallIconProperly) {
+          smallIcon = (HICON)::LoadImageW(
+              ::GetModuleHandleW(nullptr), MAKEINTRESOURCEW(32512), IMAGE_ICON,
+              ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON),
+              LR_DEFAULTCOLOR);
+        } else {
+          smallIcon = ::LoadIconW(::GetModuleHandleW(nullptr),
+                                  MAKEINTRESOURCEW(32512));
+        }
+        SetSmallIcon(smallIcon);
+        SetBigIcon(::LoadIconW(::GetModuleHandleW(nullptr),
+                               MAKEINTRESOURCEW(IDI_APPICON)));
+      } else {
+        SetSmallIcon(smallIcon);
+        SetBigIcon(::LoadIconW(::GetModuleHandleW(nullptr),
+                               MAKEINTRESOURCEW(IDI_APPICON)));
+      }
+    }
   }
 
   // If mDefaultScale is set before mWnd has been set, it will have the scale of
