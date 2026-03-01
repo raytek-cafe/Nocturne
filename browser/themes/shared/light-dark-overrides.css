@@ -63,24 +63,6 @@
       }
     }
   }
-
-  @media (-moz-platform: windows-win8),
-         (-moz-windows-default-theme),
-           {
-
-  }
-
-         {
-      #TabsToolbar {
-        color: black;
-        --toolbarbutton-icon-fill: currentColor;
-      }
-    @media not -moz-pref("sidebar.verticalTabs") {
-    #toolbar-menubar {
-      color: black;
-      }
-    }
-    }
   
     @media (-moz-platform: windows-win8),
            (-moz-windows-glass) {
