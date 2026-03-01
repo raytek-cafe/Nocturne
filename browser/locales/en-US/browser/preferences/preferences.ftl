@@ -287,6 +287,16 @@ nocturne-prompt-header-icon =
 nocturne-prompt-sound =
     .label = Play sounds for native system message box prompts
 
+nocturne-legacy-icon =
+    .label = Use Separate Icons
+
+nocturne-legacy-icon-desc = When enabled, small icons use icon group ID 32512, while large taskbar icons use icon group ID 1. Useful for legacy IE theme recreations.
+
+nocturne-small-icon =
+    .label = Use 16x16 icons for titlebar and small taskbar
+
+nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
+
 nocturne-advanced-header =
     .label = Advanced configurations
 
