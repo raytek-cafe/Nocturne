@@ -271,6 +271,14 @@ mozilla::ipc::IPCResult GMPVideoEncoderParent::RecvEncodedData(
   return IPC_OK();
 }
 
+mozilla::ipc::IPCResult GMPVideoEncoderParent::RecvDroppedFrame(
+    const uint64_t& aTimestamp) {
+  if (mCallback) {
+    mCallback->Dropped(aTimestamp);
+  }
+  return IPC_OK();
+}
+
 mozilla::ipc::IPCResult GMPVideoEncoderParent::RecvError(const GMPErr& aError) {
   if (mCallback) {
     mCallback->Error(aError);

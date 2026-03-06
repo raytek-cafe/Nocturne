@@ -263,8 +263,7 @@ jobs:
           - mozilla-release
           - mozilla-esr140
       when:
-          - {weekday: 'Monday', hour: 8, minute: 0}
-          - {weekday: 'Thursday', hour: 8, minute: 0}
+          - {weekday: 'Monday', hour: 5, minute: 0}
 
     - name: daily-beta-perf
       job:

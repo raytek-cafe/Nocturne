@@ -13,7 +13,6 @@ kind-dependencies:
     - merge-automation
 
 task-defaults:
-    run-on-repo-type: [hg]
     description: mark merge automation as completed in shipit
     worker-type: shipit
     from-deps:

@@ -23,7 +23,7 @@ def make_task_description(config, jobs):
             job,
             "scopes",
             item_name=job["name"],
-            **{"release-level": release_level(config.params)},
+            **{"release-level": release_level(config.params["project"])},
         )
 
         job["worker"]["merge-automation-id"] = merge_automation_id

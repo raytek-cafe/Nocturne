@@ -427,6 +427,24 @@ void GMPVideoEncoder::Encoded(GMPVideoEncodedFrame* aEncodedFrame,
   }
 }
 
+void GMPVideoEncoder::Dropped(uint64_t aTimestamp) {
+  MOZ_ASSERT(IsOnGMPThread());
+
+  RefPtr<EncodePromise::Private> promise;
+  if (!mPendingEncodes.Remove(aTimestamp, getter_AddRefs(promise))) {
+    GMP_LOG_WARNING(
+        "[%p] GMPVideoEncoder::Dropped -- no frame matching timestamp %" PRIu64,
+        this, aTimestamp);
+    return;
+  }
+
+  promise->Resolve(EncodedData(), __func__);
+
+  if (mPendingEncodes.IsEmpty()) {
+    mDrainPromise.ResolveIfExists(EncodedData(), __func__);
+  }
+}
+
 void GMPVideoEncoder::Teardown(const MediaResult& aResult,
                                StaticString aCallSite) {
   GMP_LOG_DEBUG("[%p] GMPVideoEncoder::Teardown", this);

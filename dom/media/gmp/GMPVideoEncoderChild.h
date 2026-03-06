@@ -10,6 +10,7 @@
 #include "mozilla/gmp/PGMPVideoEncoderChild.h"
 #include "gmp-video-encode.h"
 #include "GMPSharedMemManager.h"
+#include "GMPVideoi420FrameImpl.h"
 #include "GMPVideoHost.h"
 
 namespace mozilla::gmp {
@@ -39,6 +40,7 @@ class GMPVideoEncoderChild final : public PGMPVideoEncoderChild,
 
   // GMPSharedMemManager
   void MgrDeallocShmem(Shmem& aMem) override { DeallocShmem(aMem); }
+  void MgrDecodedFrameDestroyed(GMPVideoi420FrameImpl* aFrame) override;
 
  protected:
   bool MgrIsOnOwningThread() const override;
@@ -66,6 +68,7 @@ class GMPVideoEncoderChild final : public PGMPVideoEncoderChild,
   GMPContentChild* mPlugin;
   GMPVideoEncoder* mVideoEncoder;
   GMPVideoHostImpl mVideoHost;
+  uint64_t mLatestEncodedTimestamp = 0;
 };
 
 }  // namespace mozilla::gmp

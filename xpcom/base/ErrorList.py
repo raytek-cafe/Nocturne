@@ -1188,6 +1188,7 @@ with modules["DOM_MEDIA"]:
     errors["NS_ERROR_DOM_MEDIA_RANGE_ERR"] = FAILURE(105)
     errors["NS_ERROR_DOM_MEDIA_TYPE_ERR"] = FAILURE(106)
     errors["NS_ERROR_DOM_MEDIA_MEDIA_ENGINE_INITIALIZATION_ERR"] = FAILURE(107)
+    errors["NS_ERROR_DOM_MEDIA_DROPPED_BY_ENCODER_ERR"] = FAILURE(108)
 
 # =======================================================================
 # 42: NS_ERROR_MODULE_URL_CLASSIFIER
