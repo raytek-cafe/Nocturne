@@ -5,12 +5,12 @@
 # x64 build
 ac_add_options --target=x86_64 
 
-# Please do not redistribute this build with official branding if you are not part of Eclipse Community.
+# Please do not redistribute this build with official branding if you are not part of the project.
 #ac_add_options --enable-official-branding
-#ac_add_options --enable-r3dfox-branding
+#ac_add_options --enable-nocturne-branding
 # For ESR enable the below and disable the above
 ac_add_options --with-branding=browser/branding/esr
-ac_add_options --enable-r3desr-branding
+ac_add_options --enable-nocturneesr-branding
 # For potential nightly experimentation enable the below and disable the above.
 #ac_add_options --with-branding=browser/branding/nightly
 #ac_add_options --enable-plasmafox-branding
