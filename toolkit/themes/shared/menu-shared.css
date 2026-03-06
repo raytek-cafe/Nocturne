@@ -180,6 +180,7 @@ menucaption {
   }
 
   @media (-moz-platform: windows) {
+    appearance: none;
     margin-inline-end: 1em;
   }
 }
