@@ -292,6 +292,119 @@ export class CustomizeMode {
   #moveDownloadsButtonToNavBar = false;
 
   /**
+   * Public getter for the private #window field.
+   * Provides backward compatibility for code that accesses gCustomizeMode.window.
+   *
+   * @type {DOMWindow}
+   */
+  get window() {
+    return this.#window;
+  }
+
+  /**
+   * Public getter for the private #document field.
+   * Provides backward compatibility for code that accesses gCustomizeMode.document.
+   *
+   * @type {Document}
+   */
+  get document() {
+    return this.#document;
+  }
+
+  /**
+   * Public getter for the private #browser field.
+   * Provides backward compatibility for code that accesses gCustomizeMode.browser.
+   *
+   * @type {Tabbrowser}
+   */
+  get browser() {
+    return this.#browser;
+  }
+
+  /**
+   * Public getter for the private #customizing field.
+   * Provides backward compatibility for code that accesses gCustomizeMode._customizing.
+   *
+   * @type {boolean}
+   */
+  get _customizing() {
+    return this.#customizing;
+  }
+
+  /**
+   * Public setter for the private #customizing field.
+   * Provides backward compatibility for code that sets gCustomizeMode._customizing.
+   *
+   * @param {boolean} value
+   *   The new value.
+   */
+  set _customizing(value) {
+    this.#customizing = value;
+  }
+
+  /**
+   * Public getter for the private #transitioning field.
+   * Provides backward compatibility for code that accesses gCustomizeMode._transitioning.
+   *
+   * @type {boolean}
+   */
+  get _transitioning() {
+    return this.#transitioning;
+  }
+
+  /**
+   * Public getter for the private #dragOverItem field.
+   * Provides backward compatibility for code that accesses gCustomizeMode._dragOverItem.
+   *
+   * @type {DOMNode|null}
+   */
+  get _dragOverItem() {
+    return this.#dragOverItem;
+  }
+
+  /**
+   * Public setter for the private #dragOverItem field.
+   * Provides backward compatibility for code that sets gCustomizeMode._dragOverItem.
+   *
+   * @param {DOMNode|null} value
+   *   The new value.
+   */
+  set _dragOverItem(value) {
+    this.#dragOverItem = value;
+  }
+
+  /**
+   * Public getter for the private #dragSizeMap field.
+   * Provides backward compatibility for code that accesses gCustomizeMode._dragSizeMap.
+   *
+   * @type {WeakMap|null}
+   */
+  get _dragSizeMap() {
+    return this.#dragSizeMap;
+  }
+
+  /**
+   * Public setter for the private #dragSizeMap field.
+   * Provides backward compatibility for code that sets gCustomizeMode._dragSizeMap.
+   *
+   * @param {WeakMap|null} value
+   *   The new value.
+   */
+  set _dragSizeMap(value) {
+    this.#dragSizeMap = value;
+  }
+
+  /**
+   * Public getter for the private #stowedPalette field.
+   * Provides backward compatibility for code that accesses gCustomizeMode._stowedPalette.
+   *
+   * @type {DOMNode|null}
+   */
+  get _stowedPalette() {
+    return this.#stowedPalette;
+  }
+
+  /**
    * Returns the CustomizationHandler browser window global object. See
    * browser-customization.js.
    *
@@ -688,6 +801,27 @@ export class CustomizeMode {
       lazy.log.error("Error exiting customize mode", e);
       this.#handler.isExitingCustomizeMode = false;
     });
+  }
+
+  /**
+   * Toggles customize mode. If currently in customize mode, exits it.
+   * If not in customize mode, enters it.
+   *
+   * @returns {undefined}
+   */
+  toggle() {
+    if (
+      this.#handler.isEnteringCustomizeMode ||
+      this.#handler.isExitingCustomizeMode
+    ) {
+      this._wantToBeInCustomizeMode = !this._wantToBeInCustomizeMode;
+      return;
+    }
+    if (this.#customizing) {
+      this.exit();
+    } else {
+      this.enter();
+    }
   }
 
   /**
@@ -2478,6 +2612,19 @@ export class CustomizeMode {
   }
 
   /**
+   * Public wrapper for the private #getBoundsWithoutFlushing method.
+   * This provides backward compatibility for code that expects _getBoundsWithoutFlushing.
+   *
+   * @param {DOMNode} element
+   *   An element for which to get the bounding client rect without flushing.
+   * @returns {DOMRect}
+   *   The bounding client rect.
+   */
+  _getBoundsWithoutFlushing(element) {
+    return this.#getBoundsWithoutFlushing(element);
+  }
+
+  /**
    * Handles the dragstart event on any customizable item in one of the
    * customizable areas.
    *
@@ -2563,6 +2710,17 @@ export class CustomizeMode {
       this._initializeDragAfterMove,
       0
     );
+  }
+
+  /**
+   * Public wrapper for the private #onDragStart method.
+   * This provides backward compatibility for code that expects _onDragStart.
+   *
+   * @param {DragEvent} aEvent
+   *   The dragstart event being handled.
+   */
+  _onDragStart(aEvent) {
+    this.#onDragStart(aEvent);
   }
 
   /**
@@ -2713,6 +2871,19 @@ export class CustomizeMode {
   }
 
   /**
+   * Public wrapper for the private #onDragOver method.
+   * This provides backward compatibility for code that expects _onDragOver.
+   *
+   * @param {DragEvent} aEvent
+   *   The dragover event being handled.
+   * @param {DOMNode} [aOverrideTarget=undefined]
+   *   Optional argument that allows callers to override the dragover target.
+   */
+  _onDragOver(aEvent, aOverrideTarget) {
+    this.#onDragOver(aEvent, aOverrideTarget);
+  }
+
+  /**
    * Handles the drop event on any customizable area.
    *
    * @param {DragEvent} aEvent
@@ -2781,6 +2952,19 @@ export class CustomizeMode {
       Services.prefs.setBoolPref(kDownloadAutoHidePref, false);
       this.#showDownloadsAutoHidePanel();
     }
+  }
+
+  /**
+   * Public wrapper for the private #onDragDrop method.
+   * This provides backward compatibility for code that expects _onDragDrop.
+   *
+   * @param {DragEvent} aEvent
+   *   The drop event being handled.
+   * @param {DOMNode} [aOverrideTarget=undefined]
+   *   Optional argument that allows callers to override the drop target.
+   */
+  _onDragDrop(aEvent, aOverrideTarget) {
+    this.#onDragDrop(aEvent, aOverrideTarget);
   }
 
   /**
@@ -2988,6 +3172,17 @@ export class CustomizeMode {
   }
 
   /**
+   * Public wrapper for the private #onDragLeave method.
+   * This provides backward compatibility for code that expects _onDragLeave.
+   *
+   * @param {DragEvent} aEvent
+   *   The dragleave event being handled.
+   */
+  _onDragLeave(aEvent) {
+    this.#onDragLeave(aEvent);
+  }
+
+  /**
    * Handles the dragleave event on any customizable item being dragged.
    *
    * @param {DragEvent} aEvent
@@ -3041,6 +3236,17 @@ export class CustomizeMode {
   }
 
   /**
+   * Public wrapper for the private #onDragEnd method.
+   * This provides backward compatibility for code that expects _onDragEnd.
+   *
+   * @param {DragEvent} aEvent
+   *   The dragend event being handled.
+   */
+  _onDragEnd(aEvent) {
+    this.#onDragEnd(aEvent);
+  }
+
+  /**
    * True if the drag/drop event comes from a source other than one of our
    * browser windows. This check can be overridden for testing by setting
    * `browser.uiCustomization.skipSourceNodeCheck` to `true`.
@@ -3067,6 +3273,19 @@ export class CustomizeMode {
     // mozSourceNode is null in the dragStart event handler or if
     // the drag event originated in an external application.
     return !mozSourceNode || mozSourceNode.ownerGlobal != this.#window;
+  }
+
+  /**
+   * Public wrapper for the private #isUnwantedDragDrop method.
+   * This provides backward compatibility for code that expects _isUnwantedDragDrop.
+   *
+   * @param {DragEvent} aEvent
+   *   A drag/drop event.
+   * @returns {boolean}
+   *   True if the event should be ignored.
+   */
+  _isUnwantedDragDrop(aEvent) {
+    return this.#isUnwantedDragDrop(aEvent);
   }
 
   /**
@@ -3140,6 +3359,23 @@ export class CustomizeMode {
   }
 
   /**
+   * Public wrapper for the private #setDragActive method.
+   * This provides backward compatibility for code that expects _setDragActive.
+   *
+   * @param {DOMNode} aDraggedOverItem
+   *   A customizable item being dragged over.
+   * @param {string} aValue
+   *   Either "before" or "after" to indicate drag direction.
+   * @param {string} aDraggedItemId
+   *   The ID of the item being dragged.
+   * @param {string} aPlace
+   *   The type of area (e.g., "toolbar", "panel", "palette").
+   */
+  _setDragActive(aDraggedOverItem, aValue, aDraggedItemId, aPlace) {
+    this.#setDragActive(aDraggedOverItem, aValue, aDraggedItemId, aPlace);
+  }
+
+  /**
    * Reverts drag preview effects applied via #setDragActive from a customizable
    * item or area when a drag and drop operation ends.
    *
@@ -3193,6 +3429,22 @@ export class CustomizeMode {
         lazy.DragPositionManager.getManagerForArea(currentArea);
       positionManager.clearPlaceholders(currentArea, aNoTransition);
     }
+  }
+
+  /**
+   * Public wrapper for the private #cancelDragActive method.
+   * This provides backward compatibility for code that expects _cancelDragActive.
+   *
+   * @param {DOMNode} aDraggedOverItem
+   *   The customizable item or area that was being dragged over.
+   * @param {DOMNode} [aNextDraggedOverItem=null]
+   *   If non-null, this is the customizable item or area that is being
+   *   dragged over now instead of aDraggedOverItem.
+   * @param {boolean} [aNoTransition=false]
+   *   True if the reversion should occur without a transition.
+   */
+  _cancelDragActive(aDraggedOverItem, aNextDraggedOverItem, aNoTransition) {
+    this.#cancelDragActive(aDraggedOverItem, aNextDraggedOverItem, aNoTransition);
   }
 
   /**
@@ -3297,6 +3549,21 @@ export class CustomizeMode {
   }
 
   /**
+   * Public wrapper for the private #getDragItemSize method.
+   * This provides backward compatibility for code that expects _getDragItemSize.
+   *
+   * @param {DOMNode} aDragOverNode
+   *   The node currently being dragged over.
+   * @param {DOMNode} aDraggedItem
+   *   The customizable item node currently being dragged.
+   * @returns {object}
+   *   Object with width and height properties.
+   */
+  _getDragItemSize(aDragOverNode, aDraggedItem) {
+    return this.#getDragItemSize(aDragOverNode, aDraggedItem);
+  }
+
+  /**
    * Walks the ancestry of a DOMNode element and finds the first customizable
    * area node in that ancestry, or null if no such customizable area node
    * can be found.
@@ -3322,6 +3589,19 @@ export class CustomizeMode {
     let areas = CustomizableUI.areas;
     areas.push(kPaletteId);
     return aElement.closest(areas.map(a => "#" + CSS.escape(a)).join(","));
+  }
+
+  /**
+   * Public wrapper for the private #getCustomizableParent method.
+   * This provides backward compatibility for code that expects _getCustomizableParent.
+   *
+   * @param {DOMNode} aElement
+   *   The DOMNode for which to find the customizable area parent.
+   * @returns {DOMNode}
+   *   The customizable area parent of aElement.
+   */
+  _getCustomizableParent(aElement) {
+    return this.#getCustomizableParent(aElement);
   }
 
   /**
@@ -3446,6 +3726,19 @@ export class CustomizeMode {
       aElement = aElement.parentNode;
     }
     return aElement;
+  }
+
+  /**
+   * Public wrapper for the private #getWrapper method.
+   * This provides backward compatibility for code that expects _getWrapper.
+   *
+   * @param {DOMNode} aElement
+   *   The customizable item node to get the wrapper for.
+   * @returns {DOMNode|null}
+   *   The toolbarpaletteitem wrapper node, or null if one cannot be found.
+   */
+  _getWrapper(aElement) {
+    return this.#getWrapper(aElement);
   }
 
   /**
