@@ -1,0 +1,32 @@
+name: Feature request
+description: Want to suggest a feature for Nocturne? Share your ideas here!
+labels: [enhancement]
+assignees: []
+
+body:
+  - type: checkboxes
+    attributes:
+      label: Before sending your suggestion
+      description: Before submitting your suggestions, please make sure you meet the following criteria
+      options:
+        - label: I'm on the latest version of Nocturne.
+        - label: I'm sure that this feature cannot be replicated by a theme/JS script.
+
+  - type: input
+    attributes:
+      label: What Operating System are you using the browser on?
+      description: "Example: Windows 10 LTSC 2021 21H2 19044.5011 (INCLUDE ANY TRANSFORMATION PACKS INSTALLED IF ANY)"
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: What would you like to suggest for Nocturne?
+      description: Provide a clear, concise description of the suggestion.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional Context
+      description: Add other context about the suggestion here, such as reference images, etc.
