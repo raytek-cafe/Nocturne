@@ -1,0 +1,11 @@
+name: Other issues
+description: Want to ask a question related to the browser? Ask it here!
+labels: [question]
+assignees: []
+
+body:
+  - type: textarea
+    attributes:
+      label: Ask your question here
+    validations:
+      required: true
