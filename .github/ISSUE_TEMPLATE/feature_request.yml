@@ -21,7 +21,7 @@ body:
 
   - type: textarea
     attributes:
-      label: What would you like to suggest for 21H2to7?
+      label: What would you like to suggest for Nocturne?
       description: Provide a clear, concise description of the suggestion.
     validations:
       required: true
