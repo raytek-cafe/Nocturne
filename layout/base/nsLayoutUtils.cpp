@@ -6711,6 +6711,10 @@ widget::TransparencyMode nsLayoutUtils::GetFrameTransparency(
   StyleAppearance appearance =
       aCSSRootFrame->StyleDisplay()->EffectiveAppearance();
 
+  if (appearance == StyleAppearance::MozWinGlass) {
+    return TransparencyMode::Glass;
+  }
+
   if (appearance == StyleAppearance::MozWinBorderlessGlass) {
     return TransparencyMode::BorderlessGlass;
   }
