@@ -5704,7 +5704,30 @@ PresShell::CanvasBackground PresShell::ComputeCanvasBackground() const {
     return {{color, false}, {color, false}};
   }
 
-  auto viewportBg = ComputeSingleCanvasBackground(canvas);
+  nsIFrame* rootStyleFrame = const_cast<nsIFrame*>(nsCSSRendering::FindBackgroundFrame(canvas));
+  const ComputedStyle* bgStyle =
+      nsCSSRendering::FindRootFrameBackground(rootStyleFrame);
+  // XXX We should really be passing the canvasframe, not the root element
+  // style frame but we don't have access to the canvasframe here. It isn't
+  // a problem because only a few frames can return something other than true
+  // and none of them would be a canvas frame or root element style frame.
+  nscolor color = NS_RGBA(0, 0, 0, 0);
+  bool drawBackgroundImage = false;
+  bool drawBackgroundColor = false;
+  const nsStyleDisplay* disp = rootStyleFrame->StyleDisplay();
+  StyleAppearance appearance = disp->EffectiveAppearance();
+  if (rootStyleFrame->IsThemed(disp) &&
+      appearance != StyleAppearance::MozWinGlass &&
+      appearance != StyleAppearance::MozWinBorderlessGlass) {
+    // Ignore the CSS background-color if -moz-appearance is used and it is
+    // not one of the glass values. (Windows 7 Glass has traditionally not
+    // overridden background colors, so we preserve that behavior for now.)
+  } else {
+    color = nsCSSRendering::DetermineBackgroundColor(
+        mPresContext, bgStyle, rootStyleFrame, drawBackgroundImage,
+        drawBackgroundColor);
+  }
+  SingleCanvasBackground viewportBg = {color, drawBackgroundColor};
   if (!IsTransparentContainerElement()) {
     viewportBg.mColor =
         NS_ComposeColors(GetDefaultBackgroundColorToDraw(), viewportBg.mColor);
