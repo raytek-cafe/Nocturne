@@ -299,7 +299,10 @@ bool InProcessWinCompositorWidget::GetWindowIsFullyOccluded() const {
 bool InProcessWinCompositorWidget::HasGlass() const {
   MOZ_ASSERT(layers::CompositorThreadHolder::IsInCompositorThread() ||
              wr::RenderThread::IsInRenderThread());
-  return TransparencyModeIs(TransparencyMode::BorderlessGlass);
+
+  TransparencyMode transparencyMode = TransparencyMode(uint32_t(mTransparencyMode));
+  return transparencyMode == TransparencyMode::Glass ||
+         transparencyMode == TransparencyMode::BorderlessGlass;
 }
 
 void InProcessWinCompositorWidget::ClearTransparentWindow() {

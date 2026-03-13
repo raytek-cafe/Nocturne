@@ -933,6 +933,7 @@ mozilla::Maybe<nsUXThemeClass> nsNativeThemeWin::GetThemeClass(
     case StyleAppearance::MozWindowButtonRestore:
     case StyleAppearance::MozWindowButtonBox:
     case StyleAppearance::MozWindowButtonBoxMaximized:
+    case StyleAppearance::MozWinGlass:
     case StyleAppearance::MozWinBorderlessGlass:
       return Some(eUXWindowFrame);
     default:
@@ -1619,6 +1620,7 @@ nsresult nsNativeThemeWin::GetThemePartAndState(nsIFrame* aFrame,
       return NS_OK;
     case StyleAppearance::MozWindowButtonBox:
     case StyleAppearance::MozWindowButtonBoxMaximized:
+    case StyleAppearance::MozWinGlass:
     case StyleAppearance::MozWinBorderlessGlass:
       aPart = -1;
       aState = 0;
@@ -1695,6 +1697,7 @@ void nsNativeThemeWin::DrawWidgetBackground(
         // through here and call the theme library we'll get aero
         // basic bitmaps.
         return;
+      case StyleAppearance::MozWinGlass:
       case StyleAppearance::MozWinBorderlessGlass:
         // Nothing to draw, this is the glass background.
         return;
@@ -2125,6 +2128,7 @@ LayoutDeviceIntMargin nsNativeThemeWin::GetWidgetBorder(
       aAppearance == StyleAppearance::Separator ||
       aAppearance == StyleAppearance::MozWindowTitlebar ||
       aAppearance == StyleAppearance::MozWindowTitlebarMaximized ||
+      aAppearance == StyleAppearance::MozWinGlass ||
       aAppearance == StyleAppearance::MozWinBorderlessGlass) {
     return result;  // Don't worry about it.
   }
@@ -2432,6 +2436,7 @@ LayoutDeviceIntSize nsNativeThemeWin::GetMinimumWidgetSize(
     case StyleAppearance::Listbox:
     case StyleAppearance::Treeview:
     case StyleAppearance::Menuitemtext:
+    case StyleAppearance::MozWinGlass:
     case StyleAppearance::MozWinBorderlessGlass:
       return {};  // Don't worry about it.
     default:
@@ -2647,6 +2652,7 @@ bool nsNativeThemeWin::WidgetAttributeChangeRequiresRepaint(
       aAppearance == StyleAppearance::Tabpanels ||
       aAppearance == StyleAppearance::Tabpanel ||
       aAppearance == StyleAppearance::Separator ||
+      aAppearance == StyleAppearance::MozWinGlass ||
       aAppearance == StyleAppearance::MozWinBorderlessGlass) {
     return false;
   }
@@ -2773,14 +2779,7 @@ nsITheme::Transparency nsNativeThemeWin::GetWidgetTransparency(
   }
 
   switch (aAppearance) {
-    case StyleAppearance::Resizer: {
-      // The classic native resizer has an opaque grey background which doesn't
-      // match the usually white background of the scrollable container, so
-      // only support the native resizer if not in a scrollframe.
-      nsIFrame* parentFrame = aFrame->GetParent();
-      return (!parentFrame || !parentFrame->IsScrollContainerFrame()) ? eTransparent
-                                                             : eOpaque;
-    }
+    case StyleAppearance::MozWinGlass:
     case StyleAppearance::MozWinBorderlessGlass:
     case StyleAppearance::ProgressBar:
     case StyleAppearance::Progresschunk:
