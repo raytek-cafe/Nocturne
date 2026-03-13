@@ -234,6 +234,11 @@ RemoteAccessible* DocAccessibleParent::CreateAcc(
     return nullptr;
   }
 
+  if (aAccData.GenericTypes() & eDocument) {
+    MOZ_ASSERT_UNREACHABLE("Invalid acc type");
+    return nullptr;
+  }
+
   newProxy = new RemoteAccessible(aAccData.ID(), this, aAccData.Role(),
                                   aAccData.Type(), aAccData.GenericTypes(),
                                   aAccData.RoleMapEntryIndex());

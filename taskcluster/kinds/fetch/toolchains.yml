@@ -173,13 +173,13 @@ wix-3.14.0:
         sha256: 13f067f38969faf163d93a804b48ea0576790a202c8f10291f2000f0e356e934
         size: 41282726
 
-zlib-1.3.1:
-    description: zlib 1.3.1 source code
+zlib-1.3.2:
+    description: zlib 1.3.2 source code
     fetch:
         type: static-url
-        url: https://zlib.net/fossils/zlib-1.3.1.tar.gz
-        sha256: 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
-        size: 1512791
+        url: https://github.com/madler/zlib/releases/download/v1.3.2/zlib-1.3.2.tar.xz
+        sha256: d7a0654783a4da529d1bb793b7ad9c3318020af77667bcae35f95d0e42a792f3
+        size: 1320064
 
 nsis-3.07:
     description: nsis 3.07 source code

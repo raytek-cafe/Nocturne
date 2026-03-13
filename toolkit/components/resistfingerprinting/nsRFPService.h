@@ -112,7 +112,7 @@ class KeyboardHashKey : public PLDHashEntryHdr {
   typedef const KeyboardHashKey* KeyTypePointer;
 
   KeyboardHashKey(const KeyboardLangs aLang, const KeyboardRegions aRegion,
-                  const KeyNameIndexType aKeyIdx, const nsAString& aKey);
+                  const KeyNameIndex aKeyIdx, const nsAString& aKey);
 
   explicit KeyboardHashKey(KeyTypePointer aOther);
 
@@ -130,7 +130,7 @@ class KeyboardHashKey : public PLDHashEntryHdr {
 
   KeyboardLangs mLang;
   KeyboardRegions mRegion;
-  KeyNameIndexType mKeyIdx;
+  KeyNameIndex mKeyIdx;
   nsString mKey;
 };
 

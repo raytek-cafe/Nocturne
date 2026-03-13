@@ -31,6 +31,12 @@ struct ParamTraits<mozilla::EventMessage>
           mozilla::EventMessage::eEventMessage_MaxValue> {};
 
 template <>
+struct ParamTraits<mozilla::EventClassID>
+    : public ContiguousEnumSerializer<
+          mozilla::EventClassID, mozilla::EventClassID(0),
+          mozilla::EventClassID::eEventClassID_MaxValue> {};
+
+template <>
 struct ParamTraits<mozilla::BaseEventFlags> {
   using paramType = mozilla::BaseEventFlags;
 
@@ -51,7 +57,7 @@ struct ParamTraits<mozilla::WidgetEvent> {
     // Mark the event as posted to another process.
     const_cast<mozilla::WidgetEvent&>(aParam).MarkAsPostedToRemoteProcess();
 
-    WriteParam(aWriter, static_cast<mozilla::EventClassIDType>(aParam.mClass));
+    WriteParam(aWriter, aParam.mClass);
     WriteParam(aWriter, aParam.mMessage);
     WriteParam(aWriter, aParam.mRefPoint);
     WriteParam(aWriter, aParam.mFocusSequenceNumber);
@@ -61,15 +67,13 @@ struct ParamTraits<mozilla::WidgetEvent> {
   }
 
   static bool Read(MessageReader* aReader, paramType* aResult) {
-    mozilla::EventClassIDType eventClassID = 0;
-    bool ret = ReadParam(aReader, &eventClassID) &&
-               ReadParam(aReader, &aResult->mMessage) &&
-               ReadParam(aReader, &aResult->mRefPoint) &&
-               ReadParam(aReader, &aResult->mFocusSequenceNumber) &&
-               ReadParam(aReader, &aResult->mTimeStamp) &&
-               ReadParam(aReader, &aResult->mFlags) &&
-               ReadParam(aReader, &aResult->mLayersId);
-    aResult->mClass = static_cast<mozilla::EventClassID>(eventClassID);
+    const bool ret = ReadParam(aReader, &aResult->mClass) &&
+                     ReadParam(aReader, &aResult->mMessage) &&
+                     ReadParam(aReader, &aResult->mRefPoint) &&
+                     ReadParam(aReader, &aResult->mFocusSequenceNumber) &&
+                     ReadParam(aReader, &aResult->mTimeStamp) &&
+                     ReadParam(aReader, &aResult->mFlags) &&
+                     ReadParam(aReader, &aResult->mLayersId);
     if (ret) {
       // Reset cross process dispatching state here because the event has not
       // been dispatched to different process from current process.
@@ -132,6 +136,13 @@ struct ParamTraits<mozilla::WidgetMouseEventBase> {
 };
 
 template <>
+struct ParamTraits<mozilla::WidgetWheelEvent::ScrollType>
+    : public ContiguousEnumSerializerInclusive<
+          mozilla::WidgetWheelEvent::ScrollType,
+          mozilla::WidgetWheelEvent::SCROLL_DEFAULT,
+          mozilla::WidgetWheelEvent::SCROLL_SMOOTHLY> {};
+
+template <>
 struct ParamTraits<mozilla::WidgetWheelEvent> {
   using paramType = mozilla::WidgetWheelEvent;
 
@@ -150,7 +161,7 @@ struct ParamTraits<mozilla::WidgetWheelEvent> {
     WriteParam(aWriter, aParam.mIsNoLineOrPageDelta);
     WriteParam(aWriter, aParam.mLineOrPageDeltaX);
     WriteParam(aWriter, aParam.mLineOrPageDeltaY);
-    WriteParam(aWriter, static_cast<uint8_t>(aParam.mScrollType));
+    WriteParam(aWriter, aParam.mScrollType);
     WriteParam(aWriter, aParam.mOverflowDeltaX);
     WriteParam(aWriter, aParam.mOverflowDeltaY);
     WriteParam(aWriter, aParam.mViewPortIsOverscrolled);
@@ -160,32 +171,28 @@ struct ParamTraits<mozilla::WidgetWheelEvent> {
   }
 
   static bool Read(MessageReader* aReader, paramType* aResult) {
-    uint8_t scrollType = 0;
-    bool rv = ReadParam(aReader,
-                        static_cast<mozilla::WidgetMouseEventBase*>(aResult)) &&
-              ReadParam(aReader, &aResult->mDeltaX) &&
-              ReadParam(aReader, &aResult->mDeltaY) &&
-              ReadParam(aReader, &aResult->mDeltaZ) &&
-              ReadParam(aReader, &aResult->mDeltaMode) &&
-              ReadParam(aReader, &aResult->mWheelTicksX) &&
-              ReadParam(aReader, &aResult->mWheelTicksY) &&
-              ReadParam(aReader, &aResult->mCustomizedByUserPrefs) &&
-              ReadParam(aReader, &aResult->mMayHaveMomentum) &&
-              ReadParam(aReader, &aResult->mIsMomentum) &&
-              ReadParam(aReader, &aResult->mIsNoLineOrPageDelta) &&
-              ReadParam(aReader, &aResult->mLineOrPageDeltaX) &&
-              ReadParam(aReader, &aResult->mLineOrPageDeltaY) &&
-              ReadParam(aReader, &scrollType) &&
-              ReadParam(aReader, &aResult->mOverflowDeltaX) &&
-              ReadParam(aReader, &aResult->mOverflowDeltaY) &&
-              ReadParam(aReader, &aResult->mViewPortIsOverscrolled) &&
-              ReadParam(aReader, &aResult->mCanTriggerSwipe) &&
-              ReadParam(aReader, &aResult->mAllowToOverrideSystemScrollSpeed) &&
-              ReadParam(aReader,
-                        &aResult->mDeltaValuesHorizontalizedForDefaultHandler);
-    aResult->mScrollType =
-        static_cast<mozilla::WidgetWheelEvent::ScrollType>(scrollType);
-    return rv;
+    return ReadParam(aReader,
+                     static_cast<mozilla::WidgetMouseEventBase*>(aResult)) &&
+           ReadParam(aReader, &aResult->mDeltaX) &&
+           ReadParam(aReader, &aResult->mDeltaY) &&
+           ReadParam(aReader, &aResult->mDeltaZ) &&
+           ReadParam(aReader, &aResult->mDeltaMode) &&
+           ReadParam(aReader, &aResult->mWheelTicksX) &&
+           ReadParam(aReader, &aResult->mWheelTicksY) &&
+           ReadParam(aReader, &aResult->mCustomizedByUserPrefs) &&
+           ReadParam(aReader, &aResult->mMayHaveMomentum) &&
+           ReadParam(aReader, &aResult->mIsMomentum) &&
+           ReadParam(aReader, &aResult->mIsNoLineOrPageDelta) &&
+           ReadParam(aReader, &aResult->mLineOrPageDeltaX) &&
+           ReadParam(aReader, &aResult->mLineOrPageDeltaY) &&
+           ReadParam(aReader, &aResult->mScrollType) &&
+           ReadParam(aReader, &aResult->mOverflowDeltaX) &&
+           ReadParam(aReader, &aResult->mOverflowDeltaY) &&
+           ReadParam(aReader, &aResult->mViewPortIsOverscrolled) &&
+           ReadParam(aReader, &aResult->mCanTriggerSwipe) &&
+           ReadParam(aReader, &aResult->mAllowToOverrideSystemScrollSpeed) &&
+           ReadParam(aReader,
+                     &aResult->mDeltaValuesHorizontalizedForDefaultHandler);
   }
 };
 
@@ -215,6 +222,26 @@ struct ParamTraits<mozilla::WidgetPointerHelper> {
 };
 
 template <>
+struct ParamTraits<mozilla::WidgetMouseEvent::Reason>
+    : public ContiguousEnumSerializerInclusive<
+          mozilla::WidgetMouseEvent::Reason, mozilla::WidgetMouseEvent::eReal,
+          mozilla::WidgetMouseEvent::eSynthesized> {};
+
+template <>
+struct ParamTraits<mozilla::WidgetMouseEvent::ContextMenuTrigger>
+    : public ContiguousEnumSerializerInclusive<
+          mozilla::WidgetMouseEvent::ContextMenuTrigger,
+          mozilla::WidgetMouseEvent::eNormal,
+          mozilla::WidgetMouseEvent::eControlClick> {};
+
+template <>
+struct ParamTraits<mozilla::WidgetMouseEvent::ExitFrom>
+    : public ContiguousEnumSerializerInclusive<
+          mozilla::WidgetMouseEvent::ExitFrom,
+          mozilla::WidgetMouseEvent::ePlatformChild,
+          mozilla::WidgetMouseEvent::ePuppetParentToPuppetChild> {};
+
+template <>
 struct ParamTraits<mozilla::WidgetMouseEvent> {
   using paramType = mozilla::WidgetMouseEvent;
 
@@ -235,40 +262,23 @@ struct ParamTraits<mozilla::WidgetMouseEvent> {
                static_cast<const mozilla::WidgetPointerHelper&>(aParam));
     WriteParam(aWriter, aParam.mIgnoreRootScrollFrame);
     WriteParam(aWriter, aParam.mClickEventPrevented);
-    WriteParam(aWriter, static_cast<paramType::ReasonType>(aParam.mReason));
-    WriteParam(aWriter, static_cast<paramType::ContextMenuTriggerType>(
-                            aParam.mContextMenuTrigger));
-    WriteParam(aWriter, aParam.mExitFrom.isSome());
-    if (aParam.mExitFrom.isSome()) {
-      WriteParam(aWriter, static_cast<paramType::ExitFromType>(
-                              aParam.mExitFrom.value()));
-    }
+    WriteParam(aWriter, aParam.mReason);
+    WriteParam(aWriter, aParam.mContextMenuTrigger);
+    WriteParam(aWriter, aParam.mExitFrom);
     WriteParam(aWriter, aParam.mClickCount);
   }
 
   static bool Read(MessageReader* aReader, paramType* aResult) {
-    bool rv;
-    paramType::ReasonType reason = 0;
-    paramType::ContextMenuTriggerType contextMenuTrigger = 0;
-    bool hasExitFrom = false;
-    rv = ReadParam(aReader,
-                   static_cast<mozilla::WidgetMouseEventBase*>(aResult)) &&
-         ReadParam(aReader,
-                   static_cast<mozilla::WidgetPointerHelper*>(aResult)) &&
-         ReadParam(aReader, &aResult->mIgnoreRootScrollFrame) &&
-         ReadParam(aReader, &aResult->mClickEventPrevented) &&
-         ReadParam(aReader, &reason) && ReadParam(aReader, &contextMenuTrigger);
-    aResult->mReason = static_cast<paramType::Reason>(reason);
-    aResult->mContextMenuTrigger =
-        static_cast<paramType::ContextMenuTrigger>(contextMenuTrigger);
-    rv = rv && ReadParam(aReader, &hasExitFrom);
-    if (hasExitFrom) {
-      paramType::ExitFromType exitFrom = 0;
-      rv = rv && ReadParam(aReader, &exitFrom);
-      aResult->mExitFrom = Some(static_cast<paramType::ExitFrom>(exitFrom));
-    }
-    rv = rv && ReadParam(aReader, &aResult->mClickCount);
-    return rv;
+    return ReadParam(aReader,
+                     static_cast<mozilla::WidgetMouseEventBase*>(aResult)) &&
+           ReadParam(aReader,
+                     static_cast<mozilla::WidgetPointerHelper*>(aResult)) &&
+           ReadParam(aReader, &aResult->mIgnoreRootScrollFrame) &&
+           ReadParam(aReader, &aResult->mClickEventPrevented) &&
+           ReadParam(aReader, &aResult->mReason) &&
+           ReadParam(aReader, &aResult->mContextMenuTrigger) &&
+           ReadParam(aReader, &aResult->mExitFrom) &&
+           ReadParam(aReader, &aResult->mClickCount);
   }
 };
 
@@ -424,15 +434,25 @@ struct ParamTraits<mozilla::ShortcutKeyCandidate> {
 };
 
 template <>
+struct ParamTraits<mozilla::KeyNameIndex>
+    : public ContiguousEnumSerializerInclusive<
+          mozilla::KeyNameIndex, static_cast<mozilla::KeyNameIndex>(0),
+          mozilla::KeyNameIndex::KEY_NAME_INDEX_USE_STRING> {};
+
+template <>
+struct ParamTraits<mozilla::CodeNameIndex>
+    : public ContiguousEnumSerializerInclusive<
+          mozilla::CodeNameIndex, static_cast<mozilla::CodeNameIndex>(0),
+          mozilla::CodeNameIndex::CODE_NAME_INDEX_USE_STRING> {};
+
+template <>
 struct ParamTraits<mozilla::WidgetKeyboardEvent> {
   using paramType = mozilla::WidgetKeyboardEvent;
 
   static void Write(MessageWriter* aWriter, const paramType& aParam) {
     WriteParam(aWriter, static_cast<const mozilla::WidgetInputEvent&>(aParam));
-    WriteParam(aWriter,
-               static_cast<mozilla::KeyNameIndexType>(aParam.mKeyNameIndex));
-    WriteParam(aWriter,
-               static_cast<mozilla::CodeNameIndexType>(aParam.mCodeNameIndex));
+    WriteParam(aWriter, aParam.mKeyNameIndex);
+    WriteParam(aWriter, aParam.mCodeNameIndex);
     WriteParam(aWriter, aParam.mKeyValue);
     WriteParam(aWriter, aParam.mCodeValue);
     WriteParam(aWriter, aParam.mKeyCode);
@@ -457,11 +477,9 @@ struct ParamTraits<mozilla::WidgetKeyboardEvent> {
   }
 
   static bool Read(MessageReader* aReader, paramType* aResult) {
-    mozilla::KeyNameIndexType keyNameIndex = 0;
-    mozilla::CodeNameIndexType codeNameIndex = 0;
     if (ReadParam(aReader, static_cast<mozilla::WidgetInputEvent*>(aResult)) &&
-        ReadParam(aReader, &keyNameIndex) &&
-        ReadParam(aReader, &codeNameIndex) &&
+        ReadParam(aReader, &aResult->mKeyNameIndex) &&
+        ReadParam(aReader, &aResult->mCodeNameIndex) &&
         ReadParam(aReader, &aResult->mKeyValue) &&
         ReadParam(aReader, &aResult->mCodeValue) &&
         ReadParam(aReader, &aResult->mKeyCode) &&
@@ -482,9 +500,6 @@ struct ParamTraits<mozilla::WidgetKeyboardEvent> {
                   &aResult->mEditCommandsForMultiLineEditorInitialized) &&
         ReadParam(aReader,
                   &aResult->mEditCommandsForRichTextEditorInitialized)) {
-      aResult->mKeyNameIndex = static_cast<mozilla::KeyNameIndex>(keyNameIndex);
-      aResult->mCodeNameIndex =
-          static_cast<mozilla::CodeNameIndex>(codeNameIndex);
       aResult->mNativeKeyEvent = nullptr;
       return true;
     }
