@@ -40,6 +40,8 @@ Ability to revert the icons to use the legacy way (nocturne.legacyiconbehavior.e
 
 Ability to bring back the 16x16 icon back (nocturne.smalliconbehavior.enabled)
 
+Reimplemented -moz-win-glass for a glass look with borders
+
 ## Credits
 
 If I've forgotten to put your name here, please let me know and I'll add it.
