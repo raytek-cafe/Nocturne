@@ -3485,6 +3485,8 @@ void nsWindow::UpdateGlass() {
         margins.cxRightWidth += kGlassMarginAdjustment;
         margins.cyBottomHeight += kGlassMarginAdjustment;
       }
+      [[fallthrough]];
+    case TransparencyMode::Glass:
       policy = DWMNCRP_ENABLED;
       break;
     default:
