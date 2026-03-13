@@ -522,7 +522,8 @@ class nsWindow final : public nsBaseWidget,
   HRGN ExcludeNonClientFromPaintRegion(HRGN aRegion);
   static const wchar_t* GetMainWindowClass();
   bool HasGlass() const {
-    return mTransparencyMode == TransparencyMode::BorderlessGlass;
+    return mTransparencyMode == TransparencyMode::Glass ||
+           mTransparencyMode == TransparencyMode::BorderlessGlass;
   }
   HWND GetOwnerWnd() const { return ::GetWindow(mWnd, GW_OWNER); }
   bool IsOwnerForegroundWindow() const {

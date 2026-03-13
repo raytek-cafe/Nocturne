@@ -3725,7 +3725,8 @@ void nsDisplayThemedBackground::Init(nsDisplayListBuilder* aBuilder) {
     RegisterThemeGeometry(aBuilder, this, StyleFrame(), type);
   }
 
-  if (mAppearance == StyleAppearance::MozWinBorderlessGlass) {
+  if (mAppearance == StyleAppearance::MozWinBorderlessGlass ||
+      mAppearance == StyleAppearance::MozWinGlass) {
     aBuilder->SetGlassDisplayItem(this);
   }
 
@@ -3760,7 +3761,8 @@ nsRegion nsDisplayThemedBackground::GetOpaqueRegion(
 
 Maybe<nscolor> nsDisplayThemedBackground::IsUniform(
     nsDisplayListBuilder* aBuilder) const {
-  if (mAppearance == StyleAppearance::MozWinBorderlessGlass) {
+  if (mAppearance == StyleAppearance::MozWinBorderlessGlass ||
+      mAppearance == StyleAppearance::MozWinGlass) {
     return Some(NS_RGBA(0, 0, 0, 0));
   }
   return Nothing();

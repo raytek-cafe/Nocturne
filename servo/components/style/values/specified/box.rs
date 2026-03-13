@@ -1665,6 +1665,9 @@ pub enum Appearance {
     MozWinMediaToolbox,
     #[parse(condition = "ParserContext::chrome_rules_enabled")]
     MozWinBrowsertabbarToolbox,
+    /// Vista glass.
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    MozWinGlass,
     #[parse(condition = "ParserContext::chrome_rules_enabled")]
     MozWinBorderlessGlass,
     /// -moz-apperance style used in setting proper glass margins.

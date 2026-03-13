@@ -153,8 +153,12 @@ typedef void* nsNativeWidget;
 #define MOZ_WIDGET_INVALID_SCALE 0.0
 
 // Must be kept in sync with xpcom/rust/xpcom/src/interfaces/nonidl.rs
-#define NS_IWIDGET_IID \
-  {0x06396bf6, 0x2dd8, 0x45e5, {0xac, 0x45, 0x75, 0x26, 0x53, 0xb1, 0xc9, 0x80}}
+#define NS_IWIDGET_IID                               \
+  {                                                  \
+    0x06396bf6, 0x2dd8, 0x45e5, {                    \
+      0xac, 0x45, 0x75, 0x26, 0x53, 0xb1, 0xc9, 0x80 \
+    }                                                \
+  }
 
 /**
  * Cursor types.

@@ -316,10 +316,21 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
       return false;
     }
 
-    if (mTransparencyMode == TransparencyMode::Transparent) {
-      // If we're rendering with translucency, we're going to be
-      // rendering the whole window; make sure we clear it first
-      dt->ClearRect(Rect(dt->GetRect()));
+    // don't need to double buffer with anything but GDI
+    switch (mTransparencyMode) {
+      case TransparencyMode::Glass:
+      case TransparencyMode::BorderlessGlass:
+        // For glass/transparent backgrounds, we need special handling
+        // but don't need to clear the rect like with Transparent mode
+        break;
+      case TransparencyMode::Transparent:
+        // If we're rendering with translucency, we're going to be
+        // rendering the whole window; make sure we clear it first
+        dt->ClearRect(Rect(dt->GetRect()));
+        break;
+      default:
+        // For opaque windows, no special handling needed
+        break;
     }
 
     gfxContext thebesContext(dt);
