@@ -58,7 +58,7 @@ aubymori & ephemeralviolette - Classic about:config, disabled launcher process, 
 
 bbc-chi - Fullscreen transition fix
 
-Erizur - Improved native titlebar and modern mode from Marble browser
+Erizur - Improved native titlebar, modern mode and some misc fixes from Marble browser
 
 K4sum1 - J’ai repris certains patchs que je ne savais pas comment améliorer, ou qui ne contenaient tout simplement rien que je puisse améliorer, puisque je m’étais à l’origine basé sur leur branche forkée.
 
