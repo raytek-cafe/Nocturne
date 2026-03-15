@@ -54,7 +54,7 @@ aubymori & ephemeralviolette - Classic about:config, disabled launcher process, 
 
 bbc-chi - Fullscreen transition fix
 
-Erizur - Improved native titlebar and modern mode from Marble browser
+Erizur - Improved native titlebar, modern mode and some misc fixes from Marble browser
 
 Feodor2 - Portable mode and Vista compatibility changes from Mypal68
 
