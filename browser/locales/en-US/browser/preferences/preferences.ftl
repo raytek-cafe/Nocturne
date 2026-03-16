@@ -230,6 +230,11 @@ nocturne-small-icon =
 
 nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
 
+nocturne-ff68-download-icons =
+    .label = Use Firefox 68-style download icons
+
+nocturne-ff68-download-icons-desc = When enabled, downloads will use the custom folder and retry icons from Firefox 68. When disabled, it uses the proton ones instead.
+
 nocturne-advanced-header = Advanced configurations
 
 nocturne-accessibility = Accessibility services

@@ -48,5 +48,6 @@ Preferences.addAll([
   { id: "nocturne.ui.oldaboutconfig", type: "bool" },
   { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
   { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
+  { id: "nocturne.ui.ff68downloadicons", type: "bool" },
 /*  { id: "browser.translations.enable", type: "bool" },*/
 ]);
