@@ -84,7 +84,7 @@
 }
 
 .downloadIconShow > .button-box > .button-icon {
-  list-style-image: url("chrome://global/skin/icons/download-folder.svg");
+  list-style-image: url("chrome://global/skin/icons/folder.svg");
 }
 
 @media (-moz-platform: macos) {
@@ -94,5 +94,21 @@
 }
 
 .downloadIconRetry > .button-box > .button-icon {
-  list-style-image: url("chrome://global/skin/icons/download-retry.svg");
+  list-style-image: url("chrome://global/skin/icons/reload.svg");
+}
+
+@media -moz-pref("nocturne.ui.ff68downloadicons", true) {
+  .downloadIconShow > .button-box > .button-icon {
+    list-style-image: url("chrome://global/skin/icons/download-folder.svg");
+  }
+
+  @media (-moz-platform: macos) {
+    .downloadIconShow > .button-box > .button-icon {
+      list-style-image: url("chrome://global/skin/icons/search-glass.svg");
+    }
+  }
+
+  .downloadIconRetry > .button-box > .button-icon {
+    list-style-image: url("chrome://global/skin/icons/download-retry.svg");
+  }
 }
