@@ -14,6 +14,13 @@
     color-scheme: dark;
   }
 
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media not -moz-pref("sidebar.revamp") {
+    /* Clear any order property that might be set by the new sidebar code */
+    order: initial !important;
+  }
+
+  /* stylelint-disable-next-line media-query-no-invalid */
   @media -moz-pref("sidebar.revamp") {
     min-width: var(--size-layout-small);
     width: 340px;
@@ -93,14 +100,23 @@
     border-radius: var(--border-radius-large);
   }
 
-  min-width: 1px;
-  width: var(--splitter-width);
-  appearance: none;
-  border: none;
-  transition: background-color 0.5s ease-in-out;
-  margin-inline: 0;
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media not -moz-pref("sidebar.revamp") {
+    /* Clear any order property that might be set by the new sidebar code */
+    order: initial !important;
+  }
 
-  @media -moz-pref("sidebar.revamp") {
+  /* stylelint-disable-next-line media-query-no-invalid */
+  @media -moz-pref("sidebar.revamp") or (not (-moz-platform: linux)) {
+    /* We don't let the splitter overlap the sidebar on Linux since the sidebar's
+    scrollbar is too narrow on Linux. */
+    appearance: none;
+    border: 0 solid;
+    border-inline-end-width: 1px;
+    border-color: var(--sidebar-border-color);
+    min-width: 1px;
+    width: var(--splitter-width);
+    background-image: none !important;
     background-color: transparent;
     &:hover {
       background-color: var(--focus-outline-color);
@@ -280,7 +296,29 @@ sidebar-main,
   translate: 0;
 }
 
-#sidebar-container {
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("sidebar.revamp") {
+  #browser[sidebar-position="start"] {
+    /* Sidebar on left */
+    flex-direction: row;
+  }
+
+  #browser[sidebar-position="end"] {
+    /* Sidebar on right */
+    flex-direction: row-reverse;
+  }
+
+  /* Clear any order property that might be set by the new sidebar code for legacy sidebar */
+  #tabbrowser-tabbox,
+  #sidebar-main,
+  #sidebar-launcher-splitter,
+  #sidebar-box,
+  #sidebar-splitter {
+    order: initial !important;
+  }
+}
+
+#sidebar-main {
   /* Prevent overflow during sidebar animation when the sidebar is reordered */
   overflow: clip;
 
