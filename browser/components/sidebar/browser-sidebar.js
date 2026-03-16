@@ -720,6 +720,46 @@ var SidebarController = {
    * appropriately within the browser container.
    */
   setPosition() {
+    // For the legacy sidebar (when sidebar.revamp is false), use the stock
+    // Firefox positioning behavior with natural DOM order
+    if (!this.sidebarRevampEnabled) {
+      // Clear any order properties that might have been set by the new sidebar
+      this._box.style.order = "";
+      this._splitter.style.order = "";
+      let contentArea = document.getElementById("tabbrowser-tabbox");
+      contentArea.style.order = "";
+
+      // Use the stock Firefox positioning approach
+      let browser = document.getElementById("browser");
+
+      if (this._positionStart) {
+        // Sidebar on left: sidebar-box | splitter | content
+        // This is the natural DOM order, so we just need to ensure it
+        browser.setAttribute("sidebar-position", "start");
+      } else {
+        // Sidebar on right: content | splitter | sidebar-box
+        // We need to move the sidebar elements to the end
+        browser.setAttribute("sidebar-position", "end");
+      }
+
+      // Set the position attribute for the legacy sidebar
+      this._box.toggleAttribute("sidebar-positionend", !this._positionStart);
+      contentArea.toggleAttribute("sidebar-positionend", !this._positionStart);
+      this.toolbarButton &&
+        this.toolbarButton.toggleAttribute(
+          "sidebar-positionend",
+          !this._positionStart
+        );
+
+      this.hideSwitcherPanel();
+
+      let content = SidebarController.browser.contentWindow;
+      if (content && content.updatePosition) {
+        content.updatePosition();
+      }
+      return;
+    }
+
     // First reset all ordinals to match DOM ordering.
     let contentArea = document.getElementById("tabbrowser-tabbox");
     let browser = document.getElementById("browser");
