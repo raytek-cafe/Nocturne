@@ -1,0 +1,14 @@
+{
+  "extraKnownMarketplaces": {
+    "firefox-aidev-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "mozilla/firefox-aidev-plugins"
+      }
+    }
+  },
+  "attribution" : {
+    "commit" : "",
+    "pr" : ""
+  }
+}
