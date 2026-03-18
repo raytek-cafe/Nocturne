@@ -113,7 +113,12 @@ var snapshotFormatters = {
     if (data.vendor) {
       version += " (" + data.vendor + ")";
     }
-    $("version-box").textContent = version;
+    // Display version numbers: Nocturne version (Firefox version)
+    if (AppConstants.NOCTURNE_VERSION && AppConstants.NOCTURNE_VERSION !== "@NOCTURNE_VERSION@") {
+      $("version-box").textContent = AppConstants.NOCTURNE_VERSION + " (" + version + ")";
+    } else {
+      $("version-box").textContent = version;
+    }
     $("buildid-box").textContent = data.buildID;
     $("distributionid-box").textContent = data.distributionID;
     if (data.updateChannel) {
