@@ -79,11 +79,18 @@ function init() {
   // Use Fluent arguments for append version and the architecture of the build
   let versionField = document.getElementById("version");
 
-  document.l10n.setAttributes(
-    versionField,
-    versionIdMap.get(versionIdKey),
-    versionAttributes
-  );
+  // Display version numbers: Nocturne version (Firefox version) (architecture)
+  if (AppConstants.NOCTURNE_VERSION && AppConstants.NOCTURNE_VERSION !== "@NOCTURNE_VERSION@") {
+    let arch = versionAttributes.bits ? `${versionAttributes.bits}-bit` : versionAttributes.arch;
+    versionField.textContent = `${AppConstants.NOCTURNE_VERSION} (${AppConstants.MOZ_APP_VERSION_DISPLAY}) (${arch})`;
+  } else {
+    // Fallback to standard Firefox version display
+    document.l10n.setAttributes(
+      versionField,
+      versionIdMap.get(versionIdKey),
+      versionAttributes
+    );
+  }
 
   // Show a release notes link if we have a URL.
   let relNotesLink = document.getElementById("releasenotes");
