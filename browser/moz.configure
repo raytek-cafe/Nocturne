@@ -57,4 +57,18 @@ def requires_stub_installer(
 imply_option("MOZ_STUB_INSTALLER", True, when=requires_stub_installer)
 
 
+
+# Use Nocturne version for package naming (installers, zips, etc.)
+@depends(nocturne_version)
+def nocturne_pkg_version(nocturne_version):
+    if nocturne_version:
+        return nocturne_version
+
+
+imply_option(
+    "MOZ_PKG_VERSION",
+    nocturne_pkg_version,
+    reason="Nocturne package version",
+)
+
 include("../toolkit/moz.configure")
