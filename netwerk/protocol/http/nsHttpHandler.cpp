@@ -1110,7 +1110,7 @@ void nsHttpHandler::BuildUserAgent() {
     mUserAgent += ' ';
     mUserAgent += mAppName;
     mUserAgent += '/';
-    mUserAgent += mAppVersion;
+    mUserAgent.AppendLiteral(MOZILLA_UAVERSION);
   }
 }
 
