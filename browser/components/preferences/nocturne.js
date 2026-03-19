@@ -56,6 +56,7 @@ for (let preference of [
   { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
   { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
   { id: "nocturne.ui.ff68downloadicons", type: "bool" },
+  { id: "nocturne.ui.oldurlbar", type: "bool" },
   /* { id: "browser.translations.enable", type: "bool" },*/
 ]) {
   if (!Preferences.get(preference.id)) {
