@@ -20,7 +20,7 @@ Less telemetry than regular Firefox!
 
 No background tasks!
 
-Easier to notice red retry button for failed downloads!
+Firefox 68 retry button for failed downloads!
 
 JPEG XL support!
 
@@ -41,6 +41,10 @@ Ability to revert the icons to use the legacy way (nocturne.legacyiconbehavior.e
 Ability to bring back the 16x16 icon back (nocturne.smalliconbehavior.enabled)
 
 Reimplemented -moz-win-glass for a glass look with borders
+
+Reimplemented old url search bar for pre-133 themes
+
+and more!
 
 ## Credits
 
