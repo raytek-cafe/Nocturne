@@ -46,6 +46,7 @@ browser.jar:
         content/browser/browser-fullScreenAndPointerLock.js (content/browser-fullScreenAndPointerLock.js)
         content/browser/browser-gestureSupport.js           (content/browser-gestureSupport.js)
         content/browser/browser-init.js                     (content/browser-init.js)
+        content/browser/browser-nocturne-urlbar.js          (content/browser-nocturne-urlbar.js)
         content/browser/browser-main.js                     (content/browser-main.js)
         content/browser/browser-menubar.js                  (content/browser-menubar.js)
         content/browser/browser-pageActions.js              (content/browser-pageActions.js)

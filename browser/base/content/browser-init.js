@@ -164,6 +164,11 @@ var gBrowserInit = {
     // Call this after we set attributes that might change toolbars' computed
     // text color.
     ToolbarIconColor.init(window);
+
+    // Convert URLBar to old implementation if preference is enabled
+    if (Services.prefs.getBoolPref("nocturne.ui.oldurlbar", false)) {
+      NocturneURLBarConverter.convertToOldURLBar(window);
+    }
   },
 
   onDOMContentLoaded() {
