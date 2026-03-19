@@ -667,6 +667,8 @@ pref("nocturne.glow.menubar", true);
 pref("nocturne.translucent.navbar", false);
 // Disable other customizations by default
 pref("nocturne.view.image", false);
+// Old URL Bar
+pref("nocturne.ui.oldurlbar", false);
 
 // Whether the context menu should show the navigation items (Back, Forward,
 // Reload, Bookmark) as icons.

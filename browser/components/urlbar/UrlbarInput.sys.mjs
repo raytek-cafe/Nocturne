@@ -68,6 +68,13 @@ XPCOMUtils.defineLazyPreferenceGetter(
   false
 );
 
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "NOCTURNE_OLD_URLBAR",
+  "nocturne.ui.oldurlbar",
+  false
+);
+
 const DEFAULT_FORM_HISTORY_NAME = "searchbar-history";
 const SEARCH_BUTTON_CLASS = "urlbar-search-button";
 
@@ -280,24 +287,31 @@ export class UrlbarInput {
     this.window.addEventListener("customizationstarting", this);
     this.window.addEventListener("aftercustomization", this);
     this.window.addEventListener("toolbarvisibilitychange", this);
-    const menubar = this.window.document.getElementById("toolbar-menubar");
-    if (menubar) {
-      menubar.addEventListener("DOMMenuBarInactive", this);
-      menubar.addEventListener("DOMMenuBarActive", this);
-    }
 
-    // Expanding requires a parent toolbar, and us not being read-only.
-    this.#allowBreakout = !!this.textbox.closest("toolbar");
-    if (this.#allowBreakout) {
-      // TODO(emilio): This could use CSS anchor positioning rather than this
-      // ResizeObserver, eventually.
-      let observer = new this.window.ResizeObserver(([entry]) => {
-        this.textbox.style.setProperty(
-          "--urlbar-width",
-          px(entry.borderBoxSize[0].inlineSize)
-        );
-      });
-      observer.observe(this.textbox.parentNode);
+    // Nocturne: Only add popover-specific features if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      const menubar = this.window.document.getElementById("toolbar-menubar");
+      if (menubar) {
+        menubar.addEventListener("DOMMenuBarInactive", this);
+        menubar.addEventListener("DOMMenuBarActive", this);
+      }
+
+      // Expanding requires a parent toolbar, and us not being read-only.
+      this.#allowBreakout = !!this.textbox.closest("toolbar");
+      if (this.#allowBreakout) {
+        // TODO(emilio): This could use CSS anchor positioning rather than this
+        // ResizeObserver, eventually.
+        let observer = new this.window.ResizeObserver(([entry]) => {
+          this.textbox.style.setProperty(
+            "--urlbar-width",
+            px(entry.borderBoxSize[0].inlineSize)
+          );
+        });
+        observer.observe(this.textbox.parentNode);
+      }
+    } else {
+      // Old URLBar still needs breakout support
+      this.#allowBreakout = !!this.textbox.closest("toolbar");
     }
 
     this.#updateLayoutBreakout();
@@ -2160,9 +2174,17 @@ export class UrlbarInput {
       return;
     }
 
-    this.#updateTextboxPosition();
+    // Nocturne: Only use popover-specific positioning if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPosition();
+    }
 
     this.setAttribute("breakout-extend", "true");
+
+    // Nocturne: Only show popover if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.textbox.showPopover();
+    }
 
     // Enable the animation only after the first extend call to ensure it
     // doesn't run when opening a new window.
@@ -2184,7 +2206,11 @@ export class UrlbarInput {
     }
 
     this.removeAttribute("breakout-extend");
-    this.#updateTextboxPosition();
+
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPosition();
+    }
   }
 
   /**
@@ -2471,11 +2497,16 @@ export class UrlbarInput {
     this.removeAttribute("breakout");
     this.textbox.parentNode.removeAttribute("breakout");
     this.textbox.style.top = "";
-    try {
-      this.textbox.hidePopover();
-    } catch (ex) {
-      // No big deal if not a popover already.
+
+    // Nocturne: Only hide popover if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      try {
+        this.textbox.hidePopover();
+      } catch (ex) {
+        // No big deal if not a popover already.
+      }
     }
+
     this._layoutBreakoutUpdateKey = {};
   }
 
@@ -2525,8 +2556,12 @@ export class UrlbarInput {
 
         this.setAttribute("breakout", "true");
         this.textbox.parentNode.setAttribute("breakout", "true");
-        this.textbox.showPopover();
-        this.#updateTextboxPosition();
+
+        // Nocturne: Only use popover if not using old URLBar
+        if (!lazy.NOCTURNE_OLD_URLBAR) {
+          this.textbox.showPopover();
+          this.#updateTextboxPosition();
+        }
 
         resolve();
       });
@@ -4990,15 +5025,24 @@ export class UrlbarInput {
   }
 
   _on_toolbarvisibilitychange() {
-    this.#updateTextboxPositionNextFrame();
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPositionNextFrame();
+    }
   }
 
   _on_DOMMenuBarActive() {
-    this.#updateTextboxPositionNextFrame();
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPositionNextFrame();
+    }
   }
 
   _on_DOMMenuBarInactive() {
-    this.#updateTextboxPositionNextFrame();
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPositionNextFrame();
+    }
   }
 
   #allTextSelectedOnKeyDown = false;
