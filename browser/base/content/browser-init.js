@@ -279,6 +279,11 @@ var gBrowserInit = {
       },
       window
     );
+
+    // Apply old URLBar styling if preference is enabled.
+    if (Services.prefs.getBoolPref("nocturne.ui.oldurlbar", false)) {
+      NocturneURLBar.applyOldURLBarStyles(window);
+    }
   },
 
   onDOMContentLoaded() {

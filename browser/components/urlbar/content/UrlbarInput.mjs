@@ -104,6 +104,12 @@ const lazy = XPCOMUtils.declareLazy({
   logger: () => lazy.UrlbarUtils.getLogger({ prefix: "Input" }),
 });
 
+XPCOMUtils.defineLazyPreferenceGetter(
+  lazy,
+  "NOCTURNE_OLD_URLBAR",
+  "nocturne.ui.oldurlbar",
+  false
+);
 const UNLIMITED_MAX_RESULTS = 99;
 
 let getBoundsWithoutFlushing = element =>
@@ -2995,8 +3001,11 @@ ${
     }
 
     this.toggleAttribute("breakout-extend", true);
-    this.#updateTextboxPosition();
-
+    // Nocturne: Only use the popover implementation outside old URLBar mode.
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPosition();
+      this.showPopover();
+    }
     // Enable the animation only after the first extend call to ensure it
     // doesn't run when opening a new window.
     if (!this.hasAttribute("breakout-extend-animate")) {
@@ -3025,7 +3034,10 @@ ${
     }
 
     this.toggleAttribute("breakout-extend", false);
-    this.#updateTextboxPosition();
+    // Nocturne: Only use the popover implementation outside old URLBar mode.
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPosition();
+    }
   }
 
   updateLayoutExtend() {
@@ -3378,11 +3390,16 @@ ${
     this.removeAttribute("breakout");
     this.parentNode.removeAttribute("breakout");
     this.style.top = "";
-    try {
-      this.hidePopover();
-    } catch (ex) {
-      // No big deal if not a popover already.
+
+    // Nocturne: Only hide the popover outside old URLBar mode.
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      try {
+        this.hidePopover();
+      } catch (ex) {
+        // No big deal if not a popover already.
+      }
     }
+
     this._layoutBreakoutUpdateKey = {};
   }
 
@@ -3431,9 +3448,13 @@ ${
 
         this.setAttribute("breakout", "true");
         this.parentNode.setAttribute("breakout", "true");
-        this.showPopover();
-        this.#fixAddressbarSearchbarOrder();
-        this.#updateTextboxPosition();
+
+        // Nocturne: Only use the popover implementation outside old URLBar mode.
+        if (!lazy.NOCTURNE_OLD_URLBAR) {
+          this.showPopover();
+          this.#fixAddressbarSearchbarOrder();
+          this.#updateTextboxPosition();
+        }
 
         resolve();
       });
@@ -6153,15 +6174,24 @@ ${
   }
 
   _on_toolbarvisibilitychange() {
-    this.#updateTextboxPositionNextFrame();
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPositionNextFrame();
+    }
   }
 
   _on_DOMMenuBarActive() {
-    this.#updateTextboxPositionNextFrame();
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPositionNextFrame();
+    }
   }
 
   _on_DOMMenuBarInactive() {
-    this.#updateTextboxPositionNextFrame();
+    // Nocturne: Only update position if not using old URLBar
+    if (!lazy.NOCTURNE_OLD_URLBAR) {
+      this.#updateTextboxPositionNextFrame();
+    }
   }
 
   #allTextSelectedOnKeyDown = false;
