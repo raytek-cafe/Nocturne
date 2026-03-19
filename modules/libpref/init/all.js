@@ -669,6 +669,8 @@ pref("nocturne.glow.menubar", true);
 pref("nocturne.translucent.navbar", false);
 // Disable other customizations by default
 pref("nocturne.view.image", false);
+// Old URL Bar
+pref("nocturne.ui.oldurlbar", false);
 
 // Enable JS dump() function.
 // IMPORTANT: These prefs must be here even though they're also defined in
