@@ -184,12 +184,12 @@
 /* Titlebar */
 
 @media not (-moz-platform: windows-win10) {
-  :root[tabsintitlebar][sizemode="normal"] #titlebar {
+  :root[tabsintitlebar][sizemode="normal"] .browser-titlebar {
     appearance: auto;
     -moz-default-appearance: -moz-window-titlebar;
   }
 
-  :root[tabsintitlebar][sizemode="maximized"] #titlebar {
+  :root[tabsintitlebar][sizemode="maximized"] .browser-titlebar {
     appearance: auto;
     -moz-default-appearance: -moz-window-titlebar-maximized;
   }
