@@ -3259,6 +3259,16 @@ with only_when("--enable-official-branding"):
     set_define("MOZ_OFFICIAL_BRANDING", True)
 
 
+option(
+    "--enable-unofficial-branding",
+    help="Enable Unofficial Branding.",
+)
+
+with only_when("--enable-unofficial-branding"):
+    set_config("MOZ_UNOFFICIAL_BRANDING", True)
+    set_define("MOZ_UNOFFICIAL_BRANDING", True)
+
+
 confvar(
     "MOZ_BRANDING_DIRECTORY",
     nargs=1,
@@ -3291,19 +3301,25 @@ def check_official_branding_directory(moz_official_branding_directory):
 @depends(
     "--with-branding",
     "--enable-official-branding",
+    "--enable-unofficial-branding",
     "MOZ_OFFICIAL_BRANDING_DIRECTORY",
     "MOZ_BRANDING_DIRECTORY",
+    build_project,
 )
 def moz_branding_directory(
     with_branding_dir,
     moz_official_branding,
+    moz_unofficial_branding,
     moz_official_branding_directory,
     moz_branding_directory,
+    build_project,
 ):
     if moz_official_branding:
         return moz_official_branding_directory[0]
     if with_branding_dir:
         return with_branding_dir[0]
+    if moz_unofficial_branding:
+        return f"{build_project}/branding/unofficial"
     if moz_branding_directory:
         return moz_branding_directory[0]
 

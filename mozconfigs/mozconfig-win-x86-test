@@ -15,6 +15,9 @@ ac_add_options --enable-nocturneesr-branding
 # For potential nightly experimentation enable the below and disable the above.
 #ac_add_options --with-branding=browser/branding/nightly
 #ac_add_options --enable-plasmafox-branding
+# For unofficial branding enable the below and disable the above.
+#ac_add_options --enable-unofficial-branding
+#ac_add_options --with-branding=browser/branding/unofficial
 
 # Updater stuffs
 ac_add_options --disable-update-agent
