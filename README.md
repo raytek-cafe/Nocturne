@@ -52,6 +52,8 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 
 Travis, NetworkNeighborhood - The current logo used in the browser. Recolored from the original.
 
+Nareny - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
+
 Alex313031 - Mozconfig, general help with the browser, and changes from Mercury browser
 
 aubymori & ephemeralviolette - Classic about:config, disabled launcher process, and more from Nara browser
