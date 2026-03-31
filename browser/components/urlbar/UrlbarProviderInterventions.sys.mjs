@@ -449,7 +449,7 @@ class ProviderInterventions extends UrlbarProvider {
         ]),
       });
       for (let [id, phrases] of Object.entries(DOCUMENTS)) {
-//        queryScorer.addDocument({ id, phrases });
+        queryScorer.addDocument({ id, phrases });
       }
       return queryScorer;
     });
@@ -506,6 +506,9 @@ class ProviderInterventions extends UrlbarProvider {
     // Get the scores and the top score.
     let docScores = this.queryScorer.score(queryContext.searchString);
     let topDocScore = docScores[0];
+    if (!topDocScore) {
+      return false;
+    }
 
     // Multiple docs may have the top score, so collect them all.
     let topDocIDs = new Set();
