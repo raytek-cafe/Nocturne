@@ -220,6 +220,8 @@
 
   :root[tabsintitlebar][sizemode="normal"] #titlebar:has(#toolbar-menubar[autohide="false"]) ~ #nav-bar.browser-titlebar > .titlebar-buttonbox-container {display: none} /* Hack for vertical tabs */
   :root[tabsintitlebar][sizemode="maximized"] #titlebar:has(#toolbar-menubar[autohide="false"]) ~ #nav-bar.browser-titlebar > .titlebar-buttonbox-container {display: none}
+  :root[tabsintitlebar][sizemode="normal"] #nav-bar.browser-titlebar .titlebar-buttonbox-container {display: none} /* Hack for vertical tabs */
+  :root[tabsintitlebar][sizemode="maximized"] #nav-bar.browser-titlebar .titlebar-buttonbox-container {display: none}
 }
 
 @media not (-moz-windows-compositor) {
