@@ -340,7 +340,7 @@ void ImageDecoder::CheckOutstandingDecodes() {
     return;
   }
 
-  ImageTrack* track = mTracks->GetDefaultTrack();
+  RefPtr<ImageTrack> track = mTracks->GetDefaultTrack();
   if (!track) {
     return;
   }
@@ -410,19 +410,31 @@ void ImageDecoder::CheckOutstandingDecodes() {
 
   // 4. Resolve promise with result.
   for (const auto& i : resolved) {
-    ImageDecodeResult result;
-    result.mImage = track->GetDecodedFrame(i.mFrameIndex);
-    // TODO(aosmond): progressive images
-    result.mComplete = true;
-    i.mPromise->MaybeResolve(result);
+    if (!mClosed) {
+      ImageDecodeResult result;
+      result.mImage = track->GetDecodedFrame(i.mFrameIndex);
+      // TODO(aosmond): progressive images
+      result.mComplete = true;
+      i.mPromise->MaybeResolve(result);
+    } else {
+      i.mPromise->MaybeRejectWithAbortError("Closed decoder"_ns);
+    }
   }
 
   for (const auto& i : rejectedRange) {
-    i.mPromise->MaybeRejectWithRangeError("No more frames available"_ns);
+    if (!mClosed) {
+      i.mPromise->MaybeRejectWithRangeError("No more frames available"_ns);
+    } else {
+      i.mPromise->MaybeRejectWithAbortError("Closed decoder"_ns);
+    }
   }
 
   for (const auto& i : rejectedState) {
-    i.mPromise->MaybeRejectWithInvalidStateError("Error decoding frame"_ns);
+    if (!mClosed) {
+      i.mPromise->MaybeRejectWithInvalidStateError("Error decoding frame"_ns);
+    } else {
+      i.mPromise->MaybeRejectWithAbortError("Closed decoder"_ns);
+    }
   }
 }
 
@@ -994,6 +1006,7 @@ void ImageDecoder::Reset(const MediaResult& aResult) {
 }
 
 void ImageDecoder::Close(const MediaResult& aResult) {
+  RefPtr<ImageDecoder> kungFuDeathGrip(this);
   MOZ_LOG(gWebCodecsLog, LogLevel::Debug, ("ImageDecoder %p Close", this));
 
   // 10.2.5. Algorithms - Close ImageDecoder (with exception)
