@@ -2833,8 +2833,7 @@ LayoutDeviceIntMargin nsWindow::NormalWindowNonClientOffset() const {
 bool nsWindow::UpdateNonClientMargins(bool aReflowWindow) {
   int overrideWinVer =
       StaticPrefs::widget_native_controls_override_win_version();
-  bool isWin10OrLater =
-      (overrideWinVer == 0 && IsWin10OrLater()) || overrideWinVer >= 10;
+  bool isWin10OrLater = overrideWinVer >= 10;
 
   if (!mCustomNonClient) {
     return false;
@@ -4365,7 +4364,7 @@ void nsWindow::UpdateThemeGeometries(
 
   mWindowButtonsRect = Nothing();
 
-  if (!((winVerOverride == 0 && IsWin10OrLater()) || winVerOverride >= 10)) {
+  if (!(winVerOverride >= 10)) {
     for (size_t i = 0; i < aThemeGeometries.Length(); i++) {
       if (aThemeGeometries[i].mType ==
           nsNativeThemeWin::eThemeGeometryTypeWindowButtons) {
@@ -5226,8 +5225,7 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
 
   int winVerOverride =
       StaticPrefs::widget_native_controls_override_win_version();
-  bool isWin10 =
-      (winVerOverride == 0 && IsWin10OrLater()) || winVerOverride >= 10;
+  bool isWin10 = winVerOverride >= 10;
 
   MSGResult msgResult(aRetValue);
   if (ExternalHandlerProcessMessage(msg, wParam, lParam, msgResult)) {
