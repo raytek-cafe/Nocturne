@@ -1,6 +1,6 @@
 <span style="display:block;text-align:center">![raytek Nocturne](./docs/readme/banner-nocturne.png)</span>
 
-Nocturne is a fork of r3dfox which is a fork of the open source web browser Mozilla Firefox made specifically for Windows Vista, 7, and 8 compatibility.
+Nocturne is a fork of r3dfox which is a fork of the open source web browser Mozilla Firefox made specifically for Windows 7, 8, Modded 10/11 compatibility.
 
 ([Local (GitHub) Downloads](https://github.com/raytek-cafe/nocturne)): [![Github All Releases](https://img.shields.io/github/downloads/raytek-cafe/nocturne/total.svg)]()
 
