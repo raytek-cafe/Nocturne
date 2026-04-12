@@ -57,9 +57,9 @@ void gfxConfigManager::Init() {
 #ifdef XP_WIN
   DeviceManagerDx::Get()->CheckHardwareStretchingSupport(mHwStretchingSupport);
   mScaledResolution = HasScaledResolution();
-  // Nocturne: Only treat as Win10+ for DComp when actually on Win10+ and not spoofed as an older version.
+  // Nocturne: Only treat as Win10+ for DComp if actually on Win10+ AND spoofed as Win10+
   int overrideWinVer = StaticPrefs::widget_native_controls_override_win_version();
-  mIsWin10OrLater = IsWin10OrLater() && (overrideWinVer == 0 || overrideWinVer == 10);
+  mIsWin10OrLater = IsWin10OrLater() && (overrideWinVer > 0 && overrideWinVer >= 10);
   mWrCompositorDCompRequired = true;
 #else
   ++mHwStretchingSupport.mBoth;
