@@ -10,6 +10,7 @@
 #include "mozilla/Components.h"
 #include "mozilla/StaticPrefs_gfx.h"
 #include "mozilla/StaticPrefs_layers.h"
+#include "mozilla/StaticPrefs_widget.h"
 #include "gfxConfig.h"
 #include "gfxPlatform.h"
 #include "nsIGfxInfo.h"
@@ -64,7 +65,9 @@ void gfxConfigManager::Init() {
 #ifdef XP_WIN
   DeviceManagerDx::Get()->CheckHardwareStretchingSupport(mHwStretchingSupport);
   mScaledResolution = HasScaledResolution();
-  mIsWin10OrLater = IsWin10OrLater();
+  // Nocturne: Only treat as Win10+ for DComp if actually on Win10+ AND spoofed as Win10+
+  int overrideWinVer = StaticPrefs::widget_native_controls_override_win_version();
+  mIsWin10OrLater = IsWin10OrLater() && (overrideWinVer > 0 && overrideWinVer >= 10);
   mIsWin11OrLater = IsWin11OrLater();
   mWrCompositorDCompRequired = true;
 #else
