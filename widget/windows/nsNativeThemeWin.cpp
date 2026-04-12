@@ -2186,8 +2186,8 @@ bool nsNativeThemeWin::GetWidgetPadding(nsDeviceContext* aContext,
 
   int overrideWinVer =
       StaticPrefs::widget_native_controls_override_win_version();
-  bool isWindows10OrLater =
-      (overrideWinVer == 0 && IsWin10OrLater()) || overrideWinVer >= 10;
+  // Nocturne: Only use Win10+ UI if explicitly spoofed as Win10+
+  bool isWindows10OrLater = overrideWinVer >= 10;
 
   switch (aAppearance) {
     // Radios and checkboxes return a fixed size in GetMinimumWidgetSize
