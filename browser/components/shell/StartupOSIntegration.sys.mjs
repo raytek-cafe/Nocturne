@@ -214,9 +214,10 @@ export let StartupOSIntegration = {
   async ensurePrivateBrowsingShortcutExists() {
     if (
       // If the feature is disabled, don't do this.
+      // Changed default from true to false so it's opt-in instead of opt-out.
       !Services.prefs.getBoolPref(
         "browser.privateWindowSeparation.enabled",
-        true
+        false
       ) ||
       // We don't want a shortcut if it's been disabled, eg: by enterprise policy.
       !lazy.PrivateBrowsingUtils.enabled ||
