@@ -202,3 +202,7 @@ if CONFIG["MOZ_ASAN"] or CONFIG["MOZ_DEBUG"]:
     WINCONSOLE = True
 else:
     WINCONSOLE = False
+
+# Pass Nocturne version to module.ver for exe version info
+if CONFIG["NOCTURNE_VERSION"]:
+    DEFINES["NOCTURNE_VERSION"] = CONFIG["NOCTURNE_VERSION"]
