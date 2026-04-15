@@ -1458,9 +1458,6 @@ pref("network.generic-ntlm-auth.workstation", "WORKSTATION");
 // Disable gio as it could bypass proxy
 pref("network.gio.supported-protocols", "");
 
-// Disable using uniform naming convention to prevent proxy bypass
-pref("network.file.disable_unc_paths", true);
-
 // This preference controls whether to allow sending default credentials (SSO) to
 // NTLM/Negotiate servers allowed in the "trusted uri" list when navigating them
 // in a Private Browsing window.
