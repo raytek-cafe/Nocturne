@@ -257,6 +257,11 @@ def generate_module_rc(binary="", rcinclude=None):
         "MOZ_APP_WINVERSION": app_winversion,
     }
 
+    # Add NOCTURNE_VERSION if available (for custom branded builds)
+    nocturne_version = buildconfig.substs.get("NOCTURNE_VERSION")
+    if nocturne_version:
+        defines["NOCTURNE_VERSION"] = nocturne_version
+
     relobjdir = os.path.relpath(".", buildconfig.topobjdir)
     srcdir = os.path.join(buildconfig.topsrcdir, relobjdir)
     module_ver = os.path.join(srcdir, "module.ver")
