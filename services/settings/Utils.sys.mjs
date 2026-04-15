@@ -80,14 +80,14 @@ ChromeUtils.defineLazyGetter(lazy, "allowServerURLOverride", () => {
 
 ChromeUtils.defineLazyGetter(lazy, "allowedCollections", () =>
   Services.prefs
-    .getStringPref("librewolf.services.settings.allowedCollections", "")
+    .getStringPref("librewolf.services.settings.allowedCollections", "security-state/*,main/tracking-protection-lists,main/public-suffix-list,main/translations-models,main/translations-wasm,main/translations-identification-models,main/addons-manager-settings,main/anti-tracking-url-decoration,main/hijack-blocklists,blocklists/gfx,blocklists/addons-bloomfilters,main/addons-data-leak-blocker-domains,main/cookie-banner-rules-list,main/query-stripping,blocklists/addons,blocklists/plugins,main/url-parser-default-unknown-schemes-interventions,main/webcompat-interventions,main/addons-data-leak-blocker-domains,main/bounce-tracking-protection-exceptions,main/fingerprinting-protection-overrides,main/partitioning-exempt-urls,main/password-recipes,main/third-party-cookie-blocking-exempt-urls,main/url-classifier-exceptions,main/url-classifier-skip-urls,main/newtab-wallpapers-v2")
     .split(",")
 );
 
 ChromeUtils.defineLazyGetter(lazy, "allowedCollectionsFromDump", () =>
   Services.prefs.getStringPref(
     "librewolf.services.settings.allowedCollectionsFromDump",
-    "main/search-config-v2,main/search-config-icons"
+    "main/search-config-v2,main/search-config-icons,main/bounce-tracking-protection-exceptions,main/newtab-wallpapers-v2"
   )
   .split(",")
 );
