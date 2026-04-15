@@ -184,3 +184,7 @@ for icon in ("firefox", "document", "newwindow", "newtab", "pbmode", "document_p
         CONFIG["MOZ_BRANDING_DIRECTORY"],
         icon,
     )
+
+# Pass Nocturne version to module.ver for exe version info
+if CONFIG["NOCTURNE_VERSION"]:
+    DEFINES["NOCTURNE_VERSION"] = CONFIG["NOCTURNE_VERSION"]
