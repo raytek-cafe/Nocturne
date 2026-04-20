@@ -850,7 +850,7 @@ pref("print.print_edge_bottom", 0);
 // Scripts & Windows prefs
 pref("dom.beforeunload_timeout_ms",         1000);
 pref("dom.disable_window_move_resize",      false);
-pref("dom.disable_window_flip",             true);
+pref("dom.disable_window_flip",             false);
 
 pref("dom.allow_scripts_to_close_windows",          false);
 
@@ -3532,7 +3532,7 @@ pref("media.gmp-manager.url", "https://aus5.mozilla.org/update/3/GMP/%VERSION%/%
 // We should eventually remove this pref and any cert pinning code and make
 // the content signature path the sole path. We retain this for now in case
 // we need to debug content sig vs cert pin.
-pref("media.gmp-manager.checkContentSignature", true);
+pref("media.gmp-manager.checkContentSignature", false);
 
 // When |media.gmp-manager.cert.requireBuiltIn| is true or not specified the
 // final certificate and all certificates the connection is redirected to before
