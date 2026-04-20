@@ -844,8 +844,8 @@ pref("print.print_edge_bottom", 0);
 
 // Scripts & Windows prefs
 pref("dom.beforeunload_timeout_ms",         1000);
-pref("dom.disable_window_flip",             true);
-pref("dom.disable_window_move_resize",      true);
+pref("dom.disable_window_flip",             false);
+pref("dom.disable_window_move_resize",      false);
 
 pref("dom.allow_scripts_to_close_windows",          false);
 
@@ -1454,9 +1454,6 @@ pref("network.automatic-ntlm-auth.trusted-uris", "");
 // that is listed in allowedWorkstations for the user's account in their
 // AD Domain.
 pref("network.generic-ntlm-auth.workstation", "WORKSTATION");
-
-// Disable gio as it could bypass proxy
-pref("network.gio.supported-protocols", "");
 
 // This preference controls whether to allow sending default credentials (SSO) to
 // NTLM/Negotiate servers allowed in the "trusted uri" list when navigating them
@@ -3161,7 +3158,7 @@ pref("geo.provider.network.timeout", 60000);
 
 // Region
 pref("browser.region.log", false);
-pref("browser.region.network.url", "");
+pref("browser.region.network.url", "https://location.services.mozilla.com/v1/country?key=%MOZILLA_API_KEY%");
 // Include wifi data in region request.
 pref("browser.region.network.scan", false);
 // Timeout for whole region request.
@@ -3326,7 +3323,7 @@ pref("network.captive-portal-service.maxInterval", 1500000); // 25 minutes
 pref("network.captive-portal-service.backoffFactor", "5.0");
 pref("network.captive-portal-service.enabled", false);
 
-pref("network.connectivity-service.enabled", false);
+pref("network.connectivity-service.enabled", true);
 pref("network.connectivity-service.DNSv4.domain", "example.org");
 pref("network.connectivity-service.DNSv6.domain", "example.org");
 pref("network.connectivity-service.DNS_HTTPS.domain", "cloudflare-dns.com");
@@ -3516,8 +3513,7 @@ pref("browser.search.rustSelector.featureGate", true);
 
 // GMPInstallManager prefs
 
-// User-settable override to media.gmp-manager.url for testing purposes.
-pref("media.gmp-manager.url.override", "data:text/plain,");
+//pref("media.gmp-manager.url.override", "");
 
 // When |media.gmp-manager.allowLocalSources| is true, we will allow falling
 // back to using the plugin configurations distributed with Firefox to update
@@ -3526,7 +3522,7 @@ pref("media.gmp-manager.url.override", "data:text/plain,");
 pref("media.gmp-manager.allowLocalSources", true);
 
 // Update service URL for GMP install/updates:
-pref("media.gmp-manager.url", "data:text/plain,");
+pref("media.gmp-manager.url", "https://aus5.mozilla.org/update/3/GMP/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
 
 // When |media.gmp-manager.checkContentSignature| is true, then the reply
 // containing the update xml file is expected to provide a content signature
@@ -3536,7 +3532,7 @@ pref("media.gmp-manager.url", "data:text/plain,");
 // We should eventually remove this pref and any cert pinning code and make
 // the content signature path the sole path. We retain this for now in case
 // we need to debug content sig vs cert pin.
-pref("media.gmp-manager.checkContentSignature", true);
+pref("media.gmp-manager.checkContentSignature", false);
 
 // When |media.gmp-manager.cert.requireBuiltIn| is true or not specified the
 // final certificate and all certificates the connection is redirected to before
