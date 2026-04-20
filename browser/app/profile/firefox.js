@@ -1099,7 +1099,7 @@ pref("dom.disable_open_during_load",              true);
 // allow JS to move and resize existing windows
 pref("dom.disable_window_move_resize",            false);
 // prevent JS from monkeying with window focus, etc
-pref("dom.disable_window_flip",                   true);
+pref("dom.disable_window_flip",                   false);
 
 pref("privacy.popups.showBrowserMessage",   true);
 

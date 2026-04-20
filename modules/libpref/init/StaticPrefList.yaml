@@ -14613,7 +14613,7 @@
 # Allow RFC1918 address in responses?
 - name: network.trr.allow-rfc1918
   type: RelaxedAtomicBool
-  value: true
+  value: false
   mirror: always
 
 # When true, it only sends AAAA when the system has IPv6 connectivity
