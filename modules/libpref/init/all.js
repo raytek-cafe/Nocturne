@@ -819,7 +819,7 @@ pref("print.print_edge_bottom", 0);
 // Scripts & Windows prefs
 pref("dom.beforeunload_timeout_ms",         1000);
 pref("dom.disable_window_move_resize",      false);
-pref("dom.disable_window_flip",             true);
+pref("dom.disable_window_flip",             false);
 
 pref("dom.allow_scripts_to_close_windows",          false);
 
@@ -3538,6 +3538,7 @@ pref("media.gmp-manager.allowLocalSources", true);
 
 // Update service URL for GMP install/updates:
 pref("media.gmp-manager.url", "https://aus5.mozilla.org/update/3/GMP/%VERSION%/%BUILD_ID%/%BUILD_TARGET%/%LOCALE%/%CHANNEL%/%OS_VERSION%/%DISTRIBUTION%/%DISTRIBUTION_VERSION%/update.xml");
+
 
 // Whether or not to perform reader mode article parsing on page load.
 // If this pref is disabled, we will never show a reader mode icon in the toolbar.

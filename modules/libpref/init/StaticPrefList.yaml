@@ -15879,7 +15879,7 @@
 # Use GET (rather than POST)
 - name: network.trr.useGET
   type: RelaxedAtomicBool
-  value: true
+  value: false
   mirror: always
 
 # Allow RFC1918 address in responses?
