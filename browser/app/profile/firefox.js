@@ -857,7 +857,7 @@ pref("browser.privacySegmentation.preferences.show", false);
 pref("browser.sessionhistory.max_entries", 50);
 
 // Built-in default permissions.
-pref("permissions.manager.defaultsUrl", "");
+pref("permissions.manager.defaultsUrl", "resource://app/defaults/permissions");
 
 // Set default fallback values for site permissions we want
 // the user to be able to globally change.
@@ -1092,9 +1092,9 @@ pref("browser.tabs.allow_transparent_browser", false);
 pref("dom.disable_open_during_load",              true);
 
 // allow JS to move and resize existing windows
-pref("dom.disable_window_move_resize",            true);
+pref("dom.disable_window_move_resize",            false);
 // prevent JS from monkeying with window focus, etc
-pref("dom.disable_window_flip",                   true);
+pref("dom.disable_window_flip",                   false);
 
 pref("privacy.popups.showBrowserMessage",   true);
 
@@ -2245,7 +2245,7 @@ pref("identity.fxaccounts.telemetry.clientAssociationPing.enabled", true);
 #endif
 
 pref("media.gmp-gmpopenh264.visible", true);
-pref("media.gmp-gmpopenh264.enabled", false);
+pref("media.gmp-gmpopenh264.enabled", true);
 
 pref("media.videocontrols.picture-in-picture.enabled", true);
 pref("media.videocontrols.picture-in-picture.audio-toggle.enabled", true);
@@ -2293,7 +2293,7 @@ pref("toolkit.telemetry.updatePing.enabled", false);
 pref("toolkit.telemetry.bhrPing.enabled", false);
 
 // Enable GMP support in the addon manager.
-pref("media.gmp-provider.enabled", false);
+pref("media.gmp-provider.enabled", true);
 
 // Enable Dynamic First-Party Isolation by default.
 pref("network.cookie.cookieBehavior", 5 /* BEHAVIOR_REJECT_TRACKER_AND_PARTITION_FOREIGN */);
