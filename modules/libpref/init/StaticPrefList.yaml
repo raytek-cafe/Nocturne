@@ -11199,7 +11199,11 @@
 # Encrypted Media Extensions
 - name: media.eme.enabled
   type: bool
-  value: false
+#ifdef XP_WIN
+  value: true
+#else
+  value: @IS_EARLY_BETA_OR_EARLIER@
+#endif
   mirror: always
 
 # Whether we expose the functionality proposed in
@@ -12652,7 +12656,11 @@
 
 - name: media.webrtc.hw.h264.enabled
   type: bool
+#if defined(MOZ_WIDGET_ANDROID)
   value: true
+#else
+  value: false
+#endif
   mirror: always
 
 - name: media.webrtc.codec.video.av1.enabled
@@ -13377,7 +13385,7 @@
 # 0=full URI, 1=scheme+host+port+path, 2=scheme+host+port.
 - name: network.http.referer.XOriginTrimmingPolicy
   type: uint32_t
-  value: 2
+  value: 0
   mirror: always
   do_not_use_directly: true
 
@@ -14446,7 +14454,7 @@
 # 4 - reserved/off, 5 off by choice
 - name: network.trr.mode
   type: RelaxedAtomicUint32
-  value: 5
+  value: 0
   mirror: always
 
 # Default global TRR provider
@@ -14576,7 +14584,7 @@
 # Allow RFC1918 address in responses?
 - name: network.trr.allow-rfc1918
   type: RelaxedAtomicBool
-  value: true
+  value: false
   mirror: always
 
 # When true, it only sends AAAA when the system has IPv6 connectivity
