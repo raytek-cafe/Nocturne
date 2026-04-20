@@ -73,26 +73,26 @@ def requires_stub_installer(
 imply_option("MOZ_STUB_INSTALLER", True, when=requires_stub_installer)
 
 option(
-    "--enable-r3dfox-branding",
-    help="Enable Official r3dfox Branding. "
-    "Do not distribute builds unless you are part of Eclipse Community",
+    "--enable-nocturne-branding",
+    help="Enable Official Nocturne Branding. "
+    "Do not release builds with our branding unless you are part of raytek.cafe.",
 )
 
-with only_when("--enable-r3dfox-branding"):
-    imply_option("MOZ_APP_UA_NAME", "r3dfox")
-    imply_option("MOZ_APP_VENDOR", "Eclipse Community")
-    imply_option("MOZ_APP_PROFILE", "Eclipse Community/r3dfox")
+with only_when("--enable-nocturne-branding"):
+    imply_option("MOZ_APP_UA_NAME", "Nocturne")
+    imply_option("MOZ_APP_VENDOR", "Nocturne")
+    imply_option("MOZ_APP_PROFILE", "Nocturne")
 
 option(
-    "--enable-r3desr-branding",
-    help="Enable Official r3dfox ESR Branding. "
-    "Do not distribute builds unless you are part of Eclipse Community",
+    "--enable-nocturneesr-branding",
+    help="Enable Official Nocturne ESR Branding. "
+    "Do not release builds with our branding unless you are part of raytek.cafe.",
 )
 
-with only_when("--enable-r3desr-branding"):
-    imply_option("MOZ_APP_UA_NAME", "r3dfox")
-    imply_option("MOZ_APP_VENDOR", "Eclipse Community")
-    imply_option("MOZ_APP_PROFILE", "Eclipse Community/r3dfox ESR")
+with only_when("--enable-nocturneesr-branding"):
+    imply_option("MOZ_APP_UA_NAME", "Nocturne")
+    imply_option("MOZ_APP_VENDOR", "Nocturne")
+    imply_option("MOZ_APP_PROFILE", "Nocturne")
 
 option(
     "--enable-plasmafox-branding",
@@ -101,8 +101,8 @@ option(
 )
 
 with only_when("--enable-plasmafox-branding"):
-    imply_option("MOZ_APP_UA_NAME", "r3dfox")
-    imply_option("MOZ_APP_VENDOR", "Eclipse Community")
-    imply_option("MOZ_APP_PROFILE", "Eclipse Community/Plasmafox")
+    imply_option("MOZ_APP_UA_NAME", "Nocturne")
+    imply_option("MOZ_APP_VENDOR", "Nocturne")
+    imply_option("MOZ_APP_PROFILE", "Nocturne")
 
 include("../toolkit/moz.configure")

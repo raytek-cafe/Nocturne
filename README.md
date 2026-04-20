@@ -1,18 +1,10 @@
-<span style="display:block;text-align:center">![Eclipse r3dfox](./docs/readme/banner.png)</span>
+<span style="display:block;text-align:center">![raytek Nocturne](./docs/readme/banner.png)</span>
 
-r3dfox is a fork of the open source web browser Mozilla Firefox made specifically for Windows Vista, 7, and 8 compatibility.
+Nocturne is a fork of r3dfox which is a fork of the open source web browser Mozilla Firefox made specifically for Windows Vista, 7, and 8 compatibility.
 
-Limited compatibility with One Core API on Windows XP is offered at the current time, however this is not tested consistently. Any issues that may arise that are hard to diagnose may be left to the extended kernel provider to fix.
-
-Local (GitHub) Downloads ([New Repo](https://github.com/Eclipse-Community/r3dfox)): [![Github All Releases](https://img.shields.io/github/downloads/Eclipse-Community/r3dfox/total.svg)]()
-
-Local (GitHub) Downloads ([Old Repo](https://github.com/Eclipse-Community/r3dfox-old)): [![Github All Releases](https://img.shields.io/github/downloads/Eclipse-Community/r3dfox-old/total.svg)]()
-
-SourceForge Downloads: ![SourceForge Downloads](https://img.shields.io/sourceforge/dt/r3dfox)
+([Local (GitHub) Downloads](https://github.com/raytek-cafe/nocturne)): [![Github All Releases](https://img.shields.io/github/downloads/raytek-cafe/nocturne/total.svg)]()
 
 ## Features
-
-New default theme and color scheme!
 
 More native and native like elements, scrollbar, checkboxes, radio buttons, tooltips, and more! Better than the 115 ESR patch!
 
@@ -22,7 +14,7 @@ Ability to use modern (Windows 10) theme on any OS!
 
 Full portable mode that doesn't touch AppData at all!
 
-Classic about:config page!
+Switchable Classic about:config page! (via nocturne.ui.oldaboutconfig)
 
 Less telemetry than regular Firefox!
 
@@ -48,6 +40,8 @@ Ability to disable e10s! (Experimental and kinda broken)
 
 If I've forgotten to put your name here, please let me know and I'll add it.
 
+Travis, NetworkNeighborhood - The current logo used in the browser. Recolored from the original.
+
 Alex313031 - Mozconfig, general help with the browser, and changes from Mercury browser
 
 aubymori & ephemeralviolette - Classic about:config, disabled launcher process, and more from Nara browser
@@ -72,8 +66,6 @@ Mozilla Developers - Firefox browser base
 
 newbie-461 - Fixed the installer issues
 
-QNetITQ - WaveFox theme
-
 SashaXser - Improved rustflags opts in mozconfig
 
 Solinus - Branding visuals, icons and fancy text
@@ -82,7 +74,7 @@ Tor Browser Developers - Addon fix code from Tor Browser
 
 Unity Pixelheart (UnityAI) - General help with coding and the theme code (Created by @GarryStraitYT)
 
-wanderer - Various code contributions for Vista support
+wanderer - Various code contributions for Vista support/Extra help in nocturne
 
 # Original repository readme
 
