@@ -3,10 +3,10 @@
 <assemblyIdentity
         version="1.0.0.0"
         processorArchitecture="*"
-        name="r3dfox ESR"
+        name="Nocturne"
         type="win32"
 />
-<description>r3dfox ESR</description>
+<description>Nocturne</description>
 <dependency>
         <dependentAssembly>
                 <assemblyIdentity
