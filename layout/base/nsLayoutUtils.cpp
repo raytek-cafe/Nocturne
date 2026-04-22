@@ -6292,7 +6292,7 @@ ImgDrawResult nsLayoutUtils::DrawSingleImage(
     gfxContext& aContext, nsPresContext* aPresContext, imgIContainer* aImage,
     SamplingFilter aSamplingFilter, const nsRect& aDest, const nsRect& aDirty,
     const SVGImageContext& aSVGContext, uint32_t aImageFlags,
-    const nsPoint* aAnchorPoint) {
+    const nsPoint* aAnchorPoint, const nsRect* aSourceArea) {
   // NOTE(emilio): We can hardcode resolution to 1 here, since we're interested
   // in the actual image pixels, for snapping purposes, not on the adjusted
   // size.
@@ -6304,8 +6304,27 @@ ImgDrawResult nsLayoutUtils::DrawSingleImage(
     return ImgDrawResult::SUCCESS;  // no point in drawing a zero size image
   }
 
-  const nsSize imageSize(CSSPixel::ToAppUnits(pixelImageSize));
-  const nsRect source(nsPoint(), imageSize);
+  nsSize imageSize(CSSPixel::ToAppUnits(pixelImageSize));
+  nsRect source;
+  nsCOMPtr<imgIContainer> image = aImage;
+  if (aSourceArea) {
+    source = *aSourceArea;
+    nsIntRect subRect(source.x, source.y, source.width, source.height);
+    subRect.ScaleInverseRoundOut(AppUnitsPerCSSPixel());
+    image = ImageOps::Clip(aImage, subRect);
+
+    nsRect clippedSource(nsPoint(), imageSize);
+    clippedSource.IntersectRect(clippedSource, source);
+    source -= clippedSource.TopLeft();
+    imageSize = clippedSource.Size();
+  } else {
+    source.SizeTo(imageSize);
+  }
+
+  if (imageSize.IsEmpty()) {
+    return ImgDrawResult::SUCCESS;
+  }
+
   const nsRect dest = GetWholeImageDestination(imageSize, source, aDest);
 
   // Ensure that only a single image tile is drawn. If aSourceArea extends
@@ -6313,7 +6332,7 @@ ImgDrawResult nsLayoutUtils::DrawSingleImage(
   // transform but we don't want to actually tile the image.
   nsRect fill;
   fill.IntersectRect(aDest, dest);
-  return DrawImageInternal(aContext, aPresContext, aImage, aSamplingFilter,
+  return DrawImageInternal(aContext, aPresContext, image, aSamplingFilter,
                            dest, fill,
                            aAnchorPoint ? *aAnchorPoint : fill.TopLeft(),
                            aDirty, aSVGContext, aImageFlags);
