@@ -704,6 +704,8 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleOutline {
   STYLE_STRUCT(nsStyleOutline)
   nsStyleOutline();
 
+  mozilla::StyleBorderRadius mOutlineRadius;
+
   mozilla::StyleBorderSideWidth mOutlineWidth;
   mozilla::StyleAu mOutlineOffset;
   mozilla::StyleColor mOutlineColor;
