@@ -65,6 +65,17 @@ ${helpers.predefined_type(
 )}
 
 ${helpers.predefined_type(
+    "-moz-image-region",
+    "ClipRectOrAuto",
+    "computed::ClipRectOrAuto::auto()",
+    engines="gecko",
+    gecko_ffi_name="mImageRegion",
+    boxed=True,
+    spec="Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-image-region)",
+    affects="layout",
+)}
+
+${helpers.predefined_type(
     "quotes",
     "Quotes",
     "computed::Quotes::get_initial_value()",

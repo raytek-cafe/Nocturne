@@ -207,6 +207,8 @@ class nsImageFrame : public nsAtomicContainerFrame, public nsIReflowCallback {
   nsImageFrame* CreateContinuingFrame(mozilla::PresShell*,
                                       ComputedStyle*) const;
 
+  bool CanOptimizeToImageLayer() const;
+
   mozilla::AspectRatio ComputeIntrinsicRatioForImage(
       imgIContainer*, bool aIgnoreContainment = false) const;
 
@@ -412,6 +414,9 @@ class nsImageFrame : public nsAtomicContainerFrame, public nsIReflowCallback {
   // The content-box size as if we are not fragmented, cached in the most recent
   // reflow.
   nsSize mComputedSize;
+
+  // If set, only this sub-rectangle of the source image should be drawn.
+  nsRect mSubRect;
 
   mozilla::IntrinsicSize mIntrinsicSize;
 

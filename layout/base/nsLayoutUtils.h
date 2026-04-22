@@ -2046,7 +2046,8 @@ class nsLayoutUtils {
       gfxContext& aContext, nsPresContext* aPresContext, imgIContainer* aImage,
       SamplingFilter aSamplingFilter, const nsRect& aDest, const nsRect& aDirty,
       const mozilla::SVGImageContext& aSVGContext, uint32_t aImageFlags,
-      const nsPoint* aAnchorPoint = nullptr);
+      const nsPoint* aAnchorPoint = nullptr,
+      const nsRect* aSourceArea = nullptr);
 
   /**
    * Given an imgIContainer, this method attempts to obtain an intrinsic
