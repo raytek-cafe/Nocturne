@@ -1867,13 +1867,15 @@ nsITheme* nsTreeBodyFrame::GetTwistyRect(int32_t aRowIndex,
 
 already_AddRefed<imgIContainer> nsTreeBodyFrame::GetImage(
     int32_t aRowIndex, nsTreeColumn* aCol, bool aUseContext,
-    ComputedStyle* aComputedStyle) {
+    ComputedStyle* aComputedStyle, bool& aAllowImageRegions) {
   Document* doc = PresContext()->Document();
   nsAutoString imageSrc;
   mView->GetImageSrc(aRowIndex, aCol, imageSrc);
   RefPtr<imgRequestProxy> styleRequest;
+  aAllowImageRegions = false;
   nsCOMPtr<nsIURI> uri;
   if (aUseContext || imageSrc.IsEmpty()) {
+    aAllowImageRegions = true;
     // Obtain the URL from the ComputedStyle.
     styleRequest =
         aComputedStyle->StyleList()->mListStyleImage.GetImageRequest();
@@ -1954,8 +1956,9 @@ nsRect nsTreeBodyFrame::GetImageSize(int32_t aRowIndex, nsTreeColumn* aCol,
 
   // We have to load image even though we already have a size.
   // Don't change this, otherwise things start to go awry.
+  bool useImageRegion = false;
   nsCOMPtr<imgIContainer> image =
-      GetImage(aRowIndex, aCol, aUseContext, aComputedStyle);
+      GetImage(aRowIndex, aCol, aUseContext, aComputedStyle, useImageRegion);
 
   const nsStylePosition* myPosition = aComputedStyle->StylePosition();
   const auto positionProperty = aComputedStyle->StyleDisplay()->mPosition;
@@ -2084,7 +2087,11 @@ nsSize nsTreeBodyFrame::GetImageDestSize(ComputedStyle* aComputedStyle,
 // The width and height do not reflect the destination size specified
 // in CSS.
 nsRect nsTreeBodyFrame::GetImageSourceRect(ComputedStyle* aComputedStyle,
+                                           bool aUseImageRegion,
                                            imgIContainer* image) {
+  if (aUseImageRegion && aComputedStyle->StyleList()->mImageRegion.IsRect()) {
+    return aComputedStyle->StyleList()->GetImageRegion();
+  }
   if (!image) {
     return nsRect();
   }
@@ -3104,8 +3111,9 @@ ImgDrawResult nsTreeBodyFrame::PaintTwisty(
       imageSize.Deflate(bp);
 
       // Get the image for drawing.
+      bool useImageRegion = false;
       nsCOMPtr<imgIContainer> image =
-          GetImage(aRowIndex, aColumn, true, twistyContext);
+          GetImage(aRowIndex, aColumn, true, twistyContext, useImageRegion);
       if (image) {
         nsPoint anchorPoint = twistyRect.TopLeft();
 
@@ -3152,8 +3160,9 @@ ImgDrawResult nsTreeBodyFrame::PaintImage(
   imageRect.Deflate(imageMargin);
 
   // Get the image.
+  bool useImageRegion = false;
   nsCOMPtr<imgIContainer> image =
-      GetImage(aRowIndex, aColumn, false, imageContext);
+      GetImage(aRowIndex, aColumn, false, imageContext, useImageRegion);
 
   // Get the image destination size.
   nsSize imageDestSize = GetImageDestSize(imageContext, image);
@@ -3242,7 +3251,8 @@ ImgDrawResult nsTreeBodyFrame::PaintImage(
       // Get the image source rectangle - the rectangle containing the part of
       // the image that we are going to display.  sourceRect will be passed as
       // the aSrcRect argument in the DrawImage method.
-      nsRect sourceRect = GetImageSourceRect(imageContext, image);
+      nsRect sourceRect =
+          GetImageSourceRect(imageContext, useImageRegion, image);
 
       // Let's say that the image is 100 pixels tall and that the CSS has
       // specified that the destination height should be 50 pixels tall. Let's
@@ -3465,8 +3475,9 @@ ImgDrawResult nsTreeBodyFrame::PaintCheckbox(int32_t aRowIndex,
   checkboxRect.Deflate(bp);
 
   // Get the image for drawing.
+  bool useImageRegion = false;
   nsCOMPtr<imgIContainer> image =
-      GetImage(aRowIndex, aColumn, true, checkboxContext);
+      GetImage(aRowIndex, aColumn, true, checkboxContext, useImageRegion);
   if (image) {
     nsPoint pt = checkboxRect.TopLeft();
 
