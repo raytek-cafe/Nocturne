@@ -467,6 +467,7 @@ NS_IMPL_FRAMEARENA_HELPERS(nsImageFrame)
 nsImageFrame::nsImageFrame(ComputedStyle* aStyle, nsPresContext* aPresContext,
                            ClassID aID, Kind aKind)
     : nsAtomicContainerFrame(aStyle, aPresContext, aID),
+      mSubRect(),
       mIntrinsicSize(0, 0),
       mKind(aKind) {
   EnableVisibilityTracking();
@@ -582,17 +583,23 @@ void nsImageFrame::DidSetComputedStyle(ComputedStyle* aOldStyle) {
   //
   // TODO(emilio): We might want to do the same for regular list-style-image or
   // even simple content: url() changes.
-  if (mKind == Kind::XULImage && aOldStyle) {
-    if (!mContent->AsElement()->HasNonEmptyAttr(nsGkAtoms::src) &&
-        aOldStyle->StyleList()->mListStyleImage !=
-            StyleList()->mListStyleImage) {
-      UpdateXULImage();
-    }
-    // If we have no image our intrinsic size might be themed. We need to
-    // update the size even if the effective appearance hasn't changed to
-    // deal correctly with theme changes.
-    if (!mOwnedRequest) {
-      UpdateIntrinsicSize();
+  if (mKind == Kind::XULImage) {
+    // Sub-rects only apply to XUL images that resolve through list-style-image,
+    // so they don't affect web content.
+    mSubRect = StyleList()->GetImageRegion();
+
+    if (aOldStyle) {
+      if (!mContent->AsElement()->HasNonEmptyAttr(nsGkAtoms::src) &&
+          aOldStyle->StyleList()->mListStyleImage !=
+              StyleList()->mListStyleImage) {
+        UpdateXULImage();
+      }
+      // If we have no image our intrinsic size might be themed. We need to
+      // update the size even if the effective appearance hasn't changed to
+      // deal correctly with theme changes.
+      if (!mOwnedRequest) {
+        UpdateIntrinsicSize();
+      }
     }
   }
 
@@ -623,6 +630,10 @@ void nsImageFrame::DidSetComputedStyle(ComputedStyle* aOldStyle) {
                                StylePosition()->mAspectRatio) {
     UpdateIntrinsicRatio();
   }
+}
+
+bool nsImageFrame::CanOptimizeToImageLayer() const {
+  return mSubRect.IsEmpty();
 }
 
 static bool SizeIsAvailable(imgIRequest* aRequest) {
@@ -2404,9 +2415,10 @@ bool nsDisplayImage::CreateWebRenderCommands(
     return true;
   }
 
-  if (nsImageMap* map = frame->GetImageMap(); map && map->HasFocus()) {
-    // We can't draw some of the focus areas (in particular, PolyArea would be
-    // somewhat hard to do).
+  if (nsImageMap* map = frame->GetImageMap();
+      (map && map->HasFocus()) || !frame->CanOptimizeToImageLayer()) {
+    // We can't draw some focus areas, and cropped XUL images need the regular
+    // painting path so the source rect is honored.
     return false;
   }
 
@@ -2524,11 +2536,12 @@ ImgDrawResult nsImageFrame::PaintImage(gfxContext& aRenderingContext,
 
   SVGImageContext svgContext;
   SVGImageContext::MaybeStoreContextPaint(svgContext, this, aImage);
+  const nsRect* sourceArea = mSubRect.IsEmpty() ? nullptr : &mSubRect;
 
   ImgDrawResult result = nsLayoutUtils::DrawSingleImage(
       aRenderingContext, PresContext(), aImage,
       nsLayoutUtils::GetSamplingFilterForFrame(this), dest, aDirtyRect,
-      svgContext, aFlags, &anchorPoint);
+      svgContext, aFlags, &anchorPoint, sourceArea);
 
   if (nsImageMap* map = GetImageMap(); map && map->HasFocus()) {
     gfxPoint devPixelOffset = nsLayoutUtils::PointToGfxPoint(
