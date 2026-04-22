@@ -433,6 +433,26 @@ def set_gecko_property(ffi_name, expr):
     }
 </%def>
 
+<%def name="impl_corner_style_coord(ident, gecko_ffi_name, corner)">
+    #[allow(non_snake_case)]
+    pub fn set_${ident}(&mut self, v: longhands::${ident}::computed_value::T) {
+        self.${gecko_ffi_name}.${corner} = v;
+    }
+    #[allow(non_snake_case)]
+    pub fn copy_${ident}_from(&mut self, other: &Self) {
+        self.${gecko_ffi_name}.${corner} =
+            other.${gecko_ffi_name}.${corner}.clone();
+    }
+    #[allow(non_snake_case)]
+    pub fn reset_${ident}(&mut self, other: &Self) {
+        self.copy_${ident}_from(other)
+    }
+    #[allow(non_snake_case)]
+    pub fn clone_${ident}(&self) -> longhands::${ident}::computed_value::T {
+        self.${gecko_ffi_name}.${corner}.clone()
+    }
+</%def>
+
 <%def name="impl_style_struct(style_struct)">
 /// A wrapper for ${style_struct.gecko_ffi_name}, to be able to manually construct / destruct /
 /// clone it.
@@ -579,6 +599,7 @@ class Side(object):
         self.index = index
 
 SIDES = [Side("Top", 0), Side("Right", 1), Side("Bottom", 2), Side("Left", 3)]
+CORNERS = ["top_left", "top_right", "bottom_right", "bottom_left"]
 %>
 
 #[allow(dead_code)]
@@ -664,8 +685,9 @@ fn static_assert() {
     }
 </%self:impl_trait>
 
+<% skip_outline_longhands = "outline-style outline-width " + " ".join("-moz-outline-radius-" + x.replace("_", "") for x in CORNERS) %>
 <%self:impl_trait style_struct_name="Outline"
-                  skip_longhands="outline-style outline-width">
+                  skip_longhands="${skip_outline_longhands}">
 
     pub fn set_outline_style(&mut self, v: longhands::outline_style::computed_value::T) {
         self.mOutlineStyle = v;
@@ -692,6 +714,13 @@ fn static_assert() {
     pub fn outline_has_nonzero_width(&self) -> bool {
         self.mActualOutlineWidth != 0
     }
+
+    % for corner in CORNERS:
+    <% impl_corner_style_coord("_moz_outline_radius_%s" % corner.replace("_", ""),
+                               "mOutlineRadius",
+                               corner) %>
+    % endfor
+
 </%self:impl_trait>
 
 <% skip_font_longhands = """font-size -x-lang font-feature-settings font-variation-settings""" %>

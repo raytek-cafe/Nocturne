@@ -975,6 +975,7 @@ nsCSSRendering::CreateBorderRendererForNonThemedOutline(
   if (innerRect.Contains(aDirtyRect)) {
     return Nothing();
   }
+  nscoord twipsRadii[8];
 
   const nscoord width = ourOutline->GetOutlineWidth();
 
@@ -1002,11 +1003,12 @@ nsCSSRendering::CreateBorderRendererForNonThemedOutline(
       Float(width) / oneDevPixel, Float(width) / oneDevPixel,
       Float(width) / oneDevPixel, Float(width) / oneDevPixel};
 
-  // convert the radii
-  nscoord twipsRadii[8];
-
   // get the radius for our outline
-  if (aForFrame->GetBorderRadii(twipsRadii)) {
+  if (nsLayoutUtils::HasNonZeroCorner(ourOutline->mOutlineRadius)) {
+    nsIFrame::ComputeBorderRadii(ourOutline->mOutlineRadius, aInnerRect.Size(),
+                                outerRect.Size(), Sides(), twipsRadii);
+    ComputePixelRadii(twipsRadii, oneDevPixel, &outlineRadii);
+  } else if (aForFrame->GetBorderRadii(twipsRadii)) {
     RectCornerRadii innerRadii;
     ComputePixelRadii(twipsRadii, oneDevPixel, &innerRadii);
 
