@@ -2,47 +2,59 @@
 
 Nocturne is a fork of firefox that restores various removed customization options from older releases of Firefox, keeps Windows 7 and 8 support alive thanks to [Firefox-for-Windows-7](https://github.com/e3kskoy7wqk/Firefox-for-windows-7-REWORK) patches, and targets customized Windows 10/11 builds.
 
-([Local (GitHub) Downloads](https://github.com/raytek-cafe/nocturne)): [![Github All Releases](https://img.shields.io/github/downloads/raytek-cafe/nocturne/total.svg)]()
+[![Github All Releases](https://img.shields.io/github/downloads/raytek-cafe/nocturne/total.svg)](https://github.com/raytek-cafe/Nocturne/releases/latest)
+[![Star][star-badge]][star]
+
+[star]: https://github.com/raytek-cafe/Nocturne/stargazers
+[star-badge]: https://img.shields.io/github/stars/raytek-cafe/Nocturne
+
+#### Nocturne on Windows 10
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne Browser on Windows 10" src="./docs/readme/Nocturne_Win10.png" />
+</p>
+
+<hr />
+
+#### Nocturne on Windows 7 (With [Geckium](https://github.com/angelbruni/Geckium/) installed)
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne on Windows 7 with Geckium" src="./docs/readme/Nocturne_Geckium_Win7.png" />
+</p>
+
+<hr />
+
+#### Nocturne on Windows 10 skinned as Windows 8 (With [Echelon 140](https://github.com/nt5point1/echelon-140) installed)
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne on Windows 10 skinned as Windows 8 with Echelon" src="./docs/readme/Nocturne_Echelon_Win10to8.png" />
+</p>
+
+<hr />
+
+#### Nocturne on Windows 10 skinned as Windows XP (With [Namoroka](https://github.com/echelon-theme/namoroka) installed)
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne on Windows 10 skinned as Windows XP with Namoroka" src="./docs/readme/Nocturne_Namoroka_Win10toXP.png" />
+</p>
 
 ## Features
 
-More native and native like elements, scrollbar, checkboxes, radio buttons, tooltips, and more! Better than the 115 ESR patch!
+Nocturne keeps the browser feeling familiar while adding Windows-focused polish and compatibility:
 
-Aero Glass or accent color on 8/10+!
-
-Ability to use modern (Windows 10) theme on any OS!
-
-Full portable mode that doesn't touch AppData at all!
-
-Switchable Classic about:config page! (via browser.ui.oldaboutconfig)
-
-Less telemetry than regular Firefox!
-
-No background tasks!
-
-Firefox 68 retry button for failed downloads!
-
-JPEG XL support!
-
-GPU/hardware acceleration in VMware Workstation 16 and above!
-
-general.useragent.override.(website) is back!
-
-Instant one off searches!
-
-Ability to disable CSP!
-
-Ability to visit websites on ports that Firefox rejects!
-
-Ability to disable e10s! (Experimental and kinda broken)
-
-Ability to revert the icons to use the legacy way (nocturne.legacyiconbehavior.enabled)
-
-Ability to bring back the 16x16 icon back (nocturne.smalliconbehavior.enabled)
-
-Reimplemented -moz-win-glass for a glass look with borders
-
-Reimplemented old url search bar for pre-133 themes
+- More native-like controls, scrollbars, checkboxes, radio buttons, and tooltips
+- Aero Glass support on Windows 8/10+
+- Full portable mode that doesn't touch AppData
+- Switchable classic about:config page via `browser.ui.oldaboutconfig`
+- Less telemetry than regular Firefox
+- No background tasks
+- Firefox 68-style retry button for failed downloads via `nocturne.ui.ff68downloadicons`
+- JPEG XL support
+- GPU/hardware acceleration in VMware Workstation 16 and above
+- `general.useragent.override.(website)` is back
+- Instant one-off searches
+- Ability to disable CSP
+- Ability to visit websites on ports that Firefox rejects
+- Ability to revert icons to the legacy behavior via `nocturne.legacyiconbehavior.enabled`
+- Ability to bring back the 16x16 icon via `nocturne.smalliconbehavior.enabled`
+- Reimplemented `-moz-win-glass` for a glass look with borders
+- Reimplemented the old URL search bar for pre-133 themes
 
 and more!
 
@@ -50,49 +62,26 @@ and more!
 
 If I've forgotten to put your name here, please let me know and I'll add it.
 
-Travis, NetworkNeighborhood - The current logo used in the browser. Recolored from the original.
-
-Nareny - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
-
-e3kskoy7wqk - Firefox for Windows 7 patches to make Nocturne work on Windows 8.1 and lower.
-
-Alex313031 - Mozconfig, general help with the browser, and changes from Mercury browser
-
-aubymori & ephemeralviolette - Classic about:config, disabled launcher process, and more from Nara browser
-
-bbc-chi - Fullscreen transition fix
-
-Erizur - Improved native titlebar, modern mode and some misc fixes from Marble browser
-
-K4sum1 - J’ai repris certains patchs que je ne savais pas comment améliorer, ou qui ne contenaient tout simplement rien que je puisse améliorer, puisque je m’étais à l’origine basé sur leur branche forkée.
-
-Feodor2 - Portable mode and Vista compatibility changes from Mypal68
-
-MrAlex94/Waterfox - Some patches and some commits for XUL extensions.
-
-goodusername123 - Graphical acceleration in VMware Workstation
-
-i486 - Fixed non-native menus
-
-kawapure & ephemeralviolette - Native Controls Patch
-
-leadweedy - Improved active tab indicator from Firefox-Proton-Square
-
-Librewolf Developers - Privacy tweaks from Librewolf
-
-Mozilla Developers - Firefox browser base
-
-newbie-461 - Fixed the installer issues
-
-SashaXser - Improved rustflags opts in mozconfig
-
-Solinus - Branding visuals, icons and fancy text
-
-Tor Browser Developers - Addon fix code from Tor Browser
-
-Unity Pixelheart (UnityAI) - General help with coding and the theme code (Created by @GarryStraitYT)
-
-wanderer - Various code contributions for Vista support/Extra help in nocturne
+- [Travis](https://github.com/travy-patty), [NetworkNeighborhood](https://github.com/NetworkNeighborhood/) - The current logo used in the browser. Recolored from the original.
+- [Nareny](https://github.com/nt5point1/) - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
+- [e3kskoy7wqk](https://github.com/e3kskoy7wqk) - Firefox for Windows 7 patches to make Nocturne work on Windows 8.1 and lower.
+- [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
+- [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, and some miscellaneous fixes from Marble Browser
+- [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
+- [K4sum1](https://github.com/K4sum1) - J’ai repris certains patchs que je ne savais pas comment améliorer, ou qui ne contenaient tout simplement rien que je puisse améliorer, puisque je m’étais à l’origine basé sur leur branche forkée.
+- [Feodor2](https://github.com/Feodor2/) - Portable mode and Vista compatibility changes from Mypal68
+- [MrAlex94/Waterfox](https://github.com/BrowserWorks/waterfox/) - Some patches and some commits for XUL extensions.
+- [goodusername123](https://github.com/goodusername123/) - Graphical acceleration in VMware Workstation
+- [i486](https://github.com/i486/) - Fixed non-native menus
+- [leadweedy](https://github.com/leadweedy) - Improved active tab indicator from Firefox-Proton-Square
+- [bbc-chi](https://github.com/bbc-chi/) - Fullscreen transition fix
+- [Alex313031](https://github.com/Alex313031/) - Mozconfig, general help with the browser, and changes from Mercury browser
+- [newbie-461](https://github.com/newbie-461/) - Fixed the installer issues
+- [SashaXser](https://github.com/SashaXser/) - Improved rustflags opts in mozconfig
+- [Librewolf Developers](https://librewolf.net/) - Privacy tweaks from Librewolf
+- [Mozilla Developers](https://www.firefox.com/) - Firefox browser base
+- [Tor Browser Developers](https://www.torproject.org/) - Addon fix code from Tor Browser
+- wanderer - Various code contributions for Vista support / extra help in Nocturne
 
 # Original repository readme
 
