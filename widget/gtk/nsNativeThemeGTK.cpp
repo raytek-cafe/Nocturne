@@ -447,10 +447,9 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
   return NonNative::BecauseColorMismatch;
 }
 
-bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(nsIFrame* aFrame,
-                                               StyleAppearance aAppearance) {
-  return Theme::IsWidgetAlwaysNonNative(aFrame, aAppearance) ||
-         aAppearance == StyleAppearance::MozMenulistArrowButton ||
+bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(
+    nsIFrame* /* aFrame */, StyleAppearance aAppearance) {
+  return aAppearance == StyleAppearance::MozMenulistArrowButton ||
          aAppearance == StyleAppearance::Textfield ||
          aAppearance == StyleAppearance::NumberInput ||
          aAppearance == StyleAppearance::PasswordInput ||

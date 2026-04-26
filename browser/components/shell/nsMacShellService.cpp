@@ -42,6 +42,12 @@ NS_IMPL_ISUPPORTS(nsMacShellService, nsIMacShellService, nsIShellService,
                   nsIToolkitShellService, nsIWebProgressListener)
 
 NS_IMETHODIMP
+nsMacShellService::CancelPortableMode() {
+  return NS_OK;
+}
+
+
+NS_IMETHODIMP
 nsMacShellService::IsDefaultBrowser(bool aForAllTypes,
                                     bool* aIsDefaultBrowser) {
   *aIsDefaultBrowser = false;

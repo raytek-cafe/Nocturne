@@ -908,6 +908,7 @@ class nsWindow final : public nsBaseWidget {
            mWindowType == WindowType::Dialog;
   }
 
+  bool IsTopLevelWidget() const { return IsTopLevelWindowType(); }
   // mPopupPosition is the original popup position/size from layout, set by
   // nsWindow::Move() or nsWindow::Resize().
   // Popup position is relative to main (toplevel) window.
