@@ -225,6 +225,11 @@ export class NetErrorParent extends EscapablePageParent {
       case "Browser:SSLErrorGoBack":
         this.leaveErrorPage(this.browser);
         break;
+      case "GetNetErrorIllustrationsHidden":
+        return Services.prefs.getBoolPref(
+          "browser.neterrorpage.hide-illustrations",
+          true
+        );
       case "GetChangedCertPrefs": {
         let hasChangedCertPrefs = this.hasChangedCertPrefs();
         this.sendAsyncMessage("HasChangedCertPrefs", {
