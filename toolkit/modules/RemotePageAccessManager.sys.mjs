@@ -42,6 +42,7 @@ export let RemotePageAccessManager = {
       RPMRecordGleanEvent: ["*"],
       RPMAddMessageListener: ["*"],
       RPMRemoveMessageListener: ["*"],
+      RPMSendQuery: ["GetNetErrorIllustrationsHidden"],
       RPMGetFormatURLPref: ["app.support.baseURL"],
       RPMGetBoolPref: [
         "security.certerrors.mitm.priming.enabled",
@@ -140,7 +141,10 @@ export let RemotePageAccessManager = {
       RPMIsSiteSpecificTRRError: ["*"],
       RPMSetTRRDisabledLoadFlags: ["*"],
       RPMShowOSXLocalNetworkPermissionWarning: ["*"],
-      RPMSendQuery: ["Browser:AddTRRExcludedDomain"],
+      RPMSendQuery: [
+        "Browser:AddTRRExcludedDomain",
+        "GetNetErrorIllustrationsHidden",
+      ],
       RPMGetIntPref: ["network.trr.mode", "security.dialog_enable_delay"],
     },
     "about:newtab": {

@@ -2959,6 +2959,7 @@ pref("browser.toolbars.bookmarks.showOtherBookmarks", true);
 pref("browser.toolbars.share-button.enabled", true);
 
 pref("security.certerrors.felt-privacy-v1", true);
+pref("browser.neterrorpage.hide-illustrations", false);
 
 
 // Prefs to control the Firefox Account toolbar menu.

@@ -216,6 +216,11 @@ button:disabled {
       width: 13em;
     }
   }
+  @media -moz-pref("browser.neterrorpage.hide-illustrations") {
+    .img-container > img {
+      width: 3.5em;
+    }
+  }
 
   #viewCertificate {
     margin: 0;

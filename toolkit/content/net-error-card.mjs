@@ -51,6 +51,7 @@ export class NetErrorCard extends MozLitElement {
     showPrefReset: { type: Boolean },
     showTlsNotice: { type: Boolean },
     showTrrSettingsButton: { type: Boolean },
+    hideIllustrations: { state: true },
   };
 
   static queries = {
@@ -126,6 +127,12 @@ export class NetErrorCard extends MozLitElement {
     this.showPrefReset = false;
     this.showTlsNotice = false;
     this.showTrrSettingsButton = false;
+    this.hideIllustrations = true;
+    this.illustrationsPrefPromise = RPMSendQuery(
+      "GetNetErrorIllustrationsHidden"
+    ).then(value => {
+      this.hideIllustrations = value;
+    });
     this.trrTelemetryData = null;
   }
 
@@ -141,6 +148,7 @@ export class NetErrorCard extends MozLitElement {
         this.getCertificateErrorText(),
       this.domainMismatchNamesPromise,
       this.certificateErrorTextPromise,
+      this.illustrationsPrefPromise,
     ].filter(Boolean);
 
     if (promises.length) {
@@ -1076,11 +1084,12 @@ export class NetErrorCard extends MozLitElement {
     }
 
     const { bodyTitleL10nId, image } = this.errorConfig;
-    const {
-      src,
-      alt = "",
-      className,
-    } = image ?? NET_ERROR_ILLUSTRATIONS.securityError;
+    const illustration = this.hideIllustrations
+      ? image
+        ? {}
+        : { src: "chrome://global/skin/illustrations/warning.svg" }
+      : (image ?? NET_ERROR_ILLUSTRATIONS.securityError);
+    const { src, alt = "", className } = illustration;
     const title = bodyTitleL10nId ?? "fp-certerror-body-title";
 
     return html`<link
@@ -1092,9 +1101,16 @@ export class NetErrorCard extends MozLitElement {
         aria-labelledby="error-title"
         aria-describedby="error-intro whatCanYouDo"
       >
-        <div class="img-container">
-          <img src=${src} class=${ifDefined(className)} alt=${alt} />
-        </div>
+        ${src &&
+        html`
+          <div class="img-container">
+            <img
+              src=${src}
+              class=${ifDefined(className)}
+              ${alt && `data-l10n-id=${alt} data-l10n-attrs="alt"`}
+            />
+          </div>
+        `}
         <div class="container">
           ${this.showCustomNetErrorCard
             ? html`${this.customNetErrorContainerTemplate()}`
