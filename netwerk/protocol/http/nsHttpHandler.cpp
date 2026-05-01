@@ -305,7 +305,14 @@ nsHttpHandler::nsHttpHandler()
 
 void nsHttpHandler::EnsureUAOverridesInit() {
   MOZ_ASSERT(XRE_IsParentProcess());
-  MOZ_ASSERT(NS_IsMainThread());
+
+  if (!NS_IsMainThread()) {
+    RefPtr<nsHttpHandler> self = this;
+    MOZ_ALWAYS_SUCCEEDS(NS_DispatchToMainThread(NS_NewRunnableFunction(
+        "nsHttpHandler::EnsureUAOverridesInit",
+        [self = std::move(self)]() { self->EnsureUAOverridesInit(); })));
+    return;
+  }
 
   static bool initDone = false;
 
@@ -2233,7 +2240,7 @@ nsresult nsHttpHandler::SetupChannelInternal(
   uint32_t caps = mCapabilities;
 
   if (XRE_IsParentProcess()) {
-    // Load UserAgentOverrides.jsm before any HTTP request is issued.
+    // The service must be initialized on the main thread.
     EnsureUAOverridesInit();
   }
 
