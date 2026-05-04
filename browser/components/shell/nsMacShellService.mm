@@ -70,7 +70,7 @@ nsMacShellService::IsDefaultBrowser(bool aForAllTypes,
 }
 
 NS_IMETHODIMP
-nsMacShellService::SetDefaultBrowser(bool aForAllUsers) {
+nsMacShellService::SetDefaultBrowser(bool aClaimAllTypes, bool aForAllUsers) {
   // Note: We don't support aForAllUsers on Mac OS X.
 
   if (@available(macOS 27.0, *)) {
@@ -101,9 +101,11 @@ nsMacShellService::SetDefaultBrowser(bool aForAllUsers) {
       return NS_ERROR_FAILURE;
     }
 
-    if (::LSSetDefaultRoleHandlerForContentType(kUTTypeHTML, kLSRolesAll,
-                                                firefoxID) != noErr) {
-      return NS_ERROR_FAILURE;
+    if (aClaimAllTypes) {
+      if (::LSSetDefaultRoleHandlerForContentType(kUTTypeHTML, kLSRolesAll,
+                                                  firefoxID) != noErr) {
+        return NS_ERROR_FAILURE;
+      }
     }
   }
 
