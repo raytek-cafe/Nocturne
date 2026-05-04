@@ -37,7 +37,7 @@ struct ModuleLoadInfo final {
 #  if defined(IMPL_MFBT)
     ::QueryPerformanceCounter(&mBeginTimestamp);
 #  else
-    ::RtlQueryPerformanceCounter(&mBeginTimestamp);
+    ::NtQueryPerformanceCounter(&mBeginTimestamp , NULL);
 #  endif  // defined(IMPL_MFBT)
   }
 
@@ -59,7 +59,7 @@ struct ModuleLoadInfo final {
 #  if defined(IMPL_MFBT)
     ::QueryPerformanceCounter(&mBeginTimestamp);
 #  else
-    ::RtlQueryPerformanceCounter(&mBeginTimestamp);
+    ::NtQueryPerformanceCounter(&mBeginTimestamp , NULL);
 #  endif  // defined(IMPL_MFBT)
   }
 
@@ -70,7 +70,7 @@ struct ModuleLoadInfo final {
 #  if defined(IMPL_MFBT)
     ::QueryPerformanceCounter(&mLoadTimeInfo);
 #  else
-    ::RtlQueryPerformanceCounter(&mLoadTimeInfo);
+    ::NtQueryPerformanceCounter(&mLoadTimeInfo , NULL);
 #  endif  // defined(IMPL_MFBT)
   }
 
@@ -82,7 +82,7 @@ struct ModuleLoadInfo final {
 #  if defined(IMPL_MFBT)
     ::QueryPerformanceCounter(&endTimeStamp);
 #  else
-    ::RtlQueryPerformanceCounter(&endTimeStamp);
+    ::NtQueryPerformanceCounter(&endTimeStamp , NULL);
 #  endif  // defined(IMPL_MFBT)
 
     LONGLONG& timeInfo = mLoadTimeInfo.QuadPart;
