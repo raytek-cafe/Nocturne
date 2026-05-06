@@ -1022,6 +1022,14 @@ class ModalPrompter {
       return;
     }
 
+    if (
+      !ModalPrompter.tabModalEnabled &&
+      (modalType == MODAL_TYPE_TAB || modalType == MODAL_TYPE_CONTENT)
+    ) {
+      modalType = MODAL_TYPE_WINDOW;
+    }
+
+
     // For content prompts for non-content windows, use window prompts:
     if (modalType == MODAL_TYPE_CONTENT && !this.browsingContext?.isContent) {
       this._modalType = MODAL_TYPE_WINDOW;
@@ -1784,6 +1792,14 @@ XPCOMUtils.defineLazyPreferenceGetter(
   "prompts.defaultModalType",
   MODAL_TYPE_WINDOW
 );
+
+XPCOMUtils.defineLazyPreferenceGetter(
+  ModalPrompter,
+  "tabModalEnabled",
+  "prompts.tab_modal.enabled",
+  true
+);
+
 
 export function AuthPromptAdapterFactory() {}
 AuthPromptAdapterFactory.prototype = {
