@@ -49,5 +49,10 @@ Preferences.addAll([
   { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
   { id: "nocturne.ui.ff68downloadicons", type: "bool" },
   { id: "nocturne.ui.oldurlbar", type: "bool" },
+  { id: "prompts.tab_modal.enabled", type: "bool" },
+  { id: "prompts.headerAppIcon.enabled", type: "bool" },
+  { id: "prompts.tab_modal.sound.enabled", type: "bool" },
+
+
 /*  { id: "browser.translations.enable", type: "bool" },*/
 ]);

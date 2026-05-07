@@ -221,6 +221,23 @@ nocturne-small-icon =
 
 nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
 
+
+nocturne-prompt-tab-modal =
+    .label = Use tab-modal prompt dialogs
+
+nocturne-prompt-tab-modal-desc = When enabled, website prompts and HTTP authentication prompts stay attached to the current tab. When disabled, they use legacy window-modal dialogs instead.
+
+nocturne-prompt-header-icon =
+    .label = Show app icon in prompt dialogs
+
+nocturne-prompt-header-icon-desc = When enabled, prompt dialogs can show the browser application icon in their header. When disabled, the icon is hidden where supported.
+
+nocturne-prompt-sound =
+    .label = Play sounds for tab-modal prompt dialogs
+
+nocturne-prompt-sound-desc = When enabled, this option restores the sounds that Firefox 3 used to play when certain dialogs and alerts appeared.
+
+
 nocturne-ff68-download-icons =
     .label = Use Firefox 68-style download icons
 
