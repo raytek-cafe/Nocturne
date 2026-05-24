@@ -1693,12 +1693,15 @@ void nsWindow::Show(bool aState) {
       }
       if (HasBogusPopupsDropShadowOnMultiMonitor() &&
           WinUtils::GetMonitorCount() > 1 && !dwmCompositionEnabled) {
-        // See bug 603793. When we try to draw D3D9/10 windows with a drop
-        // shadow without the DWM on a secondary monitor, windows fails to
-        // composite our windows correctly. We therefor switch off the drop
-        // shadow for pop-up windows when the DWM is disabled and two monitors
-        // are connected.
-        return false;
+        const HMONITOR popupMonitor =
+            ::MonitorFromWindow(mWnd, MONITOR_DEFAULTTONEAREST);
+        if (popupMonitor && popupMonitor != WinUtils::GetPrimaryMonitor()) {
+          // See bug 603793. When we try to draw D3D9/10 windows with a drop
+          // shadow without the DWM on a secondary monitor, Windows fails to
+          // composite our windows correctly. Keep that workaround scoped to
+          // non-primary monitors so primary-display popups keep their shadow.
+          return false;
+        }
       }
       return true;
     }();
