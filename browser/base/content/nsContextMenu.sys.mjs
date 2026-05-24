@@ -746,7 +746,7 @@ export class nsContextMenu {
       !this.onAudio &&
       !this.onLink &&
       !this.onTextInput;
-    if (Services.prefs.getBoolPref("r3dfox.view.image")) {
+    if (Services.prefs.getBoolPref("nocturne.view.image")) {
       this.showItem("context-viewimage", showViewImage);
 
       var shouldShow = !(
@@ -914,7 +914,7 @@ export class nsContextMenu {
     this.showItem("context-inspect-a11y", showInspectA11Y);
 
     // View video depends on not having a standalone video.
-    if (Services.prefs.getBoolPref("r3dfox.view.image")) {
+    if (Services.prefs.getBoolPref("nocturne.view.image")) {
       this.showItem(
         "context-viewvideo",
         this.onVideo && (!this.inSyntheticDoc || this.inFrame)
@@ -1841,7 +1841,7 @@ export class nsContextMenu {
   // Change current window to the URL of the image, video, or audio.
   viewMedia(e) {
     let where = lazy.BrowserUtils.whereToOpenLink(e, false, false);
-    if (!Services.prefs.getBoolPref("r3dfox.view.image")) {
+    if (!Services.prefs.getBoolPref("nocturne.view.image")) {
       if (where == "current") {
         where = "tab";
       }
