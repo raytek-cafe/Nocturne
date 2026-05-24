@@ -104,6 +104,10 @@ settings-pane-labs-header =
     .heading = { -firefoxlabs-brand-name }
 pane-experimental-description4 = Give our experimental features a try! They’re in development and evolving, which could impact how { -brand-short-name } works. We only receive data about your use of these features if you have <a data-l10n-name="data-collection">technical and interaction data</a> turned on.
 
+pane-nocturne-title = nocturne configurations
+category-nocturne =
+    .tooltiptext = { pane-privacy-title }
+
 pane-experimental-reset =
   .label = Restore Defaults
   .accesskey = R
@@ -178,9 +182,181 @@ search-results-header = Search results
 search-results-empty-message2 =
         Sorry! There are no results in Settings for “<span data-l10n-name="query"></span>”.
 
-search-results-help-link = Need help? Visit <a data-l10n-name="url">{ -brand-short-name } Support</a>
+search-results-help-link = Need help? Visit <a data-l10n-name="url">Mozilla Support</a>
 
-## General Section
+## General Section - nocturne
+
+nocturne-title = nocturne specific options
+    .heading = nocturne specific options
+
+nocturne-visual-header =
+    .label = Visual configurations
+
+nocturne-native-checkbox =
+    .label = Use native styles
+
+nocturne-native-checkbox-desc = This controls whether the scrollbar, checkboxes, and other elements use their native system counterparts or their non-native browser themed style.
+
+nocturne-native-menulist =
+    .label = Menulist type
+
+nocturne-native-scroll =
+    .label = Scrollbar type
+
+nocturne-fake-scroll-type =
+    .label = Non-native scrollbar theme
+
+nocturne-win-theme-type =
+    .label = Windows version theme override (requires restart)
+
+nocturne-colors =
+    .label = nocturne color schemes
+
+nocturne-fog-type =
+    .label = Caption bar/Aero fog style
+
+nocturne-caption-text =
+    .label = Override caption/window text color
+
+nocturne-drag =
+    .label = Enable drag space on nocturne theme styles
+
+nocturne-backgrounds =
+    .label = Backgrounds for tabs and other toolbar items
+
+nocturne-menubar =
+    .label = Transparent menubar
+
+nocturne-navbar =
+    .label = Translucent design
+
+nocturne-functional-header =
+    .label = Functionality configurations
+
+nocturne-one-offs =
+    .label = Instant one off searches
+
+nocturne-old-one-offs =
+    .label = Classic urlbar search UI
+
+nocturne-view-image =
+    .label = Restore classic View Image context menu options
+
+nocturne-nav-text =
+    .label = Replace context menu navigation icons with text options
+
+nocturne-urlbar-formatting =
+    .label = Disable urlbar URL formatting
+
+nocturne-tab-groups =
+    .label = Enable tab groups
+nocturne-translations-enable =
+    .label = Enable in-browser language translations
+
+nocturne-screenshot-component =
+    .label = Enable in-browser screenshot component
+
+nocturne-hover-preview =
+    .label = Modern style tab hover preview
+
+nocturne-drop-to-pin =
+    .label = Disable drop to pin tabs
+
+nocturne-taskbar-tabs =
+    .label = Disable add tab to taskbar button in urlbar
+
+nocturne-old-aboutconfig =
+    .label = Use the classic about:config page
+
+nocturne-geo =
+    .label = Disable browser geolocation
+
+nocturne-switch-to-tab =
+    .label = Change urlbar switch to tab into a button
+
+nocturne-switch-to-tab-desc = This changes switching to an already open tab in the urlbar to be a button instead of being the default when you click the item.
+
+nocturne-prompt-tab-modal =
+    .label = Use the native system message box for prompts
+
+nocturne-prompt-tab-modal-desc = This changes website and authentication prompts to use the native system message box instead of a modal inside the browser.
+
+nocturne-prompt-header-icon =
+    .label = Show the browser icon in the titlebar for system message box prompts
+
+nocturne-prompt-sound =
+    .label = Play sounds for native system message box prompts
+
+nocturne-advanced-header =
+    .label = Advanced configurations
+
+nocturne-accessibility = Accessibility services
+    .label = Accessibility services
+
+nocturne-accessibility-desc = Recommended to disable if you do not need them for enhanced security and performance.
+nocturne-cookiebanners = Cookie banner handling mode in normal browsing
+
+nocturne-cookiebanners-desc = Recommended to leave enabled for a less annoying browsing experience. Currently this will set cookies even when set to block all cookies.
+
+nocturne-cookiebanners-private = Cookie banner handling mode in private browsing
+
+nocturne-caption-width =
+    .label = Custom caption button Aero fog mask width
+
+nocturne-caption-desc = For themes that use custom sized caption buttons that differ from the stock OS. Browser restart is required for changes to take effect.
+
+nocturne-caption-height =
+    .label = Custom caption button Aero fog mask height
+
+nocturne-sandbox-level =
+    .label = Security Sandbox Content Level
+
+nocturne-webaudio =
+    .label = Disable Web Audio API
+
+nocturne-webaudio-desc = Web Audio can be disabled for enhanced security, however a few websites may require it to be enabled.
+
+nocturne-csp =
+    .label = Disable Content Security Policy (CSP)
+
+nocturne-csp-desc = CSP is a security feature, improperly designed websites may require disabling CSP. Not recommended unless you know what you are doing.
+
+nocturne-port-blocking =
+    .label = Disable Website Port Blocking
+
+nocturne-port-blocking-desc = Supposedly for "security", to disallow accessing websites on specified blocked ports but it makes no sense. What can a website on a blocked port do that can't just be done on 80/443? https://fetch.spec.whatwg.org/#port-blocking
+
+nocturne-dwrite =
+    .label = Use Skia GDI font rendering (BETA)
+
+nocturne-dwrite-desc = Disable DirectWrite font rendering. Not recommended unless you know what you are doing. Currently buggy. https://github.com/e3kskoy7wqk/Firefox-for-windows-7/issues/79
+
+nocturne-hsts =
+    .label = Disable HTTP Strict Transport Security (HSTS)
+
+nocturne-hsts-desc = HSTS is a security feature, websites with missing, expired, or wrong certificates may require disabling HSTS to access. Not recommended unless you know what you are doing.
+
+nocturne-cors-base =
+    .label = Disable Cross-Origin Resource Sharing (CORS)
+
+nocturne-cors-base-desc = CORS is a security feature, improperly designed websites may require disabling CORS. Not recommended unless you know what you are doing.
+
+nocturne-cors-preflight =
+    .label = Disable Cross-Origin Resource Sharing Preflight requests (CORS)
+
+nocturne-cors-preflight-desc = Bypasses CORS Preflight requests, improperly designed websites may require this as well as disabling CORS. Not recommended unless you know what you are doing.
+
+nocturne-same-origin =
+    .label = Disable Same-Origin Policy (SOP)
+
+nocturne-same-origin-desc = SOP is a security feature, improperly designed websites may require disabling SOP. Not recommended unless you know what you are doing.
+
+nocturne-e10s =
+    .label = Disable content multiprocess (e10s) (BETA)
+
+nocturne-e10s-desc = Disables e10s/electrolysis content multiprocess. There are still multiple processes from other browser components with this enabled. Not recommended unless you do not know what you are doing.
+
+## General Section - Startup
 
 startup-group =
     .label = Startup
@@ -936,10 +1112,10 @@ home-default-browser-title =
     .label = Default browser
 
 is-default-browser-2 =
-    .message = { -brand-short-name } is your default browser. Good choice.
+    .message = { -brand-short-name } is currently your default browser
 
 is-not-default-browser-2 =
-    .message = Psst, { -brand-short-name } isn’t your default.
+    .message = { -brand-short-name } is not your default browser
 
 set-as-my-default-browser-2 =
     .label = Make default
@@ -1009,7 +1185,7 @@ home-prefs-shortcuts-by-option-sponsored =
 
 home-prefs-recommended-by-header-generic =
     .label = Recommended stories
-home-prefs-recommended-by-description-generic = Exceptional content curated by the { -brand-product-name } family
+home-prefs-recommended-by-description-generic = Exceptional content curated by Mozilla
 
 home-prefs-stories-header =
     .label = Stories
@@ -1111,7 +1287,7 @@ addressbar-header-1 =
 # When Firefox Suggest is enabled, this replaces `addressbar-header-1`.
 addressbar-header-firefox-suggest-2 =
     .label = { -firefox-suggest-brand-name }
-    .description = Suggestions from { -brand-short-name } and our partners in your address bar.
+    .description = Suggestions from Mozilla and their partners in your address bar.
 
 addressbar-locbar-history-option =
     .label = Browsing history
@@ -1147,12 +1323,12 @@ addressbar-locbar-showtrendingsuggestions-option-2 =
 
 # Toggles whether suggestions are obtained from Firefox Suggest or not (local or online).
 addressbar-locbar-suggest-all-option-2 =
-    .label = Suggestions from { -brand-short-name }
+    .label = Suggestions from Mozilla
     .description = Get suggestions from the web related to your search.
 
 addressbar-locbar-suggest-sponsored-option-2 =
     .label = Suggestions from sponsors
-    .description = Support { -brand-short-name } with occasional sponsored suggestions.
+    .description = Support Mozilla with occasional sponsored suggestions.
 
 # This string is used for a checkbox in the settings UI that opts the
 # user into "online" Firefox Suggest, allowing them to receive suggestions from
@@ -1165,7 +1341,7 @@ addressbar-firefox-suggest-online =
 
 addressbar-dismissed-suggestions-label-2 =
     .label = Dismissed suggestions
-    .description = Restore dismissed suggestions from sponsors and { -brand-short-name }.
+    .description = Restore dismissed suggestions from sponsors and Mozilla.
 addressbar-restore-dismissed-suggestions-button-2 =
     .label = Restore suggestions
 
@@ -2052,42 +2228,42 @@ permissions-addon-exceptions2 =
 
 # The search keyword isn't shown to users but is used to find relevant settings in about:preferences.
 data-collection =
-    .label = { -brand-short-name } data collection and use
-    .description = We strive to provide you with choices and collect only the minimal data necessary to improve { -brand-product-name } for everyone.
+    .label = Mozilla data collection and use
+    .description = Let Mozilla spy on you.
     .searchkeywords = telemetry
 data-collection-link = View Privacy Notice
 data-collection-preferences-across-profiles =
     .message = These settings apply to every { -brand-product-name } profile on this device.
 data-collection-profiles-link = View all profiles
 data-collection-health-report-telemetry-disabled =
-    .message = You’re no longer allowing { -vendor-short-name } to capture technical and interaction data. All past data will be deleted within 30 days.
+    .message = You’re no longer allowing Mozilla to  spy on you and capture technical and interaction data. All past data will be deleted within 30 days.
 data-collection-health-report =
-    .label = Send technical and interaction data to { -vendor-short-name }
+    .label = Let Mozilla spy on you by sending your browser usage to them
     .accesskey = r
-    .description = This helps us improve { -brand-product-name } features, performance, and stability.
+    .description = This "helps" Mozilla "improve" features, performance, and stability.
 data-collection-health-report-disabled =
-    .label = Send technical and interaction data to { -vendor-short-name }
+    .label = Let Mozilla spy on you by sending your browser usage to them
     .accesskey = r
     .description = Data reporting is disabled for this build configuration.
 data-collection-run-studies =
-    .label = Allow { -brand-short-name } to run feature studies
-    .description = { -brand-short-name } randomly selects users to test features, which helps improve quality for everyone.
+    .label = Allow Mozilla to run experiments on you
+    .description = Mozilla randomly selects users to test features, which helps improve quality for everyone.
 data-collection-studies-link =
-    .label = View { -brand-short-name } studies
+    .label = View Mozilla studies
 data-collection-backlogged-crash-reports =
     .label = Automatically send crash reports
     .description = This helps { -vendor-short-name } diagnose and fix issues with the browser. Reports may include personal or sensitive data.
     .accesskey = c
 data-collection-usage-ping =
-    .label = Send daily usage ping to { -vendor-short-name }
-    .description = This helps { -vendor-short-name } to estimate active users.
+    .label = Let Mozilla spy on you by sending a usage ping
+    .description = This helps Mozilla to estimate active users.
     .accesskey = u
 
 backup-multi-profile-warning-message =
     .message = To make sure this change is included in your backups, open each profile and choose “Backup now” in Settings.
 
 nimbus-rollouts =
-    .label = Allow { -brand-short-name } to improve features, performance, and stability between updates
+    .label = Allow Mozilla to run experiments on you
     .description = Changes will be rolled out remotely.
 addon-recommendations3 =
     .label = Allow personalized extension recommendations
@@ -2098,9 +2274,9 @@ addon-recommendations3 =
 collection-health-report-disabled2 = Data reporting is disabled for this build configuration.
 
 collection-backlogged-crash-reports2 =
-    .label = Automatically send crash reports
+    .label = Automatically send crash reports to Mozilla. Not like they'd care about this fork lol.
     .accesskey = c
-collection-backlogged-crash-reports-description = This helps { -vendor-short-name } diagnose and fix issues with the browser. Reports may include personal or sensitive data.
+collection-backlogged-crash-reports-description = This just gives Mozilla data. Reports may include personal or sensitive data.
 
 # Promotional message displayed in the Settings panes to inform users of the new redesign
 settings-redesign-promo =
@@ -2114,7 +2290,7 @@ privacy-segmentation-section-header = New features that enhance your browsing
 privacy-segmentation-section-description = When we offer features that use your data to give you a more personal experience:
 
 privacy-segmentation-radio-off =
-    .label = Use { -brand-product-name } recommendations
+    .label = Use Mozilla recommendations
 
 privacy-segmentation-radio-on =
     .label = Show detailed information

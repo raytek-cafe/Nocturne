@@ -156,6 +156,7 @@
   skin/classic/browser/preferences/category-general.svg        (../shared/preferences/category-general.svg)
   skin/classic/browser/preferences/category-accessibility.svg  (../shared/preferences/category-accessibility.svg)
   skin/classic/browser/preferences/category-privacy-security.svg    (../shared/preferences/category-privacy-security.svg)
+  skin/classic/browser/preferences/category-nocturne.svg         (../shared/preferences/category-nocturne.svg)
   skin/classic/browser/preferences/category-search.svg         (../shared/preferences/category-search.svg)
   skin/classic/browser/preferences/category-sync.svg           (../shared/preferences/category-sync.svg)
   skin/classic/browser/preferences/containers-dialog.css       (../shared/preferences/containers-dialog.css)
@@ -362,3 +363,7 @@
   skin/classic/browser/illustrations/market-opt-in.svg         (../shared/illustrations/market-opt-in.svg)
   skin/classic/browser/illustrations/tab-groups.svg            (../shared/illustrations/tab-groups.svg)
   skin/classic/browser/illustrations/yelpRealtime-opt-in.svg   (../shared/illustrations/yelpRealtime-opt-in.svg)
+
+browser.jar:
+%  skin browser classic/1.0 %skin/classic/browser/
+ skin/classic/browser/nocturne.css     (../shared/nocturne.css) 

@@ -288,6 +288,10 @@ radio {
   }
 }
 
+#category-nocturne > .category-icon {
+  list-style-image: url("chrome://browser/skin/preferences/category-nocturne.svg");
+}
+
 /* All panes */
 
 .info-icon,
@@ -1417,6 +1421,15 @@ setting-group[groupid="home"] {
   --select-max-width: 17rem;
 }
 /** SRD rows control for New Tab END **/
+
+/** SRD rows control for Nocturne START **/
+@media -moz-pref("browser.settings-redesign.enabled") {
+  setting-group[groupid^="nocturne"] {
+    --select-max-width: 22rem;
+    --input-text-max-width: var(--select-max-width);
+  }
+}
+/** SRD rows control for Nocturne END **/
 
 /** SRD History first item is label-less START **/
 /* bug 2001196: Workaround for using legend as label for the select. */

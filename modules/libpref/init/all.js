@@ -613,6 +613,33 @@ pref("toolkit.telemetry.user_characteristics_ping.logLevel", "Warn");
 // Extra logging for AsyncShutdown barriers and phases
 pref("toolkit.asyncshutdown.log", false);
 
+// nocturne preferences.
+// Ability to enable/disable Aero fog.
+pref("nocturne.aero.fog", 0);
+// nocturne drag space in theme.
+pref("nocturne.drag-space.enabled", true);
+// nocturne tab and other item brackgrounds so no fog needed.
+pref("nocturne.backgrounds.enabled", true);
+// Black or white caption text.
+pref("nocturne.caption.text.color", 0);
+// Force (kinda) transparency.
+pref("nocturne.force.transparency", false);
+// Disable transparent menubar by default
+pref("nocturne.transparent.menubar", false);
+// Enable menubar text glow by default
+pref("nocturne.glow.menubar", true);
+// Translucent navbar design
+pref("nocturne.translucent.navbar", false);
+// Default to blue color if branding doesn't override.
+pref("nocturne.colors", 0);
+
+// Whether the context menu should show the navigation items (Back, Forward,
+// Reload, Bookmark) as icons.
+pref("browser.menu.navigationIcons", true);
+
+// Enable browser urlbar formatting.
+pref("browser.urlbar.formatting.enabled", true);
+
 // Enable JS dump() function.
 // IMPORTANT: These prefs must be here even though they're also defined in
 // StaticPrefList.yaml. They are required because MOZILLA_OFFICIAL is false in
