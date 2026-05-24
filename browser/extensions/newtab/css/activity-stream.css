@@ -741,13 +741,9 @@ main section {
   margin-inline-start: 16px;
   width: 155px;
 
-  @media -moz-pref("r3dfox.browser.plasmafox") {
-    background-size: 244px;
-    width: 244px;
-  }
-  @media -moz-pref("r3dfox.browser.esr") {
-    background-size: 265px;
-    width: 265px;
+  @media -moz-pref("nocturne.browser.plasmafox") {
+    background-size: 220px;
+    width: 220px;
   }
 }
 .lightWallpaper .logo-and-wordmark .wordmark {
