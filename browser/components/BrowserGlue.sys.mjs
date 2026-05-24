@@ -105,6 +105,20 @@ if (AppConstants.ENABLE_WEBDRIVER) {
 
 const PREF_PDFJS_ISDEFAULT_CACHE_STATE = "pdfjs.enabledCache.state";
 
+function applyCustomCSS() {
+let styleSheetService = Components.classes["@mozilla.org/content/style-sheet-service;1"]
+.getService(Components.interfaces.nsIStyleSheetService);
+let ioService = Components.classes["@mozilla.org/network/io-service;1"]
+.getService(Components.interfaces.nsIIOService);
+let uri = ioService.newURI("chrome://browser/skin/nocturne.css", null, null);
+
+if (!styleSheetService.sheetRegistered(uri, styleSheetService.AGENT_SHEET)) {
+styleSheetService.loadAndRegisterSheet(uri, styleSheetService.AGENT_SHEET);
+}
+}
+
+applyCustomCSS();
+
 ChromeUtils.defineLazyGetter(
   lazy,
   "WeaveService",
