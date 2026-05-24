@@ -61,8 +61,8 @@ settings-category-labs =
     .tooltiptext = { -firefoxlabs-brand-name }
 pane-experimental-description3 = Give our experimental features a try! They’re in development and evolving, which could impact how { -brand-short-name } works.
 
-pane-r3dfox-title = r3dfox configurations
-category-r3dfox =
+pane-nocturne-title = Nocturne configurations
+category-nocturne =
     .tooltiptext = { pane-privacy-title }
 
 pane-experimental-reset =
@@ -134,152 +134,158 @@ search-results-empty-message2 =
 
 search-results-help-link = Need help? Visit <a data-l10n-name="url">Mozilla Support</a>
 
-## General Section - r3dfox
+## General Section - Nocturne
 
-r3dfox-title = r3dfox specific options
+nocturne-title = Nocturne specific options
 
-r3dfox-visual-header = Visual configurations
+nocturne-visual-header = Visual configurations
 
-r3dfox-native-checkbox =
+nocturne-native-checkbox =
     .label = Use native styles
 
-r3dfox-native-checkbox-desc = This controls whether the scrollbar, checkboxes, and other elements use their native system counterparts or their non-native browser themed style.
+nocturne-native-checkbox-desc = This controls whether the scrollbar, checkboxes, and other elements use their native system counterparts or their non-native browser themed style.
 
-r3dfox-native-menulist = Menulist type
+nocturne-native-menulist = Menulist type
 
-r3dfox-native-scroll = Scrollbar type
+nocturne-native-scroll = Scrollbar type
 
-r3dfox-fake-scroll-type = Non-native scrollbar theme
+nocturne-fake-scroll-type = Non-native scrollbar theme
 
-r3dfox-win-theme-type = Windows version theme override (requires restart)
+nocturne-win-theme-type = Windows version theme override (requires restart)
 
-r3dfox-colors = r3dfox color schemes
+nocturne-colors = Nocturne color schemes
 
-r3dfox-fog-type = Caption bar/Aero fog style
+nocturne-fog-type = Caption bar/Aero fog style
 
-r3dfox-caption-text = Override caption/window text color
+nocturne-caption-text = Override caption/window text color
 
-r3dfox-theme =
-    .label = Use r3dfox theme styles
+nocturne-theme =
+    .label = Use Nocturne theme styles
 
-r3dfox-drag =
-    .label = Enable drag space on r3dfox theme styles
+nocturne-drag =
+    .label = Enable drag space on Nocturne theme styles
 
-r3dfox-backgrounds =
+nocturne-backgrounds =
     .label = Backgrounds for tabs and other toolbar items
 
-r3dfox-menubar =
+nocturne-menubar =
     .label = Transparent menubar
 
-r3dfox-navbar =
+nocturne-navbar =
     .label = Translucent design
 
-r3dfox-functional-header = Functionality configurations
+nocturne-functional-header = Functionality configurations
 
-r3dfox-one-offs =
-    .label = Instant one off searches
-
-r3dfox-old-one-offs =
+nocturne-one-offs =
     .label = Classic urlbar search UI
 
-r3dfox-view-image =
+nocturne-view-image =
     .label = Restore classic View Image context menu options
 
-r3dfox-nav-text =
+nocturne-nav-text =
     .label = Replace context menu navigation icons with text options
 
-r3dfox-urlbar-formatting =
+nocturne-urlbar-formatting =
     .label = Disable urlbar URL formatting
 
-r3dfox-tab-groups =
+nocturne-tab-groups =
     .label = Enable tab groups
 
-r3dfox-screenshot-component =
+nocturne-translations-enable =
+    .label = Enable in-browser language translations
+
+nocturne-screenshot-component =
     .label = Enable in-browser screenshot component
 
-r3dfox-hover-preview =
+nocturne-hover-preview =
     .label = Modern style tab hover preview
 
-r3dfox-taskbar-tabs =
+nocturne-taskbar-tabs =
     .label = Disable add tab to taskbar button in urlbar
 
-r3dfox-old-aboutconfig =
-    .label = Use the classic about:config page
-
-r3dfox-geo =
+nocturne-geo =
     .label = Disable browser geolocation
 
-r3dfox-switch-to-tab =
-    .label = Change urlbar switch to tab into a button
+nocturne-drop-to-pin =
+    .label = Disable drop to pin tabs
 
-r3dfox-switch-to-tab-desc = This changes switching to an already open tab in the urlbar to be a button instead of being the default when you click the item.
+nocturne-taskbar-tabs =
+    .label = Disable add tab to taskbar button in urlbar
 
-r3dfox-advanced-header = Advanced configurations
+nocturne-old-aboutconfig =
+    .label = Use the classic about:config page
 
-r3dfox-accessibility = Accessibility services
+nocturne-switch-to-tab =
+    .label = Reverse urlbar switch to tab behavior
 
-r3dfox-accessibility-desc = Recommended to disable if you do not need them for enhanced security and performance.
+nocturne-switch-to-tab-desc = This should reverse the behavior of switching to an already open tab in the urlbar (require Shift/Ctrl/Alt to switch to open tab instead of preventing it), however it's a bit buggy currently and just disables it.
 
-r3dfox-cookiebanners = Cookie banner handling mode in normal browsing
+nocturne-advanced-header = Advanced configurations
 
-r3dfox-cookiebanners-desc = Recommended to leave enabled for a less annoying browsing experience. Currently this will set cookies even when set to block all cookies.
+nocturne-accessibility = Accessibility services
 
-r3dfox-cookiebanners-private = Cookie banner handling mode in private browsing
+nocturne-accessibility-desc = Recommended to disable if you do not need them for enhanced security and performance.
 
-r3dfox-caption-width = Custom caption button Aero fog mask width
+nocturne-cookiebanners = Cookie banner handling mode in normal browsing
 
-r3dfox-caption-desc = For themes that use custom sized caption buttons that differ from the stock OS. Browser restart is required for changes to take effect.
+nocturne-cookiebanners-desc = Recommended to leave enabled for a less annoying browsing experience. Currently this will set cookies even when set to block all cookies.
 
-r3dfox-caption-height = Custom caption button Aero fog mask height
+nocturne-cookiebanners-private = Cookie banner handling mode in private browsing
 
-r3dfox-sandbox-level = Security Sandbox Content Level
+nocturne-caption-width = Custom caption button Aero fog mask width
 
-r3dfox-sandbox-level-desc = On Windows 10, native UI elements render using classic or unthemed styles with a sandbox level of 8 or above. Setting this to 7 (or lower) fixes the issue. Not recommended unless you know what you are doing.
+nocturne-caption-desc = For themes that use custom sized caption buttons that differ from the stock OS. Browser restart is required for changes to take effect.
 
-r3dfox-webaudio =
+nocturne-caption-height = Custom caption button Aero fog mask height
+
+nocturne-sandbox-level = Security Sandbox Content Level
+
+nocturne-sandbox-level-desc = On Windows 10, native UI elements render using classic or unthemed styles with a sandbox level of 8 or above. Setting this to 7 (or lower) fixes the issue. Not recommended unless you know what you are doing.
+
+nocturne-webaudio =
     .label = Disable Web Audio API
 
-r3dfox-webaudio-desc = Web Audio can be disabled for enhanced security, however a few websites may require it to be enabled.
+nocturne-webaudio-desc = Web Audio can be disabled for enhanced security, however a few websites may require it to be enabled.
 
-r3dfox-csp =
+nocturne-csp =
     .label = Disable Content Security Policy (CSP)
 
-r3dfox-csp-desc = CSP is a security feature, improperly designed websites may require disabling CSP. Not recommended unless you know what you are doing.
+nocturne-csp-desc = CSP is a security feature, improperly designed websites may require disabling CSP. Not recommended unless you know what you are doing.
 
-r3dfox-port-blocking =
+nocturne-port-blocking =
     .label = Disable Website Port Blocking
 
-r3dfox-port-blocking-desc = Supposedly for "security", to disallow accessing websites on specified blocked ports but it makes no sense. What can a website on a blocked port do that can't just be done on 80/443? https://fetch.spec.whatwg.org/#port-blocking
+nocturne-port-blocking-desc = Supposedly for "security", to disallow accessing websites on specified blocked ports but it makes no sense. What can a website on a blocked port do that can't just be done on 80/443? https://fetch.spec.whatwg.org/#port-blocking
 
-r3dfox-dwrite =
+nocturne-dwrite =
     .label = Use Skia GDI font rendering (BETA)
 
-r3dfox-dwrite-desc = Disable DirectWrite font rendering. Not recommended unless you know what you are doing. Currently buggy. https://github.com/Eclipse-Community/r3dfox/issues/19
+nocturne-dwrite-desc = Disable DirectWrite font rendering. Not recommended unless you know what you are doing. Currently buggy.
 
-r3dfox-hsts =
+nocturne-hsts =
     .label = Disable HTTP Strict Transport Security (HSTS)
 
-r3dfox-hsts-desc = HSTS is a security feature, websites with missing, expired, or wrong certificates may require disabling HSTS to access. Not recommended unless you know what you are doing.
+nocturne-hsts-desc = HSTS is a security feature, websites with missing, expired, or wrong certificates may require disabling HSTS to access. Not recommended unless you know what you are doing.
 
-r3dfox-cors-base =
+nocturne-cors-base =
     .label = Disable Cross-Origin Resource Sharing (CORS)
 
-r3dfox-cors-base-desc = CORS is a security feature, improperly designed websites may require disabling CORS. Not recommended unless you know what you are doing.
+nocturne-cors-base-desc = CORS is a security feature, improperly designed websites may require disabling CORS. Not recommended unless you know what you are doing.
 
-r3dfox-cors-preflight =
+nocturne-cors-preflight =
     .label = Disable Cross-Origin Resource Sharing Preflight requests (CORS)
 
-r3dfox-cors-preflight-desc = Bypasses CORS Preflight requests, improperly designed websites may require this as well as disabling CORS. Not recommended unless you know what you are doing.
+nocturne-cors-preflight-desc = Bypasses CORS Preflight requests, improperly designed websites may require this as well as disabling CORS. Not recommended unless you know what you are doing.
 
-r3dfox-same-origin =
+nocturne-same-origin =
     .label = Disable Same-Origin Policy (SOP)
 
-r3dfox-same-origin-desc = SOP is a security feature, improperly designed websites may require disabling SOP. Not recommended unless you know what you are doing.
+nocturne-same-origin-desc = SOP is a security feature, improperly designed websites may require disabling SOP. Not recommended unless you know what you are doing.
 
-r3dfox-e10s =
+nocturne-e10s =
     .label = Disable content multiprocess (e10s) (BETA)
 
-r3dfox-e10s-desc = Disables e10s/electrolysis content multiprocess. There are still multiple processes from other browser components with this enabled. Not recommended unless you know what you are doing.
+nocturne-e10s-desc = Disables e10s/electrolysis content multiprocess. There are still multiple processes from other browser components with this enabled. Not recommended unless you know what you are doing.
 
 ## General Section - Startup
 
@@ -1822,7 +1828,7 @@ category-librewolf =
     .tooltiptext = about:config changes, logically grouped and easily accessible
 # Main content
 librewolf-header = Extra Privacy Configurations
-librewolf-settings-about = These settings are from Librewolf, now included in { -brand-short-name }. This page is kept as stock as possible to make future updates easier. Totally not because I'm too dumb to integrate these into the r3dfox configurations page.
+librewolf-settings-about = These settings are from Librewolf, now included in { -brand-short-name }. This page is kept as stock as possible to make future updates easier. Totally not because I'm too dumb to integrate these into the Nocturne configurations page.
 librewolf-warning-title = Heads up!
 librewolf-warning-description = We carefully choose default settings to focus on privacy and security. When changing these settings, read the descriptions to understand the implications of those changes.
 # Page Layout

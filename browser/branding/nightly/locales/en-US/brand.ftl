@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-## Plasmafox and Eclipse Community Brand
+## Nocturne and raytek-cafe Brand
 ##
-## Plasmafox and Eclipse Community must be treated as a brand.
+## Nocturne and raytek-cafe must be treated as a brand.
 ##
 ## They cannot be:
 ## - Transliterated.
@@ -16,12 +16,12 @@
 ## For further details, consult:
 ## https://mozilla-l10n.github.io/styleguides/mozilla_general/#brands-copyright-and-trademark
 
--brand-shorter-name = Plasmafox
--brand-short-name = Plasmafox
--brand-shortcut-name = Plasmafox
--brand-full-name = Eclipse Plasmafox
+-brand-shorter-name = Nocturne
+-brand-short-name = Nocturne
+-brand-shortcut-name = Nocturne
+-brand-full-name = Nocturne
 # This brand name can be used in messages where the product name needs to
 # remain unchanged across different versions (Nightly, Beta, etc.).
--brand-product-name = Plasmafox
--vendor-short-name = Eclipse Community
-trademarkInfo = { "Plasmafox is a comunity project made by Eclipse Community." }
+-brand-product-name = Nocturne
+-vendor-short-name = raytek.cafe
+trademarkInfo = { "Nocturne is a community project made by the raytek community." }
