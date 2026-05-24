@@ -1,13 +1,14 @@
-## mozconfig for compiling r3dfox browser for Windows natively
+## mozconfig for compiling Nocturne Browser for Windows natively
+
 
 # x64 build
 ac_add_options --target=x86_64
-ac_add_options --disable-cargo-incremental
 
-# Please do not redistribute this build with official branding if you are not part of Eclipse Community.
-ac_add_options --enable-official-branding
+# Please do not redistribute this build with official branding if you are not part of the project.
+#ac_add_options --enable-official-branding
 # For ESR enable the below and disable the above
-#ac_add_options --with-branding=browser/branding/esr
+ac_add_options --with-branding=browser/branding/esr
+
 # For potential nightly experimentation enable the below and disable the above.
 #ac_add_options --with-branding=browser/branding/nightly
 
@@ -16,11 +17,12 @@ ac_add_options --disable-update-agent
 ac_add_options --disable-updater
 # Enable if update server and signatures are figured out
 #ac_add_options --enable-nss-mar
+ac_add_options --with-ccache=sccache
 
 # 16 jobs for 16 cores
-mk_add_options MOZ_MAKE_FLAGS="-j16"
+mk_add_options MOZ_MAKE_FLAGS="-j4"
 
-# Build only r3dfox
+# Build only Nocturne
 ac_add_options --enable-application=browser
 ac_add_options --disable-artifact-builds
 export MOZ_INCLUDE_SOURCE_INFO=1
@@ -91,12 +93,8 @@ ac_add_options RUSTC_OPT_LEVEL="3"
 # Enable LTO
 export MOZ_LTO=1
 ac_add_options MOZ_LTO=1
-
-if test "$GEN_PGO"; then
-    ac_add_options --enable-profile-generate
-elif test "$USE_PGO"; then
-    ac_add_options --enable-profile-use=cross
-fi
+export MOZ_PGO=1
+ac_add_options MOZ_PGO=1
 
 # Compiler, Linker, and Rust flags
 export CFLAGS="-Qunused-arguments -O2 -msse2 /clang:-O3 -ftrivial-auto-var-init=zero -fwrapv $CFLAGS"
@@ -104,5 +102,5 @@ export CPPFLAGS="-Qunused-arguments -O2 -msse2 /clang:-O3 -ftrivial-auto-var-ini
 export CXXFLAGS="-Qunused-arguments -O2 -msse2 /clang:-O3 -ftrivial-auto-var-init=zero -fwrapv $CXXFLAGS"
 export LDFLAGS="/opt:REF,ICF"
 export POLLY="-mllvm -polly -mllvm -polly-2nd-level-tiling -mllvm -polly-loopfusion-greedy -mllvm -polly-pattern-matching-based-opts -mllvm -polly-position=before-vectorizer -mllvm -polly-vectorizer=stripmine"
-export RUSTFLAGS="-C target-cpu=athlon64 -C target-feature=+sse2 -C codegen-units=1 -C opt-level=3 -Z tune-cpu=athlon64"
+export RUSTFLAGS="-C target-cpu=athlon64 -C target-feature=+sse2 -C codegen-units=1 -C opt-level=3 "
 export VERBOSE=1

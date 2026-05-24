@@ -1,0 +1,454 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+<!-- Nocturne panel -->
+
+<script src="chrome://browser/content/preferences/nocturne.js"/>
+
+<!-- Nocturne -->
+<html:template id="template-paneNocturne">
+<hbox id="nocturnecategory"
+      class="subcategory"
+      hidden="true"
+      data-category="paneNocturne">
+  <html:h1 data-l10n-id="nocturne-title"/>
+</hbox>
+
+<!-- Nocturne visual -->
+<groupbox id="nocturneVisualGroup"
+          data-category="paneNocturne"
+          hidden="true">
+  <label><html:h2 data-l10n-id="nocturne-visual-header"/></label>
+
+  <hbox align="center">
+    <checkbox id="nocturneUseNativeStyles"
+              data-l10n-id="nocturne-native-checkbox"
+              flex="1"
+              preference="widget.non-native-theme.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-native-checkbox-desc"/>
+
+  <hbox align="center">
+    <label id="nocturneNativeMenulist" data-l10n-id="nocturne-legacy-native-menulist" data-l10n-attrs="value" control="nocturneNativeMenulistType" flex="1"/>
+    <menulist id="nocturneNativeMenulistType" preference="browser.display.windows.non_native_menus">
+      <menupopup>
+        <menuitem label="Native menulists always" value="0"/>
+        <menuitem label="Custom menulists always" value="1"/>
+        <menuitem label="Native menulists unless Windows 10 (Modern) theme is used (Default)" value="2"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneNativeScroll" data-l10n-id="nocturne-legacy-native-scroll" data-l10n-attrs="value" control="nocturneNativeScrollType" flex="1"/>
+    <menulist id="nocturneNativeScrollType" preference="widget.native-controls.scrollbar-style">
+      <menupopup>
+        <menuitem label="Native scrollbars always" value="0"/>
+        <menuitem label="Custom scrollbars always" value="1"/>
+        <menuitem label="Native scrollbars unless the website has a dark color scheme (Default)" value="2"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneFakeScroll" data-l10n-id="nocturne-legacy-fake-scroll-type" data-l10n-attrs="value" control="nocturneFakeScrollType" flex="1"/>
+    <menulist id="nocturneFakeScrollType" preference="widget.non-native-theme.scrollbar.style">
+      <menupopup>
+        <menuitem label="Default platform scrollbar style (Default)" value="0"/>
+        <menuitem label="macOS scrollbar (small)" value="1"/>
+        <menuitem label="GTK scrollbar (smaller)" value="2"/>
+        <menuitem label="Android scrollbar (smallest)" value="3"/>
+        <menuitem label="Windows 10 scrollbar (normal)" value="4"/>
+        <menuitem label="Windows 11 scrollbar (smaller)" value="5"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneWinTheme" data-l10n-id="nocturne-legacy-win-theme-type" data-l10n-attrs="value" control="nocturneWinThemeType" flex="1"/>
+    <menulist id="nocturneWinThemeType" preference="widget.native-controls.override-win-version">
+      <menupopup>
+        <menuitem label="Current OS version (Default)" value="0"/>
+        <menuitem label="Windows XP" value="5"/>
+        <menuitem label="Windows Vista" value="6"/>
+        <menuitem label="Windows 7" value="7"/>
+        <menuitem label="Windows 8" value="8"/>
+        <menuitem label="Windows 10 (Modern)" value="10"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneColors" data-l10n-id="nocturne-legacy-colors" data-l10n-attrs="value" control="nocturneColorsType" flex="1"/>
+    <menulist id="nocturneColorsType" preference="nocturne.colors">
+      <menupopup>
+        <menuitem label="Disabled (Stock Firefox Blue)" value="0"/>
+        <menuitem label="Red" value="1"/>
+        <menuitem label="Orange" value="2"/>
+        <menuitem label="Pink" value="3"/>
+        <menuitem label="Dark Theme Purple" value="4"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+  <hbox align="center">
+    <checkbox id="nocturnedrag"
+              data-l10n-id="nocturne-drag"
+              flex="1"
+              preference="nocturne.drag-space.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneBackgrounds"
+              data-l10n-id="nocturne-backgrounds"
+              flex="1"
+              preference="nocturne.backgrounds.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneMenubar"
+              data-l10n-id="nocturne-menubar"
+              flex="1"
+              preference="nocturne.transparent.menubar"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneNavbar"
+              data-l10n-id="nocturne-navbar"
+              flex="1"
+              preference="nocturne.translucent.navbar"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneSquaredCorners"
+              data-l10n-id="nocturne-squared-corners"
+              flex="1"
+              preference="browser.ui.menu.squaredcorners"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneOldAutofill"
+              data-l10n-id="nocturne-old-autofill"
+              flex="1"
+              preference="nocturne.ui.oldautofill"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-old-autofill-desc"/>
+
+  <hbox align="center">
+    <label id="nocturneFog" data-l10n-id="nocturne-legacy-fog-type" data-l10n-attrs="value" control="nocturneFogType" flex="1"/>
+    <menulist id="nocturneFogType" preference="nocturne.aero.fog">
+      <menupopup>
+        <menuitem label="Disabled (Default with backgrounds enabled)" value="0"/>
+        <menuitem label="Nocturne style (covers menubar)" value="1"/>
+        <menuitem label="Stock Firefox style" value="2"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneCaptionText" data-l10n-id="nocturne-legacy-caption-text" data-l10n-attrs="value" control="nocturneCaptionTextType" flex="1"/>
+    <menulist id="nocturneCaptionTextType" preference="nocturne.caption.text.color">
+      <menupopup>
+        <menuitem label="Default platform style (Default)" value="0"/>
+        <menuitem label="White" value="1"/>
+        <menuitem label="Black" value="2"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+</groupbox>
+
+<!-- Nocturne functional -->
+<groupbox id="nocturneFunctionalGroup"
+          data-category="paneNocturne"
+          hidden="true">
+  <label><html:h2 data-l10n-id="nocturne-functional-header"/></label>
+
+  <hbox align="center">
+    <checkbox id="nocturneoneoffs"
+              data-l10n-id="nocturne-one-offs"
+              flex="1"
+              preference="browser.urlbar.oneOffsInstant"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneviewimage"
+              data-l10n-id="nocturne-view-image"
+              flex="1"
+              preference="browser.menu.viewImage"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnenavtext"
+              data-l10n-id="nocturne-nav-text"
+              flex="1"
+              preference="browser.menu.navigationIcons"/>
+  </hbox>
+  <hbox align="center">
+    <checkbox id="nocturneurlbarformatting"
+              data-l10n-id="nocturne-urlbar-formatting"
+              flex="1"
+              preference="browser.urlbar.formatting.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnetabgroups"
+              data-l10n-id="nocturne-tab-groups"
+              flex="1"
+              preference="browser.tabs.groups.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnetranslationsenable"
+              data-l10n-id="nocturne-translations-enable"
+              flex="1"
+              preference="browser.translations.enable"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnescreenshotcomponent"
+              data-l10n-id="nocturne-screenshot-component"
+              flex="1"
+              preference="screenshots.browser.component.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnehoverpreview"
+              data-l10n-id="nocturne-hover-preview"
+              flex="1"
+              preference="browser.tabs.hoverPreview.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnedroptopin"
+              data-l10n-id="nocturne-drop-to-pin"
+              flex="1"
+              preference="browser.tabs.dropToPin.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnetaskbartabs"
+              data-l10n-id="nocturne-taskbar-tabs"
+              flex="1"
+              preference="browser.taskbarTabs.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneaboutconfig"
+              data-l10n-id="nocturne-old-aboutconfig"
+              flex="1"
+              preference="browser.ui.oldaboutconfig"/>
+  </hbox>
+  <hbox align="center">
+    <checkbox id="nocturnegeo"
+              data-l10n-id="nocturne-geo"
+              flex="1"
+              preference="geo.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturneff68downloadicons"
+              data-l10n-id="nocturne-ff68-download-icons"
+              flex="1"
+              preference="nocturne.ui.ff68downloadicons"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-ff68-download-icons-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturneswitchtotab"
+              data-l10n-id="nocturne-switch-to-tab"
+              flex="1"
+              preference="browser.urlbar.secondaryActions.switchToTab"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-switch-to-tab-desc"/>
+  <hbox align="center">
+    <checkbox id="nocturnePromptTabModal"
+              data-l10n-id="nocturne-prompt-tab-modal"
+              flex="1"
+              preference="prompts.tab_modal.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-prompt-tab-modal-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnePromptHeaderIcon"
+              data-l10n-id="nocturne-prompt-header-icon"
+              flex="1"
+              preference="prompts.headerAppIcon.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnePromptSound"
+              data-l10n-id="nocturne-prompt-sound"
+              flex="1"
+              preference="prompts.tab_modal.sound.enabled"/>
+  </hbox>
+
+  <hbox align="center">
+    <checkbox id="nocturnelegacyicon"
+              data-l10n-id="nocturne-legacy-icon"
+              flex="1"
+              preference="nocturne.legacyiconbehavior.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-legacy-icon-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnePlatformSpecificIcons"
+              data-l10n-id="nocturne-platform-specific-icons"
+              flex="1"
+              preference="nocturne.platformspecificicons.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-platform-specific-icons-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnesmallicon"
+              data-l10n-id="nocturne-small-icon"
+              flex="1"
+              preference="nocturne.smalliconbehavior.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-small-icon-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturneoldurlbar"
+              data-l10n-id="nocturne-old-urlbar"
+              flex="1"
+              preference="nocturne.ui.oldurlbar"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-old-urlbar-desc"/>
+</groupbox>
+
+<!-- Nocturne advanced -->
+<groupbox id="nocturneAdvancedGroup"
+          data-category="paneNocturne"
+          hidden="true">
+  <label><html:h2 data-l10n-id="nocturne-advanced-header"/></label>
+
+  <hbox align="center">
+    <label id="nocturneAccessibility" data-l10n-id="nocturne-legacy-accessibility" data-l10n-attrs="value" control="nocturneAccessibilityType" flex="1"/>
+    <menulist id="nocturneAccessibilityType" preference="accessibility.force_disabled">
+      <menupopup>
+        <menuitem label="Always disabled (1)" value="1"/>
+        <menuitem label="Default (0)" value="0"/>
+        <menuitem label="Always enabled (-1)" value="-1"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+  <description id="nocturneAccessibilityDescription" class="tip-caption" data-l10n-id="nocturne-accessibility-desc"/>
+
+  <hbox align="center">
+    <label id="nocturneCookieBanners" data-l10n-id="nocturne-legacy-cookiebanners" data-l10n-attrs="value" control="nocturneCookieBannersType" flex="1"/>
+    <menulist id="nocturneCookieBannersType" preference="cookiebanners.service.mode">
+      <menupopup>
+        <menuitem label="Auto reject all cookies where possible" value="1"/>
+        <menuitem label="Disable all cookie banner handling" value="0"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+  <description id="nocturneCookieBannersDescription" class="tip-caption" data-l10n-id="nocturne-cookiebanners-desc"/>
+
+  <hbox align="center">
+    <label id="nocturneCookieBannersPrivate" data-l10n-id="nocturne-legacy-cookiebanners-private" data-l10n-attrs="value" control="nocturneCookieBannersPrivateType" flex="1"/>
+    <menulist id="nocturneCookieBannersPrivateType" preference="cookiebanners.service.mode.privateBrowsing">
+      <menupopup>
+        <menuitem label="Auto reject all cookies where possible" value="1"/>
+        <menuitem label="Disable all cookie banner handling" value="0"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+  <description id="nocturneCookieBannersPrivateDescription" class="tip-caption" data-l10n-id="nocturne-cookiebanners-desc"/>
+
+  <hbox align="center">
+    <label id="nocturneSandboxLevel" data-l10n-id="nocturne-legacy-sandbox-level" data-l10n-attrs="value" control="nocturneSandboxLevelType" flex="1"/>
+    <menulist id="nocturneSandboxLevelType" preference="security.sandbox.content.level">
+      <menupopup>
+        <menuitem label="Increased (20)" value="20"/>
+        <menuitem label="Default (8)" value="8"/>
+        <menuitem label="Lower (7)" value="7"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneCaptionWidth" data-l10n-id="nocturne-legacy-caption-width" data-l10n-attrs="value" control="nocturneCaptionWidthType" flex="1"/>
+    <html:input id="nocturneCaptionWidthType" type="number" class="option" data-type="int" preference="widget.native-controls.override-aero-caption-buttons-mask-width"/>
+  </hbox>
+  <description id="nocturneCaptionWidthDescription" class="tip-caption" data-l10n-id="nocturne-caption-desc"/>
+
+  <hbox align="center">
+    <label id="nocturneCaptionHeight" data-l10n-id="nocturne-legacy-caption-height" data-l10n-attrs="value" control="nocturneCaptionHeightType" flex="1"/>
+    <html:input id="nocturneCaptionHeightType" type="number" class="option" data-type="int" preference="widget.native-controls.override-aero-caption-buttons-mask-height"/>
+  </hbox>
+  <description id="nocturneCaptionHeighteDescription" class="tip-caption" data-l10n-id="nocturne-caption-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnewebaudio"
+              data-l10n-id="nocturne-webaudio"
+              flex="1"
+              preference="dom.webaudio.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-webaudio-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnecsp"
+              data-l10n-id="nocturne-csp"
+              flex="1"
+              preference="security.csp.enable"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-csp-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnecorsbase"
+              data-l10n-id="nocturne-cors-base"
+              flex="1"
+              preference="content.cors.disable"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-cors-base-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnecorspreflight"
+              data-l10n-id="nocturne-cors-preflight"
+              flex="1"
+              preference="content.cors.bypass_preflight_request"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-cors-preflight-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnehsts"
+              data-l10n-id="nocturne-hsts"
+              flex="1"
+              preference="network.stricttransportsecurity.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-hsts-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnesameorigin"
+              data-l10n-id="nocturne-same-origin"
+              flex="1"
+              preference="security.same_origin_policy.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-same-origin-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturneportblocking"
+              data-l10n-id="nocturne-port-blocking"
+              flex="1"
+              preference="security.port.blocking.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-port-blocking-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnee10s"
+              data-l10n-id="nocturne-e10s"
+              flex="1"
+              preference="browser.e10s.disabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-e10s-desc"/>
+
+  <hbox align="center">
+    <checkbox id="nocturnedwrite"
+              data-l10n-id="nocturne-dwrite"
+              flex="1"
+              preference="gfx.dwrite.enabled"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="nocturne-dwrite-desc"/>
+
+</groupbox>
+</html:template>

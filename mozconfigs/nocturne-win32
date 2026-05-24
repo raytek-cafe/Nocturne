@@ -1,4 +1,4 @@
-## mozconfig for compiling r3dfox browser for Windows natively
+## mozconfig for compiling Nocturne browser for Windows natively
 
 # x86 build
 ac_add_options --target=i686
@@ -21,7 +21,7 @@ ac_add_options --disable-updater
 # 16 jobs for 16 cores
 mk_add_options MOZ_MAKE_FLAGS="-j16"
 
-# Build only r3dfox
+# Build only Nocturne
 ac_add_options --enable-application=browser
 ac_add_options --disable-artifact-builds
 export MOZ_INCLUDE_SOURCE_INFO=1
