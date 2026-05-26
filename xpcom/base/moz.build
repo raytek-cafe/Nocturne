@@ -323,10 +323,9 @@ with Files("*CycleCollector*"):
 
 with Files("PHCManager.*"):
     BUG_COMPONENT = ("Core", "Memory Allocator")
-
 with Files("*KeyedUUIDMapper*"):
     BUG_COMPONENT = ("WebExtensions", "General")
+if CONFIG["OS_TARGET"] == "WINNT":
+    OS_LIBS += ["psapi"]
 
-OS_LIBS += ["psapi"]
-
-DEFINES["PSAPI_VERSION"] = "1"
+    DEFINES["PSAPI_VERSION"] = "1"
