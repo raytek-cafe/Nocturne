@@ -356,7 +356,11 @@ bool CompositorBridgeChild::SendFlushRendering(
   bool dwmCompositionEnabled =
       StaticPrefs::widget_native_controls_force_dwm_report_off()
           ? false
-          : gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
+#ifdef XP_WIN
+          : gfx::gfxVars::DwmCompositionEnabled();
+#else
+          : false;
+#endif
 
   if (!mCanSend) {
     return false;
