@@ -62,6 +62,7 @@ SOURCES += [
     #   bundled with.
     "StoreBuffer.cpp",
 ]
-OS_LIBS += ["psapi"]
+if CONFIG["OS_TARGET"] == "WINNT":
+    OS_LIBS += ["psapi"]
 
-DEFINES["PSAPI_VERSION"] = "1"
+    DEFINES["PSAPI_VERSION"] = "1"
