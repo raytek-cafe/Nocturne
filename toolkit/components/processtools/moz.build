@@ -51,6 +51,8 @@ elif toolkit in ("cocoa", "uikit"):
     UNIFIED_SOURCES += ["ProcInfo.mm"]
 
 include("/ipc/chromium/chromium-config.mozbuild")
-OS_LIBS += ["psapi"]
 
-DEFINES["PSAPI_VERSION"] = "1"
+if toolkit == "windows":
+    OS_LIBS += ["psapi"]
+
+    DEFINES["PSAPI_VERSION"] = "1"
