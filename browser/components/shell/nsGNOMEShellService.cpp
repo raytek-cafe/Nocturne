@@ -169,6 +169,12 @@ bool nsGNOMEShellService::CheckHandlerMatchesAppName(
 }
 
 NS_IMETHODIMP
+nsGNOMEShellService::CancelPortableMode() {
+  return NS_OK;
+}
+
+
+NS_IMETHODIMP
 nsGNOMEShellService::IsDefaultBrowser(bool aForAllTypes,
                                       bool* aIsDefaultBrowser) {
   *aIsDefaultBrowser = false;
