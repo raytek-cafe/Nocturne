@@ -90,6 +90,7 @@ static GtkWidget* CreateFrameWidget() {
   return widget;
 }
 
+
 static GtkWidget* CreateButtonWidget() {
   GtkWidget* widget = gtk_button_new_with_label("M");
   AddToWindowContainer(widget);

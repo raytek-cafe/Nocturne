@@ -573,7 +573,7 @@ void DMABufSurface::FenceWait(RefPtr<gl::GLContext> aGL,
                               RefPtr<gfx::FileHandleWrapper> aSyncFd) {
   const auto& gle = gl::GLContextEGL::Cast(aGL);
   const auto& egl = gle->mEgl;
-  auto syncFd = aSyncFd->ClonePlatformHandle();
+  auto syncFd = DuplicateFileHandle(aSyncFd->GetHandle());
 
   const EGLint attribs[] = {LOCAL_EGL_SYNC_NATIVE_FENCE_FD_ANDROID,
                             syncFd.get(), LOCAL_EGL_NONE};
@@ -655,7 +655,7 @@ void DMABufSurface::MaybeSemaphoreWait(GLuint aGlTexture) {
     isSyncFd = mSemaphoreFdIsSyncFd;
   }
 
-  auto fd = semFdWrapper->ClonePlatformHandle();
+  auto fd = DuplicateFileHandle(semFdWrapper->GetHandle());
 
   if (isSyncFd) {
     const auto& gle = gl::GLContextEGL::Cast(gl);
@@ -672,6 +672,7 @@ void DMABufSurface::MaybeSemaphoreWait(GLuint aGlTexture) {
     gfxCriticalNoteOnce << "EXT_semaphore_fd is not suppored";
     return;
   }
+
 
   GLuint semaphoreHandle = 0;
   gl->fGenSemaphoresEXT(1, &semaphoreHandle);
