@@ -451,7 +451,7 @@ void DMABufSurface::FenceWait() {
 
   const auto& gle = gl::GLContextEGL::Cast(mGL);
   const auto& egl = gle->mEgl;
-  auto syncFd = mSyncFd->ClonePlatformHandle();
+  auto syncFd = DuplicateFileHandle(mSyncFd->GetHandle());
   // No need to try mSyncFd twice.
   mSyncFd = nullptr;
 
@@ -490,7 +490,7 @@ void DMABufSurface::MaybeSemaphoreWait(GLuint aGlTexture) {
     return;
   }
 
-  auto fd = mSemaphoreFd->ClonePlatformHandle();
+  auto fd = DuplicateFileHandle(mSemaphoreFd->GetHandle());
   // No need to try mSemaphoreFd twice.
   mSemaphoreFd = nullptr;
 
