@@ -1873,6 +1873,7 @@ std::shared_ptr<SharedTexture> WebGPUParent::CreateSharedTexture(
     return nullptr;
   }
 
+#ifdef XP_WIN
   auto* textureD3D11 = texture->AsSharedTextureD3D11();
   if (!textureD3D11) {
     MOZ_ASSERT_UNREACHABLE("unexpected to be called");
@@ -1884,6 +1885,7 @@ std::shared_ptr<SharedTexture> WebGPUParent::CreateSharedTexture(
     gfxCriticalNoteOnce << "Failed to get shared handle";
     return nullptr;
   }
+#endif
 
   texture->SetOwnerId(aOwnerId);
   std::shared_ptr<SharedTexture> shared(texture.release());

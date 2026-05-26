@@ -807,6 +807,7 @@ class nsWindow : public nsIWidget {
            mWindowType == WindowType::Dialog;
   }
 
+  bool IsTopLevelWidget() const { return IsTopLevelWindowType(); }
   // When popup is resized by Gtk by move-to-rect callback,
   // we store final popup size here. Then we use mMoveToRectPopupSize size
   // in following popup operations unless mLayoutPopupSizeCleared is set.

@@ -161,7 +161,7 @@ void SharedTextureDMABuf::GetSnapshot(const ipc::Shmem& aDestShmem,
 }
 
 UniqueFileHandle SharedTextureDMABuf::CloneDmaBufFd() {
-  return mSurfaceDescriptor.fds()[0]->ClonePlatformHandle();
+  return DuplicateFileHandle(mSurfaceDescriptor.fds()[0]->GetHandle());
 }
 
 const ffi::WGPUVkImageHandle* SharedTextureDMABuf::GetHandle() {
