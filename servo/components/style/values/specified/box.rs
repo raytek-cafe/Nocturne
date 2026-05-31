@@ -1836,6 +1836,15 @@ pub enum Appearance {
     /// A single pane of a status bar.
     #[parse(condition = "ParserContext::chrome_rules_enabled")]
     Statusbarpanel,
+    /// A single tab in a tab widget.
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    Tab,
+    /// A single pane (inside the tabpanels container).
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    Tabpanel,
+    /// The tab panels container.
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    Tabpanels,
     /// The tabs scroll arrows (left/right).
     #[parse(condition = "ParserContext::chrome_rules_enabled")]
     TabScrollArrowBack,
