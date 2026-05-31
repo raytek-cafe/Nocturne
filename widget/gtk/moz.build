@@ -79,6 +79,8 @@ UNIFIED_SOURCES += [
     "GSettings.cpp",
     "GtkCompositorWidget.cpp",
     "GtkWidgets.cpp",
+    "WidgetStyleCache.cpp",
+    "gtk3drawing.cpp",
     "IMContextWrapper.cpp",
     "InProcessGtkCompositorWidget.cpp",
     "MozContainer.cpp",
