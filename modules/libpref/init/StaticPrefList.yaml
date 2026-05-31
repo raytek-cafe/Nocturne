@@ -11851,12 +11851,12 @@
 
 - name: librewolf.webgl.prompt
   type: RelaxedAtomicBool
-  value: true
+  value: false
   mirror: always
 
 - name: librewolf.webgl.prompt.hide
   type: RelaxedAtomicBool
-  value: true
+  value: false
   mirror: always
 
 #---------------------------------------------------------------------------
