@@ -4,6 +4,7 @@
 
 //! Specified types for box properties.
 
+pub use crate::logical_geometry::WritingModeProperty;
 use crate::parser::{Parse, ParserContext};
 use crate::properties::{LonghandId, PropertyDeclarationId, PropertyId};
 use crate::values::generics::box_::{
@@ -13,7 +14,6 @@ use crate::values::generics::box_::{
 use crate::values::specified::length::{LengthPercentage, NonNegativeLength};
 use crate::values::specified::{AllowQuirks, Integer, NonNegativeNumberOrPercentage};
 use crate::values::CustomIdent;
-pub use crate::logical_geometry::WritingModeProperty;
 use cssparser::Parser;
 use num_traits::FromPrimitive;
 use std::fmt::{self, Write};
@@ -1609,6 +1609,15 @@ pub enum Appearance {
     /// A single pane of a status bar.
     #[parse(condition = "ParserContext::chrome_rules_enabled")]
     Statusbarpanel,
+    /// A single tab in a tab widget.
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    Tab,
+    /// A single pane (inside the tabpanels container).
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    Tabpanel,
+    /// The tab panels container.
+    #[parse(condition = "ParserContext::chrome_rules_enabled")]
+    Tabpanels,
     /// The tabs scroll arrows (left/right).
     #[parse(condition = "ParserContext::chrome_rules_enabled")]
     TabScrollArrowBack,

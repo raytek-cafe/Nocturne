@@ -711,6 +711,28 @@ void Theme::PaintMenulist(PaintBackendData& aPaintData,
                      aColors, aDpiRatio);
 }
 
+template <typename PaintBackendData>
+void Theme::PaintTab(PaintBackendData& aPaintData, nsIFrame* aFrame,
+                     const LayoutDeviceRect& aRect,
+                     const ElementState& aState, const Colors& aColors,
+                     DPIRatio aDpiRatio) {
+  ElementState state = aState;
+  if (IsSelectedTab(aFrame)) {
+    state |= ElementState::HOVER | ElementState::ACTIVE;
+  }
+  PaintButton(aPaintData, aRect, StyleAppearance::Button, state, aColors,
+              aDpiRatio);
+}
+
+template <typename PaintBackendData>
+void Theme::PaintTabPanel(PaintBackendData& aPaintData,
+                          const LayoutDeviceRect& aRect,
+                          const ElementState& aState, const Colors& aColors,
+                          DPIRatio aDpiRatio) {
+  PaintListbox(aPaintData, aRect, aState, aColors, aDpiRatio);
+}
+
+
 enum class PhysicalArrowDirection {
   Right,
   Left,
@@ -1178,7 +1200,15 @@ bool Theme::DoDrawWidgetBackground(PaintBackendData& aPaintData,
       PaintListbox(aPaintData, devPxRect, elementState, colors, dpiRatio);
       break;
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
       PaintMenulist(aPaintData, devPxRect, elementState, colors, dpiRatio);
+      break;
+    case StyleAppearance::Tab:
+      PaintTab(aPaintData, aFrame, devPxRect, elementState, colors, dpiRatio);
+      break;
+    case StyleAppearance::Tabpanel:
+    case StyleAppearance::Tabpanels:
+      PaintTabPanel(aPaintData, devPxRect, elementState, colors, dpiRatio);
       break;
     case StyleAppearance::Menuarrow:
     case StyleAppearance::MozMenulistArrowButton:
@@ -1432,6 +1462,10 @@ LayoutDeviceIntMargin Theme::GetWidgetBorder(nsDeviceContext* aContext,
     case StyleAppearance::PasswordInput:
     case StyleAppearance::Listbox:
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
+    case StyleAppearance::Tab:
+    case StyleAppearance::Tabpanel:
+    case StyleAppearance::Tabpanels:
     case StyleAppearance::Button:
     case StyleAppearance::ProgressBar:
       // Return the border size from the UA sheet, even though what we paint
@@ -1492,6 +1526,8 @@ bool Theme::GetWidgetOverflow(nsDeviceContext* aContext, nsIFrame* aFrame,
       outlineOffset = -kTextFieldBorderWidth;
       break;
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
+    case StyleAppearance::Tab:
     case StyleAppearance::Button:
       outlineOffset = -kButtonBorderWidth;
       break;
@@ -1638,10 +1674,14 @@ bool Theme::ThemeSupportsWidget(nsPresContext* aPresContext, nsIFrame* aFrame,
     case StyleAppearance::Button:
     case StyleAppearance::Listbox:
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::NumberInput:
     case StyleAppearance::PasswordInput:
     case StyleAppearance::MozMenulistArrowButton:
     case StyleAppearance::Menuarrow:
+    case StyleAppearance::Tab:
+    case StyleAppearance::Tabpanel:
+    case StyleAppearance::Tabpanels:
     case StyleAppearance::SpinnerUpbutton:
     case StyleAppearance::SpinnerDownbutton:
     case StyleAppearance::Menuitem:
