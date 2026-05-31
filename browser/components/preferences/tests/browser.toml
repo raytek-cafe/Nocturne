@@ -140,10 +140,6 @@ run-if = ["os == 'mac'"]
 ["browser_localSearchShortcuts.js"]
 fail-if = ["a11y_checks"] # Bug 1854636 clicked treechildren#engineChildren may not be focusable
 
-["browser_moreFromMozilla.js"]
-
-["browser_moreFromMozilla_locales.js"]
-
 ["browser_newtab_menu.js"]
 
 ["browser_notifications_do_not_disturb.js"]
