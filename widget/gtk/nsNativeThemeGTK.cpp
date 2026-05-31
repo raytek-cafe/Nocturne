@@ -403,7 +403,8 @@ void nsNativeThemeGTK::DrawWidgetBackground(
       .image_scale = gint(std::ceil(scaleFactor.scale)),
   };
   dom::ElementState contentState = GetContentState(aFrame, aAppearance);
-  if (contentState.HasState(dom::ElementState::DISABLED) || IsReadOnly(aFrame)) {
+  if (contentState.HasState(dom::ElementState::DISABLED) ||
+      IsReadOnly(aFrame)) {
     params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_INSENSITIVE);
   }
   if (contentState.HasState(dom::ElementState::ACTIVE)) {
@@ -468,9 +469,9 @@ LayoutDeviceIntMargin nsNativeThemeGTK::GetWidgetBorder(
   }
   LayoutDeviceIntMargin result;
   gint left = 0, top = 0, right = 0, bottom = 0;
-  if (moz_gtk_get_widget_border(*gtkType, &left, &top, &right, &bottom,
-                                IsFrameRTL(aFrame) ? GTK_TEXT_DIR_RTL
-                                                   : GTK_TEXT_DIR_LTR) !=
+  if (moz_gtk_get_widget_border(
+          *gtkType, &left, &top, &right, &bottom,
+          IsFrameRTL(aFrame) ? GTK_TEXT_DIR_RTL : GTK_TEXT_DIR_LTR) !=
       MOZ_GTK_SUCCESS) {
     return {};
   }
@@ -537,8 +538,8 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
   return NonNative::BecauseColorMismatch;
 }
 
-bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(
-    nsIFrame* /* aFrame */, StyleAppearance aAppearance) {
+bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(nsIFrame* /* aFrame */,
+                                               StyleAppearance aAppearance) {
   return aAppearance == StyleAppearance::MozMenulistArrowButton ||
          aAppearance == StyleAppearance::MenulistButton ||
          aAppearance == StyleAppearance::Tab ||
@@ -572,7 +573,8 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
     auto width = style->StyleUIReset()->ScrollbarWidth();
     auto overlay = aPresContext->UseOverlayScrollbars() ? nsITheme::Overlay::Yes
                                                         : nsITheme::Overlay::No;
-    auto relevantSize = GetScrollbarDrawing().GetCSSScrollbarSize(width, overlay);
+    auto relevantSize =
+        GetScrollbarDrawing().GetScrollbarSize(aPresContext, width, overlay);
     LayoutDeviceIntSize result{relevantSize, relevantSize};
     if (aAppearance == StyleAppearance::ScrollbarHorizontal ||
         aAppearance == StyleAppearance::ScrollbarVertical) {
@@ -646,9 +648,8 @@ nsITheme::Transparency nsNativeThemeGTK::GetWidgetTransparency(
     return Theme::GetWidgetTransparency(aFrame, aAppearance);
   }
   if (IsWidgetScrollbarPart(aAppearance)) {
-    if (auto transparency =
-            GetScrollbarDrawing().GetScrollbarPartTransparency(aFrame,
-                                                               aAppearance)) {
+    if (auto transparency = GetScrollbarDrawing().GetScrollbarPartTransparency(
+            aFrame, aAppearance)) {
       return *transparency;
     }
   }
