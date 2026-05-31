@@ -40,6 +40,9 @@ class nsNativeThemeCocoa : public mozilla::widget::ThemeCocoa {
     eDisclosureButtonOpen
   };
 
+  enum class SpinButton : uint8_t { eUp, eDown };
+
+  enum class SegmentType : uint8_t { eToolbarButton, eTab };
   enum class OptimumState : uint8_t { eOptimum, eSubOptimum, eSubSubOptimum };
 
   struct ControlParams {
@@ -88,7 +91,6 @@ class nsNativeThemeCocoa : public mozilla::widget::ThemeCocoa {
     eButton,              // ButtonParams
     eDropdown,            // DropdownParams
     eTextField,           // TextFieldParams
-    eMultilineTextField,  // bool
   };
 
   struct WidgetInfo {
@@ -109,6 +111,9 @@ class nsNativeThemeCocoa : public mozilla::widget::ThemeCocoa {
     }
     static WidgetInfo MultilineTextField(bool aParams) {
       return WidgetInfo(Widget::eMultilineTextField, aParams);
+    }
+    static WidgetInfo TabPanel(bool aParams) {
+      return WidgetInfo(Widget::eTabPanel, aParams);
     }
 
     template <typename T>
@@ -202,6 +207,8 @@ class nsNativeThemeCocoa : public mozilla::widget::ThemeCocoa {
                     const DropdownParams& aParams);
   void DrawMultilineTextField(CGContextRef cgContext, const CGRect& inBoxRect,
                               bool aIsFocused);
+  void DrawTabPanel(CGContextRef context, const HIRect& inBoxRect,
+                    bool aIsInsideActiveWindow);
   void RenderWidget(const WidgetInfo& aWidgetInfo, mozilla::ColorScheme,
                     mozilla::gfx::DrawTarget& aDrawTarget,
                     const mozilla::gfx::Rect& aWidgetRect,
