@@ -450,6 +450,10 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
 bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(
     nsIFrame* /* aFrame */, StyleAppearance aAppearance) {
   return aAppearance == StyleAppearance::MozMenulistArrowButton ||
+         aAppearance == StyleAppearance::MenulistButton ||
+         aAppearance == StyleAppearance::Tab ||
+         aAppearance == StyleAppearance::Tabpanel ||
+         aAppearance == StyleAppearance::Tabpanels ||
          aAppearance == StyleAppearance::Textfield ||
          aAppearance == StyleAppearance::NumberInput ||
          aAppearance == StyleAppearance::PasswordInput ||
