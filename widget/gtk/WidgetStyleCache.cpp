@@ -242,6 +242,8 @@ static GtkWidget* CreateWidget(WidgetNodeType aAppearance) {
       return CreateWindowWidget();
     case MOZ_GTK_WINDOW_CONTAINER:
       return CreateWindowContainerWidget();
+    case MOZ_GTK_SCROLLBAR_HORIZONTAL:
+      return CreateScrollbarWidget(aAppearance, GTK_ORIENTATION_HORIZONTAL);
     case MOZ_GTK_SCROLLBAR_VERTICAL:
       return CreateScrollbarWidget(aAppearance, GTK_ORIENTATION_VERTICAL);
     case MOZ_GTK_MENUPOPUP:
@@ -489,6 +491,21 @@ static GtkStyleContext* GetCssNodeStyleInternal(WidgetNodeType aNodeType) {
   if (style) return style;
 
   switch (aNodeType) {
+    case MOZ_GTK_SCROLLBAR_CONTENTS_HORIZONTAL:
+      style = CreateChildCSSNode("contents", MOZ_GTK_SCROLLBAR_HORIZONTAL);
+      break;
+    case MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL:
+      style = CreateChildCSSNode(GTK_STYLE_CLASS_TROUGH,
+                                 MOZ_GTK_SCROLLBAR_CONTENTS_HORIZONTAL);
+      break;
+    case MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL:
+      style = CreateChildCSSNode(GTK_STYLE_CLASS_SLIDER,
+                                 MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL);
+      break;
+    case MOZ_GTK_SCROLLBAR_BUTTON:
+      style = CreateChildCSSNode(GTK_STYLE_CLASS_BUTTON,
+                                 MOZ_GTK_SCROLLBAR_CONTENTS_VERTICAL);
+      break;
     case MOZ_GTK_SCROLLBAR_CONTENTS_VERTICAL:
       style = CreateChildCSSNode("contents", MOZ_GTK_SCROLLBAR_VERTICAL);
       break;
@@ -537,12 +554,21 @@ static GtkStyleContext* GetCssNodeStyleInternal(WidgetNodeType aNodeType) {
   return style;
 }
 
+
 /* GetWidgetStyleInternal is used by Gtk < 3.20 */
 static GtkStyleContext* GetWidgetStyleInternal(WidgetNodeType aNodeType) {
   GtkStyleContext* style = sStyleStorage[aNodeType];
   if (style) return style;
 
   switch (aNodeType) {
+    case MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL:
+      style = CreateSubStyleWithClass(MOZ_GTK_SCROLLBAR_HORIZONTAL,
+                                      GTK_STYLE_CLASS_TROUGH);
+      break;
+    case MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL:
+      style = CreateSubStyleWithClass(MOZ_GTK_SCROLLBAR_HORIZONTAL,
+                                      GTK_STYLE_CLASS_SLIDER);
+      break;
     case MOZ_GTK_SCROLLBAR_TROUGH_VERTICAL:
       style = CreateSubStyleWithClass(MOZ_GTK_SCROLLBAR_VERTICAL,
                                       GTK_STYLE_CLASS_TROUGH);
@@ -556,8 +582,6 @@ static GtkStyleContext* GetWidgetStyleInternal(WidgetNodeType aNodeType) {
                                       GTK_STYLE_CLASS_FRAME);
       break;
     case MOZ_GTK_TEXT_VIEW_TEXT:
-      // GTK versions prior to 3.20 do not have the view class on the root
-      // node, but add this to determine the background for the text window.
       style = CreateSubStyleWithClass(MOZ_GTK_TEXT_VIEW, GTK_STYLE_CLASS_VIEW);
       break;
     case MOZ_GTK_FRAME_BORDER:
@@ -602,6 +626,7 @@ static void StyleContextSetScale(GtkStyleContext* style, gint aScaleFactor) {
 }
 
 GtkStyleContext* GetStyleContext(WidgetNodeType aNodeType, int aScale,
+                                 GtkTextDirection aDirection,
                                  GtkStateFlags aState) {
   GtkStyleContext* style;
   if (gtk_check_version(3, 20, 0) != nullptr) {
@@ -610,10 +635,42 @@ GtkStyleContext* GetStyleContext(WidgetNodeType aNodeType, int aScale,
     style = GetCssNodeStyleInternal(aNodeType);
     StyleContextSetScale(style, aScale);
   }
+
+  if (aDirection != GTK_TEXT_DIR_NONE) {
+    aState = GtkStateFlags(aState |
+                           (aDirection == GTK_TEXT_DIR_RTL ? STATE_FLAG_DIR_RTL
+                                                           : STATE_FLAG_DIR_LTR));
+  }
+
   if (gtk_style_context_get_state(style) != aState) {
     gtk_style_context_set_state(style, aState);
   }
   return style;
+}
+
+GtkStyleContext* CreateStyleContextWithStates(WidgetNodeType aNodeType,
+                                              int aScale,
+                                              GtkTextDirection aDirection,
+                                              GtkStateFlags aStateFlags) {
+  GtkStyleContext* style =
+      GetStyleContext(aNodeType, aScale, aDirection, aStateFlags);
+  GtkWidgetPath* path = gtk_widget_path_copy(gtk_style_context_get_path(style));
+  int pathLength = gtk_widget_path_length(path);
+  for (int i = 0; i < pathLength; ++i) {
+    gtk_widget_path_iter_set_state(
+        path, i,
+        GtkStateFlags(aStateFlags |
+                      (aDirection == GTK_TEXT_DIR_RTL
+                           ? STATE_FLAG_DIR_RTL
+                           : aDirection == GTK_TEXT_DIR_LTR ? STATE_FLAG_DIR_LTR
+                                                             : 0)));
+  }
+
+  GtkStyleContext* fullStateStyle = gtk_style_context_new();
+  gtk_style_context_set_path(fullStateStyle, path);
+  gtk_widget_path_unref(path);
+  StyleContextSetScale(fullStateStyle, aScale);
+  return fullStateStyle;
 }
 
 bool HeaderBarShouldDrawContainer() {
