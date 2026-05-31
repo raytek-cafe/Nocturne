@@ -32,6 +32,12 @@ GtkStyleContext* CreateCSSNode(const char* aName, GtkStyleContext* aParentStyle,
  */
 GtkStyleContext* GetStyleContext(
     WidgetNodeType aNodeType, int aScale = 1,
+    GtkTextDirection aDirection = GTK_TEXT_DIR_NONE,
+    GtkStateFlags aStateFlags = GTK_STATE_FLAG_NORMAL);
+
+GtkStyleContext* CreateStyleContextWithStates(
+    WidgetNodeType aNodeType, int aScale = 1,
+    GtkTextDirection aDirection = GTK_TEXT_DIR_NONE,
     GtkStateFlags aStateFlags = GTK_STATE_FLAG_NORMAL);
 
 void ResetWidgetCache();

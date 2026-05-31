@@ -14,6 +14,8 @@
 #include "mozilla/gfx/BorrowedContext.h"
 #include "mozilla/gfx/HelpersCairo.h"
 #include "mozilla/gfx/PathHelpers.h"
+#include "mozilla/StaticPrefs_widget.h"
+#include "nsLayoutUtils.h"
 #include "mozilla/WidgetUtilsGtk.h"
 
 #ifdef MOZ_X11
@@ -54,6 +56,23 @@ nsNativeThemeGTK::~nsNativeThemeGTK() { moz_gtk_shutdown(); }
 
 static Maybe<WidgetNodeType> GeckoToGtkWidgetType(StyleAppearance aAppearance) {
   switch (aAppearance) {
+    case StyleAppearance::ScrollbarHorizontal:
+      return Some(MOZ_GTK_SCROLLBAR_HORIZONTAL);
+    case StyleAppearance::ScrollbarVertical:
+      return Some(MOZ_GTK_SCROLLBAR_VERTICAL);
+    case StyleAppearance::ScrollbartrackHorizontal:
+      return Some(MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL);
+    case StyleAppearance::ScrollbartrackVertical:
+      return Some(MOZ_GTK_SCROLLBAR_TROUGH_VERTICAL);
+    case StyleAppearance::ScrollbarthumbHorizontal:
+      return Some(MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL);
+    case StyleAppearance::ScrollbarthumbVertical:
+      return Some(MOZ_GTK_SCROLLBAR_THUMB_VERTICAL);
+    case StyleAppearance::ScrollbarbuttonUp:
+    case StyleAppearance::ScrollbarbuttonDown:
+    case StyleAppearance::ScrollbarbuttonLeft:
+    case StyleAppearance::ScrollbarbuttonRight:
+      return Some(MOZ_GTK_SCROLLBAR_BUTTON);
     case StyleAppearance::MozWindowDecorations:
       return Some(MOZ_GTK_WINDOW_DECORATION);
     default:
@@ -61,6 +80,21 @@ static Maybe<WidgetNodeType> GeckoToGtkWidgetType(StyleAppearance aAppearance) {
       break;
   }
   return {};
+}
+
+static gint ScrollbarButtonFlags(StyleAppearance aAppearance) {
+  switch (aAppearance) {
+    case StyleAppearance::ScrollbarbuttonUp:
+      return MOZ_GTK_STEPPER_VERTICAL;
+    case StyleAppearance::ScrollbarbuttonDown:
+      return MOZ_GTK_STEPPER_VERTICAL | MOZ_GTK_STEPPER_DOWN;
+    case StyleAppearance::ScrollbarbuttonLeft:
+      return 0;
+    case StyleAppearance::ScrollbarbuttonRight:
+      return MOZ_GTK_STEPPER_DOWN;
+    default:
+      return 0;
+  }
 }
 
 class SystemCairoClipper : public ClipExporter {
@@ -364,11 +398,34 @@ void nsNativeThemeGTK::DrawWidgetBackground(
       .widget = *gtkType,
       .rect = gdk_rect,
       .state = GTK_STATE_FLAG_NORMAL,
+      .direction = IsFrameRTL(aFrame) ? GTK_TEXT_DIR_RTL : GTK_TEXT_DIR_LTR,
+      .flags = 0,
       .image_scale = gint(std::ceil(scaleFactor.scale)),
   };
+  dom::ElementState contentState = GetContentState(aFrame, aAppearance);
+  if (contentState.HasState(dom::ElementState::DISABLED) || IsReadOnly(aFrame)) {
+    params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_INSENSITIVE);
+  }
+  if (contentState.HasState(dom::ElementState::ACTIVE)) {
+    params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_ACTIVE);
+  }
+  if (contentState.HasState(dom::ElementState::HOVER)) {
+    params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_PRELIGHT);
+  }
   if (aFrame->PresContext()->Document()->State().HasState(
           dom::DocumentState::WINDOW_INACTIVE)) {
-    params.state = GtkStateFlags(gint(params.state) | GTK_STATE_FLAG_BACKDROP);
+    params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_BACKDROP);
+  }
+  if (aAppearance == StyleAppearance::ScrollbarHorizontal ||
+      aAppearance == StyleAppearance::ScrollbarVertical) {
+    if (GetScrollbarDrawing().IsScrollbarTrackOpaque(aFrame)) {
+      params.flags |= MOZ_GTK_TRACK_OPAQUE;
+    }
+  } else if (aAppearance == StyleAppearance::ScrollbarbuttonUp ||
+             aAppearance == StyleAppearance::ScrollbarbuttonDown ||
+             aAppearance == StyleAppearance::ScrollbarbuttonLeft ||
+             aAppearance == StyleAppearance::ScrollbarbuttonRight) {
+    params.flags = ScrollbarButtonFlags(aAppearance);
   }
   // translate everything so (0,0) is the top left of the drawingRect
   gfxPoint origin = rect.TopLeft() + drawingRect.TopLeft().ToUnknownPoint();
@@ -401,7 +458,27 @@ LayoutDeviceIntMargin nsNativeThemeGTK::GetWidgetBorder(
   if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return Theme::GetWidgetBorder(aContext, aFrame, aAppearance);
   }
-  return {};
+  if (!IsWidgetScrollbarPart(aAppearance)) {
+    return {};
+  }
+
+  auto gtkType = GeckoToGtkWidgetType(aAppearance);
+  if (!gtkType) {
+    return {};
+  }
+  LayoutDeviceIntMargin result;
+  gint left = 0, top = 0, right = 0, bottom = 0;
+  if (moz_gtk_get_widget_border(*gtkType, &left, &top, &right, &bottom,
+                                IsFrameRTL(aFrame) ? GTK_TEXT_DIR_RTL
+                                                   : GTK_TEXT_DIR_LTR) !=
+      MOZ_GTK_SUCCESS) {
+    return {};
+  }
+  result.top = top;
+  result.right = right;
+  result.bottom = bottom;
+  result.left = left;
+  return result;
 }
 
 bool nsNativeThemeGTK::GetWidgetPadding(nsDeviceContext* aContext,
@@ -432,14 +509,27 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
     return NonNative::Always;
   }
 
-  // If the current GTK theme color scheme matches our color-scheme, then we
-  // can draw a native widget.
+  if (IsWidgetScrollbarPart(aAppearance)) {
+    ComputedStyle* style = nsLayoutUtils::StyleForScrollbar(aFrame);
+    if (style->StyleUI()->HasCustomScrollbars() ||
+        style->StyleUIReset()->ScrollbarWidth() == StyleScrollbarWidth::Thin) {
+      return NonNative::Always;
+    }
+    switch (StaticPrefs::widget_native_controls_scrollbar_style()) {
+      case 0:
+        return NonNative::No;
+      case 1:
+        return NonNative::Always;
+      default:
+        break;
+    }
+  }
+
   if (LookAndFeel::ColorSchemeForFrame(aFrame) ==
       PreferenceSheet::ColorSchemeForChrome()) {
     return NonNative::No;
   }
 
-  // If the non-native theme doesn't support the widget then oh well...
   if (!Theme::ThemeSupportsWidget(aFrame->PresContext(), aFrame, aAppearance)) {
     return NonNative::No;
   }
@@ -476,6 +566,27 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
   if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return Theme::GetMinimumWidgetSize(aPresContext, aFrame, aAppearance);
   }
+
+  if (IsWidgetScrollbarPart(aAppearance)) {
+    auto* style = nsLayoutUtils::StyleForScrollbar(aFrame);
+    auto width = style->StyleUIReset()->ScrollbarWidth();
+    auto overlay = aPresContext->UseOverlayScrollbars() ? nsITheme::Overlay::Yes
+                                                        : nsITheme::Overlay::No;
+    auto relevantSize = GetScrollbarDrawing().GetCSSScrollbarSize(width, overlay);
+    LayoutDeviceIntSize result{relevantSize, relevantSize};
+    if (aAppearance == StyleAppearance::ScrollbarHorizontal ||
+        aAppearance == StyleAppearance::ScrollbarVertical) {
+      const bool isHorizontal =
+          aAppearance == StyleAppearance::ScrollbarHorizontal;
+      if (isHorizontal) {
+        result.width *= 2;
+      } else {
+        result.height *= 2;
+      }
+    }
+    return result;
+  }
+
   return {};
 }
 
@@ -498,6 +609,17 @@ bool nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
   switch (aAppearance) {
     case StyleAppearance::MozWindowDecorations:
       return !IsWidgetStyled(aPresContext, aFrame, aAppearance);
+    case StyleAppearance::ScrollbarHorizontal:
+    case StyleAppearance::ScrollbarVertical:
+    case StyleAppearance::ScrollbartrackHorizontal:
+    case StyleAppearance::ScrollbartrackVertical:
+    case StyleAppearance::ScrollbarthumbHorizontal:
+    case StyleAppearance::ScrollbarthumbVertical:
+    case StyleAppearance::ScrollbarbuttonUp:
+    case StyleAppearance::ScrollbarbuttonDown:
+    case StyleAppearance::ScrollbarbuttonLeft:
+    case StyleAppearance::ScrollbarbuttonRight:
+      return true;
     default:
       break;
   }
@@ -523,7 +645,13 @@ nsITheme::Transparency nsNativeThemeGTK::GetWidgetTransparency(
   if (IsWidgetNonNative(aFrame, aAppearance) != NonNative::No) {
     return Theme::GetWidgetTransparency(aFrame, aAppearance);
   }
-
+  if (IsWidgetScrollbarPart(aAppearance)) {
+    if (auto transparency =
+            GetScrollbarDrawing().GetScrollbarPartTransparency(aFrame,
+                                                               aAppearance)) {
+      return *transparency;
+    }
+  }
   return eUnknownTransparency;
 }
 

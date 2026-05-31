@@ -57,9 +57,35 @@ struct ToolbarGTKMetrics {
   gint inlineSpacing = 0;
 };
 
+struct ScrollbarGTKMetrics {
+  bool initialized = false;
+  struct {
+    MozGtkSize scrollbar;
+    MozGtkSize thumb;
+    MozGtkSize button;
+  } size;
+  struct {
+    GtkBorder scrollbar{};
+    GtkBorder track{};
+  } border;
+  struct {
+    GtkBorder thumb{};
+  } margin;
+};
+
 struct CSDWindowDecorationSize {
   bool initialized;
   GtkBorder decorationSize;
+};
+
+enum GtkScrollbarButtonFlags : gint {
+  MOZ_GTK_STEPPER_DOWN = 1 << 0,
+  MOZ_GTK_STEPPER_BOTTOM = 1 << 1,
+  MOZ_GTK_STEPPER_VERTICAL = 1 << 2,
+};
+
+enum GtkScrollbarTrackFlags : gint {
+  MOZ_GTK_TRACK_OPAQUE = 1 << 0,
 };
 
 /*** result/error codes ***/
@@ -70,6 +96,15 @@ struct CSDWindowDecorationSize {
 enum WidgetNodeType : int {
   /* Paints a GtkButton. flags is a GtkReliefStyle. */
   MOZ_GTK_BUTTON,
+
+  /* Paints the button of a GtkScrollbar. flags is GtkScrollbarButtonFlags. */
+  MOZ_GTK_SCROLLBAR_BUTTON,
+
+  /* Horizontal GtkScrollbar counterparts */
+  MOZ_GTK_SCROLLBAR_HORIZONTAL,
+  MOZ_GTK_SCROLLBAR_CONTENTS_HORIZONTAL,
+  MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL,
+  MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL,
 
   /* Vertical GtkScrollbar counterparts */
   MOZ_GTK_SCROLLBAR_VERTICAL,
@@ -157,16 +192,24 @@ gint moz_gtk_shutdown();
 /*** Widget drawing ***/
 
 struct GtkDrawingParams {
-  // widget to paint
   WidgetNodeType widget;
-  // bounding rectangle for the widget
   GdkRectangle rect{};
   GtkStateFlags state = GTK_STATE_FLAG_NORMAL;
+  GtkTextDirection direction = GTK_TEXT_DIR_NONE;
+  gint flags = 0;
   gint image_scale = 1;
 };
 
 // Paint a widget in the current theme.
 void moz_gtk_widget_paint(cairo_t* cr, const GtkDrawingParams* aParams);
+
+gint moz_gtk_get_widget_border(WidgetNodeType widget, gint* left, gint* top,
+                               gint* right, gint* bottom,
+                               GtkTextDirection direction = GTK_TEXT_DIR_NONE);
+
+const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation);
+const ScrollbarGTKMetrics* GetActiveScrollbarMetrics(
+    GtkOrientation aOrientation);
 
 /*** Widget metrics ***/
 
