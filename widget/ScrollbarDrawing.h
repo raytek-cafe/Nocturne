@@ -112,6 +112,20 @@ class ScrollbarDrawing {
                               const ElementState&, const Colors&,
                               const DPIRatio&);
 
+  virtual bool PaintScrollbarTrack(DrawTarget&, const LayoutDeviceRect&,
+                                   ScrollbarKind, nsIFrame*,
+                                   const ComputedStyle&, const DocumentState&,
+                                   const Colors&, const DPIRatio&) {
+    return true;
+  }
+  virtual bool PaintScrollbarTrack(WebRenderBackendData&,
+                                   const LayoutDeviceRect&, ScrollbarKind,
+                                   nsIFrame*, const ComputedStyle&,
+                                   const DocumentState&, const Colors&,
+                                   const DPIRatio&) {
+    return true;
+  }
+
   template <typename PaintBackendData>
   bool DoPaintDefaultScrollCorner(PaintBackendData&, const LayoutDeviceRect&,
                                   ScrollbarKind, nsIFrame*,

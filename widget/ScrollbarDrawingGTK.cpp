@@ -21,12 +21,15 @@ LayoutDeviceIntSize ScrollbarDrawingGTK::GetMinimumWidgetSize(
   LayoutDeviceIntSize size{scrollbarSize, scrollbarSize};
   if (aAppearance == StyleAppearance::ScrollbarHorizontal ||
       aAppearance == StyleAppearance::ScrollbarVertical ||
+      aAppearance == StyleAppearance::ScrollbartrackHorizontal ||
+      aAppearance == StyleAppearance::ScrollbartrackVertical ||
       aAppearance == StyleAppearance::ScrollbarthumbHorizontal ||
       aAppearance == StyleAppearance::ScrollbarthumbVertical) {
     CSSCoord thumbSize(
         StaticPrefs::widget_non_native_theme_gtk_scrollbar_thumb_cross_size());
     const bool isVertical =
         aAppearance == StyleAppearance::ScrollbarVertical ||
+        aAppearance == StyleAppearance::ScrollbartrackVertical ||
         aAppearance == StyleAppearance::ScrollbarthumbVertical;
     auto dpi = GetDPIRatioForScrollbarPart(aPresContext);
     if (isVertical) {
@@ -42,7 +45,9 @@ Maybe<nsITheme::Transparency> ScrollbarDrawingGTK::GetScrollbarPartTransparency(
     nsIFrame* aFrame, StyleAppearance aAppearance) {
   if (!nsLayoutUtils::UseOverlayScrollbars(aFrame) &&
       (aAppearance == StyleAppearance::ScrollbarVertical ||
-       aAppearance == StyleAppearance::ScrollbarHorizontal) &&
+       aAppearance == StyleAppearance::ScrollbarHorizontal ||
+       aAppearance == StyleAppearance::ScrollbartrackVertical ||
+       aAppearance == StyleAppearance::ScrollbartrackHorizontal) &&
       IsScrollbarTrackOpaque(aFrame)) {
     return Some(nsITheme::eOpaque);
   }
