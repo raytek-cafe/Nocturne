@@ -5,12 +5,6 @@
 import { AppConstants } from "resource://gre/modules/AppConstants.sys.mjs";
 import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
 
-const PRIVATE_BROWSING_BINARY = "private_browsing.exe";
-// Index of Private Browsing icon in private_browsing.exe
-// Must line up with IDI_PBICON_PB_PB_EXE in nsNativeAppSupportWin.h.
-const PRIVATE_BROWSING_EXE_ICON_INDEX = 1;
-const PREF_PRIVATE_BROWSING_SHORTCUT_CREATED =
-  "browser.privacySegmentation.createdShortcut";
 
 const lazy = {};
 
@@ -25,7 +19,6 @@ XPCOMUtils.defineLazyServiceGetters(lazy, {
 ChromeUtils.defineESModuleGetters(lazy, {
   FirefoxBridgeExtensionUtils:
     "resource:///modules/FirefoxBridgeExtensionUtils.sys.mjs",
-  PrivateBrowsingUtils: "resource://gre/modules/PrivateBrowsingUtils.sys.mjs",
   ShellService: "resource:///modules/ShellService.sys.mjs",
   WindowsLaunchOnLogin: "resource://gre/modules/WindowsLaunchOnLogin.sys.mjs",
   WindowsGPOParser: "resource://gre/modules/policies/WindowsGPOParser.sys.mjs",
@@ -160,13 +153,13 @@ export let StartupOSIntegration = {
 
     // Currently we only support Firefox bridge on Windows and macOS.
     safeCall(() => this.ensureBridgeRegistered());
-
-    if (AppConstants.platform == "win") {
-      if (Services.sysinfo.getProperty("hasWinPackageId")) {
-        safeCall(() => this.maybePinMSIXToStartMenu());
-      }
-      safeCall(() => this.ensurePrivateBrowsingShortcutExists());
+    if (
+      AppConstants.platform == "win" &&
+      Services.sysinfo.getProperty("hasWinPackageId")
+    ) {
+      safeCall(() => this.maybePinMSIXToStartMenu());
     }
+
   },
 
   async ensureBridgeRegistered() {
@@ -199,80 +192,5 @@ export let StartupOSIntegration = {
       return;
     }
     await lazy.ShellService.recordWasPreviouslyPinnedToStartMenu();
-  },
-
-  // Ensure a Private Browsing Shortcut exists. This is needed in case
-  // a user tries to use Windows functionality to pin our Private Browsing
-  // mode icon to the Taskbar (eg: the "Pin to Taskbar" context menu item).
-  // This is also created by the installer, but it's possible that a user
-  // has removed it, or is running out of a zip build. The consequences of not
-  // having a Shortcut for this are that regular Firefox will be pinned instead
-  // of the Private Browsing version -- so it's quite important we do our best
-  // to make sure one is available.
-  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1762994 for additional
-  // background.
-  async ensurePrivateBrowsingShortcutExists() {
-    if (
-      // If the feature is disabled, don't do this.
-      // Changed default from true to false so it's opt-in instead of opt-out.
-      !Services.prefs.getBoolPref(
-        "browser.privateWindowSeparation.enabled",
-        false
-      ) ||
-      // We don't want a shortcut if it's been disabled, eg: by enterprise policy.
-      !lazy.PrivateBrowsingUtils.enabled ||
-      // Private Browsing shortcuts for packaged builds come with the package,
-      // if they exist at all. We shouldn't try to create our own.
-      Services.sysinfo.getProperty("hasWinPackageId") ||
-      // If we've ever done this successfully before, don't try again. The
-      // user may have deleted the shortcut, and we don't want to force it
-      // on them.
-      Services.prefs.getBoolPref(PREF_PRIVATE_BROWSING_SHORTCUT_CREATED, false)
-    ) {
-      return;
-    }
-
-    let shellService = Cc["@mozilla.org/browser/shell-service;1"].getService(
-      Ci.nsIWindowsShellService
-    );
-    let winTaskbar = Cc["@mozilla.org/windows-taskbar;1"].getService(
-      Ci.nsIWinTaskbar
-    );
-
-    if (
-      !(await shellService.hasPinnableShortcut(
-        winTaskbar.defaultPrivateGroupId,
-        true
-      ))
-    ) {
-      let appdir = Services.dirsvc.get("GreD", Ci.nsIFile);
-      let exe = appdir.clone();
-      exe.append(PRIVATE_BROWSING_BINARY);
-      let strings = new Localization(
-        ["branding/brand.ftl", "browser/browser.ftl"],
-        true
-      );
-      let [desc] = await strings.formatValues([
-        "private-browsing-shortcut-text-2",
-      ]);
-      await shellService.createShortcut(
-        exe,
-        [],
-        desc,
-        exe,
-        // The code we're calling indexes from 0 instead of 1
-        PRIVATE_BROWSING_EXE_ICON_INDEX - 1,
-        winTaskbar.defaultPrivateGroupId,
-        "Programs",
-        desc + ".lnk",
-        appdir
-      );
-    }
-    // We always set this as long as no exception has been thrown. This
-    // ensure that it is `true` both if we created one because it didn't
-    // exist, or if it already existed (most likely because it was created
-    // by the installer). This avoids the need to call `hasPinnableShortcut`
-    // again, which necessarily does pointless I/O.
-    Services.prefs.setBoolPref(PREF_PRIVATE_BROWSING_SHORTCUT_CREATED, true);
   },
 };
