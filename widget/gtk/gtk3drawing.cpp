@@ -13,6 +13,7 @@
 #include <string.h>
 #include "gdk/gdk.h"
 #include "gtkdrawing.h"
+#include "mozilla/Attributes.h"
 #include "mozilla/Assertions.h"
 #include "mozilla/ScopeExit.h"
 #include "prinrval.h"
@@ -25,8 +26,8 @@
 #include <dlfcn.h>
 
 static ToolbarGTKMetrics sToolbarMetrics;
-static ScrollbarGTKMetrics sScrollbarMetrics[2];
-static ScrollbarGTKMetrics sActiveScrollbarMetrics[2];
+MOZ_CONSTINIT static ScrollbarGTKMetrics sScrollbarMetrics[2] = {};
+MOZ_CONSTINIT static ScrollbarGTKMetrics sActiveScrollbarMetrics[2] = {};
 
 using mozilla::Span;
 
@@ -122,13 +123,12 @@ static gint moz_gtk_scrollbar_button_paint(cairo_t* aCr,
                                            const GtkDrawingParams& aParams) {
   const bool vertical = aParams.flags & MOZ_GTK_STEPPER_VERTICAL;
   const bool down = aParams.flags & MOZ_GTK_STEPPER_DOWN;
-  const gdouble arrowAngle =
-      vertical ? (down ? ARROW_DOWN : ARROW_UP)
-               : (down ? ARROW_RIGHT : ARROW_LEFT);
+  const gdouble arrowAngle = vertical ? (down ? ARROW_DOWN : ARROW_UP)
+                                      : (down ? ARROW_RIGHT : ARROW_LEFT);
 
-  GtkStyleContext* style = GetStyleContext(
-      MOZ_GTK_SCROLLBAR_BUTTON, aParams.image_scale, aParams.direction,
-      aParams.state);
+  GtkStyleContext* style =
+      GetStyleContext(MOZ_GTK_SCROLLBAR_BUTTON, aParams.image_scale,
+                      aParams.direction, aParams.state);
   GdkRectangle rect = aParams.rect;
   moz_gtk_draw_styled_frame(style, aCr, &rect);
 
@@ -144,8 +144,8 @@ static gint moz_gtk_scrollbar_button_paint(cairo_t* aCr,
 
 static gint moz_gtk_scrollbar_trough_paint(cairo_t* aCr,
                                            const GtkDrawingParams& aParams) {
-  GtkStyleContext* style = GetStyleContext(
-      aParams.widget, aParams.image_scale, aParams.direction, aParams.state);
+  GtkStyleContext* style = GetStyleContext(aParams.widget, aParams.image_scale,
+                                           aParams.direction, aParams.state);
   GdkRectangle rect = aParams.rect;
 
   WidgetNodeType thumb = aParams.widget == MOZ_GTK_SCROLLBAR_TROUGH_VERTICAL
@@ -170,14 +170,14 @@ static gint moz_gtk_scrollbar_trough_paint(cairo_t* aCr,
 static gint moz_gtk_scrollbar_paint(cairo_t* aCr,
                                     const GtkDrawingParams& aParams) {
   if (aParams.flags & MOZ_GTK_TRACK_OPAQUE) {
-    GtkStyleContext* style = GetStyleContext(MOZ_GTK_WINDOW, aParams.image_scale,
-                                             aParams.direction, aParams.state);
+    GtkStyleContext* style = GetStyleContext(
+        MOZ_GTK_WINDOW, aParams.image_scale, aParams.direction, aParams.state);
     const auto& rect = aParams.rect;
     gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
   }
 
-  GtkStyleContext* style = GetStyleContext(
-      aParams.widget, aParams.image_scale, aParams.direction, aParams.state);
+  GtkStyleContext* style = GetStyleContext(aParams.widget, aParams.image_scale,
+                                           aParams.direction, aParams.state);
   moz_gtk_update_scrollbar_style(style, aParams.widget, aParams.direction);
   moz_gtk_draw_styled_frame(style, aCr, &aParams.rect);
 
@@ -190,8 +190,8 @@ static gint moz_gtk_scrollbar_paint(cairo_t* aCr,
 
 static gint moz_gtk_scrollbar_thumb_paint(cairo_t* aCr,
                                           const GtkDrawingParams& aParams) {
-  GtkStyleContext* style = GetStyleContext(
-      aParams.widget, aParams.image_scale, aParams.direction, aParams.state);
+  GtkStyleContext* style = GetStyleContext(aParams.widget, aParams.image_scale,
+                                           aParams.direction, aParams.state);
   GtkOrientation orientation =
       aParams.widget == MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL
           ? GTK_ORIENTATION_HORIZONTAL
@@ -215,16 +215,14 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
   WidgetNodeType scrollbar = aOrientation == GTK_ORIENTATION_HORIZONTAL
                                  ? MOZ_GTK_SCROLLBAR_HORIZONTAL
                                  : MOZ_GTK_SCROLLBAR_VERTICAL;
-  GtkStyleContext* style = GetStyleContext(scrollbar, 1, GTK_TEXT_DIR_NONE,
-                                           aStateFlags);
+  GtkStyleContext* style =
+      GetStyleContext(scrollbar, 1, GTK_TEXT_DIR_NONE, aStateFlags);
   gboolean backward = false, forward = false, secondaryBackward = false,
            secondaryForward = false;
-  gtk_style_context_get_style(style, "has-backward-stepper", &backward,
-                              "has-forward-stepper", &forward,
-                              "has-secondary-backward-stepper",
-                              &secondaryBackward,
-                              "has-secondary-forward-stepper",
-                              &secondaryForward, nullptr);
+  gtk_style_context_get_style(
+      style, "has-backward-stepper", &backward, "has-forward-stepper", &forward,
+      "has-secondary-backward-stepper", &secondaryBackward,
+      "has-secondary-forward-stepper", &secondaryForward, nullptr);
   const bool hasButtons =
       backward || forward || secondaryBackward || secondaryForward;
 
@@ -240,15 +238,15 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
                              ? MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL
                              : MOZ_GTK_SCROLLBAR_THUMB_VERTICAL;
 
-  style = CreateStyleContextWithStates(thumb, 1, GTK_TEXT_DIR_NONE,
-                                       aStateFlags);
+  style =
+      CreateStyleContextWithStates(thumb, 1, GTK_TEXT_DIR_NONE, aStateFlags);
   aMetrics->size.thumb = GetMinMarginBox(style);
   gtk_style_context_get_margin(style, gtk_style_context_get_state(style),
                                &aMetrics->margin.thumb);
   g_object_unref(style);
 
-  style = CreateStyleContextWithStates(track, 1, GTK_TEXT_DIR_NONE,
-                                       aStateFlags);
+  style =
+      CreateStyleContextWithStates(track, 1, GTK_TEXT_DIR_NONE, aStateFlags);
   aMetrics->border.track = GetMarginBorderPadding(style);
   MozGtkSize trackMinSize = GetMinContentBox(style) + aMetrics->border.track;
   MozGtkSize trackSizeForThumb = aMetrics->size.thumb + aMetrics->border.track;
@@ -280,8 +278,8 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
     }
   }
 
-  style = CreateStyleContextWithStates(contents, 1, GTK_TEXT_DIR_NONE,
-                                       aStateFlags);
+  style =
+      CreateStyleContextWithStates(contents, 1, GTK_TEXT_DIR_NONE, aStateFlags);
   GtkBorder contentsBorder = GetMarginBorderPadding(style);
   g_object_unref(style);
   aMetrics->size.scrollbar =
