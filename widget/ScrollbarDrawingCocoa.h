@@ -46,6 +46,20 @@ class ScrollbarDrawingCocoa final : public ScrollbarDrawing {
                       const DPIRatio&) override;
 
   template <typename PaintBackendData>
+  void DoPaintScrollbarTrack(PaintBackendData&, const LayoutDeviceRect&,
+                             ScrollbarKind, nsIFrame*, const ComputedStyle&,
+                             const DocumentState&, const Colors&,
+                             const DPIRatio&);
+  bool PaintScrollbarTrack(DrawTarget&, const LayoutDeviceRect&, ScrollbarKind,
+                           nsIFrame*, const ComputedStyle&,
+                           const DocumentState&, const Colors&,
+                           const DPIRatio&) override;
+  bool PaintScrollbarTrack(WebRenderBackendData&, const LayoutDeviceRect&,
+                           ScrollbarKind, nsIFrame*, const ComputedStyle&,
+                           const DocumentState&, const Colors&,
+                           const DPIRatio&) override;
+
+  template <typename PaintBackendData>
   void DoPaintScrollCorner(PaintBackendData&, const LayoutDeviceRect&,
                            ScrollbarKind, nsIFrame*, const ComputedStyle&,
                            const Colors&, const DPIRatio&);

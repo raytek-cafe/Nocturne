@@ -80,7 +80,9 @@ LayoutDeviceIntSize ScrollbarDrawingCocoa::GetMinimumWidgetSize(
       case StyleAppearance::ScrollbarthumbVertical:
         return {0, 26};
       case StyleAppearance::ScrollbarVertical:
-      case StyleAppearance::ScrollbarHorizontal: {
+      case StyleAppearance::ScrollbarHorizontal:
+      case StyleAppearance::ScrollbartrackVertical:
+      case StyleAppearance::ScrollbartrackHorizontal: {
         auto scrollbarWidth = nsLayoutUtils::ScrollbarWidthFor(aFrame);
         auto size = GetCSSScrollbarSize(
             scrollbarWidth,
@@ -378,6 +380,24 @@ bool ScrollbarDrawingCocoa::PaintScrollbarThumb(
 }
 
 template <typename PaintBackendData>
+void ScrollbarDrawingCocoa::DoPaintScrollbarTrack(
+    PaintBackendData& aPaintData, const LayoutDeviceRect& aRect,
+    ScrollbarKind aScrollbarKind, nsIFrame* aFrame, const ComputedStyle& aStyle,
+    const DocumentState& /* aDocumentState */, const Colors& aColors,
+    const DPIRatio& aDpiRatio) {
+  ScrollbarParams params =
+      ComputeScrollbarParams(aFrame, aStyle, aColors, aScrollbarKind);
+  ScrollbarTrackRects rects;
+  if (!GetScrollbarTrackRects(aRect, params, aDpiRatio.scale, rects)) {
+    return;
+  }
+  for (const auto& rect : rects) {
+    ThemeDrawing::FillRect(aPaintData, rect.mRect,
+                           sRGBColor::FromABGR(rect.mColor));
+  }
+}
+
+template <typename PaintBackendData>
 void ScrollbarDrawingCocoa::DoPaintScrollbar(
     PaintBackendData& aPaintData, const LayoutDeviceRect& aRect,
     ScrollbarKind aScrollbarKind, nsIFrame* aFrame, const ComputedStyle& aStyle,
@@ -420,6 +440,26 @@ bool ScrollbarDrawingCocoa::PaintScrollbar(
     const DPIRatio& aDpiRatio) {
   DoPaintScrollbar(aWrData, aRect, aScrollbarKind, aFrame, aStyle,
                    aElementState, aColors, aDpiRatio);
+  return true;
+}
+
+bool ScrollbarDrawingCocoa::PaintScrollbarTrack(
+    DrawTarget& aDt, const LayoutDeviceRect& aRect,
+    ScrollbarKind aScrollbarKind, nsIFrame* aFrame, const ComputedStyle& aStyle,
+    const DocumentState& aDocumentState, const Colors& aColors,
+    const DPIRatio& aDpiRatio) {
+  DoPaintScrollbarTrack(aDt, aRect, aScrollbarKind, aFrame, aStyle,
+                        aDocumentState, aColors, aDpiRatio);
+  return true;
+}
+
+bool ScrollbarDrawingCocoa::PaintScrollbarTrack(
+    WebRenderBackendData& aWrData, const LayoutDeviceRect& aRect,
+    ScrollbarKind aScrollbarKind, nsIFrame* aFrame, const ComputedStyle& aStyle,
+    const DocumentState& aDocumentState, const Colors& aColors,
+    const DPIRatio& aDpiRatio) {
+  DoPaintScrollbarTrack(aWrData, aRect, aScrollbarKind, aFrame, aStyle,
+                        aDocumentState, aColors, aDpiRatio);
   return true;
 }
 

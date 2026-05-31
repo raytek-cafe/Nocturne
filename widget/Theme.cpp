@@ -1272,6 +1272,17 @@ bool Theme::DoDrawWidgetBackground(PaintBackendData& aPaintData,
           *nsLayoutUtils::StyleForScrollbar(aFrame), elementState, colors,
           dpiRatio);
     }
+    case StyleAppearance::ScrollbartrackHorizontal:
+    case StyleAppearance::ScrollbartrackVertical: {
+      bool isHorizontal =
+          aAppearance == StyleAppearance::ScrollbartrackHorizontal;
+      auto kind = ComputeScrollbarKind(aFrame, isHorizontal);
+      return GetScrollbarDrawing().PaintScrollbarTrack(
+          aPaintData, devPxRect, kind, aFrame,
+          *nsLayoutUtils::StyleForScrollbar(aFrame),
+          aFrame->PresContext()->Document()->State(), colors,
+          dpiRatio);
+    }
     case StyleAppearance::ScrollbarHorizontal:
     case StyleAppearance::ScrollbarVertical: {
       bool isHorizontal = aAppearance == StyleAppearance::ScrollbarHorizontal;
@@ -1645,6 +1656,8 @@ bool Theme::ThemeSupportsWidget(nsPresContext* aPresContext, nsIFrame* aFrame,
     case StyleAppearance::ScrollbarbuttonRight:
     case StyleAppearance::ScrollbarthumbHorizontal:
     case StyleAppearance::ScrollbarthumbVertical:
+    case StyleAppearance::ScrollbartrackHorizontal:
+    case StyleAppearance::ScrollbartrackVertical:
     case StyleAppearance::ScrollbarHorizontal:
     case StyleAppearance::ScrollbarVertical:
     case StyleAppearance::Scrollcorner:
