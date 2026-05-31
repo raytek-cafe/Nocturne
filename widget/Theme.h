@@ -170,6 +170,12 @@ class Theme : protected nsNativeTheme, public nsITheme {
   template <typename PaintBackendData>
   void PaintMenulist(PaintBackendData&, const LayoutDeviceRect&,
                      const ElementState&, const Colors&, DPIRatio);
+  template <typename PaintBackendData>
+  void PaintTab(PaintBackendData&, nsIFrame*, const LayoutDeviceRect&,
+                const ElementState&, const Colors&, DPIRatio);
+  template <typename PaintBackendData>
+  void PaintTabPanel(PaintBackendData&, const LayoutDeviceRect&,
+                     const ElementState&, const Colors&, DPIRatio);
   void PaintMenuArrow(StyleAppearance, nsIFrame*, DrawTarget&,
                       const LayoutDeviceRect&);
   void PaintSpinnerButton(nsIFrame*, DrawTarget&, const LayoutDeviceRect&,
