@@ -408,9 +408,12 @@ Section "-Application" APP_IDX
     StrCpy $AddStartMenuSC "1"
   ${EndIf}
 
+  ; Keep parsing support for existing installer config inputs, but do not
+  ; create the shortcut later.
   ${If} $AddPrivateBrowsingSC == ""
-    StrCpy $AddPrivateBrowsingSC "1"
+    StrCpy $AddPrivateBrowsingSC "0"
   ${EndIf}
+
 
   ; Default for creating Quick Launch shortcut (1 = create, 0 = don't create)
   ${If} $AddQuickLaunchSC == ""
@@ -638,13 +641,6 @@ Section "-Application" APP_IDX
     ${EndIf}
   ${EndIf}
 
-  ; This is always added if it doesn't already exist to ensure that Windows'
-  ; native "Pin to Taskbar" functionality can find an appropriate shortcut.
-  ; See https://bugzilla.mozilla.org/show_bug.cgi?id=1762994 for additional
-  ; background.
-  ${If} $AddPrivateBrowsingSC == 1
-    ${AddPrivateBrowsingShortcut}
-  ${EndIf}
 
   ; Update lastwritetime of the Start Menu shortcut to clear the tile cache.
   ; Do this for both shell contexts in case the user has shortcuts in multiple
