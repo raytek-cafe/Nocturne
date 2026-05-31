@@ -30,7 +30,6 @@
 !define MOZ_BUILDID           "@MOZ_BUILDID@"
 
 !define FileMainEXE           "@MOZ_APP_NAME@.exe"
-!define PrivateBrowsingEXE    "private_browsing.exe"
 !define MainWindowClass       "MozillaWindowClass"
 !define DialogWindowClass     "MozillaDialogClass"
 !define DDEApplication        "Firefox"
@@ -52,9 +51,6 @@
 !define IDI_PBICON_ZERO_BASED        "4"
 !define IDI_DOCUMENT_PDF_ZERO_BASED  "5"
 
-; This one is the location of the Private Browsing icon in
-; private_browsing.exe (as opposed to @MOZ_APP_NAME@.exe)
-!define IDI_PBICON_PB_EXE_ZERO_BASED "0"
 
 !define CERTIFICATE_NAME            "Mozilla Corporation"
 !define CERTIFICATE_ISSUER          "DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1"
