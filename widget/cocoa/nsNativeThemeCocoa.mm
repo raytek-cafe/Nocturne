@@ -1127,6 +1127,23 @@ void nsNativeThemeCocoa::DrawDropdown(CGContextRef cgContext,
   NS_OBJC_END_TRY_IGNORE_BLOCK;
 }
 
+void nsNativeThemeCocoa::DrawTabPanel(CGContextRef cgContext,
+                                      const HIRect& inBoxRect,
+                                      bool aIsInsideActiveWindow) {
+  NS_OBJC_BEGIN_TRY_IGNORE_BLOCK;
+
+  HIThemeTabPaneDrawInfo tpdi;
+
+  tpdi.version = 1;
+  tpdi.state = aIsInsideActiveWindow ? kThemeStateActive : kThemeStateInactive;
+  tpdi.direction = kThemeTabNorth;
+  tpdi.size = kHIThemeTabSizeNormal;
+  tpdi.kind = kHIThemeTabKindNormal;
+
+  HIThemeDrawTabPane(&inBoxRect, &tpdi, cgContext, HITHEME_ORIENTATION);
+
+  NS_OBJC_END_TRY_IGNORE_BLOCK;
+}
 void nsNativeThemeCocoa::DrawMultilineTextField(CGContextRef cgContext,
                                                 const CGRect& inBoxRect,
                                                 bool aIsFocused) {
@@ -1263,6 +1280,7 @@ Maybe<nsNativeThemeCocoa::WidgetInfo> nsNativeThemeCocoa::ComputeWidgetInfo(
       return Nothing();
     }
 
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::Menulist: {
       ControlParams controlParams = ComputeControlParams(aFrame, elementState);
       controlParams.pressed = IsOpenButton(aFrame);
@@ -1288,6 +1306,15 @@ Maybe<nsNativeThemeCocoa::WidgetInfo> nsNativeThemeCocoa::ComputeWidgetInfo(
       return Some(WidgetInfo::MultilineTextField(
           elementState.HasState(ElementState::FOCUS)));
 
+    case StyleAppearance::Tab: {
+      SegmentParams params =
+          ComputeSegmentParams(aFrame, elementState, SegmentType::eTab);
+      params.pressed = params.pressed && !params.selected;
+      return Some(WidgetInfo::Segment(params));
+    }
+
+    case StyleAppearance::Tabpanels:
+      return Some(WidgetInfo::TabPanel(FrameIsInActiveWindow(aFrame)));
     default:
       break;
   }
@@ -1408,6 +1435,11 @@ void nsNativeThemeCocoa::RenderWidget(const WidgetInfo& aWidgetInfo,
       DrawMultilineTextField(cgContext, macRect, isFocused);
       break;
     }
+    case Widget::eTabPanel: {
+      bool isInsideActiveWindow = aWidgetInfo.Params<bool>();
+      DrawTabPanel(cgContext, macRect, isInsideActiveWindow);
+      break;
+    }
   }
 
   // Reset the base CTM.
@@ -1444,13 +1476,15 @@ bool nsNativeThemeCocoa::CreateWebRenderCommandsForWidget(
     case StyleAppearance::MozMacDisclosureButtonOpen:
     case StyleAppearance::MozMacDisclosureButtonClosed:
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::MozMenulistArrowButton:
     case StyleAppearance::Textfield:
     case StyleAppearance::NumberInput:
     case StyleAppearance::PasswordInput:
     case StyleAppearance::Textarea:
+    case StyleAppearance::Tab:
+    case StyleAppearance::Tabpanels:
       return false;
-
     default:
       return true;
   }
@@ -1491,6 +1525,7 @@ LayoutDeviceIntMargin nsNativeThemeCocoa::GetWidgetBorder(
     }
 
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::MozMenulistArrowButton:
       result = DirectionAwareMargin(kAquaDropdownBorder, aFrame);
       break;
@@ -1573,9 +1608,11 @@ bool nsNativeThemeCocoa::GetWidgetOverflow(nsDeviceContext* aContext,
     case StyleAppearance::Textfield:
     case StyleAppearance::Textarea:
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::MozMenulistArrowButton:
     case StyleAppearance::Checkbox:
-    case StyleAppearance::Radio: {
+    case StyleAppearance::Radio:
+    case StyleAppearance::Tab: {
       overflow.SizeTo(static_cast<int32_t>(kMaxFocusRingWidth),
                       static_cast<int32_t>(kMaxFocusRingWidth),
                       static_cast<int32_t>(kMaxFocusRingWidth),
@@ -1631,7 +1668,8 @@ LayoutDeviceIntSize nsNativeThemeCocoa::GetMinimumWidgetSize(
       break;
     }
 
-    case StyleAppearance::Menulist: {
+    case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton: {
       SInt32 popupHeight = 0;
       ::GetThemeMetric(kThemeMetricPopupButtonHeight, &popupHeight);
       result.SizeTo(0, popupHeight);
@@ -1655,6 +1693,10 @@ LayoutDeviceIntSize nsNativeThemeCocoa::GetMinimumWidgetSize(
       break;
     }
 
+    case StyleAppearance::Tab: {
+      result.SizeTo(0, tabHeights[miniControlSize]);
+      break;
+    }
     case StyleAppearance::MozMenulistArrowButton:
       return ThemeCocoa::GetMinimumWidgetSize(aPresContext, aFrame,
                                               aAppearance);
@@ -1672,6 +1714,7 @@ LayoutDeviceIntSize nsNativeThemeCocoa::GetMinimumWidgetSize(
   NS_OBJC_END_TRY_BLOCK_RETURN(LayoutDeviceIntSize());
 }
 
+
 bool nsNativeThemeCocoa::ThemeSupportsWidget(nsPresContext* aPresContext,
                                              nsIFrame* aFrame,
                                              StyleAppearance aAppearance) {
@@ -1687,6 +1730,7 @@ bool nsNativeThemeCocoa::ThemeSupportsWidget(nsPresContext* aPresContext,
   switch (aAppearance) {
     // Combobox dropdowns don't support native theming in vertical mode.
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::MozMenulistArrowButton:
       if (aFrame && aFrame->GetWritingMode().IsVertical()) {
         return false;
@@ -1710,6 +1754,8 @@ bool nsNativeThemeCocoa::ThemeSupportsWidget(nsPresContext* aPresContext,
     case StyleAppearance::PasswordInput:
     case StyleAppearance::Textfield:
     case StyleAppearance::Textarea:
+    case StyleAppearance::Tabpanels:
+    case StyleAppearance::Tab:
       return !IsWidgetStyled(aPresContext, aFrame, aAppearance);
 
     default:
@@ -1727,6 +1773,7 @@ bool nsNativeThemeCocoa::ThemeDrawsFocusForWidget(nsIFrame*,
     case StyleAppearance::NumberInput:
     case StyleAppearance::PasswordInput:
     case StyleAppearance::Menulist:
+    case StyleAppearance::MenulistButton:
     case StyleAppearance::Button:
     case StyleAppearance::MozMacHelpButton:
     case StyleAppearance::MozMacDisclosureButtonOpen:
@@ -1745,6 +1792,7 @@ bool nsNativeThemeCocoa::ThemeNeedsComboboxDropmarker() { return false; }
 bool nsNativeThemeCocoa::WidgetAppearanceDependsOnWindowFocus(
     StyleAppearance aAppearance) {
   switch (aAppearance) {
+    case StyleAppearance::Tabpanels:
     case StyleAppearance::Menupopup:
     case StyleAppearance::Tooltip:
     case StyleAppearance::NumberInput:
