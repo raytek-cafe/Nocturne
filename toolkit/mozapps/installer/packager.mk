@@ -20,6 +20,16 @@ RUN_MOZHARNESS_ZIP ?= $(MOZ_AUTOMATION)
 endif
 
 export USE_ELF_HACK
+ifneq ($(OS_TARGET),WINNT)
+  ifeq ($(JAR_COMPRESSION),brotli)
+    PACKAGER_JAR_COMPRESSION := none
+  else
+    PACKAGER_JAR_COMPRESSION := $(JAR_COMPRESSION)
+  endif
+else
+  PACKAGER_JAR_COMPRESSION := $(JAR_COMPRESSION)
+endif
+
 
 stage-package: multilocale.txt locale-manifest.in $(MOZ_PKG_MANIFEST) $(MOZ_PKG_MANIFEST_DEPS)
 	NO_PKG_FILES="$(NO_PKG_FILES)" \
@@ -34,7 +44,7 @@ stage-package: multilocale.txt locale-manifest.in $(MOZ_PKG_MANIFEST) $(MOZ_PKG_
 		) \
 		$(if $(MOZ_PACKAGER_MINIFY_PDFJS),--minify-pdfjs) \
 		$(addprefix --jarlog ,$(wildcard $(JARLOG_FILE_AB_CD))) \
-		$(addprefix --compress ,$(JAR_COMPRESSION)) \
+		$(addprefix --compress ,$(PACKAGER_JAR_COMPRESSION)) \
 		$(MOZ_PKG_MANIFEST) '$(DIST)' '$(DIST)'/$(MOZ_PKG_DIR)$(if $(MOZ_PKG_MANIFEST),,$(if $(MOZ_MACBUNDLE_NAME),$(MOZ_PKG_BINPATH:%=/%))) \
 		$(if $(filter omni,$(MOZ_PACKAGER_FORMAT)),$(if $(NON_OMNIJAR_FILES),--non-resource $(NON_OMNIJAR_FILES)))
 
