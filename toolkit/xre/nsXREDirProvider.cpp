@@ -309,23 +309,23 @@ static nsresult GetSystemParentDirectory(nsIFile** aFile,
 }
 #endif
 
-nsresult
-nsXREDirProvider::Portable(uint32_t *aResult)
-{
+nsresult nsXREDirProvider::Portable(uint32_t* aResult) {
   bool portable;
   nsCOMPtr<nsIFile> portmodemark;
   GetAppDir()->Clone(getter_AddRefs(portmodemark));
   portmodemark->AppendNative("pmprt.mod"_ns);
   portmodemark->Exists(&portable);
   if (portable) {
-     *aResult = 1;
-     return NS_OK;
-     }
+    *aResult = 1;
+    return NS_OK;
+  }
   GetAppDir()->Clone(getter_AddRefs(portmodemark));
   portmodemark->AppendNative("pmundprt.mod"_ns);
   portmodemark->Exists(&portable);
-  if (portable) *aResult = 2;
-  else *aResult = 0;
+  if (portable)
+    *aResult = 2;
+  else
+    *aResult = 0;
   return NS_OK;
 }
 
@@ -382,8 +382,10 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
 #endif  // !defined(MOZ_WIDGET_ANDROID)
   } else if (!strcmp(aProperty, NS_APP_APPLICATION_REGISTRY_DIR) ||
              !strcmp(aProperty, XRE_USER_APP_DATA_DIR)) {
-    if (mProfileDir && portable > 0) rv = mProfileDir->Clone(getter_AddRefs(file));
-      else rv = GetUserAppDataDirectory(getter_AddRefs(file));
+    if (mProfileDir && portable > 0)
+      rv = mProfileDir->Clone(getter_AddRefs(file));
+    else
+      rv = GetUserAppDataDirectory(getter_AddRefs(file));
   }
 #if defined(XP_UNIX) || defined(XP_MACOSX)
   else if (!strcmp(aProperty, XRE_SYS_NATIVE_MANIFESTS)) {
@@ -394,9 +396,9 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
     rv = GetUserDataDirectoryHome(getter_AddRefs(file), false);
     NS_ENSURE_SUCCESS(rv, rv);
 #  if defined(XP_MACOSX)
-    rv = file->AppendNative("LibreWolf"_ns);
+    rv = file->AppendNative("Mozilla"_ns);
 #  else   // defined(XP_MACOSX)
-    rv = file->AppendNative(".librewolf"_ns);
+    rv = file->AppendNative(".mozilla"_ns);
 #  endif  // defined(XP_MACOSX)
   } else if (!strcmp(aProperty, XRE_MOZ_USER_NATIVE_MANIFESTS)) {
     rv = GetUserDataDirectoryHome(getter_AddRefs(file), false);
@@ -405,14 +407,6 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
     rv = file->AppendNative("nocturne"_ns);
 #  else   // defined(XP_MACOSX)
     rv = file->AppendNative(".nocturne"_ns);
-#  endif  // defined(XP_MACOSX)
-  } else if (!strcmp(aProperty, XRE_MOZ_USER_NATIVE_MANIFESTS)) {
-    rv = GetUserDataDirectoryHome(getter_AddRefs(file), false, true);
-    NS_ENSURE_SUCCESS(rv, rv);
-#  if defined(XP_MACOSX)
-    rv = file->AppendNative("Mozilla"_ns);
-#  else   // defined(XP_MACOSX)
-    rv = file->AppendNative(".mozilla"_ns);
 #  endif  // defined(XP_MACOSX)
   }
 #endif  // defined(XP_UNIX) || defined(XP_MACOSX)
@@ -442,7 +436,8 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
   else if (!strcmp(aProperty, XRE_SYS_SHARE_EXTENSION_PARENT_DIR)) {
 #  ifdef ENABLE_SYSTEM_EXTENSION_DIRS
 #    if defined(__OpenBSD__) || defined(__FreeBSD__)
-    static const char* const sysLExtDir = "/usr/local/share/nocturne/extensions";
+    static const char* const sysLExtDir =
+        "/usr/local/share/nocturne/extensions";
 #    else
     static const char* const sysLExtDir = "/usr/share/nocturne/extensions";
 #    endif
