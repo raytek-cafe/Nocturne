@@ -56,6 +56,30 @@ nsNativeThemeGTK::~nsNativeThemeGTK() { moz_gtk_shutdown(); }
 
 static Maybe<WidgetNodeType> GeckoToGtkWidgetType(StyleAppearance aAppearance) {
   switch (aAppearance) {
+    case StyleAppearance::Button:
+      return Some(MOZ_GTK_BUTTON);
+    case StyleAppearance::Checkbox:
+      return Some(MOZ_GTK_CHECKBUTTON);
+    case StyleAppearance::Radio:
+      return Some(MOZ_GTK_RADIOBUTTON);
+    case StyleAppearance::Textfield:
+    case StyleAppearance::NumberInput:
+    case StyleAppearance::PasswordInput:
+      return Some(MOZ_GTK_ENTRY);
+    case StyleAppearance::Textarea:
+      return Some(MOZ_GTK_TEXT_VIEW);
+    case StyleAppearance::Menulist:
+      return Some(MOZ_GTK_DROPDOWN);
+    case StyleAppearance::Listbox:
+      return Some(MOZ_GTK_TREEVIEW);
+    case StyleAppearance::ProgressBar:
+      return Some(MOZ_GTK_PROGRESSBAR);
+    case StyleAppearance::Progresschunk:
+      return Some(MOZ_GTK_PROGRESS_CHUNK);
+    case StyleAppearance::Range:
+      return Some(MOZ_GTK_SCALE_HORIZONTAL);
+    case StyleAppearance::RangeThumb:
+      return Some(MOZ_GTK_SCALE_THUMB_HORIZONTAL);
     case StyleAppearance::ScrollbarHorizontal:
       return Some(MOZ_GTK_SCROLLBAR_HORIZONTAL);
     case StyleAppearance::ScrollbarVertical:
@@ -76,10 +100,8 @@ static Maybe<WidgetNodeType> GeckoToGtkWidgetType(StyleAppearance aAppearance) {
     case StyleAppearance::MozWindowDecorations:
       return Some(MOZ_GTK_WINDOW_DECORATION);
     default:
-      MOZ_ASSERT_UNREACHABLE("Unknown widget");
-      break;
+      return {};
   }
-  return {};
 }
 
 static gint ScrollbarButtonFlags(StyleAppearance aAppearance) {
@@ -95,6 +117,11 @@ static gint ScrollbarButtonFlags(StyleAppearance aAppearance) {
     default:
       return 0;
   }
+}
+
+static bool CanHandleScrollbar(const ComputedStyle& aStyle) {
+  return !aStyle.StyleUI()->HasCustomScrollbars() &&
+         aStyle.StyleUIReset()->ScrollbarWidth() != StyleScrollbarWidth::Thin;
 }
 
 class SystemCairoClipper : public ClipExporter {
@@ -402,6 +429,20 @@ void nsNativeThemeGTK::DrawWidgetBackground(
       .flags = 0,
       .image_scale = gint(std::ceil(scaleFactor.scale)),
   };
+  if (aAppearance == StyleAppearance::Range && !IsRangeHorizontal(aFrame)) {
+    params.widget = MOZ_GTK_SCALE_VERTICAL;
+  } else if (aAppearance == StyleAppearance::RangeThumb &&
+             !IsRangeHorizontal(aFrame)) {
+    params.widget = MOZ_GTK_SCALE_THUMB_VERTICAL;
+  } else if (aAppearance == StyleAppearance::Progresschunk) {
+    nsIFrame* parentFrame = aFrame->GetParent();
+    ElementState elementState = GetContentState(parentFrame, aAppearance);
+    if (elementState.HasState(ElementState::INDETERMINATE)) {
+      params.widget = IsVerticalProgress(parentFrame)
+                          ? MOZ_GTK_PROGRESS_CHUNK_VERTICAL_INDETERMINATE
+                          : MOZ_GTK_PROGRESS_CHUNK_INDETERMINATE;
+    }
+  }
   dom::ElementState contentState = GetContentState(aFrame, aAppearance);
   if (contentState.HasState(dom::ElementState::DISABLED) ||
       IsReadOnly(aFrame)) {
@@ -412,6 +453,15 @@ void nsNativeThemeGTK::DrawWidgetBackground(
   }
   if (contentState.HasState(dom::ElementState::HOVER)) {
     params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_PRELIGHT);
+  }
+  if (contentState.HasState(dom::ElementState::FOCUS)) {
+    params.state = GtkStateFlags(params.state | GTK_STATE_FLAG_FOCUSED);
+  }
+  if (contentState.HasState(dom::ElementState::CHECKED)) {
+    params.flags |= MOZ_GTK_WIDGET_CHECKED;
+  }
+  if (contentState.HasState(dom::ElementState::INDETERMINATE)) {
+    params.flags |= MOZ_GTK_WIDGET_INCONSISTENT;
   }
   if (aFrame->PresContext()->Document()->State().HasState(
           dom::DocumentState::WINDOW_INACTIVE)) {
@@ -489,7 +539,15 @@ bool nsNativeThemeGTK::GetWidgetPadding(nsDeviceContext* aContext,
   if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return Theme::GetWidgetPadding(aContext, aFrame, aAppearance, aResult);
   }
-  return false;
+  switch (aAppearance) {
+    case StyleAppearance::Checkbox:
+    case StyleAppearance::Radio:
+    case StyleAppearance::RangeThumb:
+      aResult->SizeTo(0, 0, 0, 0);
+      return true;
+    default:
+      return false;
+  }
 }
 
 bool nsNativeThemeGTK::GetWidgetOverflow(nsDeviceContext* aContext,
@@ -512,8 +570,7 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
 
   if (IsWidgetScrollbarPart(aAppearance)) {
     ComputedStyle* style = nsLayoutUtils::StyleForScrollbar(aFrame);
-    if (style->StyleUI()->HasCustomScrollbars() ||
-        style->StyleUIReset()->ScrollbarWidth() == StyleScrollbarWidth::Thin) {
+    if (!CanHandleScrollbar(*style)) {
       return NonNative::Always;
     }
     switch (StaticPrefs::widget_native_controls_scrollbar_style()) {
@@ -522,20 +579,11 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
       case 1:
         return NonNative::Always;
       default:
-        break;
+        return NonNative::No;
     }
   }
 
-  if (LookAndFeel::ColorSchemeForFrame(aFrame) ==
-      PreferenceSheet::ColorSchemeForChrome()) {
-    return NonNative::No;
-  }
-
-  if (!Theme::ThemeSupportsWidget(aFrame->PresContext(), aFrame, aAppearance)) {
-    return NonNative::No;
-  }
-
-  return NonNative::BecauseColorMismatch;
+  return NonNative::No;
 }
 
 bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(nsIFrame* /* aFrame */,
@@ -544,21 +592,7 @@ bool nsNativeThemeGTK::IsWidgetAlwaysNonNative(nsIFrame* /* aFrame */,
          aAppearance == StyleAppearance::MenulistButton ||
          aAppearance == StyleAppearance::Tab ||
          aAppearance == StyleAppearance::Tabpanel ||
-         aAppearance == StyleAppearance::Tabpanels ||
-         aAppearance == StyleAppearance::Textfield ||
-         aAppearance == StyleAppearance::NumberInput ||
-         aAppearance == StyleAppearance::PasswordInput ||
-         aAppearance == StyleAppearance::Textarea ||
-         aAppearance == StyleAppearance::Checkbox ||
-         aAppearance == StyleAppearance::Radio ||
-         aAppearance == StyleAppearance::Button ||
-         aAppearance == StyleAppearance::Toolbarbutton ||
-         aAppearance == StyleAppearance::Listbox ||
-         aAppearance == StyleAppearance::Menulist ||
-         aAppearance == StyleAppearance::ProgressBar ||
-         aAppearance == StyleAppearance::Progresschunk ||
-         aAppearance == StyleAppearance::Range ||
-         aAppearance == StyleAppearance::RangeThumb;
+         aAppearance == StyleAppearance::Tabpanels;
 }
 
 LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
@@ -569,27 +603,83 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
   }
 
   if (IsWidgetScrollbarPart(aAppearance)) {
-    auto* style = nsLayoutUtils::StyleForScrollbar(aFrame);
-    auto width = style->StyleUIReset()->ScrollbarWidth();
-    auto overlay = aPresContext->UseOverlayScrollbars() ? nsITheme::Overlay::Yes
-                                                        : nsITheme::Overlay::No;
-    auto relevantSize =
-        GetScrollbarDrawing().GetScrollbarSize(aPresContext, width, overlay);
-    LayoutDeviceIntSize result{relevantSize, relevantSize};
-    if (aAppearance == StyleAppearance::ScrollbarHorizontal ||
-        aAppearance == StyleAppearance::ScrollbarVertical) {
-      const bool isHorizontal =
-          aAppearance == StyleAppearance::ScrollbarHorizontal;
-      if (isHorizontal) {
-        result.width *= 2;
-      } else {
-        result.height *= 2;
+    switch (aAppearance) {
+      case StyleAppearance::ScrollbarbuttonUp:
+      case StyleAppearance::ScrollbarbuttonDown: {
+        const ScrollbarGTKMetrics* metrics =
+            GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL);
+        return {metrics->size.button.width, metrics->size.button.height};
       }
+      case StyleAppearance::ScrollbarbuttonLeft:
+      case StyleAppearance::ScrollbarbuttonRight: {
+        const ScrollbarGTKMetrics* metrics =
+            GetActiveScrollbarMetrics(GTK_ORIENTATION_HORIZONTAL);
+        return {metrics->size.button.width, metrics->size.button.height};
+      }
+      case StyleAppearance::ScrollbarHorizontal: {
+        const ScrollbarGTKMetrics* metrics =
+            GetActiveScrollbarMetrics(GTK_ORIENTATION_HORIZONTAL);
+        return {metrics->size.scrollbar.width, metrics->size.scrollbar.height};
+      }
+      case StyleAppearance::ScrollbarVertical: {
+        const ScrollbarGTKMetrics* metrics =
+            GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL);
+        return {metrics->size.scrollbar.width, metrics->size.scrollbar.height};
+      }
+      case StyleAppearance::ScrollbarthumbHorizontal: {
+        const ScrollbarGTKMetrics* metrics =
+            GetActiveScrollbarMetrics(GTK_ORIENTATION_HORIZONTAL);
+        return {metrics->size.thumb.width, metrics->size.thumb.height};
+      }
+      case StyleAppearance::ScrollbarthumbVertical: {
+        const ScrollbarGTKMetrics* metrics =
+            GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL);
+        return {metrics->size.thumb.width, metrics->size.thumb.height};
+      }
+      default:
+        break;
     }
-    return result;
+    return {};
   }
 
-  return {};
+  switch (aAppearance) {
+    case StyleAppearance::Checkbox:
+    case StyleAppearance::Radio: {
+      const ToggleGTKMetrics* metrics = GetToggleMetrics(
+          aAppearance == StyleAppearance::Radio ? MOZ_GTK_RADIOBUTTON
+                                                : MOZ_GTK_CHECKBUTTON);
+      return LayoutDeviceIntSize(metrics->minSizeWithBorder.width,
+                                 metrics->minSizeWithBorder.height);
+    }
+    case StyleAppearance::RangeThumb: {
+      gint width = 0, height = 0;
+      moz_gtk_get_scalethumb_metrics(IsRangeHorizontal(aFrame)
+                                         ? GTK_ORIENTATION_HORIZONTAL
+                                         : GTK_ORIENTATION_VERTICAL,
+                                     &width, &height);
+      return {width, height};
+    }
+    case StyleAppearance::Textfield:
+    case StyleAppearance::NumberInput:
+    case StyleAppearance::PasswordInput: {
+      gint contentHeight = 0, borderPaddingHeight = 0;
+      moz_gtk_get_entry_min_height(&contentHeight, &borderPaddingHeight);
+      gint height = contentHeight + borderPaddingHeight;
+      return aFrame->GetWritingMode().IsVertical()
+                 ? LayoutDeviceIntSize(height, 0)
+                 : LayoutDeviceIntSize(0, height);
+    }
+    case StyleAppearance::Range: {
+      gint width = 0, height = 0;
+      moz_gtk_get_scale_metrics(IsRangeHorizontal(aFrame)
+                                    ? GTK_ORIENTATION_HORIZONTAL
+                                    : GTK_ORIENTATION_VERTICAL,
+                                &width, &height);
+      return {width, height};
+    }
+    default:
+      return {};
+  }
 }
 
 bool nsNativeThemeGTK::WidgetAttributeChangeRequiresRepaint(
@@ -609,6 +699,19 @@ bool nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
   }
 
   switch (aAppearance) {
+    case StyleAppearance::Button:
+    case StyleAppearance::Checkbox:
+    case StyleAppearance::Radio:
+    case StyleAppearance::Textfield:
+    case StyleAppearance::NumberInput:
+    case StyleAppearance::PasswordInput:
+    case StyleAppearance::Textarea:
+    case StyleAppearance::Menulist:
+    case StyleAppearance::Listbox:
+    case StyleAppearance::ProgressBar:
+    case StyleAppearance::Progresschunk:
+    case StyleAppearance::Range:
+    case StyleAppearance::RangeThumb:
     case StyleAppearance::MozWindowDecorations:
       return !IsWidgetStyled(aPresContext, aFrame, aAppearance);
     case StyleAppearance::ScrollbarHorizontal:
@@ -621,17 +724,21 @@ bool nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
     case StyleAppearance::ScrollbarbuttonDown:
     case StyleAppearance::ScrollbarbuttonLeft:
     case StyleAppearance::ScrollbarbuttonRight:
-      return true;
+      return CanHandleScrollbar(*nsLayoutUtils::StyleForScrollbar(aFrame));
     default:
-      break;
+      return false;
   }
-
-  return false;
 }
 
 bool nsNativeThemeGTK::WidgetIsContainer(StyleAppearance aAppearance) {
-  // XXXdwh At some point flesh all of this out.
-  return true;
+  switch (aAppearance) {
+    case StyleAppearance::Checkbox:
+    case StyleAppearance::Radio:
+    case StyleAppearance::RangeThumb:
+      return false;
+    default:
+      return true;
+  }
 }
 
 bool nsNativeThemeGTK::ThemeDrawsFocusForWidget(nsIFrame* aFrame,
@@ -639,21 +746,35 @@ bool nsNativeThemeGTK::ThemeDrawsFocusForWidget(nsIFrame* aFrame,
   if (IsWidgetNonNative(aFrame, aAppearance) != NonNative::No) {
     return Theme::ThemeDrawsFocusForWidget(aFrame, aAppearance);
   }
-  return false;
+  switch (aAppearance) {
+    case StyleAppearance::Button:
+    case StyleAppearance::Checkbox:
+    case StyleAppearance::Radio:
+    case StyleAppearance::Textfield:
+    case StyleAppearance::NumberInput:
+    case StyleAppearance::PasswordInput:
+    case StyleAppearance::Textarea:
+    case StyleAppearance::Menulist:
+      return true;
+    default:
+      return false;
+  }
 }
+
+bool nsNativeThemeGTK::ThemeNeedsComboboxDropmarker() { return false; }
 
 nsITheme::Transparency nsNativeThemeGTK::GetWidgetTransparency(
     nsIFrame* aFrame, StyleAppearance aAppearance) {
   if (IsWidgetNonNative(aFrame, aAppearance) != NonNative::No) {
     return Theme::GetWidgetTransparency(aFrame, aAppearance);
   }
-  if (IsWidgetScrollbarPart(aAppearance)) {
-    if (auto transparency = GetScrollbarDrawing().GetScrollbarPartTransparency(
-            aFrame, aAppearance)) {
-      return *transparency;
-    }
+  switch (aAppearance) {
+    case StyleAppearance::ScrollbarVertical:
+    case StyleAppearance::ScrollbarHorizontal:
+      return eTransparent;
+    default:
+      return eUnknownTransparency;
   }
-  return eUnknownTransparency;
 }
 
 already_AddRefed<Theme> do_CreateNativeThemeDoNotUseDirectly() {

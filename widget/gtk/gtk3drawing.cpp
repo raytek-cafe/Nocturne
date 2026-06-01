@@ -29,6 +29,10 @@ static ToolbarGTKMetrics sToolbarMetrics;
 MOZ_CONSTINIT static ScrollbarGTKMetrics sScrollbarMetrics[2] = {};
 MOZ_CONSTINIT static ScrollbarGTKMetrics sActiveScrollbarMetrics[2] = {};
 
+MOZ_CONSTINIT static ToggleGTKMetrics sCheckboxMetrics = {};
+MOZ_CONSTINIT static ToggleGTKMetrics sRadioMetrics = {};
+static GtkStateFlags checkbox_check_state = GTK_STATE_FLAG_CHECKED;
+
 using mozilla::Span;
 
 #if 0
@@ -95,12 +99,213 @@ static void InsetByMargin(GdkRectangle* aRect, GtkStyleContext* aStyle) {
   Inset(aRect, margin);
 }
 
+static void InsetByBorderPadding(GdkRectangle* aRect, GtkStyleContext* aStyle) {
+  GtkStateFlags state = gtk_style_context_get_state(aStyle);
+  GtkBorder padding, border;
+  gtk_style_context_get_padding(aStyle, state, &padding);
+  Inset(aRect, padding);
+  gtk_style_context_get_border(aStyle, state, &border);
+  Inset(aRect, border);
+}
+
+static gint moz_gtk_get_widget_min_size(GtkStyleContext* aStyle, int* aWidth,
+                                        int* aHeight) {
+  GtkStateFlags state = gtk_style_context_get_state(aStyle);
+  gtk_style_context_get(aStyle, state, "min-height", aHeight, "min-width",
+                        aWidth, nullptr);
+  GtkBorder border, padding, margin;
+  gtk_style_context_get_border(aStyle, state, &border);
+  gtk_style_context_get_padding(aStyle, state, &padding);
+  gtk_style_context_get_margin(aStyle, state, &margin);
+  *aWidth += border.left + border.right + margin.left + margin.right +
+             padding.left + padding.right;
+  *aHeight += border.top + border.bottom + margin.top + margin.bottom +
+              padding.top + padding.bottom;
+  return MOZ_GTK_SUCCESS;
+}
+
 static void moz_gtk_draw_styled_frame(GtkStyleContext* aStyle, cairo_t* aCr,
                                       const GdkRectangle* aRect) {
   GdkRectangle rect = *aRect;
   InsetByMargin(&rect, aStyle);
   gtk_render_background(aStyle, aCr, rect.x, rect.y, rect.width, rect.height);
   gtk_render_frame(aStyle, aCr, rect.x, rect.y, rect.width, rect.height);
+}
+
+static gint moz_gtk_button_paint(cairo_t* aCr, const GtkDrawingParams& aParams,
+                                 WidgetNodeType aWidget) {
+  GtkStyleContext* style = GetStyleContext(aWidget, aParams.image_scale,
+                                           aParams.direction, aParams.state);
+  GdkRectangle rect = aParams.rect;
+  moz_gtk_draw_styled_frame(style, aCr, &rect);
+  if (aParams.state & GTK_STATE_FLAG_FOCUSED) {
+    GtkBorder border;
+    gtk_style_context_get_border(style, aParams.state, &border);
+    rect.x += border.left;
+    rect.y += border.top;
+    rect.width -= border.left + border.right;
+    rect.height -= border.top + border.bottom;
+    gtk_render_focus(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  }
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_toggle_paint(cairo_t* aCr, const GtkDrawingParams& aParams,
+                                 bool aIsRadio) {
+  GdkRectangle rect = aParams.rect;
+  if (rect.width < rect.height) {
+    rect.y += (rect.height - rect.width) / 2;
+    rect.height = rect.width;
+  } else if (rect.height < rect.width) {
+    rect.x += (rect.width - rect.height) / 2;
+    rect.width = rect.height;
+  }
+
+  GtkStateFlags state = aParams.state;
+  if (aParams.flags & MOZ_GTK_WIDGET_CHECKED) {
+    state = GtkStateFlags(state | checkbox_check_state);
+  }
+  if (aParams.flags & MOZ_GTK_WIDGET_INCONSISTENT) {
+    state = GtkStateFlags(state | GTK_STATE_FLAG_INCONSISTENT);
+  }
+
+  auto node = aIsRadio ? MOZ_GTK_RADIOBUTTON : MOZ_GTK_CHECKBUTTON;
+  GtkStyleContext* style =
+      GetStyleContext(node, aParams.image_scale, aParams.direction, state);
+  if (aIsRadio) {
+    gtk_render_option(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  } else {
+    gtk_render_check(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  }
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_entry_paint(cairo_t* aCr, const GtkDrawingParams& aParams) {
+  GtkStyleContext* style = GetStyleContext(MOZ_GTK_ENTRY, aParams.image_scale,
+                                           aParams.direction, aParams.state);
+  const auto& rect = aParams.rect;
+  gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  gtk_render_frame(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_text_view_paint(cairo_t* aCr,
+                                    const GtkDrawingParams& aParams) {
+  GtkStyleContext* frameStyle =
+      GetStyleContext(MOZ_GTK_SCROLLED_WINDOW, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  const auto& outer = aParams.rect;
+  gtk_render_frame(frameStyle, aCr, outer.x, outer.y, outer.width,
+                   outer.height);
+
+  GdkRectangle rect = outer;
+  InsetByBorderPadding(&rect, frameStyle);
+  GtkStyleContext* style = GetStyleContext(
+      MOZ_GTK_TEXT_VIEW, aParams.image_scale, aParams.direction, aParams.state);
+  gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  style = GetStyleContext(MOZ_GTK_TEXT_VIEW_TEXT, aParams.image_scale,
+                          aParams.direction, aParams.state);
+  gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_treeview_paint(cairo_t* aCr,
+                                   const GtkDrawingParams& aParams) {
+  GtkStyleContext* frameStyle =
+      GetStyleContext(MOZ_GTK_SCROLLED_WINDOW, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  GtkBorder border;
+  gtk_style_context_get_border(frameStyle, aParams.state, &border);
+
+  const auto& rect = aParams.rect;
+  GtkStyleContext* viewStyle =
+      GetStyleContext(MOZ_GTK_TREEVIEW_VIEW, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  gtk_render_background(viewStyle, aCr, rect.x + border.left,
+                        rect.y + border.top,
+                        rect.width - border.left - border.right,
+                        rect.height - border.top - border.bottom);
+  gtk_render_frame(frameStyle, aCr, rect.x, rect.y, rect.width, rect.height);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_combo_box_paint(cairo_t* aCr,
+                                    const GtkDrawingParams& aParams) {
+  const auto& rect = aParams.rect;
+  GtkStyleContext* buttonStyle =
+      GetStyleContext(MOZ_GTK_COMBOBOX_BUTTON, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  gtk_render_background(buttonStyle, aCr, rect.x, rect.y, rect.width,
+                        rect.height);
+  gtk_render_frame(buttonStyle, aCr, rect.x, rect.y, rect.width, rect.height);
+
+  GtkStyleContext* arrowStyle =
+      GetStyleContext(MOZ_GTK_COMBOBOX_ARROW, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  gint arrow = std::min(rect.width, rect.height) / 3;
+  gint arrowX = aParams.direction == GTK_TEXT_DIR_RTL
+                    ? rect.x + rect.width / 4
+                    : rect.x + rect.width - arrow - rect.width / 4;
+  gint arrowY = rect.y + (rect.height - arrow) / 2;
+  gtk_render_arrow(arrowStyle, aCr, ARROW_DOWN, arrowX, arrowY, arrow);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_scale_paint(cairo_t* aCr, const GtkDrawingParams& aParams) {
+  GtkStyleContext* style = GetStyleContext(aParams.widget, aParams.image_scale,
+                                           aParams.direction, aParams.state);
+  GdkRectangle rect = aParams.rect;
+  GtkOrientation orientation = aParams.widget == MOZ_GTK_SCALE_HORIZONTAL
+                                   ? GTK_ORIENTATION_HORIZONTAL
+                                   : GTK_ORIENTATION_VERTICAL;
+  GtkBorder margin;
+  gtk_style_context_get_margin(style, aParams.state, &margin);
+  if (orientation == GTK_ORIENTATION_HORIZONTAL) {
+    rect.x += margin.left;
+    rect.width -= margin.left + margin.right;
+    rect.height = std::max(1, rect.height - margin.top - margin.bottom);
+  } else {
+    rect.y += margin.top;
+    rect.height -= margin.top + margin.bottom;
+    rect.width = std::max(1, rect.width - margin.left - margin.right);
+  }
+  gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  gtk_render_frame(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_scale_thumb_paint(cairo_t* aCr,
+                                      const GtkDrawingParams& aParams) {
+  GtkStyleContext* style = GetStyleContext(aParams.widget, aParams.image_scale,
+                                           aParams.direction, aParams.state);
+  const auto& rect = aParams.rect;
+  gtk_render_slider(style, aCr, rect.x, rect.y, rect.width, rect.height,
+                    aParams.widget == MOZ_GTK_SCALE_THUMB_HORIZONTAL
+                        ? GTK_ORIENTATION_HORIZONTAL
+                        : GTK_ORIENTATION_VERTICAL);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_progressbar_paint(cairo_t* aCr,
+                                      const GtkDrawingParams& aParams) {
+  GtkStyleContext* style =
+      GetStyleContext(MOZ_GTK_PROGRESS_TROUGH, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  const auto& rect = aParams.rect;
+  gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  gtk_render_frame(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  return MOZ_GTK_SUCCESS;
+}
+
+static gint moz_gtk_progress_chunk_paint(cairo_t* aCr,
+                                         const GtkDrawingParams& aParams) {
+  GtkStyleContext* style =
+      GetStyleContext(MOZ_GTK_PROGRESS_CHUNK, aParams.image_scale,
+                      aParams.direction, aParams.state);
+  const auto& rect = aParams.rect;
+  gtk_render_background(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  gtk_render_frame(style, aCr, rect.x, rect.y, rect.width, rect.height);
+  return MOZ_GTK_SUCCESS;
 }
 
 static void moz_gtk_update_scrollbar_style(GtkStyleContext* aStyle,
@@ -287,16 +492,21 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
   aMetrics->initialized = true;
 }
 
-void moz_gtk_init() { moz_gtk_refresh(); }
+void moz_gtk_init() {
+  checkbox_check_state = gtk_check_version(3, 14, 0) == nullptr
+                             ? GTK_STATE_FLAG_CHECKED
+                             : GTK_STATE_FLAG_ACTIVE;
+  moz_gtk_refresh();
+}
 
 void moz_gtk_refresh() {
+  sCheckboxMetrics = {};
+  sRadioMetrics = {};
   sToolbarMetrics.initialized = false;
   sScrollbarMetrics[GTK_ORIENTATION_HORIZONTAL] = {};
   sScrollbarMetrics[GTK_ORIENTATION_VERTICAL] = {};
   sActiveScrollbarMetrics[GTK_ORIENTATION_HORIZONTAL] = {};
   sActiveScrollbarMetrics[GTK_ORIENTATION_VERTICAL] = {};
-
-  /* This will destroy all of our widgets */
   ResetWidgetCache();
 }
 
@@ -332,6 +542,65 @@ const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation) {
   return metrics;
 }
 
+const ToggleGTKMetrics* GetToggleMetrics(WidgetNodeType aWidgetType) {
+  ToggleGTKMetrics* metrics =
+      aWidgetType == MOZ_GTK_RADIOBUTTON ? &sRadioMetrics : &sCheckboxMetrics;
+  if (!metrics->initialized) {
+    metrics->initialized = true;
+    GtkStyleContext* style = GetStyleContext(aWidgetType);
+    int width = 0;
+    int height = 0;
+    moz_gtk_get_widget_min_size(style, &width, &height);
+    metrics->minSizeWithBorder = {gint(width), gint(height)};
+    GtkStateFlags state = gtk_style_context_get_state(style);
+    GtkBorder border, padding;
+    gtk_style_context_get_border(style, state, &border);
+    gtk_style_context_get_padding(style, state, &padding);
+    metrics->borderAndPadding = {gint16(border.left + padding.left),
+                                 gint16(border.right + padding.right),
+                                 gint16(border.top + padding.top),
+                                 gint16(border.bottom + padding.bottom)};
+  }
+  return metrics;
+}
+
+void moz_gtk_get_scale_metrics(GtkOrientation aOrientation, gint* aScaleWidth,
+                               gint* aScaleHeight) {
+  auto node = aOrientation == GTK_ORIENTATION_HORIZONTAL
+                  ? MOZ_GTK_SCALE_TROUGH_HORIZONTAL
+                  : MOZ_GTK_SCALE_TROUGH_VERTICAL;
+  int width = 0;
+  int height = 0;
+  moz_gtk_get_widget_min_size(GetStyleContext(node), &width, &height);
+  *aScaleWidth = width;
+  *aScaleHeight = height;
+}
+
+gint moz_gtk_get_scalethumb_metrics(GtkOrientation aOrientation,
+                                    gint* aThumbLength, gint* aThumbHeight) {
+  auto node = aOrientation == GTK_ORIENTATION_HORIZONTAL
+                  ? MOZ_GTK_SCALE_THUMB_HORIZONTAL
+                  : MOZ_GTK_SCALE_THUMB_VERTICAL;
+  int width = 0;
+  int height = 0;
+  moz_gtk_get_widget_min_size(GetStyleContext(node), &width, &height);
+  *aThumbLength = width;
+  *aThumbHeight = height;
+  return MOZ_GTK_SUCCESS;
+}
+
+void moz_gtk_get_entry_min_height(gint* aMinContentHeight,
+                                  gint* aBorderPaddingHeight) {
+  GtkStyleContext* style = GetStyleContext(MOZ_GTK_ENTRY);
+  GtkStateFlags state = gtk_style_context_get_state(style);
+  gtk_style_context_get(style, state, "min-height", aMinContentHeight, nullptr);
+  GtkBorder border, padding;
+  gtk_style_context_get_border(style, state, &border);
+  gtk_style_context_get_padding(style, state, &padding);
+  *aBorderPaddingHeight =
+      border.top + border.bottom + padding.top + padding.bottom;
+}
+
 size_t GetGtkHeaderBarButtonLayout(Span<ButtonLayout> aButtonLayout,
                                    bool* aReversedButtonsPlacement) {
   gchar* decorationLayoutSetting = nullptr;
@@ -346,8 +615,6 @@ size_t GetGtkHeaderBarButtonLayout(Span<ButtonLayout> aButtonLayout,
     decorationLayout = decorationLayoutSetting;
   }
 
-  // "minimize,maximize,close:" layout means buttons are on the opposite
-  // titlebar side. close button is always there.
   if (aReversedButtonsPlacement) {
     const char* closeButton = strstr(decorationLayout, "close");
     const char* separator = strchr(decorationLayout, ':');
@@ -355,20 +622,11 @@ size_t GetGtkHeaderBarButtonLayout(Span<ButtonLayout> aButtonLayout,
         closeButton && separator && closeButton < separator;
   }
 
-  // We check what position a button string is stored in decorationLayout.
-  //
-  // decorationLayout gets its value from the GNOME preference:
-  // org.gnome.desktop.vm.preferences.button-layout via the
-  // gtk-decoration-layout property.
-  //
-  // Documentation of the gtk-decoration-layout property can be found here:
-  // https://developer.gnome.org/gtk3/stable/GtkSettings.html#GtkSettings--gtk-decoration-layout
   if (aButtonLayout.IsEmpty()) {
     return 0;
   }
 
   nsDependentCSubstring layout(decorationLayout, strlen(decorationLayout));
-
   size_t activeButtons = 0;
   for (const auto& part : layout.Split(':')) {
     for (const auto& button : part.Split(',')) {
@@ -392,9 +650,6 @@ static void EnsureToolbarMetrics() {
     return;
   }
   sToolbarMetrics = {};
-
-  // Account for the spacing property in the header bar.
-  // Default to 6 pixels (gtk/gtkheaderbar.c)
   gint spacing = 6;
   g_object_get(GetWidget(MOZ_GTK_HEADER_BAR), "spacing", &spacing, nullptr);
   sToolbarMetrics.inlineSpacing += spacing;
@@ -409,7 +664,6 @@ gint moz_gtk_get_titlebar_button_spacing() {
 static void moz_gtk_window_decoration_paint(cairo_t* aCr,
                                             const GtkDrawingParams& aParams) {
   if (mozilla::widget::GdkIsWaylandDisplay()) {
-    // Doesn't seem to be needed.
     return;
   }
   GtkStyleContext* windowStyle =
@@ -433,6 +687,16 @@ gint moz_gtk_get_widget_border(WidgetNodeType aWidget, gint* aLeft, gint* aTop,
                                GtkTextDirection aDirection) {
   *aLeft = *aTop = *aRight = *aBottom = 0;
   switch (aWidget) {
+    case MOZ_GTK_BUTTON:
+    case MOZ_GTK_TOGGLE_BUTTON:
+    case MOZ_GTK_ENTRY:
+    case MOZ_GTK_DROPDOWN:
+    case MOZ_GTK_PROGRESSBAR:
+    case MOZ_GTK_TREEVIEW:
+    case MOZ_GTK_SCALE_HORIZONTAL:
+    case MOZ_GTK_SCALE_VERTICAL:
+    case MOZ_GTK_SCALE_TROUGH_HORIZONTAL:
+    case MOZ_GTK_SCALE_TROUGH_VERTICAL:
     case MOZ_GTK_SCROLLBAR_HORIZONTAL:
     case MOZ_GTK_SCROLLBAR_VERTICAL:
     case MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL:
@@ -445,6 +709,13 @@ gint moz_gtk_get_widget_border(WidgetNodeType aWidget, gint* aLeft, gint* aTop,
       *aBottom = border.bottom;
       return MOZ_GTK_SUCCESS;
     }
+    case MOZ_GTK_CHECKBUTTON:
+    case MOZ_GTK_RADIOBUTTON:
+    case MOZ_GTK_PROGRESS_CHUNK:
+    case MOZ_GTK_PROGRESS_CHUNK_INDETERMINATE:
+    case MOZ_GTK_PROGRESS_CHUNK_VERTICAL_INDETERMINATE:
+    case MOZ_GTK_SCALE_THUMB_HORIZONTAL:
+    case MOZ_GTK_SCALE_THUMB_VERTICAL:
     case MOZ_GTK_SCROLLBAR_BUTTON:
     case MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL:
     case MOZ_GTK_SCROLLBAR_THUMB_VERTICAL:
@@ -458,6 +729,43 @@ gint moz_gtk_get_widget_border(WidgetNodeType aWidget, gint* aLeft, gint* aTop,
 void moz_gtk_widget_paint(cairo_t* aCr, const GtkDrawingParams* aParams) {
   cairo_new_path(aCr);
   switch (aParams->widget) {
+    case MOZ_GTK_BUTTON:
+      mozilla::Unused << moz_gtk_button_paint(aCr, *aParams, MOZ_GTK_BUTTON);
+      return;
+    case MOZ_GTK_CHECKBUTTON:
+      mozilla::Unused << moz_gtk_toggle_paint(aCr, *aParams, false);
+      return;
+    case MOZ_GTK_RADIOBUTTON:
+      mozilla::Unused << moz_gtk_toggle_paint(aCr, *aParams, true);
+      return;
+    case MOZ_GTK_ENTRY:
+      mozilla::Unused << moz_gtk_entry_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_TEXT_VIEW:
+      mozilla::Unused << moz_gtk_text_view_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_DROPDOWN:
+      mozilla::Unused << moz_gtk_combo_box_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_TREEVIEW:
+      mozilla::Unused << moz_gtk_treeview_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_PROGRESSBAR:
+      mozilla::Unused << moz_gtk_progressbar_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_PROGRESS_CHUNK:
+    case MOZ_GTK_PROGRESS_CHUNK_INDETERMINATE:
+    case MOZ_GTK_PROGRESS_CHUNK_VERTICAL_INDETERMINATE:
+      mozilla::Unused << moz_gtk_progress_chunk_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_SCALE_HORIZONTAL:
+    case MOZ_GTK_SCALE_VERTICAL:
+      mozilla::Unused << moz_gtk_scale_paint(aCr, *aParams);
+      return;
+    case MOZ_GTK_SCALE_THUMB_HORIZONTAL:
+    case MOZ_GTK_SCALE_THUMB_VERTICAL:
+      mozilla::Unused << moz_gtk_scale_thumb_paint(aCr, *aParams);
+      return;
     case MOZ_GTK_SCROLLBAR_BUTTON:
       mozilla::Unused << moz_gtk_scrollbar_button_paint(aCr, *aParams);
       return;
@@ -483,8 +791,6 @@ void moz_gtk_widget_paint(cairo_t* aCr, const GtkDrawingParams* aParams) {
 }
 
 gint moz_gtk_shutdown() {
-  /* This will destroy all of our widgets */
   ResetWidgetCache();
-
   return MOZ_GTK_SUCCESS;
 }

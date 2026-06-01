@@ -2448,9 +2448,12 @@ bool ContentParent::BeginSubprocessLaunch(ProcessPriority aPriority) {
   geckoargs::sParentBuildID.Put(parentBuildID.get(), extraArgs);
 
 #ifdef MOZ_WIDGET_GTK
-  // This is X11-only pending a solution for WebGL in Wayland mode.
+  // If content is using custom scrollbars everywhere, we can skip GTK in
+  // content processes on X11. Native GTK scrollbars require a real GTK content
+  // process.
   if (StaticPrefs::dom_ipc_avoid_gtk() &&
       StaticPrefs::widget_non_native_theme_enabled() &&
+      StaticPrefs::widget_native_controls_scrollbar_style() == 1 &&
       widget::GdkIsX11Display()) {
     mSubprocess->SetEnv("MOZ_HEADLESS", "1");
   }

@@ -51,6 +51,12 @@ struct MozGtkSize {
   }
 };
 
+struct ToggleGTKMetrics {
+  bool initialized = false;
+  MozGtkSize minSizeWithBorder{};
+  GtkBorder borderAndPadding{};
+};
+
 #define TOOLBAR_BUTTONS 3
 struct ToolbarGTKMetrics {
   bool initialized = false;
@@ -88,6 +94,9 @@ enum GtkScrollbarTrackFlags : gint {
   MOZ_GTK_TRACK_OPAQUE = 1 << 0,
 };
 
+#define MOZ_GTK_WIDGET_CHECKED 1
+#define MOZ_GTK_WIDGET_INCONSISTENT (1 << 1)
+
 /*** result/error codes ***/
 #define MOZ_GTK_SUCCESS 0
 #define MOZ_GTK_UNKNOWN_WIDGET -1
@@ -96,22 +105,43 @@ enum GtkScrollbarTrackFlags : gint {
 enum WidgetNodeType : int {
   /* Paints a GtkButton. flags is a GtkReliefStyle. */
   MOZ_GTK_BUTTON,
-
+  /* Paints a toggle button. */
+  MOZ_GTK_TOGGLE_BUTTON,
+  /* Paints a button arrow. */
+  MOZ_GTK_BUTTON_ARROW,
+  /* Paints the container part of a GtkCheckButton. */
+  MOZ_GTK_CHECKBUTTON_CONTAINER,
+  /* Paints a GtkCheckButton. */
+  MOZ_GTK_CHECKBUTTON,
+  /* Paints the container part of a GtkRadioButton. */
+  MOZ_GTK_RADIOBUTTON_CONTAINER,
+  /* Paints a GtkRadioButton. */
+  MOZ_GTK_RADIOBUTTON,
   /* Paints the button of a GtkScrollbar. flags is GtkScrollbarButtonFlags. */
   MOZ_GTK_SCROLLBAR_BUTTON,
-
   /* Horizontal GtkScrollbar counterparts */
   MOZ_GTK_SCROLLBAR_HORIZONTAL,
   MOZ_GTK_SCROLLBAR_CONTENTS_HORIZONTAL,
   MOZ_GTK_SCROLLBAR_TROUGH_HORIZONTAL,
   MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL,
-
   /* Vertical GtkScrollbar counterparts */
   MOZ_GTK_SCROLLBAR_VERTICAL,
   MOZ_GTK_SCROLLBAR_CONTENTS_VERTICAL,
   MOZ_GTK_SCROLLBAR_TROUGH_VERTICAL,
   MOZ_GTK_SCROLLBAR_THUMB_VERTICAL,
-
+  /* Paints a GtkScale. */
+  MOZ_GTK_SCALE_HORIZONTAL,
+  MOZ_GTK_SCALE_VERTICAL,
+  /* Paints a GtkScale trough. */
+  MOZ_GTK_SCALE_CONTENTS_HORIZONTAL,
+  MOZ_GTK_SCALE_CONTENTS_VERTICAL,
+  MOZ_GTK_SCALE_TROUGH_HORIZONTAL,
+  MOZ_GTK_SCALE_TROUGH_VERTICAL,
+  /* Paints a GtkScale thumb. */
+  MOZ_GTK_SCALE_THUMB_HORIZONTAL,
+  MOZ_GTK_SCALE_THUMB_VERTICAL,
+  /* Paints a GtkEntry. */
+  MOZ_GTK_ENTRY,
   /* Paints a GtkTextView or gets the style context corresponding to the
      root node of a GtkTextView. */
   MOZ_GTK_TEXT_VIEW,
@@ -119,7 +149,16 @@ enum WidgetNodeType : int {
   MOZ_GTK_TEXT_VIEW_TEXT,
   /* The "selection" node of a GtkTextView.text */
   MOZ_GTK_TEXT_VIEW_TEXT_SELECTION,
-
+  /* Paints a GtkOptionMenu / GtkComboBox style shell. */
+  MOZ_GTK_DROPDOWN,
+  /* Used for widget tree construction. */
+  MOZ_GTK_COMBOBOX,
+  /* Paints a GtkComboBox button widget. */
+  MOZ_GTK_COMBOBOX_BUTTON,
+  /* Paints a GtkComboBox arrow widget. */
+  MOZ_GTK_COMBOBOX_ARROW,
+  /* Paints a GtkComboBox separator widget. */
+  MOZ_GTK_COMBOBOX_SEPARATOR,
   /* Paints a GtkToolTip */
   MOZ_GTK_TOOLTIP,
   /* Paints a GtkBox from GtkToolTip  */
@@ -130,8 +169,20 @@ enum WidgetNodeType : int {
   MOZ_GTK_FRAME,
   /* Paints the border of a GtkFrame */
   MOZ_GTK_FRAME_BORDER,
-  /* Paints the expander and border of a GtkTreeView */
+  /* Paints a GtkProgressBar. */
+  MOZ_GTK_PROGRESSBAR,
+  /* Paints a trough (track) of a GtkProgressBar. */
+  MOZ_GTK_PROGRESS_TROUGH,
+  /* Paints a progress chunk of a GtkProgressBar. */
+  MOZ_GTK_PROGRESS_CHUNK,
+  /* Paints a progress chunk of an indeterminate GtkProgressBar. */
+  MOZ_GTK_PROGRESS_CHUNK_INDETERMINATE,
+  /* Paints a progress chunk of a vertical indeterminate GtkProgressBar. */
+  MOZ_GTK_PROGRESS_CHUNK_VERTICAL_INDETERMINATE,
+  /* Paints the expander and border of a GtkTreeView. */
   MOZ_GTK_TREEVIEW,
+  /* Paints the inner view area of a GtkTreeView. */
+  MOZ_GTK_TREEVIEW_VIEW,
   /* Paints treeheader cells */
   MOZ_GTK_TREE_HEADER_CELL,
   /* Paints the background of menus, context menus. */
@@ -154,11 +205,9 @@ enum WidgetNodeType : int {
   MOZ_GTK_SCROLLED_WINDOW,
   /* Paints a GtkHeaderBar */
   MOZ_GTK_HEADER_BAR,
-
   /* Client-side window decoration node. Available on GTK 3.20+. */
   MOZ_GTK_WINDOW_DECORATION,
   MOZ_GTK_WINDOW_DECORATION_SOLID,
-
   MOZ_GTK_WIDGET_NODE_COUNT
 };
 
@@ -210,6 +259,14 @@ gint moz_gtk_get_widget_border(WidgetNodeType widget, gint* left, gint* top,
 const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation);
 const ScrollbarGTKMetrics* GetActiveScrollbarMetrics(
     GtkOrientation aOrientation);
+
+const ToggleGTKMetrics* GetToggleMetrics(WidgetNodeType aWidgetType);
+void moz_gtk_get_scale_metrics(GtkOrientation aOrientation, gint* aScaleWidth,
+                               gint* aScaleHeight);
+gint moz_gtk_get_scalethumb_metrics(GtkOrientation aOrientation,
+                                    gint* aThumbLength, gint* aThumbHeight);
+void moz_gtk_get_entry_min_height(gint* aMinContentHeight,
+                                  gint* aBorderPaddingHeight);
 
 /*** Widget metrics ***/
 

@@ -1836,12 +1836,10 @@ nsITheme* nsPresContext::Theme() const {
 
 void nsPresContext::EnsureTheme() {
   MOZ_ASSERT(!mTheme);
-  if (Document()->ShouldAvoidNativeTheme()) {
-    if (mInRDMPane) {
-      mTheme = do_GetRDMThemeDoNotUseDirectly();
-    } else {
-      mTheme = do_GetBasicNativeThemeDoNotUseDirectly();
-    }
+  if (mInRDMPane) {
+    mTheme = do_GetRDMThemeDoNotUseDirectly();
+  } else if (Document()->ShouldAvoidNativeTheme()) {
+    mTheme = do_GetBasicNativeThemeDoNotUseDirectly();
   } else {
     mTheme = do_GetNativeThemeDoNotUseDirectly();
   }
