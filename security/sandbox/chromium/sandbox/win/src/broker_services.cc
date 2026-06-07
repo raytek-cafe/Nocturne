@@ -559,8 +559,11 @@ ResultCode BrokerServicesBase::PreSpawnTarget(
   // TODO(crbug.com/1428756) remove all calls to HasJob in follow-up CLs.
   DCHECK(policy_base->HasJob());
 
-  if (policy_base->HasJob())
+  // On Win10, jobs are associated via startup_info.
+  if (base::win::GetVersion() >= base::win::Version::WIN10 &&
+      policy_base->HasJob()) {
     startup_info->AddJobToAssociate(policy_base->GetJobHandle());
+  }
 
   if (!startup_info->BuildStartupInformation())
     return SBOX_ERROR_PROC_THREAD_ATTRIBUTES;
@@ -568,7 +571,8 @@ ResultCode BrokerServicesBase::PreSpawnTarget(
   // Create the TargetProcess object. Note that Brokerservices does not own the
   // target object. It is owned by the Policy.
   target = std::make_unique<TargetProcess>(
-      std::move(*initial_token), std::move(*lockdown_token), thread_pool_);
+      std::move(*initial_token), std::move(*lockdown_token),
+      policy_base->GetJobHandle(), thread_pool_);
 
   return SBOX_ALL_OK;
 }
