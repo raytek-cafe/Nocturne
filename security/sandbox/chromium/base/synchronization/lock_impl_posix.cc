@@ -9,9 +9,11 @@
 #include <atomic>
 #include <cstdint>
 #include <ostream>
+#include <errno.h>
 #include <string>
 
 #include "base/check_op.h"
+#include "base/logging.h"
 #include "base/posix/safe_strerror.h"
 #include "base/synchronization/lock.h"
 #include "base/synchronization/synchronization_buildflags.h"
@@ -149,6 +151,11 @@ void LockImpl::Lock() {
     return;
   int rv = pthread_mutex_lock(&native_handle_);
   DCHECK_EQ(rv, 0) << ". " << SystemErrorCodeToString(rv);
+}
+
+void LockImpl::Unlock() {
+  int rv = pthread_mutex_unlock(&native_handle_);
+  DCHECK_EQ(rv, 0) << ". " << strerror(rv);
 }
 
 // static
