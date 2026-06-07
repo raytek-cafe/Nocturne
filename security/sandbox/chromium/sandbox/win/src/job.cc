@@ -11,6 +11,8 @@
 #include <utility>
 
 #include "sandbox/win/src/security_level.h"
+#include "base/win/windows_version.h"
+#include "sandbox/win/src/restricted_token.h"
 
 namespace sandbox {
 

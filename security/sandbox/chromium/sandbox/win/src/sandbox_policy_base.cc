@@ -475,9 +475,11 @@ void ConfigBase::SetDisconnectCsrss() {
 // CreateThread EAT patch used when this is enabled.
 // See https://crbug.com/783296#c27.
 #if defined(_WIN64) && !defined(ADDRESS_SANITIZER)
-  is_csrss_connected_ = false;
-  AddKernelObjectToClose(HandleToClose::kDisconnectCsrss);
-#endif  // !defined(_WIN64) || defined(ADDRESS_SANITIZER)
+  if (base::win::GetVersion() >= base::win::Version::WIN10) {
+    is_csrss_connected_ = false;
+    AddKernelObjectToClose(HandleToClose::kDisconnectCsrss);
+  }
+#endif  // defined(_WIN64) && !defined(ADDRESS_SANITIZER)
 }
 
 void ConfigBase::SetDesktop(Desktop desktop) {
