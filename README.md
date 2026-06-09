@@ -33,7 +33,7 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 
 - [Mozilla Developers](https://www.firefox.com/) - Mozilla Firefox (base)
 - [ImSwordQueen and raytek.cafe](https://raytek.cafe/) - Nocturne (base) 
-- [R3n and Eclipse Community](https://eclipse.cx/) - Eclipse r3dfox (base)
+- [Eclipse Community](https://eclipse.cx/) - Eclipse r3dfox (base)
 - [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
 - [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, and some miscellaneous fixes from Marble Browser
 - [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
