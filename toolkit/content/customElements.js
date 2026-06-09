@@ -908,6 +908,7 @@
       "chrome://global/content/elements/moz-input-box.js",
       "chrome://global/content/elements/notificationbox.js",
       "chrome://global/content/elements/panel.js",
+	  "chrome://global/content/elements/preferences.js",
       "chrome://global/content/elements/popupnotification.js",
       "chrome://global/content/elements/radio.js",
       "chrome://global/content/elements/richlistbox.js",

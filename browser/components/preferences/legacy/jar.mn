@@ -1,0 +1,48 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+browser.jar:
+*   content/browser/preferences/legacy/advanced.xhtml
+*   content/browser/preferences/legacy/advanced.js
+    content/browser/preferences/legacy/applications.xhtml
+*   content/browser/preferences/legacy/applications.js
+    content/browser/preferences/legacy/applicationManager.xhtml
+*   content/browser/preferences/legacy/applicationManager.js
+*   content/browser/preferences/legacy/colors.xhtml
+*   content/browser/preferences/legacy/cookies.xhtml
+*   content/browser/preferences/legacy/cookies.js
+    content/browser/preferences/legacy/content.xhtml
+    content/browser/preferences/legacy/content.js
+*   content/browser/preferences/legacy/connection.xhtml
+    content/browser/preferences/legacy/connection.js
+*   content/browser/preferences/legacy/fonts.xhtml
+    content/browser/preferences/legacy/fonts.js
+    content/browser/preferences/legacy/handlers.xml
+    content/browser/preferences/legacy/handlers.css
+*   content/browser/preferences/legacy/languages.xhtml
+    content/browser/preferences/legacy/languages.js
+*   content/browser/preferences/legacy/main.xhtml
+*   content/browser/preferences/legacy/main.js
+    content/browser/preferences/legacy/permissions.xhtml
+*   content/browser/preferences/legacy/permissions.js
+*   content/browser/preferences/legacy/preferences.xhtml
+    content/browser/preferences/legacy/preferences.js
+    content/browser/preferences/legacy/privacy.xhtml
+*   content/browser/preferences/legacy/privacy.js
+    content/browser/preferences/legacy/sanitize.xhtml
+    content/browser/preferences/legacy/sanitize.js
+    content/browser/preferences/legacy/security.xhtml
+    content/browser/preferences/legacy/security.js
+    content/browser/preferences/legacy/selectBookmark.xhtml
+    content/browser/preferences/legacy/selectBookmark.js
+#ifdef MOZ_SERVICES_SYNC
+    content/browser/preferences/legacy/sync.xhtml
+    content/browser/preferences/legacy/sync.js
+#endif
+    content/browser/preferences/legacy/search.xhtml
+    content/browser/preferences/legacy/search.js
+*   content/browser/preferences/legacy/tabs.xhtml
+*   content/browser/preferences/legacy/tabs.js
+    content/browser/preferences/legacy/translation.xhtml
+    content/browser/preferences/legacy/translation.js

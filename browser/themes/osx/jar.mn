@@ -13,8 +13,20 @@ browser.jar:
   skin/classic/browser/monitor-base.png
   skin/classic/browser/monitor-border.png
   skin/classic/browser/places/organizer.css                 (places/organizer.css)
+  skin/classic/browser/preferences/applications-legacy.css  (preferences/applications.css)
+  skin/classic/browser/preferences/preferences-legacy.css   (preferences/preferences.css)
+  skin/classic/browser/preferences/search-legacy.css        (preferences/search.css)
   skin/classic/browser/preferences/alwaysAsk.png            (preferences/alwaysAsk.png)
   skin/classic/browser/preferences/application.png          (preferences/application.png)
+  skin/classic/browser/preferences/Options.png              (preferences/Options.png)
+#ifdef MOZ_SERVICES_SYNC
+  skin/classic/browser/preferences/Options-sync.png         (preferences/Options-sync.png)
+#endif
   skin/classic/browser/preferences/saveFile.png             (preferences/saveFile.png)
+  skin/classic/browser/fxa/default-profile-image.svg        (../shared/fxa/default-profile-image.svg)
+  skin/classic/browser/preferences/checkbox.png             (preferences/checkbox.png)
+  skin/classic/browser/preferences/checkbox@2x.png          (preferences/checkbox@2x.png)
+  skin/classic/browser/yosemite/preferences/checkbox.png    (preferences/checkbox-yosemite.png)
+  skin/classic/browser/yosemite/preferences/checkbox@2x.png (preferences/checkbox-yosemite@2x.png)
   skin/classic/browser/share.svg                            (share.svg)
   skin/classic/browser/webRTC-menubar-indicator.css         (../shared/webRTC-menubar-indicator.css)

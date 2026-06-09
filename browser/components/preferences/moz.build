@@ -5,6 +5,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += ["dialogs"]
+DIRS += ["legacy"]
 
 BROWSER_CHROME_MANIFESTS += ["tests/browser.toml", "tests/siteData/browser.toml"]
 MOCHITEST_CHROME_MANIFESTS += ["tests/chrome/chrome.toml"]
