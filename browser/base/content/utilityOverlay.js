@@ -401,6 +401,7 @@ function openAboutDialog() {
 }
 
 async function openPreferences(paneID, extraArgs) {
+  if (Services.prefs.getBoolPref("browser.preferences.inContent", true)) {
   // This function is duplicated from preferences.js.
   function internalPrefCategoryNameToFriendlyName(aName) {
     return (aName || "").replace(/^pane./, function (toReplace) {
@@ -481,6 +482,22 @@ async function openPreferences(paneID, extraArgs) {
       });
     }
     browser.contentWindow.gotoPref(paneID);
+  }
+  }
+  else {
+    var instantApply = Services.prefs.getBoolPref("browser.preferences.instantApply", false);
+    var features = "chrome,titlebar,toolbar,centerscreen" + (instantApply ? ",dialog=no" : ",modal");
+    var win = Services.wm.getMostRecentWindow("Browser:Preferences");
+    if (win) {
+      win.focus();
+      if (paneID) {
+        var pane = win.document.getElementById(paneID);
+        win.document.documentElement.showPane(pane);
+      }
+    } else {
+      openDialog("chrome://browser/content/preferences/legacy/preferences.xhtml",
+                 "Preferences", features, paneID, extraArgs);
+    }
   }
 }
 

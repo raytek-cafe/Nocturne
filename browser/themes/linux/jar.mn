@@ -15,4 +15,13 @@ browser.jar:
   skin/classic/browser/downloads/allDownloadsView.css (downloads/allDownloadsView.css)
   skin/classic/browser/downloads/downloads.css        (downloads/downloads.css)
   skin/classic/browser/places/organizer.css           (places/organizer.css)
+  skin/classic/browser/preferences/applications-legacy.css  (preferences/applications.css)
+  skin/classic/browser/preferences/preferences-legacy.css   (preferences/preferences.css)
+  skin/classic/browser/preferences/search-legacy.css        (preferences/search.css)
   skin/classic/browser/preferences/alwaysAsk.png      (preferences/alwaysAsk.png)
+  skin/classic/browser/preferences/mail.png           (preferences/mail.png)
+  skin/classic/browser/preferences/Options.png        (preferences/Options.png)
+#ifdef MOZ_SERVICES_SYNC
+  skin/classic/browser/preferences/Options-sync.png   (preferences/Options-sync.png)
+#endif
+  skin/classic/browser/fxa/default-profile-image.svg   (../shared/fxa/default-profile-image.svg)

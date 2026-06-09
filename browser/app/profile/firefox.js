@@ -1296,6 +1296,11 @@ pref("browser.preferences.defaultPerformanceSettings.enabled", true);
 
 pref("browser.proton.toolbar.version", 0);
 
+// Setting removed in Firefox 42, added back in Skyfox.
+// Controls whether to show the modern "in-content" about:preferences 
+// page or the legacy native preferences window.
+pref("browser.preferences.inContent", false);
+
 // Backspace and Shift+Backspace behavior
 // 0 goes Back/Forward
 // 1 act like PgUp/PgDown
