@@ -1263,36 +1263,36 @@ moz-input-box > menupopup .context-menu-add-engine > .menu-iconic-left::after {
   }
 }
 
-/* Nocturne: Old URLBar CSS (non-popover) */
-:root[data-nocturne-old-urlbar] #urlbar {
+/* Skyfox: Old URLBar CSS (non-popover) */
+:root[data-skyfox-old-urlbar] #urlbar {
   /* Remove flex container properties from new implementation */
   display: block;
 }
 
-:root[data-nocturne-old-urlbar] #urlbar-container[breakout] {
+:root[data-skyfox-old-urlbar] #urlbar-container[breakout] {
   position: relative;
   min-height: var(--urlbar-container-height);
 }
 
-:root[data-nocturne-old-urlbar] #urlbar[breakout] {
+:root[data-skyfox-old-urlbar] #urlbar[breakout] {
   display: block;
   position: absolute;
   width: 100%;
   height: var(--urlbar-height);
 }
 
-:root[data-nocturne-old-urlbar] #urlbar[breakout] > .urlbar-input-container {
+:root[data-skyfox-old-urlbar] #urlbar[breakout] > .urlbar-input-container {
   width: 100%;
   height: 100%;
 }
 
-:root[data-nocturne-old-urlbar] #urlbar[breakout][breakout-extend],
-:root[data-nocturne-old-urlbar] #urlbar[breakout][breakout-extend-disabled][open] {
+:root[data-skyfox-old-urlbar] #urlbar[breakout][breakout-extend],
+:root[data-skyfox-old-urlbar] #urlbar[breakout][breakout-extend-disabled][open] {
   /* Normally the old one is 3 but it gets drawn over by other stuff*/
   z-index: 19;
 }
 
-:root[data-nocturne-old-urlbar] #urlbar[breakout][breakout-extend] {
+:root[data-skyfox-old-urlbar] #urlbar[breakout][breakout-extend] {
   margin-left: 0;
 
   > .urlbar-input-container {
@@ -1301,8 +1301,8 @@ moz-input-box > menupopup .context-menu-add-engine > .menu-iconic-left::after {
   }
 }
 
-/* Nocturne: Ensure URLBar view has proper stacking context in old mode */
-:root[data-nocturne-old-urlbar] .urlbarView {
+/* Skyfox: Ensure URLBar view has proper stacking context in old mode */
+:root[data-skyfox-old-urlbar] .urlbarView {
   position: relative;
   z-index: 3;
   margin-inline: 0;

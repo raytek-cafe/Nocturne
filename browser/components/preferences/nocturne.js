@@ -4,7 +4,7 @@
 
 /* import-globals-from preferences.js */
 
-var gNocturnePane = {
+var gSkyfoxPane = {
   init() {},
 };
 
@@ -14,15 +14,15 @@ Preferences.addAll([
   { id: "widget.non-native-theme.scrollbar.style", type: "int" },
   { id: "widget.native-controls.override-win-version", type: "int" },
   { id: "security.sandbox.content.level", type: "int" },
-  { id: "nocturne.colors", type: "int" },
-  { id: "nocturne.drag-space.enabled", type: "bool" },
-  { id: "nocturne.backgrounds.enabled", type: "bool" },
-  { id: "nocturne.transparent.menubar", type: "bool" },
-  { id: "nocturne.translucent.navbar", type: "bool" },
-  { id: "nocturne.aero.fog", type: "int" },
-  { id: "nocturne.caption.text.color", type: "int" },
+  { id: "skyfox.colors", type: "int" },
+  { id: "skyfox.drag-space.enabled", type: "bool" },
+  { id: "skyfox.backgrounds.enabled", type: "bool" },
+  { id: "skyfox.transparent.menubar", type: "bool" },
+  { id: "skyfox.translucent.navbar", type: "bool" },
+  { id: "skyfox.aero.fog", type: "int" },
+  { id: "skyfox.caption.text.color", type: "int" },
   { id: "browser.urlbar.oneOffsInstant", type: "bool" },
-  { id: "nocturne.view.image", type: "bool" },
+  { id: "skyfox.view.image", type: "bool" },
   { id: "browser.menu.navigationIcons", type: "bool",  inverted: true },
   { id: "browser.e10s.disabled", type: "bool" },
   { id: "security.csp.enable", type: "bool",  inverted: true },
@@ -45,11 +45,11 @@ Preferences.addAll([
 //  { id: "browser.urlbar.scotchBonnet.enableOverride", type: "bool",  inverted: true },
   { id: "browser.urlbar.formatting.enabled", type: "bool",  inverted: true },
   { id: "geo.enabled", type: "bool",  inverted: true },
-  { id: "nocturne.ui.oldaboutconfig", type: "bool" },
-  { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
-  { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
-  { id: "nocturne.ui.ff68downloadicons", type: "bool" },
-  { id: "nocturne.ui.oldurlbar", type: "bool" },
+  { id: "skyfox.ui.oldaboutconfig", type: "bool" },
+  { id: "skyfox.legacyiconbehavior.enabled", type: "bool" },
+  { id: "skyfox.smalliconbehavior.enabled", type: "bool" },
+  { id: "skyfox.ui.ff68downloadicons", type: "bool" },
+  { id: "skyfox.ui.oldurlbar", type: "bool" },
   { id: "prompts.tab_modal.enabled", type: "bool", inverted: true },
   { id: "prompts.headerAppIcon.enabled", type: "bool" },
   { id: "prompts.tab_modal.sound.enabled", type: "bool" },

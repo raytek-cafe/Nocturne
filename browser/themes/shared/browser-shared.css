@@ -1381,8 +1381,8 @@ panel toolbarseparator {
   margin: 8px 16px 16px;
 }
 
-/* Nocturne: Old URLBar CSS (non-popover) */
-:root[data-nocturne-old-urlbar] {
+/* Skyfox: Old URLBar CSS (non-popover) */
+:root[data-skyfox-old-urlbar] {
   /* Restore old z-index values - toolbox should be on top in old mode */
   --browser-area-z-index-toolbox: 1;
   --browser-area-z-index-sidebar: 0;
@@ -1390,7 +1390,7 @@ panel toolbarseparator {
   --browser-area-z-index-sidebar-splitter: 0;
 }
 
-:root[data-nocturne-old-urlbar] #navigator-toolbox {
+:root[data-skyfox-old-urlbar] #navigator-toolbox {
   /* Remove toolbar overflow clipping for old URLBar - needs to allow URLBar to extend */
   overflow: visible;
 }

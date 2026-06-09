@@ -1,6 +1,6 @@
 /* Color overrides */
 
-@media -moz-pref("nocturne.colors", 0) {
+@media -moz-pref("skyfox.colors", 0) {
   :root {
     --color-blue-05: #deeafc !important;
     --color-blue-30: #73a7f3 !important;
@@ -18,7 +18,7 @@
   }
 }
 
-@media -moz-pref("nocturne.colors", 1) {
+@media -moz-pref("skyfox.colors", 1) {
   :root {
     --arrowpanel-border-color: light-dark(rgb(200, 30, 30), rgb(220, 20, 20)) !important;
     --toolbar-field-focus-border-color: light-dark(rgb(220, 0, 0), rgb(255, 30, 30)) !important;
@@ -66,7 +66,7 @@
 
 }
 
-@media -moz-pref("nocturne.colors", 2) {
+@media -moz-pref("skyfox.colors", 2) {
   :root {
     --arrowpanel-border-color: light-dark(rgb(255, 102, 51), rgb(183, 98, 69)) !important;
     --toolbar-field-focus-border-color: light-dark(rgb(255, 86, 30), rgb(183, 98, 69)) !important;
@@ -114,7 +114,7 @@
 
 }
 
-@media -moz-pref("nocturne.colors", 3) {
+@media -moz-pref("skyfox.colors", 3) {
   :root {
     --arrowpanel-border-color: light-dark(rgb(255, 60, 206), rgb(160, 60, 135)) !important;
     --toolbar-field-focus-border-color: light-dark(rgb(255, 40, 201), rgb(160, 60, 135)) !important;
@@ -162,7 +162,7 @@
 
 }
 
-@media -moz-pref("nocturne.colors", 4) {
+@media -moz-pref("skyfox.colors", 4) {
   :root {
     --arrowpanel-border-color: light-dark(rgb(165, 0, 255), rgb(114, 63, 140)) !important;
     --toolbar-field-focus-border-color: light-dark(rgb(165, 0, 255), rgb(114, 63, 140)) !important;
@@ -201,7 +201,7 @@
       --in-content-page-background: rgb(11, 10, 13) !important;
     }
 
-    @media not -moz-pref("nocturne.translucent.navbar") {
+    @media not -moz-pref("skyfox.translucent.navbar") {
       @media (-moz-toolbar-prefers-color-scheme: dark), (prefers-color-scheme: dark) {
         --toolbar-bgcolor: rgb(23, 21, 28) !important;
         --toolbar-field-background-color: rgb(11, 10, 13) !important;
@@ -237,7 +237,7 @@
 
 /* Aero fog and other settings */
 
-@media -moz-pref("nocturne.aero.fog", 1) {
+@media -moz-pref("skyfox.aero.fog", 1) {
   @media (-moz-windows-compositor), (-moz-windows-glass) {
     #navigator-toolbox:not([lwtheme]) {
       background-color: transparent !important;
@@ -267,7 +267,7 @@
   }
 }
 
-@media -moz-pref("nocturne.caption.text.color", 1) {
+@media -moz-pref("skyfox.caption.text.color", 1) {
   #TabsToolbar {
     color: white !important;
     --toolbarbutton-icon-fill: currentColor !important;
@@ -288,7 +288,7 @@
   }
 }
 
-@media -moz-pref("nocturne.caption.text.color", 2) {
+@media -moz-pref("skyfox.caption.text.color", 2) {
   #TabsToolbar {
     color: black !important;
     --toolbarbutton-icon-fill: currentColor !important;
@@ -309,14 +309,14 @@
   }
 }
 
-@media -moz-pref("nocturne.transparent.menubar") {
+@media -moz-pref("skyfox.transparent.menubar") {
   #main-window #main-menubar {
     background: none !important;
   }
 }
 
-@media -moz-pref("nocturne.translucent.navbar") {
-  @media -moz-pref("nocturne.aero.fog", 1) {
+@media -moz-pref("skyfox.translucent.navbar") {
+  @media -moz-pref("skyfox.aero.fog", 1) {
     @media (-moz-windows-compositor) {
       #titlebar:not([lwtheme]) {
         appearance: auto !important;
@@ -335,7 +335,7 @@
 
 /* Backgrounds needs to override all */
 
-@media -moz-pref("nocturne.backgrounds.enabled") {
+@media -moz-pref("skyfox.backgrounds.enabled") {
   .tabs-alltabs-button > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
     border-radius: 4px 0px 0px 4px !important;
   }
@@ -361,7 +361,7 @@
       --lwt-text-color: white !important;
     }
 
-    @media (not -moz-pref("nocturne.transparent.menubar")) {
+    @media (not -moz-pref("skyfox.transparent.menubar")) {
       #main-window #main-menubar {
         background-color: rgba(23, 21, 28, 0.33) !Important;
       }
@@ -416,7 +416,7 @@
       --lwt-text-color: black !important;
     }
 
-    @media (not -moz-pref("nocturne.transparent.menubar")) {
+    @media (not -moz-pref("skyfox.transparent.menubar")) {
       #main-window #main-menubar {
         background-color: rgba(243, 242, 245, 0.33) !Important;
       }

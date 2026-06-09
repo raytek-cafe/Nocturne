@@ -235,8 +235,8 @@ radio {
   list-style-image: url("chrome://global/skin/icons/experiments.svg");
 }
 
-#category-nocturne > .category-icon {
-  list-style-image: url("chrome://browser/skin/preferences/category-nocturne.svg");
+#category-skyfox > .category-icon {
+  list-style-image: url("chrome://browser/skin/preferences/category-skyfox.svg");
 }
 
 /* All panes */

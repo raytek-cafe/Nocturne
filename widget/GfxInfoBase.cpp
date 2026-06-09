@@ -1598,7 +1598,7 @@ const char* chromebookProductList[] = {
     "guybrush", "hana",      "hatch",    "heli",     "jacuzzi",   "kalista",
     "kefka",    "kevin",     "kip",      "kukui",    "lars",      "leon",
     "link",     "lulu",      "lumpy",    "mccloud",  "monroe",    "nami",
-    "nautilus", "ninja",     "nissa",    "nocturne", "nyan",      "octopus",
+    "nautilus", "ninja",     "nissa",    "skyfox", "nyan",      "octopus",
     "orco",     "panther",   "parrot",   "peach",    "peppy",     "puff",
     "pyro",     "quawks",    "rammus",   "reef",     "reks",      "relm",
     "rikku",    "samus",     "sand",     "sarien",   "scarlet",   "sentry",

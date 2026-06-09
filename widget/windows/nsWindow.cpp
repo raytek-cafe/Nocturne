@@ -1108,9 +1108,9 @@ const wchar_t kShellLibraryName[] =  L"shell32.dll";
     }
     ::FreeLibrary(hDLL);
     bool loadSmallIconProperly = 
-        Preferences::GetBool("nocturne.smalliconbehavior.enabled", true);
+        Preferences::GetBool("skyfox.smalliconbehavior.enabled", true);
       bool useSeparateIcons =
-          Preferences::GetBool("nocturne.legacyiconbehavior.enabled", true);
+          Preferences::GetBool("skyfox.legacyiconbehavior.enabled", true);
           
     if (usePrivateAumid) {
       HICON icon = ::LoadIconW(::GetModuleHandleW(nullptr),

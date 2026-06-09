@@ -1,5 +1,5 @@
 name: "Bug report"
-description: Experiencing issues with Nocturne? Let us know here.
+description: Experiencing issues with Skyfox? Let us know here.
 labels: [bug]
 assignees: []
 
@@ -15,8 +15,8 @@ body:
       label: Before reporting your issue
       description: Please ensure you meet the following criteria before reporting issues
       options:
-        - label: I'm on the latest version of Nocturne.
-        - label: I have read the pinned issue and confirmed that this is a Nocturne issue.
+        - label: I'm on the latest version of Skyfox.
+        - label: I have read the pinned issue and confirmed that this is a Skyfox issue.
 
 
   - type: input

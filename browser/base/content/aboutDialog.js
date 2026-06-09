@@ -79,10 +79,10 @@ function init() {
   // Use Fluent arguments for append version and the architecture of the build
   let versionField = document.getElementById("version");
 
-  // Display version numbers: Nocturne version (Firefox version) (architecture)
-  if (AppConstants.NOCTURNE_VERSION && AppConstants.NOCTURNE_VERSION !== "@NOCTURNE_VERSION@") {
+  // Display version numbers: Skyfox version (Firefox version) (architecture)
+  if (AppConstants.SKYFOX_VERSION && AppConstants.SKYFOX_VERSION !== "@SKYFOX_VERSION@") {
     let arch = versionAttributes.bits ? `${versionAttributes.bits}-bit` : versionAttributes.arch;
-    versionField.textContent = `${AppConstants.NOCTURNE_VERSION} (${AppConstants.MOZ_APP_VERSION_DISPLAY}) (${arch})`;
+    versionField.textContent = `${AppConstants.SKYFOX_VERSION} (${AppConstants.MOZ_APP_VERSION_DISPLAY}) (${arch})`;
   } else {
     // Fallback to standard Firefox version display
     document.l10n.setAttributes(

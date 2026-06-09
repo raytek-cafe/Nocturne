@@ -17,7 +17,7 @@
 #include "mozilla/gfx/GPUProcessManager.h"
 
 #define ABOUT_CONFIG_ENABLED_PREF "general.aboutConfig.enable"
-#define ABOUT_CONFIG_CLASSIC_PREF "nocturne.ui.oldaboutconfig"
+#define ABOUT_CONFIG_CLASSIC_PREF "skyfox.ui.oldaboutconfig"
 
 NS_IMPL_ISUPPORTS(nsAboutRedirector, nsIAboutModule)
 
