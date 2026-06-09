@@ -3,17 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #aboutDialogContainer {
-  background-color: #20123a;
+  background-image: url("chrome://branding/content/about-background.png");
+  background-repeat: no-repeat;
+  background-color: #000;
   color: #fff;
-  color-scheme: dark;
+}
+
+.text-link {
+  color: #fff !important;
+  text-decoration: underline;
 }
 
 #rightBox {
-  margin-inline: 30px;
-  padding-top: 64px;
+  /* this margin prevents text from overlapping the planet image */
+  margin-left: 280px;
+  margin-right: 20px;
 }
 
 #bottomBox {
-  background-color: #1d1133;
-  padding: 15px 10px 15px;
+  background-color: rgba(0,0,0,.7);
 }

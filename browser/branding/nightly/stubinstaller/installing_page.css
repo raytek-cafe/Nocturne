@@ -33,7 +33,6 @@ body.high-contrast #progress_background {
 #progress_bar {
   margin: 0;
   width: 0%;
-  max-width: 100%;
   height: 100%;
   background-color: #00AAFF;
 }
@@ -45,12 +44,18 @@ body.high-contrast #progress_bar {
   box-sizing: border-box;
 }
 
-/* No blurb or footer for this layout.*/
-#blurb,
+/* This layout doesn't want the header or content text. */
 #header, #content {
   display: none;
 }
 
+#blurb {
+  font-size: 20px;
+}
+
+/* The footer goes in the bottom right corner. */
 #footer {
-  visibility: hidden;
+  position: fixed;
+  right: 50px;
+  bottom: 60px;
 }
