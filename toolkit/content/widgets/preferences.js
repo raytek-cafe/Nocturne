@@ -604,8 +604,8 @@
     if (e.originalTarget && e.originalTarget.hasAttribute &&
         e.originalTarget.hasAttribute("pane")) {
       var prefwindow = document.documentElement;
-      var pane = document.getElementById(e.originalTarget.getAttribute("pane"));
-      prefwindow.showPane(pane);
+      var pane_o = document.getElementById(e.originalTarget.getAttribute("pane"));
+      prefwindow.showPane(pane_o);
       return;
     }
     let pane = e.target.closest("prefpane");
