@@ -272,7 +272,7 @@
 ; Remote Settings JSON dumps
 @RESPATH@/browser/defaults/settings
 
-; Nocturne specific files.
+; Skyfox specific files.
 @RESPATH@/defaults/pref/local-settings.js
 @RESPATH@/distribution/policies.json
 @RESPATH@/config.cfg

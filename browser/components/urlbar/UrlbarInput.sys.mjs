@@ -70,8 +70,8 @@ XPCOMUtils.defineLazyPreferenceGetter(
 
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
-  "NOCTURNE_OLD_URLBAR",
-  "nocturne.ui.oldurlbar",
+  "SKYFOX_OLD_URLBAR",
+  "skyfox.ui.oldurlbar",
   false
 );
 
@@ -288,8 +288,8 @@ export class UrlbarInput {
     this.window.addEventListener("aftercustomization", this);
     this.window.addEventListener("toolbarvisibilitychange", this);
 
-    // Nocturne: Only add popover-specific features if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only add popover-specific features if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       const menubar = this.window.document.getElementById("toolbar-menubar");
       if (menubar) {
         menubar.addEventListener("DOMMenuBarInactive", this);
@@ -2174,15 +2174,15 @@ export class UrlbarInput {
       return;
     }
 
-    // Nocturne: Only use popover-specific positioning if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only use popover-specific positioning if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       this.#updateTextboxPosition();
     }
 
     this.setAttribute("breakout-extend", "true");
 
-    // Nocturne: Only show popover if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only show popover if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       this.textbox.showPopover();
     }
 
@@ -2207,8 +2207,8 @@ export class UrlbarInput {
 
     this.removeAttribute("breakout-extend");
 
-    // Nocturne: Only update position if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only update position if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       this.#updateTextboxPosition();
     }
   }
@@ -2498,8 +2498,8 @@ export class UrlbarInput {
     this.textbox.parentNode.removeAttribute("breakout");
     this.textbox.style.top = "";
 
-    // Nocturne: Only hide popover if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only hide popover if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       try {
         this.textbox.hidePopover();
       } catch (ex) {
@@ -2557,8 +2557,8 @@ export class UrlbarInput {
         this.setAttribute("breakout", "true");
         this.textbox.parentNode.setAttribute("breakout", "true");
 
-        // Nocturne: Only use popover if not using old URLBar
-        if (!lazy.NOCTURNE_OLD_URLBAR) {
+        // Skyfox: Only use popover if not using old URLBar
+        if (!lazy.SKYFOX_OLD_URLBAR) {
           this.textbox.showPopover();
           this.#updateTextboxPosition();
         }
@@ -5025,22 +5025,22 @@ export class UrlbarInput {
   }
 
   _on_toolbarvisibilitychange() {
-    // Nocturne: Only update position if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only update position if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       this.#updateTextboxPositionNextFrame();
     }
   }
 
   _on_DOMMenuBarActive() {
-    // Nocturne: Only update position if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only update position if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       this.#updateTextboxPositionNextFrame();
     }
   }
 
   _on_DOMMenuBarInactive() {
-    // Nocturne: Only update position if not using old URLBar
-    if (!lazy.NOCTURNE_OLD_URLBAR) {
+    // Skyfox: Only update position if not using old URLBar
+    if (!lazy.SKYFOX_OLD_URLBAR) {
       this.#updateTextboxPositionNextFrame();
     }
   }

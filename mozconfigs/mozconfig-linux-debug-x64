@@ -1,4 +1,4 @@
-## mozconfig for compiling r3dfox Browser for Linux natively
+## mozconfig for compiling skyfox Browser for Linux natively
 
 # x64 build
 ac_add_options --target=x86_64
@@ -6,7 +6,7 @@ ac_add_options --target=x86_64
 # 16 jobs for 16 cores
 mk_add_options MOZ_MAKE_FLAGS="-j16"
 
-# Build only r3dfox
+# Build only skyfox
 ac_add_options --enable-application=browser
 ac_add_options --disable-artifact-builds
 export MOZ_INCLUDE_SOURCE_INFO=1

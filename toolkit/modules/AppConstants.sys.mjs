@@ -165,8 +165,8 @@ export var AppConstants = Object.freeze({
   MOZ_APP_DISPLAYNAME_DO_NOT_USE: "@MOZ_APP_DISPLAYNAME@",
   MOZ_APP_VERSION: "@MOZ_APP_VERSION@",
   MOZ_APP_VERSION_DISPLAY: "@MOZ_APP_VERSION_DISPLAY@",
-  // Custom Nocturne version - separate from Firefox version
-  NOCTURNE_VERSION: "@NOCTURNE_VERSION@",
+  // Custom Skyfox version - separate from Firefox version
+  SKYFOX_VERSION: "@SKYFOX_VERSION@",
   MOZ_BUILDID: "@MOZ_BUILDID@",
   MOZ_BUILD_APP: "@MOZ_BUILD_APP@",
   MOZ_MACBUNDLE_ID: "@MOZ_MACBUNDLE_ID@",

@@ -182,6 +182,6 @@ for icon in ("firefox", "document", "newwindow", "newtab", "pbmode", "document_p
         icon,
     )
 
-# Pass Nocturne version to module.ver for exe version info
-if CONFIG["NOCTURNE_VERSION"]:
-    DEFINES["NOCTURNE_VERSION"] = CONFIG["NOCTURNE_VERSION"]
+# Pass Skyfox version to module.ver for exe version info
+if CONFIG["SKYFOX_VERSION"]:
+    DEFINES["SKYFOX_VERSION"] = CONFIG["SKYFOX_VERSION"]

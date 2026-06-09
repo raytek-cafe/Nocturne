@@ -13,8 +13,8 @@ def FirefoxBranding():
 
     if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
         FINAL_TARGET_FILES[".."] += [
-            "nocturne.VisualElementsManifest.xml",
             "private_browsing.VisualElementsManifest.xml",
+			"skyfox.VisualElementsManifest.xml",
         ]
         FINAL_TARGET_FILES.VisualElements += [
             "PrivateBrowsing_150.png",
