@@ -28,7 +28,7 @@
  *   PrefWindow II  (???)
  *   PrefWindow I   (June 4, 1999)
  */
-
+ 
 "use strict"; {
     const XUL_NS =
         "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -493,8 +493,7 @@
             if (!this.querySelector(".content-box")) {
                 let box = document.createElementNS(XUL_NS, "vbox");
                 box.className = "content-box";
-                if (this.hasAttribute("flex"))
-                    box.setAttribute("flex", this.getAttribute("flex"));
+                box.setAttribute("flex", "1");
                 while (this.firstChild)
                     box.appendChild(this.firstChild);
                 this.appendChild(box);
@@ -679,6 +678,11 @@
         }
 
         connectedCallback() {
+            if (!this.hasAttribute("persist")) {
+                this.setAttribute(
+                    "persist",
+                    "lastSelected screenX screenY");
+            }
             if (this.type != "child") {
                 if (!this._instantApplyInitialized) {
                     this.instantApply = Services.prefs.getBoolPref(
@@ -696,6 +700,14 @@
                         cancelButton.accessKey = docElt.getAttribute("closebuttonaccesskey");
                     }
                 }
+            }
+            if (this.id) {
+                try {
+                    const stored = Services.xulStore.getValue(
+                            document.documentURI, this.id, "lastSelected");
+                    if (stored)
+                        this.setAttribute("lastSelected", stored);
+                } catch (e) {}
             }
 
             this.setAttribute("animated",
@@ -742,6 +754,7 @@
             this._selector = document.createElementNS(XUL_NS, "radiogroup");
             this._selector.setAttribute("anonid", "selector");
             this._selector.setAttribute("orient", "horizontal");
+			this._selector.setAttribute("flex", "1");
             this._selector.classList.add("paneSelector", "chromeclass-toolbar");
             this._selector.setAttribute("role", "listbox");
 
@@ -832,37 +845,31 @@
                 this._paneDeck.appendChild(pane);
             }
 
-            var lastPane = null;
-            if (this.lastSelected) {
-                lastPane = document.getElementById(this.lastSelected);
-                if (!lastPane) {
-                    this.lastSelected = "";
-                }
-            }
-
             var paneToLoad;
             if ("arguments" in window && window.arguments[0] &&
                 document.getElementById(window.arguments[0]) &&
                 document.getElementById(window.arguments[0]).localName == "prefpane") {
                 paneToLoad = document.getElementById(window.arguments[0]);
                 this.lastSelected = paneToLoad.id;
-            } else if (lastPane) {
-                paneToLoad = lastPane;
+            } else if (this.lastSelected) {
+                paneToLoad = document.getElementById(this.lastSelected) || panes[0];
             } else {
                 paneToLoad = panes[0];
             }
 
             for (var i = 0; i < panes.length; ++i) {
-                this._makePaneButton(panes[i]);
-                if (panes[i].loaded) {
-                    this._fireEvent("paneload", panes[i]);
-                }
-            }
-            this.showPane(paneToLoad);
+    this._makePaneButton(panes[i]);
+    if (panes[i].loaded) {
+        this._fireEvent("paneload", panes[i]);
+    }
+}
+this.showPane(paneToLoad);
 
-            if (panes.length == 1)
-                this._selector.setAttribute("collapsed", "true");
-        }
+if (panes.length == 1)
+    this._selector.setAttribute("collapsed", "true");
+}
+
+
 
         get preferencePanes() {
             return (this._paneDeck || this).getElementsByTagName("prefpane");
@@ -902,63 +909,66 @@
         }
 
         showPane(aPaneElement) {
-            if (!aPaneElement)
+    if (!aPaneElement)
+        return;
+
+    if (this._loadingPane === aPaneElement)
+        return;
+
+    this._selector.selectedItem =
+        this._selector.querySelector(`[pane="${aPaneElement.id}"]`);
+
+    if (!aPaneElement.loaded) {
+        this._loadingPane = aPaneElement;
+
+        fetch(aPaneElement.src)
+        .then(r => r.text())
+        .then(text => {
+            if (this._loadingPane !== aPaneElement)
                 return;
+            this._loadingPane = null;
 
-            if (this._loadingPane === aPaneElement)
+            text = text.replace(/^#.*$/gm, "");
+            let parser = new DOMParser();
+            parser.forceEnableXULXBL();
+            let doc = parser.parseFromString(text, "application/xml");
+            if (doc.documentElement.localName === "parsererror") {
+                Cu.reportError("PANE PARSE ERROR in " + aPaneElement.src +
+                    ": " + doc.documentElement.textContent);
                 return;
-
-            this._selector.selectedItem =
-                this._selector.querySelector(`[pane="${aPaneElement.id}"]`);
-
-            if (!aPaneElement.loaded) {
-                this._loadingPane = aPaneElement;
-
-                fetch(aPaneElement.src)
-                .then(r => r.text())
-                .then(text => {
-                    if (this._loadingPane !== aPaneElement)
-                        return;
-                    this._loadingPane = null;
-
-                    text = text.replace(/^#.*$/gm, "");
-                    let parser = new DOMParser();
-                    parser.forceEnableXULXBL();
-                    let doc = parser.parseFromString(text, "application/xml");
-                    if (doc.documentElement.localName === "parsererror") {
-                        Cu.reportError("PANE PARSE ERROR in " + aPaneElement.src +
-                            ": " + doc.documentElement.textContent);
-                        return;
-                    }
-
-                    let target = aPaneElement._content || aPaneElement;
-                    let overlayPane = doc.documentElement.querySelector(
-                            "prefpane#" + aPaneElement.id);
-                    let source = overlayPane || doc.documentElement;
-
-                    for (let child of Array.from(source.childNodes)) {
-                        target.appendChild(document.importNode(child, true));
-                    }
-
-                    for (let script of Array.from(
-                            doc.documentElement.querySelectorAll("script[src]"))) {
-                        let live = document.createElementNS(XUL_NS, "script");
-                        live.setAttribute("src", script.getAttribute("src"));
-                        document.documentElement.appendChild(live);
-                    }
-
-                    aPaneElement.loaded = true;
-                    this._fireEvent("paneload", aPaneElement);
-                    this._selectPane(aPaneElement);
-                })
-                .catch(e => {
-                    this._loadingPane = null;
-                    Cu.reportError("PANE FETCH ERROR " + aPaneElement.src + ": " + e);
-                });
-            } else {
-                this._selectPane(aPaneElement);
             }
-        }
+
+            let target = aPaneElement._content || aPaneElement;
+            let overlayPane = doc.documentElement.querySelector(
+                    "prefpane#" + aPaneElement.id);
+            let source = overlayPane || doc.documentElement;
+
+            for (let child of Array.from(source.childNodes))
+                target.appendChild(document.importNode(child, true));
+
+            for (let script of Array.from(
+                    doc.documentElement.querySelectorAll("script[src]"))) {
+                let live = document.createElementNS(XUL_NS, "script");
+                live.setAttribute("src", script.getAttribute("src"));
+                document.documentElement.appendChild(live);
+            }
+
+            aPaneElement.loaded = true;
+            this._fireEvent("paneload", aPaneElement);
+            this._selectPane(aPaneElement);
+            window.sizeToContent();
+            document.documentElement.style.maxWidth = this._selector.scrollWidth + "px";
+        })
+        .catch(e => {
+            this._loadingPane = null;
+            Cu.reportError("PANE FETCH ERROR " + aPaneElement.src + ": " + e);
+        });
+    } else {
+        this._selectPane(aPaneElement);
+        window.sizeToContent();
+        document.documentElement.style.maxWidth = this._selector.scrollWidth + "px";
+    }
+}
 
         _fireEvent(aEventName, aTarget) {
             try {
@@ -997,11 +1007,8 @@
             }
 
             if (this.type != "child") {
-                if (!this._initialized && prefpanes.length > 1) {
-                    if (this._shouldAnimate)
-                        this.style.minHeight = 0;
-                    window.sizeToContent();
-                }
+                if (this._shouldAnimate && !this._initialized)
+                    this.style.minHeight = 0;
 
                 var oldPane = this.lastSelected
                      ? document.getElementById(this.lastSelected)
@@ -1014,28 +1021,6 @@
                 if (this._shouldAnimate && oldPane && oldPane.id != aPaneElement.id) {
                     aPaneElement.style.opacity = 0.0;
                     this.animate(oldPane, aPaneElement);
-                } else if (!this._shouldAnimate && prefpanes.length > 1) {
-                    var targetHeight = parseInt(
-                            window.getComputedStyle(this._paneDeckContainer).height);
-                    var verticalPadding =
-                        parseInt(window.getComputedStyle(aPaneElement).paddingTop);
-                    verticalPadding +=
-                    parseInt(window.getComputedStyle(aPaneElement).paddingBottom);
-                    if (aPaneElement.contentHeight > targetHeight - verticalPadding) {
-                        var bottomPadding = 0;
-                        var bottomBox =
-                            aPaneElement.getElementsByAttribute("class", "bottomBox")[0];
-                        if (bottomBox)
-                            bottomPadding =
-                                parseInt(window.getComputedStyle(bottomBox).paddingBottom);
-                        window.innerHeight +=
-                        bottomPadding + verticalPadding +
-                        aPaneElement.contentHeight - targetHeight;
-                    }
-                    if (aPaneElement._content &&
-                        aPaneElement.contentHeight + verticalPadding < targetHeight)
-                        aPaneElement._content.style.height =
-                            (targetHeight - verticalPadding) + "px";
                 }
             }
         }

@@ -287,6 +287,14 @@ groupbox {
   flex-direction: column;
 }
 
+groupbox {
+  margin-top: 1em;
+}
+
+.groupbox-title {
+  margin-top: -1em;
+}
+
 /******** draggable elements *********/
 
 toolbar:not([nowindowdrag], [customizing]) {
