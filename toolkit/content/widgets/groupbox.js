@@ -61,6 +61,8 @@ class MozCaption extends MozXULElement {
         label.setAttribute("flex", "1");
         if (this.hasAttribute("label"))
             label.setAttribute("value", this.getAttribute("label"));
+        if (this.hasAttribute("value"))
+            label.setAttribute("value", this.getAttribute("value"));
         if (this.hasAttribute("crop"))
             label.setAttribute("crop", this.getAttribute("crop"));
         if (this.hasAttribute("accesskey"))
@@ -73,31 +75,23 @@ class MozCaption extends MozXULElement {
     }
 
     static get observedAttributes() {
-        return ["label", "image", "crop", "accesskey", "default"];
+        return ["label", "value", "image", "crop", "accesskey", "default"];
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
-        if (!this._initialized)
-            return;
-        let label = this.querySelector(".caption-text");
-        let icon = this.querySelector(".caption-icon");
-        if (!label || !icon)
-            return;
-
-        switch (name) {
-        case "label":
-            label.setAttribute("value", newVal);
-            break;
-        case "image":
-            icon.setAttribute("src", newVal);
-            break;
-        case "crop":
-        case "accesskey":
-        case "default":
-            label.setAttribute(name, newVal);
-            break;
-        }
+    if (!this._initialized) {
+        // Fluent fired before connectedCallback, will be picked up on connect
+        return;
     }
+    let label = this.querySelector(".caption-text");
+    if (!label) return;
+    if (name === "label" || name === "value")
+        label.setAttribute("value", newVal);
+    else if (name === "image")
+        this.querySelector(".caption-icon")?.setAttribute("src", newVal);
+    else if (name === "crop" || name === "accesskey" || name === "default")
+        label.setAttribute(name, newVal);
+}
 }
 
 customElements.define("caption", MozCaption);
