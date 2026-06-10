@@ -1022,11 +1022,14 @@ class ModalPrompter {
       return;
     }
 
+    // OmegaAOL, ISQ: if native modals are enabled, make all prompt types MODAL_TYPE_WINDOW
+	// which is the only one out of these four that is actually native
     if (
       !ModalPrompter.tabModalEnabled &&
-      (modalType == MODAL_TYPE_TAB || modalType == MODAL_TYPE_CONTENT)
+      (modalType == MODAL_TYPE_TAB || modalType == MODAL_TYPE_CONTENT || modalType == MODAL_TYPE_INTERNAL_WINDOW)
     ) {
       modalType = MODAL_TYPE_WINDOW;
+	  return;
     }
 
 
