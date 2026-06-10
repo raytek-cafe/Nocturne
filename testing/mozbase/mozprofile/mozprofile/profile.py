@@ -505,7 +505,7 @@ class ThunderbirdProfile(Profile):
         "extensions.update.enabled": False,
         "extensions.update.notifyUser": False,
         "browser.shell.checkDefaultBrowser": False,
-        "browser.tabs.warnOnClose": False,
+        "browser.tabs.warnOnClose": True,
         "browser.warnOnQuit": False,
         "browser.sessionstore.resume_from_crash": False,
         # prevents the 'new e-mail address' wizard on new profile

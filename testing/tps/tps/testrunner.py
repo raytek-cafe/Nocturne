@@ -60,7 +60,7 @@ class TPSTestRunner:
         "devtools.console.stdout.chrome": True,
         "browser.sessionstore.resume_from_crash": False,
         "browser.shell.checkDefaultBrowser": False,
-        "browser.tabs.warnOnClose": False,
+        "browser.tabs.warnOnClose": True,
         "browser.warnOnQuit": False,
         # Allow installing extensions dropped into the profile folder
         "extensions.autoDisableScopes": 10,

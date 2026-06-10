@@ -931,7 +931,8 @@ pref("browser.tabs.insertAfterCurrent", false);
 // |insertAfterCurrentExceptPinned| to true will add tabs at the end of the
 // tabbar.
 pref("browser.tabs.insertAfterCurrentExceptPinned", false);
-pref("browser.tabs.warnOnClose", false);
+// omega - change this to pre Fx92 default of true
+pref("browser.tabs.warnOnClose", true);
 pref("browser.tabs.warnOnCloseOtherTabs", true);
 pref("browser.tabs.warnOnOpen", true);
 pref("browser.tabs.maxOpenBeforeWarn", 15);
