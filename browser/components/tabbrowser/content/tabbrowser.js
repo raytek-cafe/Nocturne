@@ -3791,15 +3791,23 @@
         return true;
       }
 
-      const maxTabsUndo = Services.prefs.getIntPref(
-        "browser.sessionstore.max_tabs_undo"
-      );
-      if (
-        aCloseTabs != this.closingTabsEnum.ALL &&
-        tabsToClose <= maxTabsUndo
-      ) {
-        return true;
-      }
+      const oldWarnBehavior = Services.prefs.getBoolPref(
+  "skyfox.tabs.oldWarnOnCloseBehavior",
+  false  // default, use FF140 behavior
+);
+
+// use the Firefox 40 behavior: don't care about session restore, just show! the fucking warning!
+if (!oldWarnBehavior) {
+  const maxTabsUndo = Services.prefs.getIntPref(
+    "browser.sessionstore.max_tabs_undo"
+  );
+  if (
+    aCloseTabs != this.closingTabsEnum.ALL &&
+    tabsToClose <= maxTabsUndo
+  ) {
+    return true;
+  }
+}
 
       // Our prompt to close this window is most important, so replace others.
       gDialogBox.replaceDialogIfOpen();

@@ -3390,3 +3390,7 @@ pref("skyfox.smalliconbehavior.enabled", true);
 
 // FF68 Icons (Keeping the option to use these icons still. Just with the retry icon reverted back to the real FF68 one.)
 pref("skyfox.ui.ff68downloadicons", false);
+
+// Tung tung tung sahur
+pref("skyfox.tabs.oldWarnOnCloseBehavior", false);
+

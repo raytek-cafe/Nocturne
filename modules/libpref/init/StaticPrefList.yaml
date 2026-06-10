@@ -16436,10 +16436,10 @@
 # Prompt modal type prefs
 # See nsIPromptService::MODAL_TYPE fields for possible values.
 
-# Global tab/content modal prompt toggle.
+# Global tab/content modal prompt toggle. Disable this for native prompts everywhere.
 - name: prompts.tab_modal.enabled
   type: bool
-  value: true
+  value: false
   mirror: always
 
 # Show the application branding icon in prompt dialog headers when used.
