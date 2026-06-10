@@ -903,6 +903,7 @@
       "chrome://global/content/elements/general.js",
       "chrome://global/content/elements/button.js",
       "chrome://global/content/elements/checkbox.js",
+	  "chrome://global/content/elements/groupbox.js",
       "chrome://global/content/elements/menu.js",
       "chrome://global/content/elements/menupopup.js",
       "chrome://global/content/elements/moz-input-box.js",

@@ -1,0 +1,103 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+
+class MozGroupbox extends MozXULElement {
+    connectedCallback() {
+        if (this._initialized)
+            return;
+        this._initialized = true;
+
+        if (!document.querySelector('link[href="chrome://global/skin/groupbox.css"]')) {
+            const link = document.createElement("link");
+            link.rel = "stylesheet";
+            link.href = "chrome://global/skin/groupbox.css";
+            document.documentElement.appendChild(link);
+        }
+
+        let title = document.createElementNS(XUL_NS, "hbox");
+        title.className = "groupbox-title";
+        title.setAttribute("align", "center");
+        title.setAttribute("pack", "start");
+
+        let body = document.createElementNS(XUL_NS, "vbox");
+        body.className = "groupbox-body";
+        body.setAttribute("flex", "1");
+
+        for (let attr of["orient", "align", "pack"]) {
+            if (this.hasAttribute(attr))
+                body.setAttribute(attr, this.getAttribute(attr));
+        }
+
+        for (let child of Array.from(this.childNodes)) {
+            if (child.localName === "caption")
+                title.appendChild(child);
+            else
+                body.appendChild(child);
+        }
+
+        this.appendChild(title);
+        this.appendChild(body);
+    }
+}
+
+customElements.define("groupbox", MozGroupbox);
+
+class MozCaption extends MozXULElement {
+    connectedCallback() {
+        if (this._initialized)
+            return;
+        this._initialized = true;
+
+        let icon = document.createElementNS(XUL_NS, "image");
+        icon.className = "caption-icon";
+        if (this.hasAttribute("image"))
+            icon.setAttribute("src", this.getAttribute("image"));
+
+        let label = document.createElementNS(XUL_NS, "label");
+        label.className = "caption-text";
+        label.setAttribute("flex", "1");
+        if (this.hasAttribute("label"))
+            label.setAttribute("value", this.getAttribute("label"));
+        if (this.hasAttribute("crop"))
+            label.setAttribute("crop", this.getAttribute("crop"));
+        if (this.hasAttribute("accesskey"))
+            label.setAttribute("accesskey", this.getAttribute("accesskey"));
+        if (this.hasAttribute("default"))
+            label.setAttribute("default", this.getAttribute("default"));
+
+        this.appendChild(icon);
+        this.appendChild(label);
+    }
+
+    static get observedAttributes() {
+        return ["label", "image", "crop", "accesskey", "default"];
+    }
+
+    attributeChangedCallback(name, oldVal, newVal) {
+        if (!this._initialized)
+            return;
+        let label = this.querySelector(".caption-text");
+        let icon = this.querySelector(".caption-icon");
+        if (!label || !icon)
+            return;
+
+        switch (name) {
+        case "label":
+            label.setAttribute("value", newVal);
+            break;
+        case "image":
+            icon.setAttribute("src", newVal);
+            break;
+        case "crop":
+        case "accesskey":
+        case "default":
+            label.setAttribute(name, newVal);
+            break;
+        }
+    }
+}
+
+customElements.define("caption", MozCaption);
