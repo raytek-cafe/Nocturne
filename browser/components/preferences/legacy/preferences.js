@@ -4,7 +4,11 @@
 
 "use strict";
 
-Components.utils.import("resource://gre/modules/Services.jsm");
+if (typeof Services === "undefined") {
+  var Services = ChromeUtils.importESModule(
+    "resource://gre/modules/Services.sys.mjs"
+  ).Services;
+}
 
 if (!Services.prefs.getBoolPref("browser.search.showOneOffButtons")) {
   addEventListener("load", function onLoad() {

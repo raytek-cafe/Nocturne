@@ -1301,6 +1301,14 @@ pref("browser.proton.toolbar.version", 0);
 // page or the legacy native preferences window.
 pref("browser.preferences.inContent", false);
 
+// Legacy native window settings
+pref("browser.preferences.advanced.selectedTabIndex", 0);
+pref("browser.preferences.animateFadeIn", false);
+pref("browser.preferences.instantApply", false);
+
+// Removed settings from Firefox 41 that native window uses
+pref("browser.search.showOneOffButtons", true);
+
 // Backspace and Shift+Backspace behavior
 // 0 goes Back/Forward
 // 1 act like PgUp/PgDown

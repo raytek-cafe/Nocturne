@@ -3,46 +3,46 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 browser.jar:
-*   content/browser/preferences/legacy/advanced.xhtml
-*   content/browser/preferences/legacy/advanced.js
-    content/browser/preferences/legacy/applications.xhtml
-*   content/browser/preferences/legacy/applications.js
-    content/browser/preferences/legacy/applicationManager.xhtml
-*   content/browser/preferences/legacy/applicationManager.js
-*   content/browser/preferences/legacy/colors.xhtml
-*   content/browser/preferences/legacy/cookies.xhtml
-*   content/browser/preferences/legacy/cookies.js
-    content/browser/preferences/legacy/content.xhtml
-    content/browser/preferences/legacy/content.js
-*   content/browser/preferences/legacy/connection.xhtml
-    content/browser/preferences/legacy/connection.js
-*   content/browser/preferences/legacy/fonts.xhtml
-    content/browser/preferences/legacy/fonts.js
-    content/browser/preferences/legacy/handlers.xml
-    content/browser/preferences/legacy/handlers.css
-*   content/browser/preferences/legacy/languages.xhtml
-    content/browser/preferences/legacy/languages.js
-*   content/browser/preferences/legacy/main.xhtml
-*   content/browser/preferences/legacy/main.js
-    content/browser/preferences/legacy/permissions.xhtml
-*   content/browser/preferences/legacy/permissions.js
-*   content/browser/preferences/legacy/preferences.xhtml
-    content/browser/preferences/legacy/preferences.js
-    content/browser/preferences/legacy/privacy.xhtml
-*   content/browser/preferences/legacy/privacy.js
-    content/browser/preferences/legacy/sanitize.xhtml
-    content/browser/preferences/legacy/sanitize.js
-    content/browser/preferences/legacy/security.xhtml
-    content/browser/preferences/legacy/security.js
-    content/browser/preferences/legacy/selectBookmark.xhtml
-    content/browser/preferences/legacy/selectBookmark.js
+* content/browser/preferences/legacy/advanced.xhtml           (advanced.xhtml)
+* content/browser/preferences/legacy/advanced.js              (advanced.js)
+  content/browser/preferences/legacy/applications.xhtml     
+* content/browser/preferences/legacy/applications.js          (applications.js)
+  content/browser/preferences/legacy/applicationManager.xhtml 
+* content/browser/preferences/legacy/applicationManager.js    (applicationManager.js)
+* content/browser/preferences/legacy/colors.xhtml             (colors.xhtml)
+* content/browser/preferences/legacy/cookies.xhtml            (cookies.xhtml)
+  content/browser/preferences/legacy/cookies.js               
+  content/browser/preferences/legacy/content.xhtml         
+  content/browser/preferences/legacy/content.js               
+* content/browser/preferences/legacy/connection.xhtml         (connection.xhtml)
+  content/browser/preferences/legacy/connection.js            
+* content/browser/preferences/legacy/fonts.xhtml              (fonts.xhtml)
+  content/browser/preferences/legacy/fonts.js              
+  content/browser/preferences/legacy/handlers.xml             
+  content/browser/preferences/legacy/handlers.css             
+* content/browser/preferences/legacy/languages.xhtml          (languages.xhtml)
+  content/browser/preferences/legacy/languages.js             
+* content/browser/preferences/legacy/main.xhtml               (main.xhtml)
+* content/browser/preferences/legacy/main.js                  (main.js)
+  content/browser/preferences/legacy/permissions.xhtml      
+* content/browser/preferences/legacy/permissions.js           (permissions.js)
+* content/browser/preferences/legacy/preferences.xhtml        (preferences.xhtml)
+  content/browser/preferences/legacy/preferences.js           
+  content/browser/preferences/legacy/privacy.xhtml            
+* content/browser/preferences/legacy/privacy.js               (privacy.js)
+  content/browser/preferences/legacy/sanitize.xhtml           
+  content/browser/preferences/legacy/sanitize.js              
+  content/browser/preferences/legacy/security.xhtml         
+  content/browser/preferences/legacy/security.js              
+  content/browser/preferences/legacy/selectBookmark.xhtml     
+  content/browser/preferences/legacy/selectBookmark.js        
 #ifdef MOZ_SERVICES_SYNC
-    content/browser/preferences/legacy/sync.xhtml
-    content/browser/preferences/legacy/sync.js
+  content/browser/preferences/legacy/sync.xhtml               
+  content/browser/preferences/legacy/sync.js                  
 #endif
-    content/browser/preferences/legacy/search.xhtml
-    content/browser/preferences/legacy/search.js
-*   content/browser/preferences/legacy/tabs.xhtml
-*   content/browser/preferences/legacy/tabs.js
-    content/browser/preferences/legacy/translation.xhtml
-    content/browser/preferences/legacy/translation.js
+  content/browser/preferences/legacy/search.xhtml            
+  content/browser/preferences/legacy/search.js                
+* content/browser/preferences/legacy/tabs.xhtml               (tabs.xhtml)
+* content/browser/preferences/legacy/tabs.js                  (tabs.js)
+  content/browser/preferences/legacy/translation.xhtml        
+  content/browser/preferences/legacy/translation.js           
