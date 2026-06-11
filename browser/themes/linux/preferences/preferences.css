@@ -31,7 +31,12 @@
   flex-direction: column;
   align-items: center;
   margin: 0;
-  padding: 0 6px;
+  padding: 0 8px;
+}
+
+#BrowserPreferences .paneSelector > radio > .radio-label-box > .radio-label {
+  padding-top: 1px;
+  padding-bottom: 3px;
 }
 
 #BrowserPreferences .paneSelector .radio-icon {

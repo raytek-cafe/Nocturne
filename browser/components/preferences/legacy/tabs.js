@@ -43,9 +43,7 @@ var gTabsPane = {
     // &brandShortName;" warnings provide options for not showing these
     // warnings again. When the user disabled them, we provide checkboxes to
     // re-enable the warnings.
-    let TransientPrefs =
-      Components.utils.import("resource:///modules/TransientPrefs.jsm", {})
-                .TransientPrefs;
+    const { TransientPrefs } = ChromeUtils.importESModule("resource:///modules/TransientPrefs.sys.mjs");
     if (!TransientPrefs.prefShouldBeVisible("browser.tabs.warnOnClose"))
       document.getElementById("warnCloseMultiple").hidden = true;
     if (!TransientPrefs.prefShouldBeVisible("browser.tabs.warnOnOpen"))

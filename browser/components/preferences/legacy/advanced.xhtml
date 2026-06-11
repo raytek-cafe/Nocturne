@@ -15,7 +15,8 @@
 ]>
 
 <overlay id="AdvancedPaneOverlay"
-         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+		 xmlns:html="http://www.w3.org/1999/xhtml">
 
   <prefpane id="paneAdvanced" onpaneload="gAdvancedPane.init();">
 
@@ -88,6 +89,134 @@
       <preference id="security.OCSP.enabled"
                   name="security.OCSP.enabled"
                   type="int"/>
+				  
+      <!-- LibreWolf tab -->
+	  <preference id="identity.fxaccounts.enabled"
+            name="identity.fxaccounts.enabled" type="bool"/>
+<preference id="clipboard.autocopy"
+            name="clipboard.autocopy" type="bool"/>
+<preference id="middlemouse.paste"
+            name="middlemouse.paste" type="bool"/>
+<preference id="toolkit.legacyUserProfileCustomizations.stylesheets"
+            name="toolkit.legacyUserProfileCustomizations.stylesheets" type="bool"/>
+<preference id="network.dns.disableIPv6"
+            name="network.dns.disableIPv6" type="bool"/>
+<preference id="network.http.referer.XOriginPolicy"
+            name="network.http.referer.XOriginPolicy" type="int"/>
+<preference id="privacy.resistFingerprinting"
+            name="privacy.resistFingerprinting" type="bool"/>
+<preference id="privacy.resistFingerprinting.letterboxing"
+            name="privacy.resistFingerprinting.letterboxing" type="bool"/>
+<preference id="webgl.disabled"
+            name="webgl.disabled" type="bool"/>
+<preference id="browser.safebrowsing.blockedURIs.enabled"
+            name="browser.safebrowsing.blockedURIs.enabled" type="bool"/>
+<preference id="extensions.update.enabled"
+            name="extensions.update.enabled" type="bool"/>
+<preference id="extensions.update.autoUpdateDefault"
+            name="extensions.update.autoUpdateDefault" type="bool"/>
+			<preference id="browser.safebrowsing.malware.enabled"
+            name="browser.safebrowsing.malware.enabled" type="bool"/>
+<preference id="browser.safebrowsing.phishing.enabled"
+            name="browser.safebrowsing.phishing.enabled" type="bool"/>
+<preference id="browser.safebrowsing.downloads.enabled"
+            name="browser.safebrowsing.downloads.enabled" type="bool"/>
+			
+			<!-- nocturne tab -->
+<preference id="widget.non-native-theme.enabled"
+            name="widget.non-native-theme.enabled" type="bool" inverted="true"/>
+<preference id="widget.native-controls.scrollbar-style"
+            name="widget.native-controls.scrollbar-style" type="int"/>
+<preference id="widget.non-native-theme.scrollbar.style"
+            name="widget.non-native-theme.scrollbar.style" type="int"/>
+<preference id="widget.native-controls.override-win-version"
+            name="widget.native-controls.override-win-version" type="int"/>
+<preference id="security.sandbox.content.level"
+            name="security.sandbox.content.level" type="int"/>
+<preference id="nocturne.colors"
+            name="nocturne.colors" type="int"/>
+<preference id="nocturne.drag-space.enabled"
+            name="nocturne.drag-space.enabled" type="bool"/>
+<preference id="nocturne.backgrounds.enabled"
+            name="nocturne.backgrounds.enabled" type="bool"/>
+<preference id="nocturne.transparent.menubar"
+            name="nocturne.transparent.menubar" type="bool"/>
+<preference id="nocturne.translucent.navbar"
+            name="nocturne.translucent.navbar" type="bool"/>
+<preference id="nocturne.aero.fog"
+            name="nocturne.aero.fog" type="int"/>
+<preference id="nocturne.caption.text.color"
+            name="nocturne.caption.text.color" type="int"/>
+<preference id="browser.urlbar.oneOffsInstant"
+            name="browser.urlbar.oneOffsInstant" type="bool"/>
+<preference id="nocturne.view.image"
+            name="nocturne.view.image" type="bool"/>
+<preference id="browser.menu.navigationIcons"
+            name="browser.menu.navigationIcons" type="bool" inverted="true"/>
+<preference id="browser.e10s.disabled"
+            name="browser.e10s.disabled" type="bool"/>
+<preference id="security.csp.enable"
+            name="security.csp.enable" type="bool" inverted="true"/>
+<preference id="security.port.blocking.enabled"
+            name="security.port.blocking.enabled" type="bool" inverted="true"/>
+<preference id="network.stricttransportsecurity.enabled"
+            name="network.stricttransportsecurity.enabled" type="bool" inverted="true"/>
+<preference id="accessibility.force_disabled"
+            name="accessibility.force_disabled" type="int"/>
+<preference id="content.cors.disable"
+            name="content.cors.disable" type="bool"/>
+<preference id="content.cors.bypass_preflight_request"
+            name="content.cors.bypass_preflight_request" type="bool"/>
+<preference id="security.same_origin_policy.enabled"
+            name="security.same_origin_policy.enabled" type="bool" inverted="true"/>
+<preference id="browser.urlbar.secondaryActions.switchToTab"
+            name="browser.urlbar.secondaryActions.switchToTab" type="bool"/>
+<preference id="gfx.dwrite.enabled"
+            name="gfx.dwrite.enabled" type="bool" inverted="true"/>
+<preference id="screenshots.browser.component.enabled"
+            name="screenshots.browser.component.enabled" type="bool"/>
+<preference id="cookiebanners.service.mode"
+            name="cookiebanners.service.mode" type="int"/>
+<preference id="cookiebanners.service.mode.privateBrowsing"
+            name="cookiebanners.service.mode.privateBrowsing" type="int"/>
+<preference id="widget.native-controls.override-aero-caption-buttons-mask-height"
+            name="widget.native-controls.override-aero-caption-buttons-mask-height" type="int"/>
+<preference id="widget.native-controls.override-aero-caption-buttons-mask-width"
+            name="widget.native-controls.override-aero-caption-buttons-mask-width" type="int"/>
+<preference id="browser.display.windows.non_native_menus"
+            name="browser.display.windows.non_native_menus" type="int"/>
+<preference id="dom.webaudio.enabled"
+            name="dom.webaudio.enabled" type="bool" inverted="true"/>
+<preference id="browser.taskbarTabs.enabled"
+            name="browser.taskbarTabs.enabled" type="bool" inverted="true"/>
+<preference id="browser.urlbar.formatting.enabled"
+            name="browser.urlbar.formatting.enabled" type="bool" inverted="true"/>
+<preference id="geo.enabled"
+            name="geo.enabled" type="bool" inverted="true"/>
+<preference id="nocturne.ui.oldaboutconfig"
+            name="nocturne.ui.oldaboutconfig" type="bool"/>
+<preference id="nocturne.legacyiconbehavior.enabled"
+            name="nocturne.legacyiconbehavior.enabled" type="bool"/>
+<preference id="nocturne.smalliconbehavior.enabled"
+            name="nocturne.smalliconbehavior.enabled" type="bool"/>
+<preference id="nocturne.ui.ff68downloadicons"
+            name="nocturne.ui.ff68downloadicons" type="bool"/>
+<preference id="nocturne.ui.oldurlbar"
+            name="nocturne.ui.oldurlbar" type="bool"/>
+<preference id="prompts.tab_modal.enabled"
+            name="prompts.tab_modal.enabled" type="bool" inverted="true"/>
+<preference id="prompts.headerAppIcon.enabled"
+            name="prompts.headerAppIcon.enabled" type="bool"/>
+<preference id="prompts.tab_modal.sound.enabled"
+            name="prompts.tab_modal.sound.enabled" type="bool"/>
+<preference id="browser.tabs.groups.enabled"
+            name="browser.tabs.groups.enabled" type="bool"/>
+<preference id="browser.tabs.hoverPreview.enabled"
+            name="browser.tabs.hoverPreview.enabled" type="bool"/>
+<preference id="browser.tabs.dropToPin.enabled"
+            name="browser.tabs.dropToPin.enabled" type="bool" inverted="true"/>
+			
+			
     </preferences>
 
 #ifdef HAVE_SHELL_SERVICE
@@ -392,13 +521,631 @@
             </hbox>
         </tabpanel>
 		
-		<tabpanel id="librewolfPanel" orient="vertical">
-		
-		</tabpanel>
+		     <tabpanel id="librewolfPanel" orient="vertical">
+  <scrollbox flex="1" orient="vertical" style="max-height: 400px; overflow-y: auto;">
+
+    <label data-l10n-id="librewolf-settings-about" style="margin-bottom: 8px;"/>
+    <separator/>
+
+    <groupbox>
+      <caption data-l10n-id="librewolf-general-heading"/>
+
+      <hbox align="center">
+        <checkbox id="librewolf-extension-update-parent"
+                  data-l10n-id="librewolf-extension-update-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-ext-update-auto').checked = this.checked;
+                    document.getElementById('librewolf-ext-update-enabled').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-extension-update-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-ext-update-auto"
+                  label="extensions.update.autoUpdateDefault"
+                  preference="extensions.update.autoUpdateDefault"/>
+        <checkbox id="librewolf-ext-update-enabled"
+                  label="extensions.update.enabled"
+                  preference="extensions.update.enabled"/>
+      </vbox>
+
+      <hbox align="center">
+        <checkbox id="librewolf-sync-parent"
+                  data-l10n-id="librewolf-sync-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-sync-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-sync-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-sync-pref"
+                  label="identity.fxaccounts.enabled"
+                  preference="identity.fxaccounts.enabled"/>
+      </vbox>
+
+      <hbox align="center">
+        <checkbox id="librewolf-autocopy-parent"
+                  data-l10n-id="librewolf-autocopy-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-autocopy-pref').checked = this.checked;
+                    document.getElementById('librewolf-middlemouse-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-autocopy-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-autocopy-pref"
+                  label="clipboard.autocopy"
+                  preference="clipboard.autocopy"/>
+        <checkbox id="librewolf-middlemouse-pref"
+                  label="middlemouse.paste"
+                  preference="middlemouse.paste"/>
+      </vbox>
+
+      <hbox align="center">
+        <checkbox id="librewolf-styling-parent"
+                  data-l10n-id="librewolf-styling-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-styling-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-styling-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-styling-pref"
+                  label="toolkit.legacyUserProfileCustomizations.stylesheets"
+                  preference="toolkit.legacyUserProfileCustomizations.stylesheets"/>
+      </vbox>
+    </groupbox>
+
+    <groupbox>
+      <caption data-l10n-id="librewolf-network-heading"/>
+
+      <hbox align="center">
+        <checkbox id="librewolf-ipv6-parent"
+                  data-l10n-id="librewolf-ipv6-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-ipv6-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-ipv6-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-ipv6-pref"
+                  label="network.dns.disableIPv6"
+                  preference="network.dns.disableIPv6"/>
+      </vbox>
+    </groupbox>
+
+    <groupbox>
+      <caption data-l10n-id="librewolf-privacy-heading"/>
+
+      <hbox align="center">
+        <checkbox id="librewolf-xorigin-parent"
+                  data-l10n-id="librewolf-xorigin-ref-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-xorigin-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-xorigin-ref-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-xorigin-pref"
+                  label="network.http.referer.XOriginPolicy"
+                  preference="network.http.referer.XOriginPolicy"/>
+      </vbox>
+    </groupbox>
+
+    <groupbox>
+      <caption data-l10n-id="librewolf-broken-heading"/>
+
+      <hbox align="center">
+        <checkbox id="librewolf-rfp-parent"
+                  data-l10n-id="librewolf-rfp-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-rfp-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-rfp-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-rfp-pref"
+                  label="privacy.resistFingerprinting"
+                  preference="privacy.resistFingerprinting"/>
+      </vbox>
+
+      <hbox align="center">
+        <checkbox id="librewolf-letterboxing-parent"
+                  data-l10n-id="librewolf-letterboxing-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-letterboxing-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-letterboxing-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-letterboxing-pref"
+                  label="privacy.resistFingerprinting.letterboxing"
+                  preference="privacy.resistFingerprinting.letterboxing"/>
+      </vbox>
+
+      <hbox align="center">
+        <checkbox id="librewolf-webgl-parent"
+                  data-l10n-id="librewolf-webgl-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-webgl-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-webgl-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-webgl-pref"
+                  label="webgl.disabled"
+                  preference="webgl.disabled"/>
+      </vbox>
+    </groupbox>
+
+    <groupbox>
+      <caption data-l10n-id="librewolf-security-heading"/>
+
+      <hbox align="center">
+        <checkbox id="librewolf-goog-safe-parent"
+                  data-l10n-id="librewolf-goog-safe-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-malware-pref').checked = this.checked;
+                    document.getElementById('librewolf-phishing-pref').checked = this.checked;
+                    document.getElementById('librewolf-blockeduri-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-goog-safe-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-malware-pref"
+                  label="browser.safebrowsing.malware.enabled"
+                  preference="browser.safebrowsing.malware.enabled"/>
+        <checkbox id="librewolf-phishing-pref"
+                  label="browser.safebrowsing.phishing.enabled"
+                  preference="browser.safebrowsing.phishing.enabled"/>
+        <checkbox id="librewolf-blockeduri-pref"
+                  label="browser.safebrowsing.blockedURIs.enabled"
+                  preference="browser.safebrowsing.blockedURIs.enabled"/>
+      </vbox>
+
+      <hbox align="center">
+        <checkbox id="librewolf-download-parent"
+                  data-l10n-id="librewolf-goog-safe-download-checkbox"
+                  oncommand="
+                    document.getElementById('librewolf-download-pref').checked = this.checked;
+                  "/>
+      </hbox>
+      <vbox class="indent">
+        <label data-l10n-id="librewolf-goog-safe-download-description"
+               style="font-style: italic; opacity: 0.6;"/>
+        <checkbox id="librewolf-download-pref"
+                  label="browser.safebrowsing.downloads.enabled"
+                  preference="browser.safebrowsing.downloads.enabled"/>
+      </vbox>
+    </groupbox>
+
+  </scrollbox>
+</tabpanel>
 		
 		<tabpanel id="nocturnePanel" orient="vertical">
-		
-		</tabpanel>
+  <scrollbox flex="1" orient="vertical" style="max-height: 400px; overflow-y: auto;">
+
+    <!-- Visual -->
+    <groupbox>
+      <caption data-l10n-id="nocturne-visual-header"/>
+
+      <hbox align="center">
+        <checkbox id="nocturneUseNativeStyles"
+                  data-l10n-id="nocturne-native-checkbox"
+                  preference="widget.non-native-theme.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-native-checkbox-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-native-menulist"
+               control="nocturneNativeMenulistType"/>
+        <menulist id="nocturneNativeMenulistType"
+                  preference="browser.display.windows.non_native_menus">
+          <menupopup>
+            <menuitem label="Native menulists always" value="0"/>
+            <menuitem label="Custom menulists always" value="1"/>
+            <menuitem label="Native menulists unless Windows 10 (Modern) theme is used (Default)" value="2"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-native-scroll"
+               control="nocturneNativeScrollType"/>
+        <menulist id="nocturneNativeScrollType"
+                  preference="widget.native-controls.scrollbar-style">
+          <menupopup>
+            <menuitem label="Native scrollbars always" value="0"/>
+            <menuitem label="Custom scrollbars always" value="1"/>
+            <menuitem label="Native scrollbars unless the website has a dark color scheme (Default)" value="2"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-fake-scroll-type"
+               control="nocturneFakeScrollType"/>
+        <menulist id="nocturneFakeScrollType"
+                  preference="widget.non-native-theme.scrollbar.style">
+          <menupopup>
+            <menuitem label="Default platform scrollbar style (Default)" value="0"/>
+            <menuitem label="macOS scrollbar (small)" value="1"/>
+            <menuitem label="GTK scrollbar (smaller)" value="2"/>
+            <menuitem label="Android scrollbar (smallest)" value="3"/>
+            <menuitem label="Windows 10 scrollbar (normal)" value="4"/>
+            <menuitem label="Windows 11 scrollbar (smaller)" value="5"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-win-theme-type"
+               control="nocturneWinThemeType"/>
+        <menulist id="nocturneWinThemeType"
+                  preference="widget.native-controls.override-win-version">
+          <menupopup>
+            <menuitem label="Current OS version (Default)" value="0"/>
+            <menuitem label="Windows XP" value="5"/>
+            <menuitem label="Windows Vista" value="6"/>
+            <menuitem label="Windows 7" value="7"/>
+            <menuitem label="Windows 8" value="8"/>
+            <menuitem label="Windows 10 (Modern)" value="10"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-colors"
+               control="nocturneColorsType"/>
+        <menulist id="nocturneColorsType"
+                  preference="nocturne.colors">
+          <menupopup>
+            <menuitem label="Disabled (Stock Firefox Blue)" value="0"/>
+            <menuitem label="Red" value="1"/>
+            <menuitem label="Orange" value="2"/>
+            <menuitem label="Pink" value="3"/>
+            <menuitem label="Dark Theme Purple" value="4"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnedrag"
+                  data-l10n-id="nocturne-drag"
+                  preference="nocturne.drag-space.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturneBackgrounds"
+                  data-l10n-id="nocturne-backgrounds"
+                  preference="nocturne.backgrounds.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturneMenubar"
+                  data-l10n-id="nocturne-menubar"
+                  preference="nocturne.transparent.menubar"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturneNavbar"
+                  data-l10n-id="nocturne-navbar"
+                  preference="nocturne.translucent.navbar"/>
+      </hbox>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-fog-type"
+               control="nocturneFogType"/>
+        <menulist id="nocturneFogType"
+                  preference="nocturne.aero.fog">
+          <menupopup>
+            <menuitem label="Disabled (Default with backgrounds enabled)" value="0"/>
+            <menuitem label="nocturne style (covers menubar)" value="1"/>
+            <menuitem label="Stock Firefox style" value="2"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-caption-text"
+               control="nocturneCaptionTextType"/>
+        <menulist id="nocturneCaptionTextType"
+                  preference="nocturne.caption.text.color">
+          <menupopup>
+            <menuitem label="Default platform style (Default)" value="0"/>
+            <menuitem label="White" value="1"/>
+            <menuitem label="Black" value="2"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+    </groupbox>
+
+    <!-- Functional -->
+    <groupbox>
+      <caption data-l10n-id="nocturne-functional-header"/>
+
+      <hbox align="center">
+        <checkbox id="nocturneoneoffs"
+                  data-l10n-id="nocturne-one-offs"
+                  preference="browser.urlbar.oneOffsInstant"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturneviewimage"
+                  data-l10n-id="nocturne-view-image"
+                  preference="nocturne.view.image"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnenavtext"
+                  data-l10n-id="nocturne-nav-text"
+                  preference="browser.menu.navigationIcons"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnetabgroups"
+                  data-l10n-id="nocturne-tab-groups"
+                  preference="browser.tabs.groups.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnescreenshotcomponent"
+                  data-l10n-id="nocturne-screenshot-component"
+                  preference="screenshots.browser.component.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnehoverpreview"
+                  data-l10n-id="nocturne-hover-preview"
+                  preference="browser.tabs.hoverPreview.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnedroptopin"
+                  data-l10n-id="nocturne-drop-to-pin"
+                  preference="browser.tabs.dropToPin.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnetaskbartabs"
+                  data-l10n-id="nocturne-taskbar-tabs"
+                  preference="browser.taskbarTabs.enabled"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturneaboutconfig"
+                  data-l10n-id="nocturne-old-aboutconfig"
+                  preference="nocturne.ui.oldaboutconfig"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturneff68downloadicons"
+                  data-l10n-id="nocturne-ff68-download-icons"
+                  preference="nocturne.ui.ff68downloadicons"/>
+      </hbox>
+      <label data-l10n-id="nocturne-ff68-download-icons-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturneswitchtotab"
+                  data-l10n-id="nocturne-switch-to-tab"
+                  preference="browser.urlbar.secondaryActions.switchToTab"/>
+      </hbox>
+      <label data-l10n-id="nocturne-switch-to-tab-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnelegacyicon"
+                  data-l10n-id="nocturne-legacy-icon"
+                  preference="nocturne.legacyiconbehavior.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-legacy-icon-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnesmallicon"
+                  data-l10n-id="nocturne-small-icon"
+                  preference="nocturne.smalliconbehavior.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-small-icon-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnePromptSound"
+                  data-l10n-id="nocturne-prompt-sound"
+                  preference="prompts.tab_modal.sound.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-prompt-sound-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnePromptTabModal"
+                  data-l10n-id="nocturne-prompt-tab-modal"
+                  preference="prompts.tab_modal.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-prompt-tab-modal-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnePromptHeaderIcon"
+                  data-l10n-id="nocturne-prompt-header-icon"
+                  preference="prompts.headerAppIcon.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-prompt-header-icon-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+    </groupbox>
+
+    <!-- Advanced -->
+    <groupbox>
+      <caption data-l10n-id="nocturne-advanced-header"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-accessibility"
+               control="nocturneAccessibilityType"/>
+        <menulist id="nocturneAccessibilityType"
+                  preference="accessibility.force_disabled">
+          <menupopup>
+            <menuitem label="Always disabled (1)" value="1"/>
+            <menuitem label="Default (0)" value="0"/>
+            <menuitem label="Always enabled (-1)" value="-1"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <label data-l10n-id="nocturne-accessibility-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-cookiebanners"
+               control="nocturneCookieBannersType"/>
+        <menulist id="nocturneCookieBannersType"
+                  preference="cookiebanners.service.mode">
+          <menupopup>
+            <menuitem label="Auto reject all cookies where possible" value="1"/>
+            <menuitem label="Disable all cookie banner handling" value="0"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <label data-l10n-id="nocturne-cookiebanners-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-cookiebanners-private"
+               control="nocturneCookieBannersPrivateType"/>
+        <menulist id="nocturneCookieBannersPrivateType"
+                  preference="cookiebanners.service.mode.privateBrowsing">
+          <menupopup>
+            <menuitem label="Auto reject all cookies where possible" value="1"/>
+            <menuitem label="Disable all cookie banner handling" value="0"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <label data-l10n-id="nocturne-cookiebanners-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-sandbox-level"
+               control="nocturneSandboxLevelType"/>
+        <menulist id="nocturneSandboxLevelType"
+                  preference="security.sandbox.content.level">
+          <menupopup>
+            <menuitem label="Increased (20)" value="20"/>
+            <menuitem label="Default (8)" value="8"/>
+            <menuitem label="Lower (7)" value="7"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <label data-l10n-id="nocturne-sandbox-level-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-caption-width"
+               control="nocturneCaptionWidthType"/>
+        <textbox id="nocturneCaptionWidthType" type="number"
+                 preference="widget.native-controls.override-aero-caption-buttons-mask-width"/>
+      </hbox>
+      <label data-l10n-id="nocturne-caption-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <label data-l10n-id="nocturne-caption-height"
+               control="nocturneCaptionHeightType"/>
+        <textbox id="nocturneCaptionHeightType" type="number"
+                 preference="widget.native-controls.override-aero-caption-buttons-mask-height"/>
+      </hbox>
+
+      <hbox align="center">
+        <checkbox id="nocturnewebaudio"
+                  data-l10n-id="nocturne-webaudio"
+                  preference="dom.webaudio.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-webaudio-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnecsp"
+                  data-l10n-id="nocturne-csp"
+                  preference="security.csp.enable"/>
+      </hbox>
+      <label data-l10n-id="nocturne-csp-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnecorsbase"
+                  data-l10n-id="nocturne-cors-base"
+                  preference="content.cors.disable"/>
+      </hbox>
+      <label data-l10n-id="nocturne-cors-base-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnecorspreflight"
+                  data-l10n-id="nocturne-cors-preflight"
+                  preference="content.cors.bypass_preflight_request"/>
+      </hbox>
+      <label data-l10n-id="nocturne-cors-preflight-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnehsts"
+                  data-l10n-id="nocturne-hsts"
+                  preference="network.stricttransportsecurity.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-hsts-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnesameorigin"
+                  data-l10n-id="nocturne-same-origin"
+                  preference="security.same_origin_policy.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-same-origin-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturneportblocking"
+                  data-l10n-id="nocturne-port-blocking"
+                  preference="security.port.blocking.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-port-blocking-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnee10s"
+                  data-l10n-id="nocturne-e10s"
+                  preference="browser.e10s.disabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-e10s-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnedwrite"
+                  data-l10n-id="nocturne-dwrite"
+                  preference="gfx.dwrite.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-dwrite-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturneoldurlbar"
+                  data-l10n-id="nocturne-old-urlbar"
+                  preference="nocturne.ui.oldurlbar"/>
+      </hbox>
+      <label data-l10n-id="nocturne-old-urlbar-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+    </groupbox>
+
+  </scrollbox>
+</tabpanel>
 
       </tabpanels>
     </tabbox>
