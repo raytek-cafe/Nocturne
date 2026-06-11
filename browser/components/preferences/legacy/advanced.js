@@ -792,7 +792,7 @@ var gAdvancedPane = {
   showCertificates: function ()
   {
     document.documentElement.openWindow("mozilla:certmanager",
-                                        "chrome://pippki/content/certManager.xul",
+                                        "chrome://pippki/content/certManager.xhtml",
                                         "", null);
   },
 
