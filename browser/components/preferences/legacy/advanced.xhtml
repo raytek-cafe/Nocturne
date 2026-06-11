@@ -139,6 +139,8 @@
             name="nocturne.drag-space.enabled" type="bool"/>
 <preference id="nocturne.backgrounds.enabled"
             name="nocturne.backgrounds.enabled" type="bool"/>
+<preference id="nocturne.tabs.oldWarnOnClose"
+            name="nocturne.tabs.oldWarnOnClose" type="bool"/>
 <preference id="nocturne.transparent.menubar"
             name="nocturne.transparent.menubar" type="bool"/>
 <preference id="nocturne.translucent.navbar"
@@ -874,6 +876,17 @@
     <groupbox>
       <caption data-l10n-id="nocturne-functional-header"/>
 
+			 
+	  <hbox align="center">
+        <checkbox id="nocturneoldwoc"
+                  data-l10n-id="nocturne-old-warn-on-close"
+                  preference="nocturne.tabs.oldWarnOnClose"/>
+		
+      </hbox>
+	  
+	  <label data-l10n-id="nocturne-old-warn-on-close-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+	  
       <hbox align="center">
         <checkbox id="nocturneoneoffs"
                   data-l10n-id="nocturne-one-offs"
