@@ -8,11 +8,18 @@ add_task(async function test_quit_shortcut() {
     set: [
       ["browser.warnOnQuit", true],
       ["browser.warnOnQuitShortcut", true],
+      ["nocturne.tabs.oldWarnOnClose", false],
+      ["prompts.tab_modal.enabled", true],
     ],
   });
 
   function checkDialog(dialog) {
     let dialogElement = dialog.document.getElementById("commonDialog");
+    is(
+      dialogElement.querySelector("#infoBody").textContent,
+      "",
+      "stock shortcut dialog should not have body text"
+    );
     let acceptLabel = dialogElement.getButton("accept").label;
     is(acceptLabel.indexOf("Quit"), 0, "dialog label");
     dialogElement.getButton("cancel").click();

@@ -144,6 +144,7 @@ ChromeUtils.defineLazyGetter(lazy, "gBrowserBundle", function () {
   );
 });
 
+
 // Seconds of idle time before the late idle tasks will be scheduled.
 const LATE_TASKS_IDLE_TIME_SEC = 20;
 // Time after we stop tracking startup crashes.
@@ -1489,11 +1490,24 @@ BrowserGlue.prototype = {
     // The warning will appear even when only one window/tab is open. For other
     // methods of quitting, the warning only appears when there is more than one
     // window or tab open.
+    const useWarnOnCloseCustomization = Services.prefs.getBoolPref(
+      "nocturne.tabs.oldWarnOnClose",
+      true
+    );
+    const tabModalEnabled = Services.prefs.getBoolPref(
+      "prompts.tab_modal.enabled",
+      true
+    );
+    const useOldWarnBehavior =
+      useWarnOnCloseCustomization && !tabModalEnabled;
     let shouldWarnForShortcut =
       this._quitSource == "shortcut" &&
       Services.prefs.getBoolPref("browser.warnOnQuitShortcut");
     let shouldWarnForTabs =
       pagecount >= 2 && Services.prefs.getBoolPref("browser.tabs.warnOnClose");
+    if (useOldWarnBehavior) {
+      shouldWarnForShortcut = false;
+    }
     if (!shouldWarnForTabs && !shouldWarnForShortcut) {
       return;
     }
@@ -1509,6 +1523,41 @@ BrowserGlue.prototype = {
     // Our prompt for quitting is most important, so replace others.
     win.gDialogBox.replaceDialogIfOpen();
 
+    if (useOldWarnBehavior) {
+      const [title, warningText, button, checkbox] =
+        win.gBrowser.tabLocalization.formatMessagesSync([
+          {
+            id: "tabbrowser-confirm-close-tabs-title",
+            args: { tabCount: pagecount },
+          },
+          {
+            id: "tabbrowser-confirm-close-tabs-text",
+            args: { tabCount: pagecount },
+          },
+          { id: "tabbrowser-confirm-close-tabs-button" },
+          { id: "tabbrowser-ask-close-tabs-checkbox" },
+        ]);
+      let warnOnClose = { value: true };
+      let buttonPressed = Services.prompt.confirmEx(
+        null,
+        title.value,
+        warningText.value,
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
+        button.value,
+        null,
+        null,
+        checkbox.value,
+        warnOnClose
+      );
+      if (buttonPressed == 0 && !warnOnClose.value) {
+        Services.prefs.setBoolPref("browser.tabs.warnOnClose", false);
+      }
+      this._quitSource = "unknown";
+      aCancelQuit.data = buttonPressed != 0;
+      return;
+    }
+
     let titleId = {
       id: "tabbrowser-confirm-close-tabs-title",
       args: { tabCount: pagecount },
@@ -1520,7 +1569,7 @@ BrowserGlue.prototype = {
     if (windowcount > 1) {
       // More than 1 window. Compose our own message based on whether
       // the shortcut warning is on or not.
-      if (shouldWarnForShortcut) {
+      if (shouldWarnForShortcut && useWarnOnCloseCustomization) {
         showCloseCurrentTabOption = true;
         titleId = "tabbrowser-confirm-close-warn-shortcut-title";
         quitButtonLabelId =
@@ -1532,7 +1581,7 @@ BrowserGlue.prototype = {
         };
         quitButtonLabelId = "tabbrowser-confirm-close-windows-button";
       }
-    } else if (shouldWarnForShortcut) {
+    } else if (shouldWarnForShortcut && useWarnOnCloseCustomization) {
       if (win.gBrowser.visibleTabs.length > 1) {
         showCloseCurrentTabOption = true;
         titleId = "tabbrowser-confirm-close-warn-shortcut-title";

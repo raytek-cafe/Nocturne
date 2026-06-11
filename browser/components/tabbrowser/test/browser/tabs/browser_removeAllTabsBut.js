@@ -132,3 +132,60 @@ add_task(async function test_removesAllIncludingTabGroups() {
 
   await BrowserTestUtils.closeWindow(win);
 });
+
+add_task(async function test_warnAboutClosingTabs_preference_matrix() {
+  let win = await BrowserTestUtils.openNewBrowserWindow();
+  await addTabTo(win.gBrowser);
+  await addTabTo(win.gBrowser);
+
+  async function checkPrompt(tabModalEnabled) {
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        ["browser.tabs.warnOnClose", true],
+        ["nocturne.tabs.oldWarnOnClose", true],
+        ["prompts.tab_modal.enabled", tabModalEnabled],
+      ],
+    });
+
+    let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("", undefined, {
+      callback(promptWin) {
+        let dialogElement = promptWin.document.getElementById("commonDialog");
+        let isLegacyDialog = !tabModalEnabled;
+        is(
+          !promptWin?.docShell?.chromeEventHandler,
+          isLegacyDialog,
+          `only the fully enabled legacy warning should use a native window with tab modal pref ${tabModalEnabled}`
+        );
+        is(
+          dialogElement.getAttribute("buttonpack"),
+          isLegacyDialog ? "center" : "end",
+          `close warning should use the expected layout with tab modal pref ${tabModalEnabled}`
+        );
+        is(
+          !!dialogElement.querySelector("#infoBody").textContent,
+          isLegacyDialog,
+          `close warning should have the expected text state with tab modal pref ${tabModalEnabled}`
+        );
+        let expectedLabel = "Ask before closing multiple tabs";
+        is(
+          dialogElement.querySelector("checkbox").label,
+          expectedLabel,
+          `checkbox label should match the warning mode with tab modal pref ${tabModalEnabled}`
+        );
+        dialogElement.getButton("cancel").click();
+      },
+    });
+
+    ok(
+      !win.gBrowser.warnAboutClosingTabs(3, win.gBrowser.closingTabsEnum.ALL),
+      "closing should be canceled after dismissing the prompt"
+    );
+    await promptPromise;
+    await SpecialPowers.popPrefEnv();
+  }
+
+  await checkPrompt(false);
+  await checkPrompt(true);
+
+  await BrowserTestUtils.closeWindow(win);
+});
