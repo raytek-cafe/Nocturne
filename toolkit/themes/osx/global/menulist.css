@@ -10,7 +10,7 @@ label:not() {
   margin: 0 3px;
 }
 
-:host() {
+:host {
   appearance: auto;
   -moz-default-appearance: menulist;
   margin: 5px 2px 3px;
