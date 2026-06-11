@@ -15,7 +15,6 @@ toolkit.jar:
   skin/classic/global/preferences.css
   skin/classic/global/richlistbox.css
   skin/classic/global/toolbar.css
-  skin/classic/global/icons/Landscape.png                  (icons/Landscape.png)
   skin/classic/global/icons/menu-check.svg                 (icons/menu-check.svg)
   skin/classic/global/icons/autoscroll.png                 (icons/autoscroll.png)
   skin/classic/global/icons/autocomplete-search.svg        (icons/autocomplete-search.svg)
@@ -24,7 +23,8 @@ toolkit.jar:
   skin/classic/global/icons/Close.gif                      (icons/Close.gif)
   skin/classic/global/icons/close.png                      (icons/close.png)
   skin/classic/global/icons/close@2x.png                   (icons/close@2x.png)
-  skin/classic/global/icons/close-XPVista7.png             (icons/close-XPVista7.png)   skin/classic/global/icons/close-XPVista7@2x.png          (icons/close-XPVista7@2x.png)
+  skin/classic/global/icons/close-XPVista7.png             (icons/close-XPVista7.png) 
+  skin/classic/global/icons/close-XPVista7@2x.png          (icons/close-XPVista7@2x.png)
   skin/classic/global/icons/close-inverted.png             (icons/close-inverted.png)
   skin/classic/global/icons/close-inverted@2x.png          (icons/close-inverted@2x.png)
   skin/classic/global/icons/close-inverted-XPVista7.png    (icons/close-inverted-XPVista7.png)
@@ -55,7 +55,6 @@ toolkit.jar:
   skin/classic/global/icons/sslWarning.png                 (icons/sslWarning.png)
   skin/classic/global/icons/tabprompts-bgtexture.png       (icons/tabprompts-bgtexture.png)
   skin/classic/global/icons/Warning.png                    (icons/Warning.png)
-  skin/classic/global/icons/warning.svg                    (../../shared/incontent-icons/warning.svg)
   skin/classic/global/icons/warning-large.png              (icons/warning-large.png)
   skin/classic/global/icons/warning-16.png                 (icons/warning-16.png)
   skin/classic/global/icons/warning-64.png                 (icons/warning-64.png)
