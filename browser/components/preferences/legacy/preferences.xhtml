@@ -49,6 +49,7 @@
 #endif
 #endif
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+			xmlns:html="http://www.w3.org/1999/xhtml"
 #ifdef USE_WIN_TITLE_STYLE
             style="&prefWinMinSize.styleWin2;">
 #else
@@ -58,7 +59,9 @@
             style="&prefWinMinSize.styleGNOME;">
 #endif
 #endif
-
+    <linkset>
+        <html:link rel="localization" href="browser/preferences/librewolf.ftl"/>
+    </linkset>
     <script type="application/javascript" src="chrome://browser/content/utilityOverlay.js"/>
 
     <stringbundle id="bundleBrand" src="chrome://branding/locale/brand.properties"/>
@@ -79,12 +82,10 @@
               src="chrome://browser/content/preferences/legacy/privacy.xhtml"/>
     <prefpane id="paneSecurity" label="&paneSecurity.title;"
               src="chrome://browser/content/preferences/legacy/security.xhtml"/>
-#ifdef MOZ_SERVICES_SYNC
     <prefpane id="paneSync" label="&paneSync.title;"
               src="chrome://browser/content/preferences/legacy/sync.xhtml"/>
-#endif
     <prefpane id="paneAdvanced" label="&paneAdvanced.title;"
-              src="chrome://browser/content/preferences/legacy/advanced.xhtml"/>
+              src="chrome://browser/content/preferences/legacy/advanced.xhtml"/> 		  
 
     <script type="application/javascript"
             src="chrome://browser/content/preferences/legacy/preferences.js"/>
@@ -93,6 +94,5 @@
 #include ../../base/content/browserMountPoints.inc
 #endif
 #endif
-
 </prefwindow>
 

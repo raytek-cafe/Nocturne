@@ -863,6 +863,14 @@
         this._fireEvent("paneload", panes[i]);
     }
 }
+
+requestAnimationFrame(() => {
+    document.documentElement.style.width = "";  // clear mozilla shitcode DTD-injected fixed width
+    const w = this._selector.scrollWidth;
+    document.documentElement.style.width = w + "px";
+    document.documentElement.style.maxWidth = w + "px";
+});
+
 this.showPane(paneToLoad);
 
 if (panes.length == 1)
@@ -955,9 +963,9 @@ if (panes.length == 1)
 
             aPaneElement.loaded = true;
             this._fireEvent("paneload", aPaneElement);
+
             this._selectPane(aPaneElement);
             window.sizeToContent();
-            document.documentElement.style.maxWidth = this._selector.scrollWidth + "px";
         })
         .catch(e => {
             this._loadingPane = null;
@@ -966,7 +974,6 @@ if (panes.length == 1)
     } else {
         this._selectPane(aPaneElement);
         window.sizeToContent();
-        document.documentElement.style.maxWidth = this._selector.scrollWidth + "px";
     }
 }
 

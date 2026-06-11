@@ -10,7 +10,7 @@ label {
   margin: 0 3px;
 }
 
-:host([native]) {
+:host() {
   appearance: auto;
   -moz-default-appearance: menulist;
   margin: 2px 4px;
@@ -18,40 +18,40 @@ label {
   text-shadow: none;
 }
 
-:host([native][disabled="true"]) {
+:host([disabled="true"]) {
   background-color: -moz-Dialog;
   color: GrayText;
 }
 
 /* Label box */
 
-#label-box[native] {
+#label-box {
   align-items: center;
   justify-content: center;
 }
 
-:host([native]:not([open="true"]):focus) > #label-box {
+:host(:not([open="true"]):focus) > #label-box {
   background-color: SelectedItem;
   color: SelectedItemText;
 }
 
-:host([native]:not([open="true"]):-moz-focusring) > #label-box {
+:host(:not([open="true"]):-moz-focusring) > #label-box {
   outline: var(--default-focusring);
 }
 
 
 @media (-moz-windows-default-theme) {
-  #label-box[native] {
+  #label-box {
     background-color: transparent !important;
     color: inherit !important;
   }
 
-  image[native],
-  label[native] {
+  image,
+  label {
     margin-block: -1px !important;
   }
 
-  dropmarker[native] {
+  dropmarker {
     margin-inline: 3px -3px;
   }
 }

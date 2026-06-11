@@ -27,9 +27,7 @@ browser.jar:
   skin/classic/browser/preferences/mail-XP.png                 (preferences/mail-XP.png)
   skin/classic/browser/preferences/Options.png                 (preferences/Options.png)
   skin/classic/browser/preferences/Options-XP.png              (preferences/Options-XP.png)
-#ifdef MOZ_SERVICES_SYNC
   skin/classic/browser/preferences/Options-sync.png            (preferences/Options-sync.png)
-#endif
   skin/classic/browser/preferences/saveFile.png                (preferences/saveFile.png)
   skin/classic/browser/preferences/saveFile-XP.png             (preferences/saveFile-XP.png)
   skin/classic/browser/fxa/default-profile-image.svg   (../shared/fxa/default-profile-image.svg)
