@@ -192,7 +192,7 @@ var testRunner = {
 
       Services.ww.registerNotification(helperFunctions.prefWindowObserver);
 
-      testRunner.dialog = openDialog("chrome://browser/content/preferences/legacy/preferences.xul",
+      testRunner.dialog = openDialog("chrome://browser/content/preferences/legacy/preferences.xhtml",
                                      "Preferences", "chrome,titlebar,toolbar,centerscreen,dialog=no",
                                      "panePrivacy");
     });

@@ -42,7 +42,7 @@ function initTest() {
     }
 
     // open cookie manager
-    var cmd = window.openDialog("chrome://browser/content/preferences/legacy/cookies.xul",
+    var cmd = window.openDialog("chrome://browser/content/preferences/legacy/cookies.xhtml",
                                 "Browser:Cookies", "", {});
     
     // when it has loaded, run actual tests
