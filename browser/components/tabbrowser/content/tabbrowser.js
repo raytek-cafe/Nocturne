@@ -3791,23 +3791,24 @@
         return true;
       }
 
-      const oldWarnBehavior = Services.prefs.getBoolPref(
-  "skyfox.tabs.oldWarnOnCloseBehavior",
-  false  // default, use FF140 behavior
-);
+      const useNewWarnBehavior = !Services.prefs.getBoolPref(
+        "skyfox.tabs.oldWarnOnClose",
+        true  // default, use the old behavior
+      );
 
-// use the Firefox 40 behavior: don't care about session restore, just show! the fucking warning!
-if (!oldWarnBehavior) {
-  const maxTabsUndo = Services.prefs.getIntPref(
-    "browser.sessionstore.max_tabs_undo"
-  );
-  if (
-    aCloseTabs != this.closingTabsEnum.ALL &&
-    tabsToClose <= maxTabsUndo
-  ) {
-    return true;
-  }
-}
+      if (useNewWarnBehavior) {
+		// New logic: if Session Restore can restore all your tabs,
+		// do not prompt to close
+        const maxTabsUndo = Services.prefs.getIntPref(
+          "browser.sessionstore.max_tabs_undo"
+        );
+        if (
+          aCloseTabs != this.closingTabsEnum.ALL &&
+          tabsToClose <= maxTabsUndo 
+        ) {
+          return true;
+        }
+      }
 
       // Our prompt to close this window is most important, so replace others.
       gDialogBox.replaceDialogIfOpen();
@@ -3821,30 +3822,54 @@ if (!oldWarnBehavior) {
       // solve the problem of windows "obscuring" the prompt.
       // see bug #350299 for more details
       window.focus();
-      const [title, button, checkbox] = this.tabLocalization.formatValuesSync([
-        {
-          id: "tabbrowser-confirm-close-tabs-title",
-          args: { tabCount: tabsToClose },
-        },
-        { id: "tabbrowser-confirm-close-tabs-button" },
-        { id: "tabbrowser-ask-close-tabs-checkbox" },
-      ]);
-      let flags =
-        ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0 +
-        ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1;
-      let checkboxLabel =
-        aCloseTabs == this.closingTabsEnum.ALL ? checkbox : null;
-      var buttonPressed = ps.confirmEx(
-        window,
-        title,
-        null,
-        flags,
-        button,
-        null,
-        null,
-        checkboxLabel,
-        warnOnClose
-      );
+	  
+	  if (useNewWarnBehavior){
+		  // New logic: show blurb-less dialog with Fluent-localized strings from tabbrowser.ftl
+          const [title, button, checkbox] = this.tabLocalization.formatValuesSync([
+            {
+              id: "tabbrowser-confirm-close-tabs-title",
+              args: { tabCount: tabsToClose },
+            },
+            { id: "tabbrowser-confirm-close-tabs-button" },
+            { id: "tabbrowser-ask-close-tabs-checkbox" },
+          ]);
+          let flags =
+            ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0 +
+            ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1;
+          let checkboxLabel =
+            aCloseTabs == this.closingTabsEnum.ALL ? checkbox : null;
+          var buttonPressed = ps.confirmEx(
+            window,
+            title,
+            null,
+            flags,
+            button,
+            null,
+            null,
+            checkboxLabel,
+            warnOnClose
+          );
+	  }
+	  else {
+		  // Port of logic from Firefox 41.0.2. This is the classic warn behavior of Firefox.
+		  // Old logic: show more detailed dialog with descriptive strings from tabbrowser.properties
+		  var bundle = gTabBrowserBundle;
+	      var rawString = bundle.GetStringFromName("tabs.closeWarningMultiple");
+          var warningMessage = rawString.split(";").pop().replace("#1", tabsToClose);
+	      var buttonPressed = ps.confirmEx(
+ 	        window,
+ 	        bundle.GetStringFromName("tabs.closeWarningTitle"),
+  	        warningMessage,
+  	        (ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0)
+  	        + (ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1),
+  	        bundle.GetStringFromName("tabs.closeButtonMultiple"),
+  	        null, null,
+  	        aCloseTabs == this.closingTabsEnum.ALL
+  	          ? bundle.GetStringFromName("tabs.closeWarningPromptMe")
+  	          : null,
+  	        warnOnClose
+	      );
+	  }
 
       var reallyClose = buttonPressed == 0;
 

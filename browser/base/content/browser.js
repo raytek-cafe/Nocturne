@@ -350,6 +350,12 @@ ChromeUtils.defineLazyGetter(this, "gBrowserBundle", () => {
   );
 });
 
+ChromeUtils.defineLazyGetter(this, "gTabBrowserBundle", () => {
+  return Services.strings.createBundle(
+    "chrome://browser/locale/tabbrowser.properties"
+  );
+});
+
 ChromeUtils.defineLazyGetter(this, "gCustomizeMode", () => {
   let { CustomizeMode } = ChromeUtils.importESModule(
     "resource:///modules/CustomizeMode.sys.mjs"

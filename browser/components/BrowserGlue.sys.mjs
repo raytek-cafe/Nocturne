@@ -150,6 +150,12 @@ ChromeUtils.defineLazyGetter(lazy, "gBrowserBundle", function () {
   );
 });
 
+ChromeUtils.defineLazyGetter(lazy, "gTabbrowserBundle", function () {
+  return Services.strings.createBundle(
+    "chrome://browser/locale/tabbrowser.properties"
+  );
+});
+
 const listeners = {
   observers: {
 
@@ -1526,6 +1532,11 @@ BrowserGlue.prototype = {
     if (!windowcount) {
       return;
     }
+	
+	const useOldWarnBehavior = Services.prefs.getBoolPref(
+        "skyfox.tabs.oldWarnOnClose",
+        true  // default, use the old behavior
+      );
 
     // browser.warnOnQuitShortcut is checked when quitting using the shortcut key.
     // The warning will appear even when only one window/tab is open. For other
@@ -1536,6 +1547,12 @@ BrowserGlue.prototype = {
       Services.prefs.getBoolPref("browser.warnOnQuitShortcut");
     let shouldWarnForTabs =
       pagecount >= 2 && Services.prefs.getBoolPref("browser.tabs.warnOnClose");
+
+	// The old logic did not care whether the user closed via shortcut or via button.
+	// Therefore, nop this bool out if we're using the old logic.
+	if (useOldWarnBehavior) shouldWarnForShortcut = false;  
+	
+	// The second condition is now basically useless here if using the old logic.
     if (!shouldWarnForTabs && !shouldWarnForShortcut) {
       return;
     }
@@ -1549,6 +1566,36 @@ BrowserGlue.prototype = {
     // Our prompt for quitting is most important, so replace others.
     win.gDialogBox.replaceDialogIfOpen();
 
+if (useOldWarnBehavior)
+{
+  let warnOnClose = { value: true };
+  let tabsToClose = pagecount;
+  let bundle = lazy.gTabbrowserBundle;
+  let rawString = bundle.GetStringFromName("tabs.closeWarningMultiple");
+let warningMessage = rawString.split(";").pop().replace("#1", tabsToClose);
+  let buttonPressed = Services.prompt.confirmEx(
+    win,                                          // use win, not window
+    bundle.GetStringFromName("tabs.closeWarningTitle"),
+    warningMessage,
+    (Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0)
+    + (Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1),
+    bundle.GetStringFromName("tabs.closeButtonMultiple"),
+    null, null,
+    bundle.GetStringFromName("tabs.closeWarningPromptMe"),
+    warnOnClose
+  );
+  // If the user has unticked the box, and has confirmed closing, stop showing
+  // the warning.
+  if (buttonPressed == 0 && !warnOnClose.value) {
+    Services.prefs.setBoolPref("browser.tabs.warnOnClose", false);
+  }
+  this._quitSource = "unknown";
+  aCancelQuit.data = buttonPressed != 0;
+  return;
+}
+
+else
+{
     let titleId = {
       id: "tabbrowser-confirm-close-tabs-title",
       args: { tabCount: pagecount },
@@ -1659,10 +1706,13 @@ BrowserGlue.prototype = {
     if (buttonPressed === 2) {
       win.gBrowser.removeTab(win.gBrowser.selectedTab);
     }
-
-    this._quitSource = "unknown";
-
+	
+	    this._quitSource = "unknown";
     aCancelQuit.data = buttonPressed != 0;
+	
+}
+
+
   },
 
   _migrateUI() {

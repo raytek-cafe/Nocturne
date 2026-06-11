@@ -1323,6 +1323,7 @@ pref("browser.send_pings", false);
 pref("browser.geolocation.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/geolocation/");
 pref("browser.xr.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/xr/");
 
+pref("browser.sessionstore.warnOnQuit", true);
 pref("browser.sessionstore.resume_from_crash", true);
 pref("browser.sessionstore.resume_session_once", false);
 pref("browser.sessionstore.resuming_after_os_restart", false);
@@ -3392,5 +3393,5 @@ pref("skyfox.smalliconbehavior.enabled", true);
 pref("skyfox.ui.ff68downloadicons", false);
 
 // Skyfox new settings go here
-pref("skyfox.tabs.oldWarnOnCloseBehavior", false);
+pref("skyfox.tabs.oldWarnOnClose", true);
 

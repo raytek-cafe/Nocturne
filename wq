@@ -1,0 +1,94 @@
+[35mtoolkit/components/prompts/content/commonDialog.js[m[36m:[m[32m126[m[36m:[m    [1;31minfoIcon[m: document.getElementById("[1;31minfoIcon[m"),
+[35mtoolkit/components/prompts/content/commonDialog.js[m[36m:[m[32m185[m[36m:[m  ui.[1;31minfoIcon[m.addEventListener("load", () => window.sizeToContent());
+[35mtoolkit/components/prompts/content/commonDialog.xhtml[m[36m:[m[32m64[m[36m:[m          <xul:image id="[1;31minfoIcon[m" />
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m33[m[36m:[m  [1;31miconClass[m = undefined;
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m50[m[36m:[m        this.[1;31miconClass[m = ["alert-icon"];
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m57[m[36m:[m        this.[1;31miconClass[m = ["[1;31mquestion-icon[m"];
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m60[m[36m:[m      case "[1;31mconfirmEx[m":
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m81[m[36m:[m        this.[1;31miconClass[m = ["[1;31mquestion-icon[m"];
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m86[m[36m:[m        this.[1;31miconClass[m = ["[1;31mquestion-icon[m"];
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m96[m[36m:[m        this.[1;31miconClass[m = ["authentication-icon", "[1;31mquestion-icon[m"];
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m103[m[36m:[m        this.[1;31miconClass[m = ["authentication-icon", "[1;31mquestion-icon[m"];
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m187[m[36m:[m    let icon = this.ui.[1;31minfoIcon[m;
+[35mtoolkit/components/prompts/src/CommonDialog.sys.mjs[m[36m:[m[32m189[m[36m:[m      this.[1;31miconClass[m.forEach(el => icon.classList.add(el));
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m291[m[36m:[m  [1;31mconfirmEx[m(
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m303[m[36m:[m    return p.[1;31mconfirmEx[m(
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m334[m[36m:[m  [1;31mconfirmEx[mBC(browsingContext, modalType, ...promptArgs) {
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m336[m[36m:[m    return p.[1;31mconfirmEx[m(...promptArgs);
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m359[m[36m:[m    return p.[1;31mconfirmEx[m(...promptArgs);
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m685[m[36m:[m  [1;31mconfirmEx[mHelper(flags, button0, button1, button2) {
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m1468[m[36m:[m  [1;31mconfirmEx[m(
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m1484[m[36m:[m      promptType: "[1;31mconfirmEx[m",
+[35mtoolkit/components/prompts/src/Prompter.sys.mjs[m[36m:[m[32m1501[m[36m:[m    ] = InternalPromptUtils.[1;31mconfirmEx[mHelper(flags, button0, button1, button2);
+[35mtoolkit/components/prompts/test/chromeScript.js[m[36m:[m[32m99[m[36m:[m  state.[1;31miconClass[m = ui.[1;31minfoIcon[m.className;
+[35mtoolkit/components/prompts/test/prompt_common.js[m[36m:[m[32m229[m[36m:[m      promptState.[1;31miconClass[m,
+[35mtoolkit/components/prompts/test/prompt_common.js[m[36m:[m[32m230[m[36m:[m      expectedState.[1;31miconClass[m,
+[35mtoolkit/components/prompts/test/test_bug619644.html[m[36m:[m[32m41[m[36m:[m      [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_bug620145.html[m[36m:[m[32m40[m[36m:[m    [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_dom_prompts.html[m[36m:[m[32m22[m[36m:[m        [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_dom_prompts.html[m[36m:[m[32m50[m[36m:[m        [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_dom_prompts.html[m[36m:[m[32m82[m[36m:[m        [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_dom_prompts.html[m[36m:[m[32m111[m[36m:[m        [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_dom_prompts.html[m[36m:[m[32m145[m[36m:[m        [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_dom_prompts.html[m[36m:[m[32m174[m[36m:[m        [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m41[m[36m:[m    [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m69[m[36m:[m    [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m102[m[36m:[m    [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m142[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m171[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m200[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m234[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m268[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m309[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m350[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m386[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m421[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m456[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m492[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m540[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m587[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m635[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m681[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m721[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m758[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m760[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m789[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m797[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m817[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m828[m[36m:[m    await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m837[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m839[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m862[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m870[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m882[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m884[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m907[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m915[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m927[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m929[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m959[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m967[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m984[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m986[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1017[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1025[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1042[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1044[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1075[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1083[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1100[m[36m:[m    msg: "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1102[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1135[m[36m:[m    "This is the [1;31mconfirmEx[m text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1143[m[36m:[m  result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1160[m[36m:[m    [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1188[m[36m:[m    msg: "This is the [1;31mconfirmEx[m delay text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1190[m[36m:[m    [1;31miconClass[m: "[1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1223[m[36m:[m      "This is the [1;31mconfirmEx[m delay text.",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1231[m[36m:[m    result = await util.prompt("[1;31mconfirmEx[m", promptArgs);
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1267[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1310[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1364[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_modal_prompts.html[m[36m:[m[32m1406[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_subresources_prompts.html[m[36m:[m[32m46[m[36m:[m    [1;31miconClass[m: "alert-icon",
+[35mtoolkit/components/prompts/test/test_subresources_prompts.html[m[36m:[m[32m110[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",
+[35mtoolkit/components/prompts/test/test_subresources_prompts.html[m[36m:[m[32m144[m[36m:[m    [1;31miconClass[m: "authentication-icon [1;31mquestion-icon[m",

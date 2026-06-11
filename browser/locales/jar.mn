@@ -54,6 +54,7 @@
     locale/browser/preferences/selectBookmark.dtd         (%chrome/browser/preferences/selectBookmark.dtd)
     locale/browser/preferences/sync.dtd                   (%chrome/browser/preferences/sync.dtd)
     locale/browser/preferences/tabs.dtd                   (%chrome/browser/preferences/tabs.dtd)
+	locale/browser/tabbrowser.properties                  (%chrome/browser/tabbrowser.properties)
     locale/browser/preferences/translation.dtd            (%chrome/browser/preferences/translation.dtd)
 	locale/browser/aboutHome.dtd                          (%chrome/browser/aboutHome.dtd)
 	locale/browser/sanitize.dtd                           (%chrome/browser/sanitize.dtd)
