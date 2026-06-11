@@ -189,7 +189,7 @@ var tests = [
 
   function test_manage_all_passwords() {
     // make sure "Manage All Passwords..." button opens the correct dialog
-    addWindowListener("chrome://passwordmgr/content/passwordManager.xul", runNextTest);
+    addWindowListener("chrome://passwordmgr/content/passwordManager.xhtml", runNextTest);
     gBrowser.contentDocument.getElementById("passwords-manage-all-button").doCommand();
 
   },
