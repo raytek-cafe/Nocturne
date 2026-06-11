@@ -3664,4 +3664,6 @@ pref("nocturne.platformspecificicons.enabled", false);
 pref("nocturne.smalliconbehavior.enabled", true);
 
 // FF68 Icons (Keeping the option to use these icons still. Just with the retry icon reverted back to the real FF68 one.)
+
+pref("nocturne.tabs.oldWarnOnClose", true);
 pref("nocturne.ui.ff68downloadicons", false);

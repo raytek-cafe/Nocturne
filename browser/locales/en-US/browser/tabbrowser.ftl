@@ -97,6 +97,15 @@ tabbrowser-confirm-close-tabs-title =
     { $tabCount ->
        *[other] Close { $tabCount } tabs?
     }
+
+# Variables:
+#   $tabCount (Number): The number of tabs that will be closed.
+tabbrowser-confirm-close-tabs-text =
+    { $tabCount ->
+        [one] You are about to close a tab. Are you sure you want to continue?
+       *[other] You are about to close { $tabCount } tabs. Are you sure you want to continue?
+    }
+
 tabbrowser-confirm-close-tabs-button = Close tabs
 tabbrowser-ask-close-tabs-checkbox = Ask before closing multiple tabs
 
@@ -110,6 +119,7 @@ tabbrowser-confirm-close-windows-title =
     { $windowCount ->
        *[other] Close { $windowCount } windows?
     }
+
 tabbrowser-confirm-close-windows-button =
     { PLATFORM() ->
         [windows] Close and exit

@@ -21,8 +21,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
   true
 );
 
-
-
 // imported by adjustableTitle.js loaded in the same context:
 /* globals PromptUtils, goDoCommand, goUpdateCommand */
 
@@ -40,6 +38,10 @@ function commonDialogOnLoad() {
   let hideHeaderAppIcon = !lazy.headerAppIconEnabled;
 
   let dialog = document.getElementById("commonDialog");
+  let useLegacyWarnBehavior =
+    Services.prefs.getBoolPref("nocturne.tabs.oldWarnOnClose", true) &&
+    !Services.prefs.getBoolPref("prompts.tab_modal.enabled", true);
+  dialog.setAttribute("buttonpack", useLegacyWarnBehavior ? "center" : "end");
 
   let needIconifiedHeader =
     args.modalType == Ci.nsIPrompt.MODAL_TYPE_CONTENT ||
@@ -80,8 +82,10 @@ function commonDialogOnLoad() {
     }
   }
   if (headerIconCSSValue) {
-    if (headerIconCSSValue == CommonDialog.DEFAULT_APP_ICON_CSS &&
-      hideHeaderAppIcon) {
+    if (
+      headerIconCSSValue == CommonDialog.DEFAULT_APP_ICON_CSS &&
+      hideHeaderAppIcon
+    ) {
       root.setAttribute("hideheadericon", "true");
     } else {
       root.style.setProperty("--icon-url", headerIconCSSValue);
