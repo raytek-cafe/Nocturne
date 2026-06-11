@@ -8,8 +8,8 @@ function test() {
   waitForExplicitFinish();
   let connectionTests = runConnectionTestsGen();
   connectionTests.next();
-  const connectionURL = "chrome://browser/content/preferences/legacy/connection.xul";
-  const preferencesURL = "chrome://browser/content/preferences/legacy/preferences.xul";
+  const connectionURL = "chrome://browser/content/preferences/legacy/connection.xhtml";
+  const preferencesURL = "chrome://browser/content/preferences/legacy/preferences.xhtml";
   let closeable = false;
   let final = false;
   let prefWin;

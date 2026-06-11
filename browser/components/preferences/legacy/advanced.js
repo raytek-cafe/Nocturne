@@ -311,7 +311,7 @@ var gAdvancedPane = {
    */
   showConnections: function ()
   {
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/connection.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/connection.xhtml",
                                            "", null);
   },
 
@@ -453,7 +453,7 @@ var gAdvancedPane = {
                    windowTitle      : bundlePreferences.getString("offlinepermissionstitle"),
                    introText        : bundlePreferences.getString("offlinepermissionstext") };
     document.documentElement.openWindow("Browser:Permissions",
-                                        "chrome://browser/content/preferences/legacy/permissions.xul",
+                                        "chrome://browser/content/preferences/legacy/permissions.xhtml",
                                         "resizable", params);
   },
 

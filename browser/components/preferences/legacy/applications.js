@@ -1685,7 +1685,7 @@ var gApplicationsPane = {
     var typeItem = this._list.selectedItem;
     var handlerInfo = this._handledTypes[typeItem.type];
 
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/applicationManager.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/applicationManager.xhtml",
                                            "", handlerInfo);
 
     // Rebuild the actions menu so that we revert to the previous selection,

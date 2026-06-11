@@ -455,7 +455,7 @@ var gPrivacyPane = {
                    windowTitle    : bundlePreferences.getString("cookiepermissionstitle"),
                    introText      : bundlePreferences.getString("cookiepermissionstext") };
     document.documentElement.openWindow("Browser:Permissions",
-                                        "chrome://browser/content/preferences/legacy/permissions.xul",
+                                        "chrome://browser/content/preferences/legacy/permissions.xhtml",
                                         "resizable", params);
   },
 
@@ -465,7 +465,7 @@ var gPrivacyPane = {
   showCookies: function (aCategory)
   {
     document.documentElement.openWindow("Browser:Cookies",
-                                        "chrome://browser/content/preferences/legacy/cookies.xul",
+                                        "chrome://browser/content/preferences/legacy/cookies.xhtml",
                                         "resizable", null);
   },
 
@@ -484,7 +484,7 @@ var gPrivacyPane = {
    */
   showClearPrivateDataSettings: function ()
   {
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/sanitize.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/sanitize.xhtml",
                                            "", null);
   },
 

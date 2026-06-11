@@ -19,7 +19,7 @@ function runPaneTest(fn) {
   }
 
   Services.obs.addObserver(observer, "advanced-pane-loaded", false);
-  openDialog("chrome://browser/content/preferences/legacy/preferences.xul", "Preferences",
+  openDialog("chrome://browser/content/preferences/legacy/preferences.xhtml", "Preferences",
              "chrome,titlebar,toolbar,centerscreen,dialog=no", "paneAdvanced");
 }
 

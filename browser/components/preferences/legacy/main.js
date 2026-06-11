@@ -191,7 +191,7 @@ var gMainPane = {
   setHomePageToBookmark: function ()
   {
     var rv = { urls: null, names: null };
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/selectBookmark.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/selectBookmark.xhtml",
                                            "resizable", rv);  
     if (rv.urls && rv.names) {
       var homePage = document.getElementById("browser.startup.homepage");

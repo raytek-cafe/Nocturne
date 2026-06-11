@@ -57,7 +57,7 @@ var gSecurityPane = {
     }
 
     document.documentElement.openWindow("Browser:Permissions",
-                                        "chrome://browser/content/preferences/legacy/permissions.xul",
+                                        "chrome://browser/content/preferences/legacy/permissions.xhtml",
                                         "", params);
   },
 

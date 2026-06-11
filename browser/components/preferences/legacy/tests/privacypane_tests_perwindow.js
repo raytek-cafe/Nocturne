@@ -24,7 +24,7 @@ function runTestOnPrivacyPrefPane(testFunc) {
   };
   Services.ww.registerNotification(observer);
 
-  let dialog = openDialog("chrome://browser/content/preferences/legacy/preferences.xul", "Preferences",
+  let dialog = openDialog("chrome://browser/content/preferences/legacy/preferences.xhtml", "Preferences",
                           "chrome,titlebar,toolbar,centerscreen,dialog=no", "panePrivacy");
 }
 

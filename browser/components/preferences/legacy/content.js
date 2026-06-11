@@ -67,7 +67,7 @@ var gContentPane = {
     params.windowTitle = bundlePreferences.getString("popuppermissionstitle");
     params.introText = bundlePreferences.getString("popuppermissionstext");
     document.documentElement.openWindow("Browser:Permissions",
-                                        "chrome://browser/content/preferences/legacy/permissions.xul",
+                                        "chrome://browser/content/preferences/legacy/permissions.xhtml",
                                         "resizable", params);
   },
 
@@ -160,7 +160,7 @@ var gContentPane = {
    */  
   configureFonts: function ()
   {
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/fonts.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/fonts.xhtml",
                                            "", null);
   },
 
@@ -170,7 +170,7 @@ var gContentPane = {
    */
   configureColors: function ()
   {
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/colors.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/colors.xhtml",
                                            "", null);  
   },
 
@@ -181,7 +181,7 @@ var gContentPane = {
    */
   showLanguages: function ()
   {
-    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/languages.xul",
+    document.documentElement.openSubDialog("chrome://browser/content/preferences/legacy/languages.xhtml",
                                            "", null);
   },
 
@@ -192,7 +192,7 @@ var gContentPane = {
   showTranslationExceptions: function ()
   {
     document.documentElement.openWindow("Browser:TranslationExceptions",
-                                        "chrome://browser/content/preferences/legacy/translation.xul",
+                                        "chrome://browser/content/preferences/legacy/translation.xhtml",
                                         "resizable", null);
   },
 

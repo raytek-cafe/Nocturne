@@ -196,7 +196,7 @@ var tests = [
 
   function test_manage_all_cookies() {
     // make sure "Manage All Cookies..." button opens the correct dialog
-    addWindowListener("chrome://browser/content/preferences/legacy/cookies.xul", runNextTest);
+    addWindowListener("chrome://browser/content/preferences/legacy/cookies.xhtml", runNextTest);
     gBrowser.contentDocument.getElementById("cookies-manage-all-button").doCommand();
   },
 
