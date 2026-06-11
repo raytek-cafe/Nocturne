@@ -12,6 +12,21 @@ add_task(async function test_close_current_tab() {
 
   async function observer(subject) {
     let dialogElement = subject.document.getElementById("commonDialog");
+
+    ok(
+      subject?.docShell?.chromeEventHandler,
+      "The modern close warning should use Firefox's stock internal dialog"
+    );
+    is(
+      dialogElement.querySelector("#infoBody").textContent,
+      "",
+      "The stock modern close warning should not have body text"
+    );
+    is(
+      dialogElement.getAttribute("buttonpack"),
+      "end",
+      "Button pack should use the modern right-aligned layout"
+    );
     let buttons = Array.from(
       dialogElement.buttonBox.getElementsByTagName("button")
     );
@@ -42,10 +57,45 @@ add_task(async function test_close_current_tab() {
     set: [
       ["browser.warnOnQuitShortcut", true],
       ["browser.warnOnQuit", true],
+      ["nocturne.tabs.oldWarnOnClose", true],
+      ["prompts.tab_modal.enabled", true],
     ],
   });
 
   // triggers quit-application-requested
+  canQuitApplication(undefined, "shortcut");
+
+  Services.obs.removeObserver(observer, "common-dialog-loaded");
+});
+
+add_task(async function test_close_current_tab_option_is_pref_gated() {
+  async function observer(subject) {
+    let dialogElement = subject.document.getElementById("commonDialog");
+
+    is(
+      dialogElement.getAttribute("buttonpack"),
+      "end",
+      "Button pack should use the stock right-aligned layout when the pref is disabled"
+    );
+    ok(
+      dialogElement.getButton("extra1").hidden,
+      "Close current tab button should be hidden when the pref is disabled"
+    );
+
+    dialogElement.getButton("cancel").click();
+  }
+
+  Services.obs.addObserver(observer, "common-dialog-loaded");
+
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["browser.warnOnQuitShortcut", true],
+      ["browser.warnOnQuit", true],
+      ["nocturne.tabs.oldWarnOnClose", false],
+      ["prompts.tab_modal.enabled", true],
+    ],
+  });
+
   canQuitApplication(undefined, "shortcut");
 
   Services.obs.removeObserver(observer, "common-dialog-loaded");

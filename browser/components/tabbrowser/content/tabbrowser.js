@@ -4749,14 +4749,24 @@
         return true;
       }
 
-      const maxTabsUndo = Services.prefs.getIntPref(
-        "browser.sessionstore.max_tabs_undo"
+      const tabModalEnabled = Services.prefs.getBoolPref(
+        "prompts.tab_modal.enabled",
+        true
       );
-      if (
-        aCloseTabs != this.closingTabsEnum.ALL &&
-        tabsToClose <= maxTabsUndo
-      ) {
-        return true;
+      const useLegacyWarnBehavior =
+        Services.prefs.getBoolPref("nocturne.tabs.oldWarnOnClose", true) &&
+        !tabModalEnabled;
+      const useNewWarnBehavior = !useLegacyWarnBehavior;
+      if (useNewWarnBehavior) {
+        const maxTabsUndo = Services.prefs.getIntPref(
+          "browser.sessionstore.max_tabs_undo"
+        );
+        if (
+          aCloseTabs != this.closingTabsEnum.ALL &&
+          tabsToClose <= maxTabsUndo
+        ) {
+          return true;
+        }
       }
 
       // Our prompt to close this window is most important, so replace others.
@@ -4771,30 +4781,60 @@
       // solve the problem of windows "obscuring" the prompt.
       // see bug #350299 for more details
       window.focus();
-      const [title, button, checkbox] = this.tabLocalization.formatValuesSync([
-        {
-          id: "tabbrowser-confirm-close-tabs-title",
-          args: { tabCount: tabsToClose },
-        },
-        { id: "tabbrowser-confirm-close-tabs-button" },
-        { id: "tabbrowser-ask-close-tabs-checkbox" },
-      ]);
-      let flags =
-        ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0 +
-        ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1;
-      let checkboxLabel =
-        aCloseTabs == this.closingTabsEnum.ALL ? checkbox : null;
-      var buttonPressed = ps.confirmEx(
-        window,
-        title,
-        null,
-        flags,
-        button,
-        null,
-        null,
-        checkboxLabel,
-        warnOnClose
-      );
+      let buttonPressed;
+      if (useNewWarnBehavior) {
+        const [title, button, checkbox] =
+          this.tabLocalization.formatMessagesSync([
+            {
+              id: "tabbrowser-confirm-close-tabs-title",
+              args: { tabCount: tabsToClose },
+            },
+            { id: "tabbrowser-confirm-close-tabs-button" },
+            { id: "tabbrowser-ask-close-tabs-checkbox" },
+          ]);
+        let flags =
+          ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0 +
+          ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1;
+        let checkboxLabel =
+          aCloseTabs == this.closingTabsEnum.ALL ? checkbox : null;
+        buttonPressed = ps.confirmEx(
+          window,
+          title,
+          null,
+          flags,
+          button,
+          null,
+          null,
+          checkboxLabel,
+          warnOnClose
+        );
+      } else {
+        const [title, warningText, button, checkbox] =
+          this.tabLocalization.formatMessagesSync([
+            {
+              id: "tabbrowser-confirm-close-tabs-title",
+              args: { tabCount: tabsToClose },
+            },
+            {
+              id: "tabbrowser-confirm-close-tabs-text",
+              args: { tabCount: tabsToClose },
+            },
+            { id: "tabbrowser-confirm-close-tabs-button" },
+            { id: "tabbrowser-ask-close-tabs-checkbox" },
+          ]);
+        buttonPressed = ps.confirmEx(
+          null,
+          title.value,
+          warningText.value,
+          ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0 +
+            ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1,
+          button.value,
+          null,
+          null,
+          aCloseTabs == this.closingTabsEnum.ALL ? checkbox.value : null,
+          warnOnClose
+        );
+      }
 
       var reallyClose = buttonPressed == 0;
 
