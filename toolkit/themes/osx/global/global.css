@@ -27,7 +27,7 @@
   margin-inline-end: 20px;
 }
 
-/* New icons
+/* New icons ( TODO-LEGACY-SWITCH ) - New Firefox uses these SVGs, not the old PNG icons
 
 .message-icon {
   list-style-image: url("chrome://global/skin/icons/info.svg");
