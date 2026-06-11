@@ -1473,6 +1473,24 @@
   mirror: always
   rust: true
 
+# 0 = always native
+# 1 = never native
+# other = native on light mode, non-native on dark mode
+- name: browser.display.windows.non_native_menulist
+  type: RelaxedAtomicUint32
+  value: 2
+  mirror: always
+  rust: true
+
+# 0 = always native
+# 1 = never native
+# other = native on light mode, non-native on dark mode
+- name: browser.display.windows.non_native_tabbox
+  type: RelaxedAtomicUint32
+  value: 2
+  mirror: always
+  rust: true
+
 # This pref dictates whether or not backplates and background images
 # are to be drawn, when in high-contrast mode:
 #   false: do not draw backplates or render background images

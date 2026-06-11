@@ -112,6 +112,56 @@
     `;
     }
 
+    _shouldUseNativeStyling() {
+      if (AppConstants.platform == "win") {
+        switch (
+          Services.prefs.getIntPref(
+            "browser.display.windows.non_native_menulist",
+            2
+          )
+        ) {
+          case 0:
+            return true;
+          case 1:
+            return false;
+          default:
+            return !window.matchMedia("(prefers-color-scheme: dark)").matches;
+        }
+      }
+      return !Services.prefs.getBoolPref("widget.non-native-theme.enabled", true);
+    }
+
+    _syncNativeStyling() {
+      if (!this._prefControlledNative) {
+        return;
+      }
+      this.toggleAttribute("native", this._shouldUseNativeStyling());
+      if (!this.hasAttribute("popuponly")) {
+        this.initializeAttributeInheritance();
+      }
+    }
+
+    _startNativeStylingObserver() {
+      this._prefControlledNative = !this.hasAttribute("native");
+      this._nativeStylingObserver = () => this._syncNativeStyling();
+      this._colorSchemeQuery = this.ownerGlobal.matchMedia(
+        "(prefers-color-scheme: dark)"
+      );
+      this._colorSchemeQuery.addEventListener("change", this._nativeStylingObserver);
+      if (AppConstants.platform == "win") {
+        Services.prefs.addObserver(
+          "browser.display.windows.non_native_menulist",
+          this._nativeStylingObserver
+        );
+      } else {
+        Services.prefs.addObserver(
+          "widget.non-native-theme.enabled",
+          this._nativeStylingObserver
+        );
+      }
+      this._syncNativeStyling();
+    }
+
     connectedCallback() {
       if (this.delayConnectedCallback()) {
         return;
@@ -131,6 +181,7 @@
           this._managedNodes.push(child);
         });
       }
+      this._startNativeStylingObserver();
 
       if (!this.hasAttribute("popuponly")) {
         this.initializeAttributeInheritance();
@@ -414,6 +465,26 @@
     disconnectedCallback() {
       if (this.mAttributeObserver) {
         this.mAttributeObserver.disconnect();
+      }
+
+      if (this._nativeStylingObserver) {
+        this._colorSchemeQuery?.removeEventListener(
+          "change",
+          this._nativeStylingObserver
+        );
+        if (AppConstants.platform == "win") {
+          Services.prefs.removeObserver(
+            "browser.display.windows.non_native_menulist",
+            this._nativeStylingObserver
+          );
+        } else {
+          Services.prefs.removeObserver(
+            "widget.non-native-theme.enabled",
+            this._nativeStylingObserver
+          );
+        }
+        this._nativeStylingObserver = null;
+        this._colorSchemeQuery = null;
       }
 
       if (this._managedNodes) {

@@ -118,3 +118,5 @@
 <!ENTITY viewCerts.accesskey             "C">
 <!ENTITY viewSecurityDevices.label       "Security Devices">
 <!ENTITY viewSecurityDevices.accesskey   "D">
+
+<!ENTITY librewolfTab.label            "Extras">

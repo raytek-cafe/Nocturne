@@ -90,13 +90,12 @@
   background-position: -192px 0;
 }
 
-%ifdef MOZ_SERVICES_SYNC
 /* ----- SYNC BUTTON ----- */
 #BrowserPreferences radio[pane="paneSync"] .radio-icon {
   background-image: url("chrome://browser/skin/preferences/Options-sync.png");
   background-position: 0 0;
 }
-%endif
+
 
 /* These lines should be removed as part of fixing bug 1140495 */
 label.small {
@@ -244,7 +243,6 @@ html|a.inline-link:-moz-focusring {
 }
 
 
-%ifdef MOZ_SERVICES_SYNC
 /* ----- SYNC PANE ----- */
 
 #syncDesc {
@@ -293,5 +291,3 @@ html|a.inline-link:-moz-focusring {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-%endif

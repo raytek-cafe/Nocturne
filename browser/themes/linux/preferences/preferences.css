@@ -66,12 +66,10 @@
 #BrowserPreferences radio[pane="paneAdvanced"] .radio-icon {
   background-position: -192px 0;
 }
-%ifdef MOZ_SERVICES_SYNC
 #BrowserPreferences radio[pane="paneSync"] .radio-icon {
   background-image: url("chrome://browser/skin/preferences/Options-sync.png");
   background-position: 0 0;
 }
-%endif
 
 .checkbox-check {
   -moz-appearance: checkbox;
@@ -167,7 +165,6 @@ label.small {
 #SanitizeDialogPane > groupbox {
   margin-top: 0;
 }
-%ifdef MOZ_SERVICES_SYNC
 /* Sync Pane */
 #syncDesc {
   padding: 0 8em;
@@ -204,4 +201,3 @@ label.small {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-%endif

@@ -21,7 +21,6 @@ browser.jar:
   skin/classic/browser/preferences/alwaysAsk.png      (preferences/alwaysAsk.png)
   skin/classic/browser/preferences/mail.png           (preferences/mail.png)
   skin/classic/browser/preferences/Options.png        (preferences/Options.png)
-#ifdef MOZ_SERVICES_SYNC
   skin/classic/browser/preferences/Options-sync.png   (preferences/Options-sync.png)
-#endif
+  skin/classic/browser/preferences/Options-LibreWolf.svg   (preferences/Options-LibreWolf.svg)
   skin/classic/browser/fxa/default-profile-image.svg   (../shared/fxa/default-profile-image.svg)

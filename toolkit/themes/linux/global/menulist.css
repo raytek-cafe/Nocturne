@@ -10,7 +10,7 @@ label {
   margin: 1px 3px;
 }
 
-:host([native])  {
+:host([native]) {
   appearance: auto;
   -moz-default-appearance: menulist;
   margin: 2px 4px;

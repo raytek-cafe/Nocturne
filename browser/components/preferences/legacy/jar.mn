@@ -21,7 +21,7 @@ browser.jar:
   content/browser/preferences/legacy/handlers.xml             
   content/browser/preferences/legacy/handlers.css             
 * content/browser/preferences/legacy/languages.xhtml          (languages.xhtml)
-  content/browser/preferences/legacy/languages.js             
+  content/browser/preferences/legacy/languages.js   
 * content/browser/preferences/legacy/main.xhtml               (main.xhtml)
 * content/browser/preferences/legacy/main.js                  (main.js)
   content/browser/preferences/legacy/permissions.xhtml      
@@ -36,10 +36,8 @@ browser.jar:
   content/browser/preferences/legacy/security.js              
   content/browser/preferences/legacy/selectBookmark.xhtml     
   content/browser/preferences/legacy/selectBookmark.js        
-#ifdef MOZ_SERVICES_SYNC
   content/browser/preferences/legacy/sync.xhtml               
   content/browser/preferences/legacy/sync.js                  
-#endif
   content/browser/preferences/legacy/search.xhtml            
   content/browser/preferences/legacy/search.js                
 * content/browser/preferences/legacy/tabs.xhtml               (tabs.xhtml)

@@ -6,8 +6,8 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-label {
-  margin: 0 3px;
+label:not([native]) {
+  margin: 0;
 }
 
 :host([native]) {
@@ -39,7 +39,6 @@ label {
   outline: var(--default-focusring);
 }
 
-
 @media (-moz-windows-default-theme) {
   #label-box[native] {
     background-color: transparent !important;
@@ -54,4 +53,43 @@ label {
   dropmarker[native] {
     margin-inline: 3px -3px;
   }
+}
+
+:host(:not([native])) {
+  appearance: none;
+  margin: 2px 4px;
+  min-height: 26px;
+  padding: 4px 10px;
+  border: 1px solid ThreeDShadow;
+  border-radius: 4px;
+  background-color: Field;
+  color: FieldText;
+  text-shadow: none;
+}
+
+:host(:not([native])[disabled="true"]) {
+  color: GrayText;
+  opacity: 0.7;
+}
+
+#label-box:not([native]) {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+:host(:not([native]):not([open="true"]):-moz-focusring) {
+  outline: var(--default-focusring);
+  outline-offset: -1px;
+}
+
+dropmarker:not([native]) {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  margin-inline-start: 10px;
+  content: url("chrome://global/skin/icons/arrow-down-12.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
 }

@@ -119,9 +119,6 @@
 }
 
 #tabbrowser-tabs {
-  /* Overriding tabbox.css */
-  border: 0;
-
   /* Use a bigger flex value than the searchbar to prevent it from
    * taking all the toolbar space. */
   flex: 1000 1000;
@@ -130,6 +127,21 @@
     --tab-overflow-pinned-tabs-width: 0px;
     padding-inline: var(--tab-overflow-pinned-tabs-width) 0;
     min-height: var(--tabstrip-min-height);
+    @media (-moz-platform: windows) {
+      @media -moz-pref("browser.display.windows.non_native_tabbox", 1),
+             (-moz-pref("browser.display.windows.non_native_tabbox", 2) and
+               (prefers-color-scheme: dark)) {
+        /* Overriding tabbox.css */
+        border: 0;
+      }
+    }
+
+    @media not (-moz-platform: windows) {
+      @media -moz-pref("widget.non-native-theme.enabled") {
+        /* Overriding tabbox.css */
+        border: 0;
+      }
+    }
 
     --tab-min-width: 76px;
     :root[uidensity="touch"] & .tabbrowser-tab[fadein]:not([pinned]) {
@@ -1578,6 +1590,7 @@ tab-group {
   flex-direction: column;
   align-content: flex-start;
   grid-gap: var(--space-small);
+  padding: 0;
 
   &[overflow]::after {
     content: "";
