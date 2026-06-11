@@ -27,11 +27,32 @@
   margin-inline-end: 20px;
 }
 
+/* New icons
+
 .message-icon {
   list-style-image: url("chrome://global/skin/icons/info.svg");
 }
 
 .alert-dialog #infoIcon,
+.alert-icon {
+  list-style-image: url("chrome://global/skin/icons/warning-64.png");
+}
+
+.error-icon {
+  list-style-image: url("chrome://global/skin/icons/error-64.png");
+}
+
+.question-icon {
+  list-style-image: url("chrome://global/skin/icons/question-64.png");
+}
+
+*/
+
+.message-icon {
+  list-style-image: url("chrome://global/skin/icons/information-64.png");
+}
+
+.alert-dialog #info\.icon,
 .alert-icon {
   list-style-image: url("chrome://global/skin/icons/warning-64.png");
 }

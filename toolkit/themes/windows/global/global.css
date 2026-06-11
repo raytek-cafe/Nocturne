@@ -32,6 +32,8 @@
   fill: currentColor;
 }
 
+/* NEW 
+
 .message-icon {
   list-style-image: url("chrome://global/skin/icons/info.svg");
 }
@@ -51,6 +53,23 @@
   list-style-image: url("chrome://global/skin/icons/help.svg");
   -moz-context-properties: fill, fill-opacity;
   fill-opacity: 0.8;
+}*/
+
+.message-icon {
+  list-style-image: url("chrome://global/skin/icons/information-32.png");
+}
+
+.alert-dialog #info\.icon,
+.alert-icon {
+  list-style-image: url("chrome://global/skin/icons/Warning.png");
+}
+
+.error-icon {
+  list-style-image: url("chrome://global/skin/icons/Error.png");
+}
+
+.question-icon {
+  list-style-image: url("chrome://global/skin/icons/Question.png");
 }
 
 /* XXX(ntim): [mode="text"] is only used by comm-central */
