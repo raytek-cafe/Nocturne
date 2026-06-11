@@ -8,6 +8,7 @@ add_task(async function test_quit_shortcut() {
     set: [
       ["browser.warnOnQuit", true],
       ["browser.warnOnQuitShortcut", true],
+      ["nocturne.tabs.oldWarnOnClose", false],
     ],
   });
 

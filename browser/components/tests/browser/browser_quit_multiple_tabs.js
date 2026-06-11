@@ -11,31 +11,46 @@
 add_task(async function test_check_right_prompt() {
   let tests = [
     {
+      oldWarnOnClose: false,
       warnOnQuitShortcut: true,
       warnOnClose: false,
       expectedDialog: "shortcut",
       messageSuffix: "with shortcut but no tabs warning",
     },
     {
+      oldWarnOnClose: false,
       warnOnQuitShortcut: false,
       warnOnClose: true,
       expectedDialog: "tabs",
       messageSuffix: "with tabs but no shortcut warning",
     },
     {
+      oldWarnOnClose: false,
       warnOnQuitShortcut: false,
       warnOnClose: false,
       messageSuffix: "with no warning",
       expectedDialog: null,
     },
     {
+      oldWarnOnClose: false,
       warnOnQuitShortcut: true,
       warnOnClose: true,
       messageSuffix: "with both warnings",
-      // Note: this is somewhat arbitrary; I don't think there's a right/wrong
-      // here, so if this changes due to implementation details, updating the
-      // text expectation to be "tabs" should be OK.
       expectedDialog: "shortcut",
+    },
+    {
+      oldWarnOnClose: true,
+      warnOnQuitShortcut: true,
+      warnOnClose: true,
+      expectedDialog: "tabs",
+      messageSuffix: "with legacy close warning enabled",
+    },
+    {
+      oldWarnOnClose: true,
+      warnOnQuitShortcut: true,
+      warnOnClose: false,
+      messageSuffix: "with legacy close warning but no tabs warning",
+      expectedDialog: null,
     },
   ];
   let tab = BrowserTestUtils.addTab(gBrowser);
@@ -68,6 +83,7 @@ add_task(async function test_check_right_prompt() {
   }
   Services.obs.addObserver(setDialogOpened, "common-dialog-loaded");
   for (let {
+    oldWarnOnClose,
     warnOnClose,
     warnOnQuitShortcut,
     expectedDialog,
@@ -80,6 +96,7 @@ add_task(async function test_check_right_prompt() {
         ["browser.tabs.warnOnClose", warnOnClose],
         ["browser.warnOnQuitShortcut", warnOnQuitShortcut],
         ["browser.warnOnQuit", true],
+        ["nocturne.tabs.oldWarnOnClose", oldWarnOnClose],
       ],
     });
     if (expectedDialog) {

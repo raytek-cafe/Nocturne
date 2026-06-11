@@ -1314,6 +1314,7 @@ pref("browser.send_pings", false);
 pref("browser.geolocation.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/geolocation/");
 pref("browser.xr.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/xr/");
 
+pref("browser.sessionstore.warnOnQuit", true);
 pref("browser.sessionstore.resume_from_crash", true);
 pref("browser.sessionstore.resume_session_once", false);
 pref("browser.sessionstore.resuming_after_os_restart", false);
@@ -3381,3 +3382,5 @@ pref("nocturne.smalliconbehavior.enabled", true);
 
 // FF68 Icons (Keeping the option to use these icons still. Just with the retry icon reverted back to the real FF68 one.)
 pref("nocturne.ui.ff68downloadicons", false);
+
+pref("nocturne.tabs.oldWarnOnClose", true);

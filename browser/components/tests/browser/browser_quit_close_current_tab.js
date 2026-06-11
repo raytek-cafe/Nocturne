@@ -42,6 +42,7 @@ add_task(async function test_close_current_tab() {
     set: [
       ["browser.warnOnQuitShortcut", true],
       ["browser.warnOnQuit", true],
+      ["nocturne.tabs.oldWarnOnClose", false],
     ],
   });
 

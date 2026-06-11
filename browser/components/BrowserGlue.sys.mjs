@@ -150,6 +150,12 @@ ChromeUtils.defineLazyGetter(lazy, "gBrowserBundle", function () {
   );
 });
 
+ChromeUtils.defineLazyGetter(lazy, "gTabbrowserBundle", function () {
+  return Services.strings.createBundle(
+    "chrome://browser/locale/tabbrowser.properties"
+  );
+});
+
 const listeners = {
   observers: {
 
@@ -1531,11 +1537,18 @@ BrowserGlue.prototype = {
     // The warning will appear even when only one window/tab is open. For other
     // methods of quitting, the warning only appears when there is more than one
     // window or tab open.
+    const useOldWarnBehavior = Services.prefs.getBoolPref(
+      "nocturne.tabs.oldWarnOnClose",
+      true
+    );
     let shouldWarnForShortcut =
       this._quitSource == "shortcut" &&
       Services.prefs.getBoolPref("browser.warnOnQuitShortcut");
     let shouldWarnForTabs =
       pagecount >= 2 && Services.prefs.getBoolPref("browser.tabs.warnOnClose");
+    if (useOldWarnBehavior) {
+      shouldWarnForShortcut = false;
+    }
     if (!shouldWarnForTabs && !shouldWarnForShortcut) {
       return;
     }
@@ -1548,6 +1561,32 @@ BrowserGlue.prototype = {
 
     // Our prompt for quitting is most important, so replace others.
     win.gDialogBox.replaceDialogIfOpen();
+
+    if (useOldWarnBehavior) {
+      let warnOnClose = { value: true };
+      let tabsToClose = pagecount;
+      let bundle = lazy.gTabbrowserBundle;
+      let rawString = bundle.GetStringFromName("tabs.closeWarningMultiple");
+      let warningMessage = rawString.split(";").pop().replace("#1", tabsToClose);
+      let buttonPressed = Services.prompt.confirmEx(
+        win,
+        bundle.GetStringFromName("tabs.closeWarningTitle"),
+        warningMessage,
+        Services.prompt.BUTTON_TITLE_IS_STRING * Services.prompt.BUTTON_POS_0 +
+          Services.prompt.BUTTON_TITLE_CANCEL * Services.prompt.BUTTON_POS_1,
+        bundle.GetStringFromName("tabs.closeButtonMultiple"),
+        null,
+        null,
+        bundle.GetStringFromName("tabs.closeWarningPromptMe"),
+        warnOnClose
+      );
+      if (buttonPressed == 0 && !warnOnClose.value) {
+        Services.prefs.setBoolPref("browser.tabs.warnOnClose", false);
+      }
+      this._quitSource = "unknown";
+      aCancelQuit.data = buttonPressed != 0;
+      return;
+    }
 
     let titleId = {
       id: "tabbrowser-confirm-close-tabs-title",
