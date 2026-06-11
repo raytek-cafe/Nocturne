@@ -198,7 +198,7 @@ var gContentPane = {
 
   openTranslationProviderAttribution: function ()
   {
-    Components.utils.import("resource:///modules/translation/Translation.jsm");
+    const { Translation } = ChromeUtils.importESModule("resource:///modules/translation/Translation.sys.mjs");
     Translation.openProviderAttribution();
   }
 };

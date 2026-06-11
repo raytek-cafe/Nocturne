@@ -5,7 +5,7 @@
 
 const nsICookie = Components.interfaces.nsICookie;
 
-Components.utils.import("resource://gre/modules/PluralForm.jsm");
+const { PluralForm } = ChromeUtils.importESModule("resource://gre/modules/PluralForm.sys.mjs");
 
 var gCookiesWindow = {
   _cm               : Components.classes["@mozilla.org/cookiemanager;1"]

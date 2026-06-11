@@ -4,11 +4,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 // Load DownloadUtils module for convertByteUnits
-Components.utils.import("resource://gre/modules/DownloadUtils.jsm");
-Components.utils.import("resource://gre/modules/ctypes.jsm");
-Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/LoadContextInfo.jsm");
-Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
+const { DownloadUtils } = ChromeUtils.importESModule("resource://gre/modules/DownloadUtils.sys.mjs");
 
 var gAdvancedPane = {
   _inited: false,
@@ -359,7 +355,7 @@ var gAdvancedPane = {
     var cacheService =
       Components.classes["@mozilla.org/netwerk/cache-storage-service;1"]
                 .getService(Components.interfaces.nsICacheStorageService);
-    var storage = cacheService.appCacheStorage(LoadContextInfo.default, null);
+    var storage = cacheService.appCacheStorage(Services.LoadContextInfo.default(), null);
     storage.asyncVisitStorage(visitor, false);
   },
 
@@ -425,7 +421,7 @@ var gAdvancedPane = {
    */
   clearOfflineAppCache: function ()
   {
-    Components.utils.import("resource:///modules/offlineAppCache.jsm");
+    const { OfflineAppCacheHelper } = ChromeUtils.importESModule("resource:///modules/offlineAppCache.sys.mjs");
     OfflineAppCacheHelper.clear();
 
     this.updateActualAppCacheSize();

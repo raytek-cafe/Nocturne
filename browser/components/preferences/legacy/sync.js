@@ -2,18 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-Components.utils.import("resource://services-sync/main.js");
-Components.utils.import("resource://gre/modules/Services.jsm");
+const { Weave } = ChromeUtils.importESModule("resource://services-sync/main.sys.mjs");
 
-XPCOMUtils.defineLazyGetter(this, "FxAccountsCommon", function () {
-  return Components.utils.import("resource://gre/modules/FxAccountsCommon.js", {});
+ChromeUtils.defineESModuleGetters(this, {
+  FxAccountsCommon: "resource://gre/modules/FxAccountsCommon.sys.mjs",
+  fxAccounts: "resource://gre/modules/FxAccounts.sys.mjs",
 });
-
-XPCOMUtils.defineLazyModuleGetter(this, "fxAccounts",
-  "resource://gre/modules/FxAccounts.jsm");
-
-XPCOMUtils.defineLazyModuleGetter(this, "fxaMigrator",
-  "resource://services-sync/FxaMigrator.jsm");
 
 const PAGE_NO_ACCOUNT = 0;
 const PAGE_HAS_ACCOUNT = 1;
