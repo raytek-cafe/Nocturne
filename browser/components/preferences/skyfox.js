@@ -51,6 +51,8 @@ Preferences.addAll([
   { id: "skyfox.ui.ff68downloadicons", type: "bool" },
   { id: "skyfox.ui.oldurlbar", type: "bool" },
   { id: "prompts.tab_modal.enabled", type: "bool", inverted: true },
+  { id: "skyfox.tabs.oldWarnOnClose", type: "bool" },
+  { id: "browser.preferences.inContent", type: "bool", inverted: true },
   { id: "prompts.headerAppIcon.enabled", type: "bool" },
   { id: "prompts.tab_modal.sound.enabled", type: "bool" },
 

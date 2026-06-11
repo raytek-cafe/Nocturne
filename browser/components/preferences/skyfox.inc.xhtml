@@ -143,6 +143,20 @@
           data-category="paneSkyfox"
           hidden="true">
   <label><html:h2 data-l10n-id="skyfox-functional-header"/></label>
+  
+      <hbox align="center">
+    <checkbox id="skyfoxprefsxul"
+              data-l10n-id="skyfox-xul-preferences"
+              preference="browser.preferences.inContent"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="skyfox-xul-preferences-desc"/>
+  
+      <hbox align="center">
+    <checkbox id="skyfoxoldwoc"
+              data-l10n-id="skyfox-old-warn-on-close"
+              preference="skyfox.tabs.oldWarnOnClose"/>
+  </hbox>
+  <description class="indent tip-caption" data-l10n-id="skyfox-old-warn-on-close-desc"/>
 
   <hbox align="center">
     <checkbox id="skyfoxoneoffs"

@@ -252,6 +252,16 @@ skyfox-ff68-download-icons =
 
 skyfox-ff68-download-icons-desc = When enabled, downloads will use the custom folder and retry icons from Firefox 68. When disabled, it uses the proton ones instead.
 
+skyfox-xul-preferences =
+    .label = Use the legacy preferences window instead of about:settings
+
+skyfox-xul-preferences-desc = When enabled, clicking "Settings" in the user interface will open up the old XUL-based preferences window that was primarily used in Firefox 28 and earlier. This is WIP, so many options and subdialogs won't work, but we recommend you keep it enabled as you can always access the modern settings page by typing about:settings into the address bar. 
+
+skyfox-old-warn-on-close =
+    .label = Use the "confirm before closing tabs" dialog from Firefox 56 and older
+
+skyfox-old-warn-on-close-desc = When enabled, the "confirm before closing tabs" dialog will look and function exactly like how it did in older versions of the Firefox browser. This setting requires native modals to be enabled.
+
 skyfox-advanced-header = Advanced configurations
 
 skyfox-accessibility = Accessibility services

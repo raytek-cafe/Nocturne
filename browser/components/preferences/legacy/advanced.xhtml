@@ -139,6 +139,8 @@
             name="skyfox.drag-space.enabled" type="bool"/>
 <preference id="skyfox.backgrounds.enabled"
             name="skyfox.backgrounds.enabled" type="bool"/>
+<preference id="skyfox.tabs.oldWarnOnClose"
+            name="skyfox.tabs.oldWarnOnClose" type="bool"/>
 <preference id="skyfox.transparent.menubar"
             name="skyfox.transparent.menubar" type="bool"/>
 <preference id="skyfox.translucent.navbar"
@@ -183,6 +185,8 @@
             name="widget.native-controls.override-aero-caption-buttons-mask-height" type="int"/>
 <preference id="widget.native-controls.override-aero-caption-buttons-mask-width"
             name="widget.native-controls.override-aero-caption-buttons-mask-width" type="int"/>
+<preference id="browser.preferences.inContent"
+            name="browser.preferences.inContent" type="bool" inverted="true"/>
 <preference id="browser.display.windows.non_native_menus"
             name="browser.display.windows.non_native_menus" type="int"/>
 <preference id="dom.webaudio.enabled"
@@ -874,6 +878,25 @@
     <groupbox>
       <caption data-l10n-id="skyfox-functional-header"/>
 
+      <hbox align="center">
+        <checkbox id="skyfoxprefsxul"
+                  data-l10n-id="skyfox-xul-preferences"
+                  preference="browser.preferences.inContent"/>
+		
+      </hbox>
+	  <label data-l10n-id="skyfox-xul-preferences-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+			 
+	  <hbox align="center">
+        <checkbox id="skyfoxoldwoc"
+                  data-l10n-id="skyfox-old-warn-on-close"
+                  preference="skyfox.tabs.oldWarnOnClose"/>
+		
+      </hbox>
+	  
+	  <label data-l10n-id="skyfox-old-warn-on-close-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+	  
       <hbox align="center">
         <checkbox id="skyfoxoneoffs"
                   data-l10n-id="skyfox-one-offs"
