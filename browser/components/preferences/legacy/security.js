@@ -110,7 +110,7 @@ var gSecurityPane = {
   showPasswordExceptions: function ()
   {
     document.documentElement.openWindow("Toolkit:PasswordManagerExceptions",
-                                        "chrome://passwordmgr/content/passwordManagerExceptions.xul",
+                                        "chrome://passwordmgr/content/passwordManagerExceptions.xhtml",
                                         "resizable", null);
   },
 
@@ -220,7 +220,7 @@ var gSecurityPane = {
   showPasswords: function ()
   {
     document.documentElement.openWindow("Toolkit:PasswordManager",
-                                        "chrome://passwordmgr/content/passwordManager.xul",
+                                        "chrome://passwordmgr/content/passwordManager.xhtml",
                                         "resizable", null);
   }
 
