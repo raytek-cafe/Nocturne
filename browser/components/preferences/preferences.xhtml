@@ -147,18 +147,6 @@
           <label class="category-name" flex="1" data-l10n-id="pane-privacy-title"></label>
         </richlistitem>
 
-
-        <richlistitem id="category-librewolf"
-                      class="category"
-                      value="paneLibrewolf"
-                      helpTopic="prefs-librewolf"
-                      data-l10n-id="category-librewolf"
-                      data-l10n-attrs="tooltiptext"
-                      align="center">
-          <image class="category-icon"/>
-          <label class="category-name" flex="1" data-l10n-id="pane-librewolf-title"></label>
-        </richlistitem>
-
         <richlistitem id="category-sync"
                       class="category"
                       hidden="true"
@@ -181,17 +169,6 @@
           <label class="category-name" flex="1" data-l10n-id="settings-pane-labs-title"></label>
         </richlistitem>
 
-        <richlistitem id="category-skyfox"
-                      class="category"
-                      value="paneSkyfox"
-                      helpTopic="prefs-skyfox"
-                      data-l10n-id="category-skyfox"
-                      data-l10n-attrs="tooltiptext"
-                      align="center">
-          <image class="category-icon"/>
-          <label class="category-name" flex="1" data-l10n-id="pane-skyfox-title"></label>
-        </richlistitem>
-
         <richlistitem id="category-librewolf"
                       class="category"
                       value="paneLibrewolf"
@@ -201,6 +178,17 @@
                       align="center">
           <image class="category-icon"/>
           <label class="category-name" flex="1" data-l10n-id="pane-librewolf-title"></label>
+        </richlistitem>
+		
+        <richlistitem id="category-skyfox"
+                      class="category"
+                      value="paneSkyfox"
+                      helpTopic="prefs-skyfox"
+                      data-l10n-id="category-skyfox"
+                      data-l10n-attrs="tooltiptext"
+                      align="center">
+          <image class="category-icon"/>
+          <label class="category-name" flex="1" data-l10n-id="pane-skyfox-title"></label>
         </richlistitem>
 
         <!-- The following <richlistitem> elements are hidden from the list of items via the hidden-category class.
@@ -244,6 +232,14 @@
       <vbox class="pane-container">
         <hbox class="sticky-container">
           <hbox class="sticky-inner-container" pack="end" align="start">
+		     <hbox id="xul-migration-container" class="info-box-container smaller-font-size" flex="1" hidden="false">
+              <hbox class="info-icon-container">
+                <html:img class="info-icon" data-l10n-attrs="alt" data-l10n-id="managed-notice-info-icon"></html:img>
+              </hbox>
+              <hbox align="center" flex="1">
+                <html:label data-l10n-id="xul-migration-notice"/>
+              </hbox>
+            </hbox>
             <hbox id="policies-container" class="info-box-container smaller-font-size" flex="1" hidden="true">
               <hbox class="info-icon-container">
                 <html:img class="info-icon" data-l10n-attrs="alt" data-l10n-id="managed-notice-info-icon"></html:img>

@@ -29,6 +29,8 @@ search-input-box2 =
     .style = width: 15.4em
     .placeholder = Find in Settings
 
+xul-migration-notice = The "Extra Configurations" and "Skyfox configurations" pages are moving to the legacy preferences window. You can find them there under Advanced -> Extras and Advanced -> Skyfox.
+
 managed-notice = Your browser is being managed by your organization.
 managed-notice-info-icon =
     .alt = Information

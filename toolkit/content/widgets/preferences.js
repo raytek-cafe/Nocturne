@@ -19,7 +19,7 @@
  *     </prefpane>
  *   </prefwindow>
  */
- 
+
 "use strict"; {
     const XUL_NS =
         "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
@@ -286,9 +286,7 @@
                         return this.inverted ? !val : val;
                     }
                 case "wstring":
-                    return this._branch
-                    .getComplexValue(this.name, Ci.nsIPrefLocalizedString)
-                    .data;
+                    return this._branch.getStringPref(this.name);
                 case "string":
                 case "unichar":
                     return this._branch.getStringPref(this.name);
@@ -298,8 +296,19 @@
                             .createInstance(Ci.nsIFontEnumerator);
                         return fontEnumerator.getStandardFamilyName(family);
                     }
-                case "file":
-                    return this._branch.getComplexValue(this.name, Ci.nsIFile);
+                case "file": {
+                        var path = this._branch.getStringPref(this.name);
+                        if (!path)
+                            return null;
+
+                        var file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+                        try {
+                            file.persistentDescriptor = path;
+                        } catch (e) {
+                            file.initWithPath(path);
+                        }
+                        return file;
+                    }
                 default:
                     this._reportUnknownType();
                 }
@@ -324,34 +333,41 @@
                 Services.prefs.setBoolPref(this.name, this.inverted ? !val : val);
                 break;
             case "wstring": {
-                    var pls = Cc["@mozilla.org/pref-localizedstring;1"]
-                        .createInstance(Ci.nsIPrefLocalizedString);
-                    pls.data = val;
-                    Services.prefs.setComplexValue(
-                        this.name, Ci.nsIPrefLocalizedString, pls);
+                    if (val === null || val === undefined) {
+                        Cu.reportError("preference type=wstring has null value, skipping: name=" + this.name);
+                        break;
+                    }
+                    Services.prefs.setStringPref(this.name, val);
                     break;
                 }
             case "string":
             case "unichar":
             case "fontname": {
-                    var iss = Cc["@mozilla.org/supports-string;1"]
-                        .createInstance(Ci.nsISupportsString);
-                    iss.data = val;
-                    Services.prefs.setComplexValue(
-                        this.name, Ci.nsISupportsString, iss);
+                    Services.prefs.setStringPref(this.name, val);
                     break;
                 }
             case "file": {
-                    var lf;
-                    if (typeof val == "string") {
-                        lf = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-                        lf.persistentDescriptor = val;
-                        if (!lf.exists())
-                            lf.initWithPath(val);
-                    } else {
-                        lf = val.QueryInterface(Ci.nsIFile);
+                    if (val === null || val === undefined) {
+                        console.log("preference type=file has null value, skipping: name=" + this.name);
+                        break;
                     }
-                    Services.prefs.setComplexValue(this.name, Ci.nsIFile, lf);
+
+                    var pathString = "";
+                    if (typeof val === "string") {
+                        pathString = val;
+                    } else if (val instanceof Ci.nsIFile) {
+                        pathString = val.persistentDescriptor || val.path;
+                    } else {
+                        try {
+                            var fileObj = val.QueryInterface(Ci.nsIFile);
+                            pathString = fileObj.persistentDescriptor || fileObj.path;
+                        } catch (e) {
+                            Cu.reportError("preference type=file passed invalid object: " + this.name);
+                            break;
+                        }
+                    }
+
+                    Services.prefs.setStringPref(this.name, pathString);
                     break;
                 }
             default:
@@ -745,7 +761,7 @@
             this._selector = document.createElementNS(XUL_NS, "radiogroup");
             this._selector.setAttribute("anonid", "selector");
             this._selector.setAttribute("orient", "horizontal");
-			this._selector.setAttribute("flex", "1");
+            this._selector.setAttribute("flex", "1");
             this._selector.classList.add("paneSelector", "chromeclass-toolbar");
             this._selector.setAttribute("role", "listbox");
 
@@ -849,26 +865,24 @@
             }
 
             for (var i = 0; i < panes.length; ++i) {
-    this._makePaneButton(panes[i]);
-    if (panes[i].loaded) {
-        this._fireEvent("paneload", panes[i]);
-    }
-}
+                this._makePaneButton(panes[i]);
+                if (panes[i].loaded) {
+                    this._fireEvent("paneload", panes[i]);
+                }
+            }
 
-requestAnimationFrame(() => {
-    document.documentElement.style.width = "";  // clear mozilla shitcode DTD-injected fixed width
-    const w = this._selector.scrollWidth;
-    document.documentElement.style.width = w + "px";
-    document.documentElement.style.maxWidth = w + "px";
-});
+            requestAnimationFrame(() => {
+                document.documentElement.style.width = ""; // clear mozilla shitcode DTD-injected fixed width
+                const w = this._selector.scrollWidth;
+                document.documentElement.style.width = w + "px";
+                document.documentElement.style.maxWidth = w + "px";
+            });
 
-this.showPane(paneToLoad);
+            this.showPane(paneToLoad);
 
-if (panes.length == 1)
-    this._selector.setAttribute("collapsed", "true");
-}
-
-
+            if (panes.length == 1)
+                this._selector.setAttribute("collapsed", "true");
+        }
 
         get preferencePanes() {
             return (this._paneDeck || this).getElementsByTagName("prefpane");
@@ -908,65 +922,65 @@ if (panes.length == 1)
         }
 
         showPane(aPaneElement) {
-    if (!aPaneElement)
-        return;
-
-    if (this._loadingPane === aPaneElement)
-        return;
-
-    this._selector.selectedItem =
-        this._selector.querySelector(`[pane="${aPaneElement.id}"]`);
-
-    if (!aPaneElement.loaded) {
-        this._loadingPane = aPaneElement;
-
-        fetch(aPaneElement.src)
-        .then(r => r.text())
-        .then(text => {
-            if (this._loadingPane !== aPaneElement)
+            if (!aPaneElement)
                 return;
-            this._loadingPane = null;
 
-            text = text.replace(/^#.*$/gm, "");
-            let parser = new DOMParser();
-            parser.forceEnableXULXBL();
-            let doc = parser.parseFromString(text, "application/xml");
-            if (doc.documentElement.localName === "parsererror") {
-                Cu.reportError("PANE PARSE ERROR in " + aPaneElement.src +
-                    ": " + doc.documentElement.textContent);
+            if (this._loadingPane === aPaneElement)
                 return;
+
+            this._selector.selectedItem =
+                this._selector.querySelector(`[pane="${aPaneElement.id}"]`);
+
+            if (!aPaneElement.loaded) {
+                this._loadingPane = aPaneElement;
+
+                fetch(aPaneElement.src)
+                .then(r => r.text())
+                .then(text => {
+                    if (this._loadingPane !== aPaneElement)
+                        return;
+                    this._loadingPane = null;
+
+                    text = text.replace(/^#.*$/gm, "");
+                    let parser = new DOMParser();
+                    parser.forceEnableXULXBL();
+                    let doc = parser.parseFromString(text, "application/xml");
+                    if (doc.documentElement.localName === "parsererror") {
+                        Cu.reportError("PANE PARSE ERROR in " + aPaneElement.src +
+                            ": " + doc.documentElement.textContent);
+                        return;
+                    }
+
+                    let target = aPaneElement._content || aPaneElement;
+                    let overlayPane = doc.documentElement.querySelector(
+                            "prefpane#" + aPaneElement.id);
+                    let source = overlayPane || doc.documentElement;
+
+                    for (let child of Array.from(source.childNodes))
+                        target.appendChild(document.importNode(child, true));
+
+                    for (let script of Array.from(
+                            doc.documentElement.querySelectorAll("script[src]"))) {
+                        let live = document.createElementNS(XUL_NS, "script");
+                        live.setAttribute("src", script.getAttribute("src"));
+                        document.documentElement.appendChild(live);
+                    }
+
+                    aPaneElement.loaded = true;
+                    this._fireEvent("paneload", aPaneElement);
+
+                    this._selectPane(aPaneElement);
+                    window.sizeToContent();
+                })
+                .catch(e => {
+                    this._loadingPane = null;
+                    Cu.reportError("PANE FETCH ERROR " + aPaneElement.src + ": " + e);
+                });
+            } else {
+                this._selectPane(aPaneElement);
+                window.sizeToContent();
             }
-
-            let target = aPaneElement._content || aPaneElement;
-            let overlayPane = doc.documentElement.querySelector(
-                    "prefpane#" + aPaneElement.id);
-            let source = overlayPane || doc.documentElement;
-
-            for (let child of Array.from(source.childNodes))
-                target.appendChild(document.importNode(child, true));
-
-            for (let script of Array.from(
-                    doc.documentElement.querySelectorAll("script[src]"))) {
-                let live = document.createElementNS(XUL_NS, "script");
-                live.setAttribute("src", script.getAttribute("src"));
-                document.documentElement.appendChild(live);
-            }
-
-            aPaneElement.loaded = true;
-            this._fireEvent("paneload", aPaneElement);
-
-            this._selectPane(aPaneElement);
-            window.sizeToContent();
-        })
-        .catch(e => {
-            this._loadingPane = null;
-            Cu.reportError("PANE FETCH ERROR " + aPaneElement.src + ": " + e);
-        });
-    } else {
-        this._selectPane(aPaneElement);
-        window.sizeToContent();
-    }
-}
+        }
 
         _fireEvent(aEventName, aTarget) {
             try {

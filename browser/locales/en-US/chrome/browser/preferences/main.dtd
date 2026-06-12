@@ -43,3 +43,6 @@
 <!ENTITY getStarted.label                 "Start using Sync…">
 
 <!ENTITY e10sEnabled.label                "Enable multi-process &brandShortName;">
+
+<!ENTITY xulPrefsBeta.message "The legacy preferences window is in beta. Go to about:settings to change most options.">
+
