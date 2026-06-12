@@ -2945,7 +2945,12 @@ export var XPIProvider = {
           Services.obs.addObserver(observer, event);
         }
       }
-
+	  
+	  // restore legacy extensions
+	  const { BootstrapLoader } = ChromeUtils.importESModule(
+  	    "resource://gre/modules/addons/LegacyBootstrap.sys.mjs"
+	  );
+	  AddonManager.addExternalExtensionLoader(BootstrapLoader);
       AddonManagerPrivate.recordTimestamp("XPI_startup_end");
 
       if (
