@@ -686,7 +686,6 @@ var loadManifest = async function (aPackage, aLocation, aOldAddon) {
       aLocation
     ));
   } else {
-    // TODO bug 1674799: Remove this unused branch.
     for (let loader of AddonManagerPrivate.externalExtensionLoaders.values()) {
       if (await aPackage.hasResource(loader.manifestFile)) {
         addon = await loader.loadManifest(aPackage);
@@ -931,6 +930,11 @@ function shouldVerifySignedState(aAddonType, aLocation) {
  *        or undefined if the file wasn't signed.
  */
 export var verifyBundleSignedState = async function (aBundle, aAddon) {
+  // Nocturne: skip signing check for legacy bootstrap extensions
+  if (!aAddon.isWebExtension && aAddon.type === "extension") {
+    return { signedState: AddonManager.SIGNEDSTATE_NOT_REQUIRED, signedTypes: [] };
+  }
+  
   let pkg = Package.get(aBundle);
   try {
     let { signedState, signedTypes } = await pkg.verifySignedState(
