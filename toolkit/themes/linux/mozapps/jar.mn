@@ -4,4 +4,5 @@
 
 toolkit.jar:
 #include ../../shared/mozapps.inc.mn
+  skin/classic/mozapps/profile/profileicon.png             (profile/profileicon.png)
   skin/classic/mozapps/update/updates.css                  (update/updates.css)

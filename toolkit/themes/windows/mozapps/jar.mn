@@ -5,3 +5,8 @@
 toolkit.jar:
 #include ../../shared/mozapps.inc.mn
   skin/classic/mozapps/update/updates.css                    (update/updates.css)
+  skin/classic/mozapps/profile/profileicon.png               (profile/profileicon.png)
+  skin/classic/mozapps/profile/profileSelection.css          (profile/profileSelection.css)
+#ifdef XP_WIN
+  skin/classic/mozapps/profile/profileicon-XP.png            (profile/profileicon-XP.png)
+#endif
