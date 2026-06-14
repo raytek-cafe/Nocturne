@@ -6,7 +6,7 @@
 
 pref("startup.homepage_override_url", "about:preferences#nocturne");
 pref("startup.homepage_welcome_url", "about:preferences#nocturne");
-pref("startup.homepage_welcome_url.additional", "https://eclipse.cx/");
+pref("startup.homepage_welcome_url.additional", "https://raytek.cafe/");
 // Interval: Time between checks for a new version (in seconds)
 pref("app.update.interval", 86400); // 24 hours
 // Give the user x seconds to react before showing the big UI. default=192 hours

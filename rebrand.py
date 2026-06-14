@@ -10,6 +10,9 @@ REPLACEMENTS = [
     ("SKYFOX", "NOCTURNE"),
     ("OmegaAOL", "raytek-cafe"),
     ("Eclipse Community", "raytek-cafe"),
+    ("eclipse.cx", "raytek.cafe"),
+    ("Skymu", "raytek forum"),
+    ("skymu.app", "raytek.cafe"),
 ]
 
 SKIP_FILES = {"README.md", "rebrand.py"}

@@ -11,7 +11,7 @@
 !define BrandFullNameInternal "Nocturne"
 !define BrandFullName         "Nocturne"
 !define CompanyName           "raytek-cafe"
-!define URLInfoAbout          "https://eclipse.cx"
+!define URLInfoAbout          "https://raytek.cafe"
 !define URLUpdateInfo         "https://github.com/raytek-cafe/Nocturne/releases"
 !define HelpLink              "https://github.com/raytek-cafe/Nocturne/issues"
 
