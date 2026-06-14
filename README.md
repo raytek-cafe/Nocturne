@@ -67,7 +67,7 @@ and more!
 
 If I've forgotten to put your name here, please let me know and I'll add it.
 
-### Contributors
+### Individual contributors
 - [Travis](https://github.com/travy-patty), [NetworkNeighborhood](https://github.com/NetworkNeighborhood/) - The current logo used in the browser. Recolored from the original.
 - [Nareny](https://github.com/nt5point1/) - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
 - [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
@@ -83,7 +83,8 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 - [newbie-461](https://github.com/newbie-461/) - Fixed the installer issues
 - [SashaXser](https://github.com/SashaXser/) - Improved rustflags opts in mozconfig
 - wanderer - Various code contributions for Vista support / extra help in Nocturne
----
+
+### Browser projects
 - [Mozilla Developers](https://www.firefox.com/) - Mozilla Firefox (base)
 - [Eclipse Community](https://eclipse.cx/) - Eclipse r3dfox (base)
 - [Librewolf Developers](https://librewolf.net/) - Privacy tweaks from Librewolf
