@@ -11,6 +11,7 @@ Skyfox keeps the browser feeling familiar while adding Windows-focused polish an
 - Aero Glass support on Windows 8/10+
 - Full portable mode that doesn't touch AppData
 - Restored the classic XUL Preferences window, toggleable by setting `browser.preferences.incontent` to `false`.
+- Enabled the classic Credential Manager UI and restored the classic Password Manager UI, both accessible from the XUL Preferences window.
 - Optional classic about:config page, toggleable via `skyfox.ui.oldaboutconfig`
 - Less telemetry than regular Firefox
 - No background tasks
