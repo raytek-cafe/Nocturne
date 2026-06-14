@@ -7,6 +7,7 @@ Skyfox is a fork of Nocturne (which is a fork of r3dfox) that restores removed F
 Skyfox keeps the browser feeling familiar while adding Windows-focused polish and compatibility:
 
 - More native-like controls, scrollbars, checkboxes, radio buttons, and tooltips
+- Ability to install and use some legacy XPCOM/XUL extensions and make new ones completely compatible with Skyfox
 - Aero Glass support on Windows 8/10+
 - Full portable mode that doesn't touch AppData
 - Restored the classic XUL Preferences window, toggleable by setting `browser.preferences.incontent` to `false`.
