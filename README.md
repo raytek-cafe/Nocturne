@@ -82,7 +82,7 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 - [newbie-461](https://github.com/newbie-461/) - Fixed the installer issues
 - [SashaXser](https://github.com/SashaXser/) - Improved rustflags opts in mozconfig
 - wanderer - Various code contributions for Vista support / extra help in Nocturne
-
+---
 - [Mozilla Developers](https://www.firefox.com/) - Mozilla Firefox (base)
 - [Eclipse Community](https://eclipse.cx/) - Eclipse r3dfox (base)
 - [Librewolf Developers](https://librewolf.net/) - Privacy tweaks from Librewolf
