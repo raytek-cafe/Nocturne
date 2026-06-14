@@ -1,10 +1,43 @@
-<span style="display:block;text-align:center">![Skyfox Banner](./docs/readme/banner.png)</span>
+<span style="display:block;text-align:center">![Nocturne Banner](./docs/readme/nocturne_banner.png)</span>
 
-Skyfox is a fork of Nocturne (which is a fork of r3dfox) that restores removed Firefox features, partial legacy XUL/XPCOM extension support, UI elements, dialogs, and windows, along with CSS customization options. It keeps Windows 7 and 8 support alive, but primarily targets customized Windows 10/11 builds.
+Nocturne is a fork of r3dfox that restores removed Firefox features, UI elements, dialogs, and windows, along with CSS customization options and partial legacy XUL/XPCOM extension support. It keeps Windows 7 and 8 support alive, but primarily targets customized Windows 10/11 builds.
+
+[![Github All Releases](https://img.shields.io/github/downloads/raytek-cafe/nocturne/total.svg)](https://github.com/raytek-cafe/Nocturne/releases/latest)
+[![Star][star-badge]][star]
+
+[star]: https://github.com/raytek-cafe/Nocturne/stargazers
+[star-badge]: https://img.shields.io/github/stars/raytek-cafe/Nocturne
+
+#### Nocturne on Windows 10
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne Browser on Windows 10" src="./docs/readme/Nocturne_Win10.png" />
+</p>
+
+<hr />
+
+#### Nocturne on Windows 7 (With [Geckium](https://github.com/angelbruni/Geckium/) installed)
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne on Windows 7 with Geckium" src="./docs/readme/Nocturne_Geckium_Win7.png" />
+</p>
+
+<hr />
+
+#### Nocturne on Windows 10 skinned as Windows 8 (With [Echelon 140](https://github.com/nt5point1/echelon-140) installed)
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne on Windows 10 skinned as Windows 8 with Echelon" src="./docs/readme/Nocturne_Echelon_Win10to8.png" />
+</p>
+
+<hr />
+
+#### Nocturne on Windows 10 skinned as Windows XP (With [Namoroka](https://github.com/echelon-theme/namoroka) installed)
+<p align="center">
+  <img width="1440" height="900" alt="Nocturne on Windows 10 skinned as Windows XP with Namoroka" src="./docs/readme/Nocturne_Namoroka_Win10toXP.png" />
+</p>
+
 
 ## Features
 
-Skyfox keeps the browser feeling familiar while adding Windows-focused polish and compatibility:
+Nocturne keeps the browser feeling familiar while adding Windows-focused polish and compatibility:
 
 - More native-like controls, scrollbars, checkboxes, radio buttons, and tooltips
 - Ability to install and use some legacy XPCOM/XUL extensions and make new ones completely compatible with Skyfox
@@ -12,6 +45,7 @@ Skyfox keeps the browser feeling familiar while adding Windows-focused polish an
 - Full portable mode that doesn't touch AppData
 - Restored the classic XUL Preferences window, toggleable by setting `browser.preferences.incontent` to `false`.
 - Enabled the classic Credential Manager UI and restored the classic Password Manager UI, both accessible from the XUL Preferences window.
+- Added options to revert to classic Firefox behavior/logic for some workflows, like tab closing
 - Optional classic about:config page, toggleable via `skyfox.ui.oldaboutconfig`
 - Less telemetry than regular Firefox
 - No background tasks
@@ -33,9 +67,8 @@ and more!
 
 If I've forgotten to put your name here, please let me know and I'll add it.
 
-- [Mozilla Developers](https://www.firefox.com/) - Mozilla Firefox (base)
-- [ImSwordQueen and raytek.cafe](https://raytek.cafe/) - Nocturne (base) 
-- [the_r3dacted, wuggy, Eclipse Community](https://eclipse.cx/) - Eclipse r3dfox (base)
+- [Travis](https://github.com/travy-patty), [NetworkNeighborhood](https://github.com/NetworkNeighborhood/) - The current logo used in the browser. Recolored from the original.
+- [Nareny](https://github.com/nt5point1/) - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
 - [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
 - [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, and some miscellaneous fixes from Marble Browser
 - [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
@@ -48,7 +81,11 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 - [Alex313031](https://github.com/Alex313031/) - Mozconfig, general help with the browser, and changes from Mercury browser
 - [newbie-461](https://github.com/newbie-461/) - Fixed the installer issues
 - [SashaXser](https://github.com/SashaXser/) - Improved rustflags opts in mozconfig
+- wanderer - Various code contributions for Vista support / extra help in Nocturne
+
+- [Mozilla Developers](https://www.firefox.com/) - Mozilla Firefox (base)
+- [Eclipse Community](https://eclipse.cx/) - Eclipse r3dfox (base)
 - [Librewolf Developers](https://librewolf.net/) - Privacy tweaks from Librewolf
 - [Tor Browser Developers](https://www.torproject.org/) - Addon fix code from Tor Browser
-- wanderer - Various code contributions for Vista support / extra help in Nocturne
+
 
