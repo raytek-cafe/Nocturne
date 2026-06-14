@@ -67,13 +67,14 @@ and more!
 
 If I've forgotten to put your name here, please let me know and I'll add it.
 
+### Contributors
 - [Travis](https://github.com/travy-patty), [NetworkNeighborhood](https://github.com/NetworkNeighborhood/) - The current logo used in the browser. Recolored from the original.
 - [Nareny](https://github.com/nt5point1/) - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
 - [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
 - [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, and some miscellaneous fixes from Marble Browser
 - [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
 - [Feodor2](https://github.com/Feodor2/) - Portable mode and Vista compatibility changes from Mypal68
-- [OmegaAOL](https://github.com/OmegaAOL/) - Classic XUL Preferences window
+- [OmegaAOL](https://github.com/OmegaAOL/) - Restored toggleable classic preferences window from Firefox 29 with Skyfox/Extras pages added, credential manager and password manager, partial legacy XUL/XPCOM extension support, improvement of native controls, branding fixes, addition of legacy logic (toggleable) and legacy icons, and more from Skyfox browser
 - [goodusername123](https://github.com/goodusername123/) - Graphical acceleration in VMware Workstation
 - [i486](https://github.com/i486/) - Fixed non-native menus
 - [leadweedy](https://github.com/leadweedy) - Improved active tab indicator from Firefox-Proton-Square
