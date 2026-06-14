@@ -1,6 +1,6 @@
 <span style="display:block;text-align:center">![Skyfox Banner](./docs/readme/banner.png)</span>
 
-Skyfox is a fork of Nocturne (which is a fork of r3dfox) that restores removed Firefox features, UI elements, dialogs, and windows, along with CSS customization options. It keeps Windows 7 and 8 support alive, but primarily targets customized Windows 10/11 builds.
+Skyfox is a fork of Nocturne (which is a fork of r3dfox) that restores removed Firefox features, partial legacy XUL/XPCOM extension support, UI elements, dialogs, and windows, along with CSS customization options. It keeps Windows 7 and 8 support alive, but primarily targets customized Windows 10/11 builds.
 
 ## Features
 
