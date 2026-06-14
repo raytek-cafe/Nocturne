@@ -1022,7 +1022,7 @@ class ModalPrompter {
       return;
     }
 
-    // raytek-cafe, ISQ: if native modals are enabled, make all prompt types MODAL_TYPE_WINDOW
+    // OmegaAOL, ISQ: if native modals are enabled, make all prompt types MODAL_TYPE_WINDOW
 	// which is the only one out of these four that is actually native
     if (
       !ModalPrompter.tabModalEnabled &&
