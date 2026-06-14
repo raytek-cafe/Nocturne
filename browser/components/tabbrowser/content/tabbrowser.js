@@ -3792,7 +3792,7 @@
       }
 
       const useNewWarnBehavior = !Services.prefs.getBoolPref(
-        "skyfox.tabs.oldWarnOnClose",
+        "nocturne.tabs.oldWarnOnClose",
         true  // default, use the old behavior
       );
 

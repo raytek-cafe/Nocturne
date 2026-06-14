@@ -13,9 +13,9 @@ imply_option("MOZ_NORMANDY", False)
 imply_option("MOZ_PROFILE_MIGRATOR", True)
 
 
-imply_option("MOZ_APP_VENDOR", "Skyfox")
-imply_option("MOZ_APP_UA_NAME", "Skyfox")
-imply_option("MOZ_APP_PROFILE", "Skyfox")
+imply_option("MOZ_APP_VENDOR", "Nocturne")
+imply_option("MOZ_APP_UA_NAME", "Nocturne")
+imply_option("MOZ_APP_PROFILE", "Nocturne")
 imply_option("MOZ_APP_ID", "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}")
 # Include the DevTools client, not just the server (which is the default)
 imply_option("MOZ_DEVTOOLS", "all")
@@ -77,13 +77,13 @@ imply_option("MOZ_STUB_INSTALLER", True, when=requires_stub_installer)
 
 
 
-# Use Skyfox version for package naming (installers, zips, etc.)
-@depends(skyfox_version)
-def skyfox_pkg_version(skyfox_version):
-    if skyfox_version:
-        return skyfox_version
+# Use Nocturne version for package naming (installers, zips, etc.)
+@depends(nocturne_version)
+def nocturne_pkg_version(nocturne_version):
+    if nocturne_version:
+        return nocturne_version
 
 
-set_config("MOZ_PKG_VERSION", skyfox_pkg_version)
+set_config("MOZ_PKG_VERSION", nocturne_pkg_version)
 
 include("../toolkit/moz.configure")

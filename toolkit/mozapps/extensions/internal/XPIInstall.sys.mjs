@@ -930,7 +930,7 @@ function shouldVerifySignedState(aAddonType, aLocation) {
  *        or undefined if the file wasn't signed.
  */
 export var verifyBundleSignedState = async function (aBundle, aAddon) {
-  // Skyfox: skip signing check for legacy bootstrap extensions
+  // Nocturne: skip signing check for legacy bootstrap extensions
   if (!aAddon.isWebExtension && aAddon.type === "extension") {
     return { signedState: AddonManager.SIGNEDSTATE_NOT_REQUIRED, signedTypes: [] };
   }

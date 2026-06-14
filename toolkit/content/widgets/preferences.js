@@ -4,7 +4,7 @@
 
 /*
  * = Preferences Window Framework
- *   Ported from XBL to Custom Elements by OmegaAOL
+ *   Ported from XBL to Custom Elements by raytek-cafe
  *   The Code Could Well Be Ready, Are You?
  *
  *   The syntax for use looks something like:

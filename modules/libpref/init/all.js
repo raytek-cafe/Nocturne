@@ -646,29 +646,29 @@ pref("toolkit.telemetry.user_characteristics_ping.logLevel", "Warn");
 // Extra logging for AsyncShutdown barriers and phases
 pref("toolkit.asyncshutdown.log", false);
 
-// Skyfox preferences.
+// Nocturne preferences.
 // Ability to enable/disable Aero fog.
-pref("skyfox.aero.fog", 0);
-// Skyfox drag space in theme.
-pref("skyfox.drag-space.enabled", true);
-// Skyfox tab and other item backgrounds so no fog needed.
-pref("skyfox.backgrounds.enabled", true);
+pref("nocturne.aero.fog", 0);
+// Nocturne drag space in theme.
+pref("nocturne.drag-space.enabled", true);
+// Nocturne tab and other item backgrounds so no fog needed.
+pref("nocturne.backgrounds.enabled", true);
 // Black or white caption text.
-pref("skyfox.caption.text.color", 0);
+pref("nocturne.caption.text.color", 0);
 // Force (kinda) transparency.
-pref("skyfox.force.transparency", false);
+pref("nocturne.force.transparency", false);
 // Turn on old about:config
-pref("skyfox.ui.oldaboutconfig", true);
+pref("nocturne.ui.oldaboutconfig", true);
 // Disable transparent menubar by default
-pref("skyfox.transparent.menubar", false);
+pref("nocturne.transparent.menubar", false);
 // Enable menubar text glow by default
-pref("skyfox.glow.menubar", true);
+pref("nocturne.glow.menubar", true);
 // Translucent navbar design
-pref("skyfox.translucent.navbar", false);
+pref("nocturne.translucent.navbar", false);
 // Disable other customizations by default
-pref("skyfox.view.image", false);
+pref("nocturne.view.image", false);
 // Old URL Bar
-pref("skyfox.ui.oldurlbar", false);
+pref("nocturne.ui.oldurlbar", false);
 
 // Whether the context menu should show the navigation items (Back, Forward,
 // Reload, Bookmark) as icons.

@@ -8,12 +8,12 @@
 
 # BrandFullNameInternal is used for some registry and file system values
 # instead of BrandFullName and typically should not be modified.
-!define BrandFullNameInternal "Skyfox"
-!define BrandFullName         "Skyfox"
-!define CompanyName           "OmegaAOL"
-!define URLInfoAbout          "https://github.com/OmegaAOL/Skyfox"
-!define URLUpdateInfo         "https://github.com/OmegaAOL/Skyfox/releases"
-!define HelpLink              "https://github.com/OmegaAOL/Skyfox/issues"
+!define BrandFullNameInternal "Nocturne"
+!define BrandFullName         "Nocturne"
+!define CompanyName           "raytek.cafe"
+!define URLInfoAbout          "https://github.com/raytek-cafe/Nocturne"
+!define URLUpdateInfo         "https://github.com/raytek-cafe/Nocturne/releases"
+!define HelpLink              "https://github.com/raytek-cafe/Nocturne/issues"
 
 ; The OFFICIAL define is a workaround to support different urls for Release and
 ; Beta since they share the same branding when building with other branches that

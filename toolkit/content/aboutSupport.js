@@ -113,9 +113,9 @@ var snapshotFormatters = {
     if (data.vendor) {
       version += " (" + data.vendor + ")";
     }
-    // Display version numbers: Skyfox version (Firefox version)
-    if (AppConstants.SKYFOX_VERSION && AppConstants.SKYFOX_VERSION !== "@SKYFOX_VERSION@") {
-      $("version-box").textContent = AppConstants.SKYFOX_VERSION + " (" + version + ")";
+    // Display version numbers: Nocturne version (Firefox version)
+    if (AppConstants.NOCTURNE_VERSION && AppConstants.NOCTURNE_VERSION !== "@NOCTURNE_VERSION@") {
+      $("version-box").textContent = AppConstants.NOCTURNE_VERSION + " (" + version + ")";
     } else {
       $("version-box").textContent = version;
     }

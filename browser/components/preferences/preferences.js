@@ -12,7 +12,7 @@
 /* import-globals-from librewolf.js */
 /* import-globals-from sync.js */
 /* import-globals-from experimental.js */
-/* import-globals-from skyfox.js */
+/* import-globals-from nocturne.js */
 /* import-globals-from findInPage.js */
 /* import-globals-from /browser/base/content/utilityOverlay.js */
 /* import-globals-from /toolkit/content/preferencesBindings.js */
@@ -198,7 +198,7 @@ function init_all() {
   register_module("panePrivacy", gPrivacyPane);
   register_module("paneLibrewolf", gLibrewolfPane);
   register_module("paneContainers", gContainersPane);
-  register_module("paneSkyfox", gSkyfoxPane);
+  register_module("paneNocturne", gNocturnePane);
 
   if (Services.prefs.getBoolPref("browser.translations.newSettingsUI.enable")) {
     register_module("paneTranslations", gTranslationsPane);

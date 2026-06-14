@@ -279,7 +279,7 @@ nsresult nsXREDirProvider::GetBackgroundTasksProfilesRootDir(
  *   (for 32- and 64-bit systems respsectively)
  */
 static nsresult GetSystemParentDirectory(nsIFile** aFile,
-                                         nsCString aName = "skyfox"_ns) {
+                                         nsCString aName = "nocturne"_ns) {
   nsresult rv;
   nsCOMPtr<nsIFile> localDir;
 #  if defined(XP_MACOSX)
@@ -404,9 +404,9 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
     rv = GetUserDataDirectoryHome(getter_AddRefs(file), false);
     NS_ENSURE_SUCCESS(rv, rv);
 #  if defined(XP_MACOSX)
-    rv = file->AppendNative("skyfox"_ns);
+    rv = file->AppendNative("nocturne"_ns);
 #  else   // defined(XP_MACOSX)
-    rv = file->AppendNative(".skyfox"_ns);
+    rv = file->AppendNative(".nocturne"_ns);
 #  endif  // defined(XP_MACOSX)
   }
 #endif  // defined(XP_UNIX) || defined(XP_MACOSX)
@@ -437,9 +437,9 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
 #  ifdef ENABLE_SYSTEM_EXTENSION_DIRS
 #    if defined(__OpenBSD__) || defined(__FreeBSD__)
     static const char* const sysLExtDir =
-        "/usr/local/share/skyfox/extensions";
+        "/usr/local/share/nocturne/extensions";
 #    else
-    static const char* const sysLExtDir = "/usr/share/skyfox/extensions";
+    static const char* const sysLExtDir = "/usr/share/nocturne/extensions";
 #    endif
     rv = NS_NewNativeLocalFile(nsDependentCString(sysLExtDir),
                                getter_AddRefs(file));
@@ -965,7 +965,7 @@ nsresult nsXREDirProvider::GetUpdateRootDir(nsIFile** aResult,
   }
   appDirPath = Substring(appDirPath, 1, dotIndex - 1);
 
-  if (NS_FAILED(localDir->AppendNative("skyfox"_ns))) {
+  if (NS_FAILED(localDir->AppendNative("nocturne"_ns))) {
     return NS_ERROR_FAILURE;
   }
 
@@ -1222,7 +1222,7 @@ nsresult nsXREDirProvider::AppendSysUserExtensionPath(nsIFile* aFile) {
 
 #if defined(XP_MACOSX) || defined(XP_WIN)
 
-  static const char* const sXR = "skyfox";
+  static const char* const sXR = "nocturne";
   rv = aFile->AppendNative(nsDependentCString(sXR));
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -1232,7 +1232,7 @@ nsresult nsXREDirProvider::AppendSysUserExtensionPath(nsIFile* aFile) {
 
 #elif defined(XP_UNIX)
 
-  static const char* const sXR = ".skyfox";
+  static const char* const sXR = ".nocturne";
   rv = aFile->AppendNative(nsDependentCString(sXR));
   NS_ENSURE_SUCCESS(rv, rv);
 

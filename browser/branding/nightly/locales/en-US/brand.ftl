@@ -2,12 +2,26 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
--brand-shorter-name = Skyfox
--brand-short-name = Skyfox Nightly
--brand-shortcut-name = Skyfox Nightly
--brand-full-name = Skyfox Nightly
+## Nocturne and raytek-cafe Brand
+##
+## Nocturne and raytek-cafe must be treated as a brand.
+##
+## They cannot be:
+## - Transliterated.
+## - Translated.
+##
+## Declension should be avoided where possible, leaving the original
+## brand unaltered in prominent UI positions.
+##
+## For further details, consult:
+## https://mozilla-l10n.github.io/styleguides/mozilla_general/#brands-copyright-and-trademark
+
+-brand-shorter-name = Nocturne
+-brand-short-name = Nocturne
+-brand-shortcut-name = Nocturne
+-brand-full-name = Nocturne
 # This brand name can be used in messages where the product name needs to
 # remain unchanged across different versions (Nightly, Beta, etc.).
--brand-product-name = Skyfox
--vendor-short-name = OmegaAOL
-trademarkInfo = { "Skyfox is a community project developed by OmegaAOL and other contributors." }
+-brand-product-name = Nocturne
+-vendor-short-name = raytek.cafe
+trademarkInfo = { "Nocturne is a community project made by the raytek community." }

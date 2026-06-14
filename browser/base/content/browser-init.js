@@ -166,8 +166,8 @@ var gBrowserInit = {
     ToolbarIconColor.init(window);
 
     // Convert URLBar to old implementation if preference is enabled
-    if (Services.prefs.getBoolPref("skyfox.ui.oldurlbar", false)) {
-      SkyfoxURLBarConverter.convertToOldURLBar(window);
+    if (Services.prefs.getBoolPref("nocturne.ui.oldurlbar", false)) {
+      NocturneURLBarConverter.convertToOldURLBar(window);
     }
   },
 

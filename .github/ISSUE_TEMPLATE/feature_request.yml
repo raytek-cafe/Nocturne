@@ -1,5 +1,5 @@
 name: Feature request
-description: Want to suggest a feature for Skyfox? Share your ideas here!
+description: Want to suggest a feature for Nocturne? Share your ideas here!
 labels: [enhancement]
 assignees: []
 
@@ -9,7 +9,7 @@ body:
       label: Before sending your suggestion
       description: Before submitting your suggestions, please make sure you meet the following criteria
       options:
-        - label: I'm on the latest version of Skyfox.
+        - label: I'm on the latest version of Nocturne.
         - label: I'm sure that this feature cannot be replicated by a theme/JS script.
 
   - type: input
@@ -21,7 +21,7 @@ body:
 
   - type: textarea
     attributes:
-      label: What would you like to suggest for Skyfox?
+      label: What would you like to suggest for Nocturne?
       description: Provide a clear, concise description of the suggestion.
     validations:
       required: true

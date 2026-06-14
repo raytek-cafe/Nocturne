@@ -5,6 +5,8 @@
 browser.jar:
 % content branding %content/branding/ contentaccessible=yes
   content/branding/about.png
+  content/branding/about-background.png
+  content/branding/about-background@2x.png
   content/branding/about-logo.png
   content/branding/about-logo.svg
   content/branding/about-logo@2x.png
@@ -12,7 +14,6 @@ browser.jar:
   content/branding/about-logo-private.png
   content/branding/about-logo-private@2x.png
   content/branding/document.ico                  (../document.ico)
-  content/branding/document_pdf.svg
   content/branding/favicon.ico                   (../firefox64.ico)
   content/branding/firefox-wordmark.svg
   content/branding/icon16.png                    (../default16.png)

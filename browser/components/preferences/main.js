@@ -61,7 +61,7 @@ Preferences.addAll([
   { id: "browser.download.folderList", type: "int" },
   { id: "browser.download.dir", type: "file" },
 
-  /* Skyfox preferences */
+  /* Nocturne preferences */
   { id: "browser.tabs.hoverPreview.enabled", type: "bool" },
   { id: "browser.tabs.groups.enabled", type: "bool" },
 

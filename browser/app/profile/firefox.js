@@ -1297,7 +1297,7 @@ pref("browser.preferences.defaultPerformanceSettings.enabled", true);
 
 pref("browser.proton.toolbar.version", 0);
 
-// Setting removed in Firefox 42, added back in Skyfox.
+// Setting removed in Firefox 42, added back in Nocturne.
 // Controls whether to show the modern "in-content" about:preferences 
 // page or the legacy native preferences window.
 pref("browser.preferences.inContent", false);
@@ -3386,12 +3386,12 @@ pref("browser.contextual-services.contextId.rotation-in-days", 0);
 pref("browser.contextual-services.contextId.rust-component.enabled", false);
 
 // Icon larp stuff
-pref("skyfox.legacyiconbehavior.enabled", true);
-pref("skyfox.smalliconbehavior.enabled", true);
+pref("nocturne.legacyiconbehavior.enabled", true);
+pref("nocturne.smalliconbehavior.enabled", true);
 
 // FF68 Icons (Keeping the option to use these icons still. Just with the retry icon reverted back to the real FF68 one.)
-pref("skyfox.ui.ff68downloadicons", false);
+pref("nocturne.ui.ff68downloadicons", false);
 
-// Skyfox new settings go here
-pref("skyfox.tabs.oldWarnOnClose", true);
+// Nocturne new settings go here
+pref("nocturne.tabs.oldWarnOnClose", true);
 

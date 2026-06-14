@@ -2,11 +2,14 @@
 import os
 
 REPLACEMENTS = [
-    ("Nocturne", "Skyfox"),
-    ("Eclipse r3dfox", "Skyfox"),
-    ("nocturne", "skyfox"),
-    ("r3dfox", "skyfox"),
-    ("NOCTURNE", "SKYFOX"),
+    ("r3dfox", "nocturne"),
+    ("R3dfox", "Nocturne"),
+    ("R3DFOX", "NOCTURNE"),
+    ("skyfox", "nocturne"),
+    ("Skyfox", "Nocturne"),
+    ("SKYFOX", "NOCTURNE"),
+    ("OmegaAOL", "raytek-cafe"),
+    ("Eclipse Community", "raytek-cafe"),
 ]
 
 SKIP_FILES = {"README.md", "rebrand.py"}
@@ -40,7 +43,6 @@ def process_file_contents(path):
         print(f"  [content] {path}")
 
 def rename_paths(root):
-    """Walk bottom-up so children are renamed before parents."""
     for dirpath, dirnames, filenames in os.walk(root, topdown=False):
         for fname in filenames:
             new_fname = apply_replacements(fname)
@@ -58,7 +60,7 @@ def rename_paths(root):
             print(f"  [rename] {old_dir} -> {new_dirpath}")
 
 def main():
-    print("=== Skyfox Branding Machine ===")
+    print("=== Redfork Branding Machine by OmegaAOL ===")
     print("\n=== Step 1: Replacing contents in text files ===")
     for dirpath, _, filenames in os.walk(ROOT):
         for fname in filenames:

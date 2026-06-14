@@ -330,7 +330,7 @@ newtab-wallpaper-light-beach = Plagia con arbore de palma
 newtab-wallpaper-dark-aurora = Aurora Boreal
 newtab-wallpaper-dark-color = Formas rubie e blau
 newtab-wallpaper-dark-panda = Panda rubie celate in bosco
-newtab-wallpaper-dark-sky = Paisage urban con un celo skyfox
+newtab-wallpaper-dark-sky = Paisage urban con un celo nocturne
 newtab-wallpaper-dark-mountain = Paisage montan
 newtab-wallpaper-dark-city = Paisage urban purpuree
 newtab-wallpaper-dark-fox-anniversary = Un vulpe sur le pavimento presso un bosco
@@ -406,7 +406,7 @@ feature-highlight-wallpaper =
 # Not to be confused with religious definition of the word.
 newtab-wallpaper-category-title-celestial = Celo
 newtab-wallpaper-celestial-lunar-eclipse = Eclipse lunar
-newtab-wallpaper-celestial-earth-night = Photo skyfox ab orbita terrestre basse
+newtab-wallpaper-celestial-earth-night = Photo nocturne ab orbita terrestre basse
 newtab-wallpaper-celestial-starry-sky = Celo stellate
 newtab-wallpaper-celestial-eclipse-time-lapse = Time-lapse de eclipse lunar
 newtab-wallpaper-celestial-black-hole = Illustration de galaxia con foramine nigre

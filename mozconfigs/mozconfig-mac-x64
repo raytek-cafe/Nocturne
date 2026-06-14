@@ -1,4 +1,4 @@
-## mozconfig for compiling Skyfox Browser for macOS (Intel) natively
+## mozconfig for compiling Nocturne Browser for macOS (Intel) natively
 
 # x64 build
 ac_add_options --target=x86_64
@@ -19,7 +19,7 @@ ac_add_options --with-ccache=sccache
 # 16 jobs for 16 cores
 mk_add_options MOZ_MAKE_FLAGS="-j4"
 
-# Build only Skyfox
+# Build only Nocturne
 ac_add_options --enable-application=browser
 ac_add_options --disable-artifact-builds
 export MOZ_INCLUDE_SOURCE_INFO=1

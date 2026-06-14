@@ -741,7 +741,7 @@ main section {
   margin-inline-start: 16px;
   width: 134px;
 
-  @media -moz-pref("skyfox.browser.plasmafox") {
+  @media -moz-pref("nocturne.browser.plasmafox") {
     background-size: 220px;
     width: 220px;
   }

@@ -122,7 +122,7 @@
 <preference id="browser.safebrowsing.downloads.enabled"
             name="browser.safebrowsing.downloads.enabled" type="bool"/>
 			
-			<!-- Skyfox tab -->
+			<!-- Nocturne tab -->
 <preference id="widget.non-native-theme.enabled"
             name="widget.non-native-theme.enabled" type="bool" inverted="true"/>
 <preference id="widget.native-controls.scrollbar-style"
@@ -133,26 +133,26 @@
             name="widget.native-controls.override-win-version" type="int"/>
 <preference id="security.sandbox.content.level"
             name="security.sandbox.content.level" type="int"/>
-<preference id="skyfox.colors"
-            name="skyfox.colors" type="int"/>
-<preference id="skyfox.drag-space.enabled"
-            name="skyfox.drag-space.enabled" type="bool"/>
-<preference id="skyfox.backgrounds.enabled"
-            name="skyfox.backgrounds.enabled" type="bool"/>
-<preference id="skyfox.tabs.oldWarnOnClose"
-            name="skyfox.tabs.oldWarnOnClose" type="bool"/>
-<preference id="skyfox.transparent.menubar"
-            name="skyfox.transparent.menubar" type="bool"/>
-<preference id="skyfox.translucent.navbar"
-            name="skyfox.translucent.navbar" type="bool"/>
-<preference id="skyfox.aero.fog"
-            name="skyfox.aero.fog" type="int"/>
-<preference id="skyfox.caption.text.color"
-            name="skyfox.caption.text.color" type="int"/>
+<preference id="nocturne.colors"
+            name="nocturne.colors" type="int"/>
+<preference id="nocturne.drag-space.enabled"
+            name="nocturne.drag-space.enabled" type="bool"/>
+<preference id="nocturne.backgrounds.enabled"
+            name="nocturne.backgrounds.enabled" type="bool"/>
+<preference id="nocturne.tabs.oldWarnOnClose"
+            name="nocturne.tabs.oldWarnOnClose" type="bool"/>
+<preference id="nocturne.transparent.menubar"
+            name="nocturne.transparent.menubar" type="bool"/>
+<preference id="nocturne.translucent.navbar"
+            name="nocturne.translucent.navbar" type="bool"/>
+<preference id="nocturne.aero.fog"
+            name="nocturne.aero.fog" type="int"/>
+<preference id="nocturne.caption.text.color"
+            name="nocturne.caption.text.color" type="int"/>
 <preference id="browser.urlbar.oneOffsInstant"
             name="browser.urlbar.oneOffsInstant" type="bool"/>
-<preference id="skyfox.view.image"
-            name="skyfox.view.image" type="bool"/>
+<preference id="nocturne.view.image"
+            name="nocturne.view.image" type="bool"/>
 <preference id="browser.menu.navigationIcons"
             name="browser.menu.navigationIcons" type="bool" inverted="true"/>
 <preference id="browser.e10s.disabled"
@@ -197,16 +197,16 @@
             name="browser.urlbar.formatting.enabled" type="bool" inverted="true"/>
 <preference id="geo.enabled"
             name="geo.enabled" type="bool" inverted="true"/>
-<preference id="skyfox.ui.oldaboutconfig"
-            name="skyfox.ui.oldaboutconfig" type="bool"/>
-<preference id="skyfox.legacyiconbehavior.enabled"
-            name="skyfox.legacyiconbehavior.enabled" type="bool"/>
-<preference id="skyfox.smalliconbehavior.enabled"
-            name="skyfox.smalliconbehavior.enabled" type="bool"/>
-<preference id="skyfox.ui.ff68downloadicons"
-            name="skyfox.ui.ff68downloadicons" type="bool"/>
-<preference id="skyfox.ui.oldurlbar"
-            name="skyfox.ui.oldurlbar" type="bool"/>
+<preference id="nocturne.ui.oldaboutconfig"
+            name="nocturne.ui.oldaboutconfig" type="bool"/>
+<preference id="nocturne.legacyiconbehavior.enabled"
+            name="nocturne.legacyiconbehavior.enabled" type="bool"/>
+<preference id="nocturne.smalliconbehavior.enabled"
+            name="nocturne.smalliconbehavior.enabled" type="bool"/>
+<preference id="nocturne.ui.ff68downloadicons"
+            name="nocturne.ui.ff68downloadicons" type="bool"/>
+<preference id="nocturne.ui.oldurlbar"
+            name="nocturne.ui.oldurlbar" type="bool"/>
 <preference id="prompts.tab_modal.enabled"
             name="prompts.tab_modal.enabled" type="bool" inverted="true"/>
 <preference id="prompts.headerAppIcon.enabled"
@@ -243,7 +243,7 @@
         <tab id="updateTab" label="&updateTab.label;"  helpTopic="prefs-advanced-update"/>
         <tab id="encryptionTab" label="&certificateTab.label;" helpTopic="prefs-advanced-encryption"/>
 		<tab id="librewolfTab" label="&librewolfTab.label;" />
-		<tab id="skyfoxTab" label="&brandShortName;" />
+		<tab id="nocturneTab" label="&brandShortName;" />
       </tabs>
 
       <tabpanels flex="1">
@@ -735,25 +735,25 @@
   </scrollbox>
 </tabpanel>
 		
-		<tabpanel id="skyfoxPanel" orient="vertical">
+		<tabpanel id="nocturnePanel" orient="vertical">
   <scrollbox flex="1" orient="vertical" style="max-height: 400px; overflow-y: auto;">
 
     <!-- Visual -->
     <groupbox>
-      <caption data-l10n-id="skyfox-visual-header"/>
+      <caption data-l10n-id="nocturne-visual-header"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxUseNativeStyles"
-                  data-l10n-id="skyfox-native-checkbox"
+        <checkbox id="nocturneUseNativeStyles"
+                  data-l10n-id="nocturne-native-checkbox"
                   preference="widget.non-native-theme.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-native-checkbox-desc"
+      <label data-l10n-id="nocturne-native-checkbox-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-native-menulist"
-               control="skyfoxNativeMenulistType"/>
-        <menulist id="skyfoxNativeMenulistType"
+        <label data-l10n-id="nocturne-native-menulist"
+               control="nocturneNativeMenulistType"/>
+        <menulist id="nocturneNativeMenulistType"
                   preference="browser.display.windows.non_native_menus">
           <menupopup>
             <menuitem label="Native menulists always" value="0"/>
@@ -764,9 +764,9 @@
       </hbox>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-native-scroll"
-               control="skyfoxNativeScrollType"/>
-        <menulist id="skyfoxNativeScrollType"
+        <label data-l10n-id="nocturne-native-scroll"
+               control="nocturneNativeScrollType"/>
+        <menulist id="nocturneNativeScrollType"
                   preference="widget.native-controls.scrollbar-style">
           <menupopup>
             <menuitem label="Native scrollbars always" value="0"/>
@@ -777,9 +777,9 @@
       </hbox>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-fake-scroll-type"
-               control="skyfoxFakeScrollType"/>
-        <menulist id="skyfoxFakeScrollType"
+        <label data-l10n-id="nocturne-fake-scroll-type"
+               control="nocturneFakeScrollType"/>
+        <menulist id="nocturneFakeScrollType"
                   preference="widget.non-native-theme.scrollbar.style">
           <menupopup>
             <menuitem label="Default platform scrollbar style (Default)" value="0"/>
@@ -793,9 +793,9 @@
       </hbox>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-win-theme-type"
-               control="skyfoxWinThemeType"/>
-        <menulist id="skyfoxWinThemeType"
+        <label data-l10n-id="nocturne-win-theme-type"
+               control="nocturneWinThemeType"/>
+        <menulist id="nocturneWinThemeType"
                   preference="widget.native-controls.override-win-version">
           <menupopup>
             <menuitem label="Current OS version (Default)" value="0"/>
@@ -809,10 +809,10 @@
       </hbox>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-colors"
-               control="skyfoxColorsType"/>
-        <menulist id="skyfoxColorsType"
-                  preference="skyfox.colors">
+        <label data-l10n-id="nocturne-colors"
+               control="nocturneColorsType"/>
+        <menulist id="nocturneColorsType"
+                  preference="nocturne.colors">
           <menupopup>
             <menuitem label="Disabled (Stock Firefox Blue)" value="0"/>
             <menuitem label="Red" value="1"/>
@@ -824,47 +824,47 @@
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxdrag"
-                  data-l10n-id="skyfox-drag"
-                  preference="skyfox.drag-space.enabled"/>
+        <checkbox id="nocturnedrag"
+                  data-l10n-id="nocturne-drag"
+                  preference="nocturne.drag-space.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxBackgrounds"
-                  data-l10n-id="skyfox-backgrounds"
-                  preference="skyfox.backgrounds.enabled"/>
+        <checkbox id="nocturneBackgrounds"
+                  data-l10n-id="nocturne-backgrounds"
+                  preference="nocturne.backgrounds.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxMenubar"
-                  data-l10n-id="skyfox-menubar"
-                  preference="skyfox.transparent.menubar"/>
+        <checkbox id="nocturneMenubar"
+                  data-l10n-id="nocturne-menubar"
+                  preference="nocturne.transparent.menubar"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxNavbar"
-                  data-l10n-id="skyfox-navbar"
-                  preference="skyfox.translucent.navbar"/>
+        <checkbox id="nocturneNavbar"
+                  data-l10n-id="nocturne-navbar"
+                  preference="nocturne.translucent.navbar"/>
       </hbox>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-fog-type"
-               control="skyfoxFogType"/>
-        <menulist id="skyfoxFogType"
-                  preference="skyfox.aero.fog">
+        <label data-l10n-id="nocturne-fog-type"
+               control="nocturneFogType"/>
+        <menulist id="nocturneFogType"
+                  preference="nocturne.aero.fog">
           <menupopup>
             <menuitem label="Disabled (Default with backgrounds enabled)" value="0"/>
-            <menuitem label="Skyfox style (covers menubar)" value="1"/>
+            <menuitem label="Nocturne style (covers menubar)" value="1"/>
             <menuitem label="Stock Firefox style" value="2"/>
           </menupopup>
         </menulist>
       </hbox>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-caption-text"
-               control="skyfoxCaptionTextType"/>
-        <menulist id="skyfoxCaptionTextType"
-                  preference="skyfox.caption.text.color">
+        <label data-l10n-id="nocturne-caption-text"
+               control="nocturneCaptionTextType"/>
+        <menulist id="nocturneCaptionTextType"
+                  preference="nocturne.caption.text.color">
           <menupopup>
             <menuitem label="Default platform style (Default)" value="0"/>
             <menuitem label="White" value="1"/>
@@ -876,147 +876,147 @@
 
     <!-- Functional -->
     <groupbox>
-      <caption data-l10n-id="skyfox-functional-header"/>
+      <caption data-l10n-id="nocturne-functional-header"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxprefsxul"
-                  data-l10n-id="skyfox-xul-preferences"
+        <checkbox id="nocturneprefsxul"
+                  data-l10n-id="nocturne-xul-preferences"
                   preference="browser.preferences.inContent"/>
 		
       </hbox>
-	  <label data-l10n-id="skyfox-xul-preferences-desc"
+	  <label data-l10n-id="nocturne-xul-preferences-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 		
 		
 	  <hbox align="center">
-        <checkbox id="skyfoxoldwoc"
-                  data-l10n-id="skyfox-old-warn-on-close"
-                  preference="skyfox.tabs.oldWarnOnClose"/>
+        <checkbox id="nocturneoldwoc"
+                  data-l10n-id="nocturne-old-warn-on-close"
+                  preference="nocturne.tabs.oldWarnOnClose"/>
 		
       </hbox>
 	  
-	  <label data-l10n-id="skyfox-old-warn-on-close-desc"
+	  <label data-l10n-id="nocturne-old-warn-on-close-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 	  
       <hbox align="center">
-        <checkbox id="skyfoxoneoffs"
-                  data-l10n-id="skyfox-one-offs"
+        <checkbox id="nocturneoneoffs"
+                  data-l10n-id="nocturne-one-offs"
                   preference="browser.urlbar.oneOffsInstant"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxviewimage"
-                  data-l10n-id="skyfox-view-image"
-                  preference="skyfox.view.image"/>
+        <checkbox id="nocturneviewimage"
+                  data-l10n-id="nocturne-view-image"
+                  preference="nocturne.view.image"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxnavtext"
-                  data-l10n-id="skyfox-nav-text"
+        <checkbox id="nocturnenavtext"
+                  data-l10n-id="nocturne-nav-text"
                   preference="browser.menu.navigationIcons"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxtabgroups"
-                  data-l10n-id="skyfox-tab-groups"
+        <checkbox id="nocturnetabgroups"
+                  data-l10n-id="nocturne-tab-groups"
                   preference="browser.tabs.groups.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxscreenshotcomponent"
-                  data-l10n-id="skyfox-screenshot-component"
+        <checkbox id="nocturnescreenshotcomponent"
+                  data-l10n-id="nocturne-screenshot-component"
                   preference="screenshots.browser.component.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxhoverpreview"
-                  data-l10n-id="skyfox-hover-preview"
+        <checkbox id="nocturnehoverpreview"
+                  data-l10n-id="nocturne-hover-preview"
                   preference="browser.tabs.hoverPreview.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxdroptopin"
-                  data-l10n-id="skyfox-drop-to-pin"
+        <checkbox id="nocturnedroptopin"
+                  data-l10n-id="nocturne-drop-to-pin"
                   preference="browser.tabs.dropToPin.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxtaskbartabs"
-                  data-l10n-id="skyfox-taskbar-tabs"
+        <checkbox id="nocturnetaskbartabs"
+                  data-l10n-id="nocturne-taskbar-tabs"
                   preference="browser.taskbarTabs.enabled"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxaboutconfig"
-                  data-l10n-id="skyfox-old-aboutconfig"
-                  preference="skyfox.ui.oldaboutconfig"/>
+        <checkbox id="nocturneaboutconfig"
+                  data-l10n-id="nocturne-old-aboutconfig"
+                  preference="nocturne.ui.oldaboutconfig"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxff68downloadicons"
-                  data-l10n-id="skyfox-ff68-download-icons"
-                  preference="skyfox.ui.ff68downloadicons"/>
+        <checkbox id="nocturneff68downloadicons"
+                  data-l10n-id="nocturne-ff68-download-icons"
+                  preference="nocturne.ui.ff68downloadicons"/>
       </hbox>
-      <label data-l10n-id="skyfox-ff68-download-icons-desc"
+      <label data-l10n-id="nocturne-ff68-download-icons-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxswitchtotab"
-                  data-l10n-id="skyfox-switch-to-tab"
+        <checkbox id="nocturneswitchtotab"
+                  data-l10n-id="nocturne-switch-to-tab"
                   preference="browser.urlbar.secondaryActions.switchToTab"/>
       </hbox>
-      <label data-l10n-id="skyfox-switch-to-tab-desc"
+      <label data-l10n-id="nocturne-switch-to-tab-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxlegacyicon"
-                  data-l10n-id="skyfox-legacy-icon"
-                  preference="skyfox.legacyiconbehavior.enabled"/>
+        <checkbox id="nocturnelegacyicon"
+                  data-l10n-id="nocturne-legacy-icon"
+                  preference="nocturne.legacyiconbehavior.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-legacy-icon-desc"
+      <label data-l10n-id="nocturne-legacy-icon-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxsmallicon"
-                  data-l10n-id="skyfox-small-icon"
-                  preference="skyfox.smalliconbehavior.enabled"/>
+        <checkbox id="nocturnesmallicon"
+                  data-l10n-id="nocturne-small-icon"
+                  preference="nocturne.smalliconbehavior.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-small-icon-desc"
+      <label data-l10n-id="nocturne-small-icon-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxPromptSound"
-                  data-l10n-id="skyfox-prompt-sound"
+        <checkbox id="nocturnePromptSound"
+                  data-l10n-id="nocturne-prompt-sound"
                   preference="prompts.tab_modal.sound.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-prompt-sound-desc"
+      <label data-l10n-id="nocturne-prompt-sound-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxPromptTabModal"
-                  data-l10n-id="skyfox-prompt-tab-modal"
+        <checkbox id="nocturnePromptTabModal"
+                  data-l10n-id="nocturne-prompt-tab-modal"
                   preference="prompts.tab_modal.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-prompt-tab-modal-desc"
+      <label data-l10n-id="nocturne-prompt-tab-modal-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxPromptHeaderIcon"
-                  data-l10n-id="skyfox-prompt-header-icon"
+        <checkbox id="nocturnePromptHeaderIcon"
+                  data-l10n-id="nocturne-prompt-header-icon"
                   preference="prompts.headerAppIcon.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-prompt-header-icon-desc"
+      <label data-l10n-id="nocturne-prompt-header-icon-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
     </groupbox>
 
     <!-- Advanced -->
     <groupbox>
-      <caption data-l10n-id="skyfox-advanced-header"/>
+      <caption data-l10n-id="nocturne-advanced-header"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-accessibility"
-               control="skyfoxAccessibilityType"/>
-        <menulist id="skyfoxAccessibilityType"
+        <label data-l10n-id="nocturne-accessibility"
+               control="nocturneAccessibilityType"/>
+        <menulist id="nocturneAccessibilityType"
                   preference="accessibility.force_disabled">
           <menupopup>
             <menuitem label="Always disabled (1)" value="1"/>
@@ -1025,13 +1025,13 @@
           </menupopup>
         </menulist>
       </hbox>
-      <label data-l10n-id="skyfox-accessibility-desc"
+      <label data-l10n-id="nocturne-accessibility-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-cookiebanners"
-               control="skyfoxCookieBannersType"/>
-        <menulist id="skyfoxCookieBannersType"
+        <label data-l10n-id="nocturne-cookiebanners"
+               control="nocturneCookieBannersType"/>
+        <menulist id="nocturneCookieBannersType"
                   preference="cookiebanners.service.mode">
           <menupopup>
             <menuitem label="Auto reject all cookies where possible" value="1"/>
@@ -1039,13 +1039,13 @@
           </menupopup>
         </menulist>
       </hbox>
-      <label data-l10n-id="skyfox-cookiebanners-desc"
+      <label data-l10n-id="nocturne-cookiebanners-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-cookiebanners-private"
-               control="skyfoxCookieBannersPrivateType"/>
-        <menulist id="skyfoxCookieBannersPrivateType"
+        <label data-l10n-id="nocturne-cookiebanners-private"
+               control="nocturneCookieBannersPrivateType"/>
+        <menulist id="nocturneCookieBannersPrivateType"
                   preference="cookiebanners.service.mode.privateBrowsing">
           <menupopup>
             <menuitem label="Auto reject all cookies where possible" value="1"/>
@@ -1053,13 +1053,13 @@
           </menupopup>
         </menulist>
       </hbox>
-      <label data-l10n-id="skyfox-cookiebanners-desc"
+      <label data-l10n-id="nocturne-cookiebanners-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-sandbox-level"
-               control="skyfoxSandboxLevelType"/>
-        <menulist id="skyfoxSandboxLevelType"
+        <label data-l10n-id="nocturne-sandbox-level"
+               control="nocturneSandboxLevelType"/>
+        <menulist id="nocturneSandboxLevelType"
                   preference="security.sandbox.content.level">
           <menupopup>
             <menuitem label="Increased (20)" value="20"/>
@@ -1068,103 +1068,103 @@
           </menupopup>
         </menulist>
       </hbox>
-      <label data-l10n-id="skyfox-sandbox-level-desc"
+      <label data-l10n-id="nocturne-sandbox-level-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-caption-width"
-               control="skyfoxCaptionWidthType"/>
-        <textbox id="skyfoxCaptionWidthType" type="number"
+        <label data-l10n-id="nocturne-caption-width"
+               control="nocturneCaptionWidthType"/>
+        <textbox id="nocturneCaptionWidthType" type="number"
                  preference="widget.native-controls.override-aero-caption-buttons-mask-width"/>
       </hbox>
-      <label data-l10n-id="skyfox-caption-desc"
+      <label data-l10n-id="nocturne-caption-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <label data-l10n-id="skyfox-caption-height"
-               control="skyfoxCaptionHeightType"/>
-        <textbox id="skyfoxCaptionHeightType" type="number"
+        <label data-l10n-id="nocturne-caption-height"
+               control="nocturneCaptionHeightType"/>
+        <textbox id="nocturneCaptionHeightType" type="number"
                  preference="widget.native-controls.override-aero-caption-buttons-mask-height"/>
       </hbox>
 
       <hbox align="center">
-        <checkbox id="skyfoxwebaudio"
-                  data-l10n-id="skyfox-webaudio"
+        <checkbox id="nocturnewebaudio"
+                  data-l10n-id="nocturne-webaudio"
                   preference="dom.webaudio.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-webaudio-desc"
+      <label data-l10n-id="nocturne-webaudio-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxcsp"
-                  data-l10n-id="skyfox-csp"
+        <checkbox id="nocturnecsp"
+                  data-l10n-id="nocturne-csp"
                   preference="security.csp.enable"/>
       </hbox>
-      <label data-l10n-id="skyfox-csp-desc"
+      <label data-l10n-id="nocturne-csp-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxcorsbase"
-                  data-l10n-id="skyfox-cors-base"
+        <checkbox id="nocturnecorsbase"
+                  data-l10n-id="nocturne-cors-base"
                   preference="content.cors.disable"/>
       </hbox>
-      <label data-l10n-id="skyfox-cors-base-desc"
+      <label data-l10n-id="nocturne-cors-base-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxcorspreflight"
-                  data-l10n-id="skyfox-cors-preflight"
+        <checkbox id="nocturnecorspreflight"
+                  data-l10n-id="nocturne-cors-preflight"
                   preference="content.cors.bypass_preflight_request"/>
       </hbox>
-      <label data-l10n-id="skyfox-cors-preflight-desc"
+      <label data-l10n-id="nocturne-cors-preflight-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxhsts"
-                  data-l10n-id="skyfox-hsts"
+        <checkbox id="nocturnehsts"
+                  data-l10n-id="nocturne-hsts"
                   preference="network.stricttransportsecurity.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-hsts-desc"
+      <label data-l10n-id="nocturne-hsts-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxsameorigin"
-                  data-l10n-id="skyfox-same-origin"
+        <checkbox id="nocturnesameorigin"
+                  data-l10n-id="nocturne-same-origin"
                   preference="security.same_origin_policy.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-same-origin-desc"
+      <label data-l10n-id="nocturne-same-origin-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxportblocking"
-                  data-l10n-id="skyfox-port-blocking"
+        <checkbox id="nocturneportblocking"
+                  data-l10n-id="nocturne-port-blocking"
                   preference="security.port.blocking.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-port-blocking-desc"
+      <label data-l10n-id="nocturne-port-blocking-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxe10s"
-                  data-l10n-id="skyfox-e10s"
+        <checkbox id="nocturnee10s"
+                  data-l10n-id="nocturne-e10s"
                   preference="browser.e10s.disabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-e10s-desc"
+      <label data-l10n-id="nocturne-e10s-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxdwrite"
-                  data-l10n-id="skyfox-dwrite"
+        <checkbox id="nocturnedwrite"
+                  data-l10n-id="nocturne-dwrite"
                   preference="gfx.dwrite.enabled"/>
       </hbox>
-      <label data-l10n-id="skyfox-dwrite-desc"
+      <label data-l10n-id="nocturne-dwrite-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
-        <checkbox id="skyfoxoldurlbar"
-                  data-l10n-id="skyfox-old-urlbar"
-                  preference="skyfox.ui.oldurlbar"/>
+        <checkbox id="nocturneoldurlbar"
+                  data-l10n-id="nocturne-old-urlbar"
+                  preference="nocturne.ui.oldurlbar"/>
       </hbox>
-      <label data-l10n-id="skyfox-old-urlbar-desc"
+      <label data-l10n-id="nocturne-old-urlbar-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
     </groupbox>
 

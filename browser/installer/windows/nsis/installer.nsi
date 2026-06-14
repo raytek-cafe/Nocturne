@@ -159,9 +159,9 @@ VIAddVersionKey "OriginalFilename" "setup.exe"
 Name "${BrandFullName}"
 OutFile "setup.exe"
 !ifdef HAVE_64BIT_BUILD
-  InstallDir "$PROGRAMFILES64\Skyfox\"
+  InstallDir "$PROGRAMFILES64\Nocturne\"
 !else
-  InstallDir "$PROGRAMFILES32\Skyfox\"
+  InstallDir "$PROGRAMFILES32\Nocturne\"
 !endif
 ShowInstDetails nevershow
 

@@ -29,7 +29,7 @@ search-input-box2 =
     .style = width: 15.4em
     .placeholder = Find in Settings
 
-xul-migration-notice = The "Extra Configurations" and "Skyfox configurations" pages are moving to the legacy preferences window. You can find them there under Advanced -> Extras and Advanced -> Skyfox.
+xul-migration-notice = The "Extra Configurations" and "Nocturne configurations" pages are moving to the legacy preferences window. You can find them there under Advanced -> Extras and Advanced -> Nocturne.
 
 managed-notice = Your browser is being managed by your organization.
 managed-notice-info-icon =
@@ -63,8 +63,8 @@ settings-category-labs =
     .tooltiptext = { -firefoxlabs-brand-name }
 pane-experimental-description3 = Give our experimental features a try! They’re in development and evolving, which could impact how { -brand-short-name } works.
 
-pane-skyfox-title = Skyfox configurations
-category-skyfox =
+pane-nocturne-title = Nocturne configurations
+category-nocturne =
     .tooltiptext = { pane-privacy-title }
 
 pane-experimental-reset =
@@ -136,205 +136,205 @@ search-results-empty-message2 =
 
 search-results-help-link = Need help? Visit <a data-l10n-name="url">Mozilla Support</a>
 
-## General Section - Skyfox
+## General Section - Nocturne
 
-skyfox-title = Skyfox specific options
+nocturne-title = Nocturne specific options
 
-skyfox-visual-header = Visual configurations
+nocturne-visual-header = Visual configurations
 
-skyfox-native-checkbox =
+nocturne-native-checkbox =
     .label = Use native styles
 
-skyfox-native-checkbox-desc = This controls whether the scrollbar, checkboxes, and other elements use their native system counterparts or their non-native browser themed style.
+nocturne-native-checkbox-desc = This controls whether the scrollbar, checkboxes, and other elements use their native system counterparts or their non-native browser themed style.
 
-skyfox-native-menulist = Menulist type
+nocturne-native-menulist = Menulist type
 
-skyfox-native-scroll = Scrollbar type
+nocturne-native-scroll = Scrollbar type
 
-skyfox-fake-scroll-type = Non-native scrollbar theme
+nocturne-fake-scroll-type = Non-native scrollbar theme
 
-skyfox-win-theme-type = Windows version theme override (requires restart)
+nocturne-win-theme-type = Windows version theme override (requires restart)
 
-skyfox-colors = Skyfox color schemes
+nocturne-colors = Nocturne color schemes
 
-skyfox-fog-type = Caption bar/Aero fog style
+nocturne-fog-type = Caption bar/Aero fog style
 
-skyfox-caption-text = Override caption/window text color
+nocturne-caption-text = Override caption/window text color
 
-skyfox-theme =
-    .label = Use Skyfox theme styles
+nocturne-theme =
+    .label = Use Nocturne theme styles
 
-skyfox-drag =
-    .label = Enable drag space on Skyfox theme styles
+nocturne-drag =
+    .label = Enable drag space on Nocturne theme styles
 
-skyfox-backgrounds =
+nocturne-backgrounds =
     .label = Backgrounds for tabs and other toolbar items
 
-skyfox-menubar =
+nocturne-menubar =
     .label = Transparent menubar
 
-skyfox-navbar =
+nocturne-navbar =
     .label = Translucent design
 
-skyfox-functional-header = Functionality configurations
+nocturne-functional-header = Functionality configurations
 
-skyfox-one-offs =
+nocturne-one-offs =
     .label = Classic urlbar search UI
 
-skyfox-view-image =
+nocturne-view-image =
     .label = Restore classic View Image context menu options
 
-skyfox-nav-text =
+nocturne-nav-text =
     .label = Replace context menu navigation icons with text options
 
-skyfox-urlbar-formatting =
+nocturne-urlbar-formatting =
     .label = Disable urlbar URL formatting
 
-skyfox-tab-groups =
+nocturne-tab-groups =
     .label = Enable tab groups
 
-skyfox-translations-enable =
+nocturne-translations-enable =
     .label = Enable in-browser language translations
 
-skyfox-screenshot-component =
+nocturne-screenshot-component =
     .label = Enable in-browser screenshot component
 
-skyfox-hover-preview =
+nocturne-hover-preview =
     .label = Modern style tab hover preview
 
-skyfox-taskbar-tabs =
+nocturne-taskbar-tabs =
     .label = Disable add tab to taskbar button in urlbar
 
-skyfox-geo =
+nocturne-geo =
     .label = Disable browser geolocation
 
-skyfox-drop-to-pin =
+nocturne-drop-to-pin =
     .label = Disable drop to pin tabs
 
-skyfox-taskbar-tabs =
+nocturne-taskbar-tabs =
     .label = Disable add tab to taskbar button in urlbar
 
-skyfox-old-aboutconfig =
+nocturne-old-aboutconfig =
     .label = Use the classic about:config page
 
-skyfox-switch-to-tab =
+nocturne-switch-to-tab =
     .label = Reverse urlbar switch to tab behavior
 
-skyfox-switch-to-tab-desc = This should reverse the behavior of switching to an already open tab in the urlbar (require Shift/Ctrl/Alt to switch to open tab instead of preventing it), however it's a bit buggy currently and just disables it.
+nocturne-switch-to-tab-desc = This should reverse the behavior of switching to an already open tab in the urlbar (require Shift/Ctrl/Alt to switch to open tab instead of preventing it), however it's a bit buggy currently and just disables it.
 
-skyfox-legacy-icon =
+nocturne-legacy-icon =
     .label = Use Separate Icons
 
-skyfox-legacy-icon-desc = When enabled, small icons use icon group ID 32512, while large taskbar icons use icon group ID 1. Useful for legacy IE theme recreations.
+nocturne-legacy-icon-desc = When enabled, small icons use icon group ID 32512, while large taskbar icons use icon group ID 1. Useful for legacy IE theme recreations.
 
-skyfox-small-icon =
+nocturne-small-icon =
     .label = Use 16x16 icons for titlebar and small taskbar
 
-skyfox-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
+nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
 
 
-skyfox-prompt-tab-modal =
+nocturne-prompt-tab-modal =
     .label = Use the native system message box for prompts
 
-skyfox-prompt-tab-modal-desc = When enabled, website prompts and HTTP authentication prompts will use the legacy message-modal dialogs.
+nocturne-prompt-tab-modal-desc = When enabled, website prompts and HTTP authentication prompts will use the legacy message-modal dialogs.
 
-skyfox-prompt-header-icon =
+nocturne-prompt-header-icon =
     .label = Show app icon in prompt dialogs
 
-skyfox-prompt-header-icon-desc = When enabled, prompt dialogs can show the browser application icon in their header. When disabled, the icon is hidden where supported.
+nocturne-prompt-header-icon-desc = When enabled, prompt dialogs can show the browser application icon in their header. When disabled, the icon is hidden where supported.
 
-skyfox-prompt-sound =
+nocturne-prompt-sound =
     .label = Play sounds for tab-modal prompt dialogs
 
-skyfox-prompt-sound-desc = When enabled, this option restores the sounds that Firefox 3 used to play when certain dialogs and alerts appeared.
+nocturne-prompt-sound-desc = When enabled, this option restores the sounds that Firefox 3 used to play when certain dialogs and alerts appeared.
 
 
-skyfox-ff68-download-icons =
+nocturne-ff68-download-icons =
     .label = Use Firefox 68-style download icons
 
-skyfox-ff68-download-icons-desc = When enabled, downloads will use the custom folder and retry icons from Firefox 68. When disabled, it uses the proton ones instead.
+nocturne-ff68-download-icons-desc = When enabled, downloads will use the custom folder and retry icons from Firefox 68. When disabled, it uses the proton ones instead.
 
-skyfox-xul-preferences =
+nocturne-xul-preferences =
     .label = Use the legacy preferences window instead of about:settings
 
-skyfox-xul-preferences-desc = When enabled, clicking "Settings" in the user interface will open up the old XUL-based preferences window that was primarily used in Firefox 28 and earlier. This is WIP, so many options and subdialogs won't work, but we recommend you keep it enabled as you can always access the modern settings page by typing about:settings into the address bar. 
+nocturne-xul-preferences-desc = When enabled, clicking "Settings" in the user interface will open up the old XUL-based preferences window that was primarily used in Firefox 28 and earlier. This is WIP, so many options and subdialogs won't work, but we recommend you keep it enabled as you can always access the modern settings page by typing about:settings into the address bar. 
 
-skyfox-old-warn-on-close =
+nocturne-old-warn-on-close =
     .label = Use the "confirm before closing tabs" dialog from Firefox 56 and older
 
-skyfox-old-warn-on-close-desc = When enabled, the "confirm before closing tabs" dialog will look and function exactly like how it did in older versions of the Firefox browser. This setting requires native modals to be enabled.
+nocturne-old-warn-on-close-desc = When enabled, the "confirm before closing tabs" dialog will look and function exactly like how it did in older versions of the Firefox browser. This setting requires native modals to be enabled.
 
-skyfox-advanced-header = Advanced configurations
+nocturne-advanced-header = Advanced configurations
 
-skyfox-accessibility = Accessibility services
+nocturne-accessibility = Accessibility services
 
-skyfox-accessibility-desc = Recommended to disable if you do not need them for enhanced security and performance.
+nocturne-accessibility-desc = Recommended to disable if you do not need them for enhanced security and performance.
 
-skyfox-cookiebanners = Cookie banner handling mode in normal browsing
+nocturne-cookiebanners = Cookie banner handling mode in normal browsing
 
-skyfox-cookiebanners-desc = Recommended to leave enabled for a less annoying browsing experience. Currently this will set cookies even when set to block all cookies.
+nocturne-cookiebanners-desc = Recommended to leave enabled for a less annoying browsing experience. Currently this will set cookies even when set to block all cookies.
 
-skyfox-cookiebanners-private = Cookie banner handling mode in private browsing
+nocturne-cookiebanners-private = Cookie banner handling mode in private browsing
 
-skyfox-caption-width = Custom caption button Aero fog mask width
+nocturne-caption-width = Custom caption button Aero fog mask width
 
-skyfox-caption-desc = For themes that use custom sized caption buttons that differ from the stock OS. Browser restart is required for changes to take effect.
+nocturne-caption-desc = For themes that use custom sized caption buttons that differ from the stock OS. Browser restart is required for changes to take effect.
 
-skyfox-caption-height = Custom caption button Aero fog mask height
+nocturne-caption-height = Custom caption button Aero fog mask height
 
-skyfox-sandbox-level = Security Sandbox Content Level
+nocturne-sandbox-level = Security Sandbox Content Level
 
-skyfox-sandbox-level-desc = On Windows 10, native UI elements render using classic or unthemed styles with a sandbox level of 8 or above. Setting this to 7 (or lower) fixes the issue. Not recommended unless you know what you are doing.
+nocturne-sandbox-level-desc = On Windows 10, native UI elements render using classic or unthemed styles with a sandbox level of 8 or above. Setting this to 7 (or lower) fixes the issue. Not recommended unless you know what you are doing.
 
-skyfox-webaudio =
+nocturne-webaudio =
     .label = Disable Web Audio API
 
-skyfox-webaudio-desc = Web Audio can be disabled for enhanced security, however a few websites may require it to be enabled.
+nocturne-webaudio-desc = Web Audio can be disabled for enhanced security, however a few websites may require it to be enabled.
 
-skyfox-csp =
+nocturne-csp =
     .label = Disable Content Security Policy (CSP)
 
-skyfox-csp-desc = CSP is a security feature, improperly designed websites may require disabling CSP. Not recommended unless you know what you are doing.
+nocturne-csp-desc = CSP is a security feature, improperly designed websites may require disabling CSP. Not recommended unless you know what you are doing.
 
-skyfox-port-blocking =
+nocturne-port-blocking =
     .label = Disable Website Port Blocking
 
-skyfox-port-blocking-desc = Supposedly for "security", to disallow accessing websites on specified blocked ports but it makes no sense. What can a website on a blocked port do that can't just be done on 80/443? https://fetch.spec.whatwg.org/#port-blocking
+nocturne-port-blocking-desc = Supposedly for "security", to disallow accessing websites on specified blocked ports but it makes no sense. What can a website on a blocked port do that can't just be done on 80/443? https://fetch.spec.whatwg.org/#port-blocking
 
-skyfox-dwrite =
+nocturne-dwrite =
     .label = Use Skia GDI font rendering (BETA)
 
-skyfox-dwrite-desc = Disable DirectWrite font rendering. Not recommended unless you know what you are doing. Currently buggy.
+nocturne-dwrite-desc = Disable DirectWrite font rendering. Not recommended unless you know what you are doing. Currently buggy.
 
-skyfox-old-urlbar =
+nocturne-old-urlbar =
     .label = Use old URLBar implementation
 
-skyfox-old-urlbar-desc = Reverts the URLBar to the pre-133 implementation. This may fix visual issues with the URLBar on old Firefox 115/128 themes. Requires browser restart. Do not enable this if the url bar looks correct already on your custom theme.
+nocturne-old-urlbar-desc = Reverts the URLBar to the pre-133 implementation. This may fix visual issues with the URLBar on old Firefox 115/128 themes. Requires browser restart. Do not enable this if the url bar looks correct already on your custom theme.
 
-skyfox-hsts =
+nocturne-hsts =
     .label = Disable HTTP Strict Transport Security (HSTS)
 
-skyfox-hsts-desc = HSTS is a security feature, websites with missing, expired, or wrong certificates may require disabling HSTS to access. Not recommended unless you know what you are doing.
+nocturne-hsts-desc = HSTS is a security feature, websites with missing, expired, or wrong certificates may require disabling HSTS to access. Not recommended unless you know what you are doing.
 
-skyfox-cors-base =
+nocturne-cors-base =
     .label = Disable Cross-Origin Resource Sharing (CORS)
 
-skyfox-cors-base-desc = CORS is a security feature, improperly designed websites may require disabling CORS. Not recommended unless you know what you are doing.
+nocturne-cors-base-desc = CORS is a security feature, improperly designed websites may require disabling CORS. Not recommended unless you know what you are doing.
 
-skyfox-cors-preflight =
+nocturne-cors-preflight =
     .label = Disable Cross-Origin Resource Sharing Preflight requests (CORS)
 
-skyfox-cors-preflight-desc = Bypasses CORS Preflight requests, improperly designed websites may require this as well as disabling CORS. Not recommended unless you know what you are doing.
+nocturne-cors-preflight-desc = Bypasses CORS Preflight requests, improperly designed websites may require this as well as disabling CORS. Not recommended unless you know what you are doing.
 
-skyfox-same-origin =
+nocturne-same-origin =
     .label = Disable Same-Origin Policy (SOP)
 
-skyfox-same-origin-desc = SOP is a security feature, improperly designed websites may require disabling SOP. Not recommended unless you know what you are doing.
+nocturne-same-origin-desc = SOP is a security feature, improperly designed websites may require disabling SOP. Not recommended unless you know what you are doing.
 
-skyfox-e10s =
+nocturne-e10s =
     .label = Disable content multiprocess (e10s) (BETA)
 
-skyfox-e10s-desc = Disables e10s/electrolysis content multiprocess. There are still multiple processes from other browser components with this enabled. Not recommended unless you know what you are doing.
+nocturne-e10s-desc = Disables e10s/electrolysis content multiprocess. There are still multiple processes from other browser components with this enabled. Not recommended unless you know what you are doing.
 
 ## General Section - Startup
 

@@ -1173,13 +1173,13 @@ set_config("MOZ_APP_VERSION_DISPLAY", milestone.app_version_display)
 set_config("MOZ_APP_MAXVERSION", moz_app_maxversion)
 
 
-# Skyfox custom version
+# Nocturne custom version
 @depends(build_environment, build_project)
 @imports(_from="__builtin__", _import="open")
 @imports("os")
-def skyfox_version(build_env, build_project):
+def nocturne_version(build_env, build_project):
     if build_project == "browser":
-        version_file = os.path.join(build_env.topsrcdir, "browser", "config", "skyfox_version.txt")
+        version_file = os.path.join(build_env.topsrcdir, "browser", "config", "nocturne_version.txt")
         if os.path.exists(version_file):
             with open(version_file, "r") as fh:
                 content = fh.read().splitlines()
@@ -1188,8 +1188,8 @@ def skyfox_version(build_env, build_project):
     return ""
 
 
-set_config("SKYFOX_VERSION", skyfox_version)
-set_define("SKYFOX_VERSION", skyfox_version)
+set_config("NOCTURNE_VERSION", nocturne_version)
+set_define("NOCTURNE_VERSION", nocturne_version)
 
 
 # The app update channel is 'default' when not supplied. The value is used in

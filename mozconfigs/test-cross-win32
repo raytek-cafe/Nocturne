@@ -1,4 +1,4 @@
-## mozconfig for compiling Skyfox browser for Windows on Linux
+## mozconfig for compiling Nocturne browser for Windows on Linux
 
 # x86 build
 ac_add_options --target=i686-pc-mingw32
@@ -20,7 +20,7 @@ CROSS_COMPILE=1
 export WINEDEBUG=-all
 export DISPLAY=:2
 
-# Build only Skyfox
+# Build only Nocturne
 ac_add_options --enable-application=browser
 ac_add_options --disable-artifact-builds
 export MOZ_INCLUDE_SOURCE_INFO=1
