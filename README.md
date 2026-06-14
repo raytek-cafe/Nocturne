@@ -1,15 +1,17 @@
 <span style="display:block;text-align:center">![Skyfox Banner](./docs/readme/banner.png)</span>
 
-Skyfox is a fork of Nocturne (which is a fork of r3dfox) that restores removed Firefox features, UI elements, dialogs, and windows, along with CSS customization options. It keeps Windows 7 and 8 support alive, but primarily targets customized Windows 10/11 builds.
+Skyfox is a fork of Nocturne (which is a fork of r3dfox) that restores removed Firefox features, partial legacy XUL/XPCOM extension support, UI elements, dialogs, and windows, along with CSS customization options. It keeps Windows 7 and 8 support alive, but primarily targets customized Windows 10/11 builds.
 
 ## Features
 
 Skyfox keeps the browser feeling familiar while adding Windows-focused polish and compatibility:
 
 - More native-like controls, scrollbars, checkboxes, radio buttons, and tooltips
+- Ability to install and use some legacy XPCOM/XUL extensions and make new ones completely compatible with Skyfox
 - Aero Glass support on Windows 8/10+
 - Full portable mode that doesn't touch AppData
 - Restored the classic XUL Preferences window, toggleable by setting `browser.preferences.incontent` to `false`.
+- Enabled the classic Credential Manager UI and restored the classic Password Manager UI, both accessible from the XUL Preferences window.
 - Optional classic about:config page, toggleable via `skyfox.ui.oldaboutconfig`
 - Less telemetry than regular Firefox
 - No background tasks
