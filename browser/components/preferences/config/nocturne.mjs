@@ -91,6 +91,7 @@ for (let id of [
   "browser.translations.enable",
   "nocturne.ui.ff68downloadicons",
   "nocturne.legacyiconbehavior.enabled",
+  "nocturne.platformspecificicons.enabled",
   "nocturne.smalliconbehavior.enabled",
   "nocturne.ui.oldurlbar",
 ]) {
@@ -249,6 +250,11 @@ SettingGroupManager.registerGroups({
         "nocturne.legacyiconbehavior.enabled",
         "nocturne-legacy-icon",
         "nocturne-legacy-icon-desc"
+      ),
+      checkbox(
+        "nocturne.platformspecificicons.enabled",
+        "nocturne-platform-specific-icons",
+        "nocturne-platform-specific-icons-desc"
       ),
       checkbox(
         "nocturne.smalliconbehavior.enabled",

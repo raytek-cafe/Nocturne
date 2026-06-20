@@ -55,6 +55,7 @@ for (let preference of [
   { id: "cookiebanners.service.mode", type: "int" },
   { id: "cookiebanners.service.mode.privateBrowsing", type: "int" },
   { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
+  { id: "nocturne.platformspecificicons.enabled", type: "bool" },
   { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
   { id: "nocturne.ui.ff68downloadicons", type: "bool" },
   { id: "nocturne.ui.oldurlbar", type: "bool" },
