@@ -53,6 +53,27 @@
   fill-opacity: 0.8;
 }
 
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  .message-icon {
+    list-style-image: url("chrome://global/skin/icons/information-32.png");
+  }
+
+  .alert-dialog #infoIcon,
+  .alert-icon {
+    list-style-image: url("chrome://global/skin/icons/Warning.png");
+  }
+
+  .error-icon {
+    list-style-image: url("chrome://global/skin/icons/Error.png");
+  }
+
+  .question-icon {
+    list-style-image: url("chrome://global/skin/icons/Question.png");
+    -moz-context-properties: none;
+    fill-opacity: 1;
+  }
+}
+
 /* XXX(ntim): [mode="text"] is only used by comm-central */
 
 xul|toolbar[mode="text"] .toolbarbutton-text {

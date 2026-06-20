@@ -42,10 +42,21 @@
   padding: 0;
   margin: 0;
   @media not (-moz-platform: linux) {
-    list-style-image: url("chrome://global/skin/icons/warning-large.png");
+    list-style-image: url("chrome://global/skin/icons/warning.svg");
+    -moz-context-properties: fill;
+    fill: #ffa436;
   }
   @media (-moz-platform: linux) {
     list-style-image: image-set("moz-icon://stock/dialog-warning?size=48" 1x, "moz-icon://stock/dialog-warning?size=48&scale=2" 2x);
+  }
+}
+
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  @media not (-moz-platform: linux) {
+    #sanitizeEverythingWarningIcon {
+      list-style-image: url("chrome://global/skin/icons/warning-large.png");
+      -moz-context-properties: none;
+    }
   }
 }
 
