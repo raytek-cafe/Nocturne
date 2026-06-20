@@ -10,17 +10,26 @@ class MozGroupbox extends MozXULElement {
             return;
         this._initialized = true;
 
-        if (!document.querySelector('link[href="chrome://global/skin/groupbox.css"]')) {
+        const hasCaption = Array.from(this.childNodes).some(
+            child => child.localName === "caption"
+        );
+        if (
+            hasCaption &&
+            !document.querySelector('link[href="chrome://global/skin/groupbox.css"]')
+        ) {
             const link = document.createElement("link");
             link.rel = "stylesheet";
             link.href = "chrome://global/skin/groupbox.css";
             document.documentElement.appendChild(link);
         }
 
-        let title = document.createElementNS(XUL_NS, "hbox");
-        title.className = "groupbox-title";
-        title.setAttribute("align", "center");
-        title.setAttribute("pack", "start");
+        let title = null;
+        if (hasCaption) {
+            title = document.createElementNS(XUL_NS, "hbox");
+            title.className = "groupbox-title";
+            title.setAttribute("align", "center");
+            title.setAttribute("pack", "start");
+        }
 
         let body = document.createElementNS(XUL_NS, "vbox");
         body.className = "groupbox-body";
@@ -32,13 +41,14 @@ class MozGroupbox extends MozXULElement {
         }
 
         for (let child of Array.from(this.childNodes)) {
-            if (child.localName === "caption")
+            if (child.localName === "caption" && title)
                 title.appendChild(child);
             else
                 body.appendChild(child);
         }
 
-        this.appendChild(title);
+        if (title)
+            this.appendChild(title);
         this.appendChild(body);
     }
 }
