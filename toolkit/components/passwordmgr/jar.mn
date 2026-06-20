@@ -4,8 +4,8 @@
 
 toolkit.jar:
 %   content passwordmgr %content/passwordmgr/
-*   content/passwordmgr/passwordManager.xhtml            (content/passwordManager.xhtml)
-*   content/passwordmgr/passwordManager.js               (content/passwordManager.js)
+    content/passwordmgr/passwordManager.xhtml            (content/passwordManager.xhtml)
+    content/passwordmgr/passwordManager.js               (content/passwordManager.js)
 *   content/passwordmgr/passwordManagerExceptions.js     (content/passwordManagerExceptions.js)
     content/passwordmgr/passwordManagerExceptions.xhtml  (content/passwordManagerExceptions.xhtml)
     content/passwordmgr/passwordManagerCommon.js         (content/passwordManagerCommon.js)
