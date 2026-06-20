@@ -130,7 +130,13 @@ label.small {
   list-style-image: url("chrome://mozapps/skin/places/defaultFavicon.png") !important;
 }
 #cookiesChildren::-moz-tree-image(domainCol, container) {
-  list-style-image: url("chrome://global/skin/icons/folder-item.png") !important;
+  list-style-image: url("chrome://global/skin/icons/folder.svg") !important;
+}
+
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  #cookiesChildren::-moz-tree-image(domainCol, container) {
+    list-style-image: url("chrome://global/skin/icons/folder-item.png") !important;
+  }
 }
 #cookieInfoBox {
   border: 1px solid ThreeDShadow;

@@ -32,7 +32,6 @@
   fill: currentColor;
 }
 
-/* NEW ( TODO-LEGACY-SWITCH ) - New Firefox uses these SVGs, not the old PNG icons
 .message-icon {
   list-style-image: url("chrome://global/skin/icons/info.svg");
 }
@@ -52,23 +51,27 @@
   list-style-image: url("chrome://global/skin/icons/help.svg");
   -moz-context-properties: fill, fill-opacity;
   fill-opacity: 0.8;
-}*/
-
-.message-icon {
-  list-style-image: url("chrome://global/skin/icons/information-32.png");
 }
 
-.alert-dialog #info\.icon,
-.alert-icon {
-  list-style-image: url("chrome://global/skin/icons/Warning.png");
-}
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  .message-icon {
+    list-style-image: url("chrome://global/skin/icons/information-32.png");
+  }
 
-.error-icon {
-  list-style-image: url("chrome://global/skin/icons/Error.png");
-}
+  .alert-dialog #info\.icon,
+  .alert-icon {
+    list-style-image: url("chrome://global/skin/icons/Warning.png");
+  }
 
-.question-icon {
-  list-style-image: url("chrome://global/skin/icons/Question.png");
+  .error-icon {
+    list-style-image: url("chrome://global/skin/icons/Error.png");
+  }
+
+  .question-icon {
+    list-style-image: url("chrome://global/skin/icons/Question.png");
+    -moz-context-properties: none;
+    fill-opacity: 1;
+  }
 }
 
 /* XXX(ntim): [mode="text"] is only used by comm-central */

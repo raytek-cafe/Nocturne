@@ -49,7 +49,16 @@
 }
 
 .authentication-icon {
-  list-style-image: url("chrome://global/skin/icons/Authentication.png");
+  list-style-image: url("chrome://global/skin/icons/security.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  .authentication-icon {
+    list-style-image: url("chrome://global/skin/icons/Authentication.png");
+    -moz-context-properties: none;
+  }
 }
 
 /* XXX(ntim): [mode="text"] is only used by comm-central */

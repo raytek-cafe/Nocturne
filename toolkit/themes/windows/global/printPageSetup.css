@@ -13,11 +13,21 @@ fieldset {
 }
 
 .portrait-page .radio-icon {
-  list-style-image: url("chrome://global/skin/icons/Portrait.png");
+  list-style-image: url("chrome://global/skin/icons/page-portrait.svg");
 }
 
 .landscape-page .radio-icon {
-  list-style-image: url("chrome://global/skin/icons/Landscape.png");
+  list-style-image: url("chrome://global/skin/icons/page-landscape.svg");
+}
+
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  .portrait-page .radio-icon {
+    list-style-image: url("chrome://global/skin/icons/Portrait.png");
+  }
+
+  .landscape-page .radio-icon {
+    list-style-image: url("chrome://global/skin/icons/Landscape.png");
+  }
 }
 
 #header-footer-grid {

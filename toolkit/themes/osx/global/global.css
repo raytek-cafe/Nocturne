@@ -27,7 +27,13 @@
   margin-inline-end: 20px;
 }
 
-/* New icons ( TODO-LEGACY-SWITCH ) - New Firefox uses these SVGs, not the old PNG icons
+.message-icon,
+.alert-icon,
+.error-icon,
+.question-icon {
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
 
 .message-icon {
   list-style-image: url("chrome://global/skin/icons/info.svg");
@@ -35,34 +41,46 @@
 
 .alert-dialog #infoIcon,
 .alert-icon {
-  list-style-image: url("chrome://global/skin/icons/warning-64.png");
+  list-style-image: url("chrome://global/skin/icons/warning.svg");
+  fill: #ffa436;
 }
 
 .error-icon {
-  list-style-image: url("chrome://global/skin/icons/error-64.png");
+  list-style-image: url("chrome://global/skin/icons/error.svg");
+  fill: #e22850;
 }
 
 .question-icon {
-  list-style-image: url("chrome://global/skin/icons/question-64.png");
+  list-style-image: url("chrome://global/skin/icons/help.svg");
+  -moz-context-properties: fill, fill-opacity;
+  fill-opacity: 0.8;
 }
 
-*/
+@media -moz-pref("nocturne.platformspecificicons.enabled", true) {
+  .message-icon,
+  .alert-icon,
+  .error-icon,
+  .question-icon {
+    -moz-context-properties: none;
+    fill: initial;
+  }
 
-.message-icon {
-  list-style-image: url("chrome://global/skin/icons/information-64.png");
-}
+  .message-icon {
+    list-style-image: url("chrome://global/skin/icons/information-64.png");
+  }
 
-.alert-dialog #info\.icon,
-.alert-icon {
-  list-style-image: url("chrome://global/skin/icons/warning-64.png");
-}
+  .alert-dialog #info\.icon,
+  .alert-icon {
+    list-style-image: url("chrome://global/skin/icons/warning-64.png");
+  }
 
-.error-icon {
-  list-style-image: url("chrome://global/skin/icons/error-64.png");
-}
+  .error-icon {
+    list-style-image: url("chrome://global/skin/icons/error-64.png");
+  }
 
-.question-icon {
-  list-style-image: url("chrome://global/skin/icons/question-64.png");
+  .question-icon {
+    list-style-image: url("chrome://global/skin/icons/question-64.png");
+  }
 }
 
 /* Separators */
