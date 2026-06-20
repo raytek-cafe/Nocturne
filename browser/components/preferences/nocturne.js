@@ -47,6 +47,7 @@ Preferences.addAll([
   { id: "geo.enabled", type: "bool",  inverted: true },
   { id: "nocturne.ui.oldaboutconfig", type: "bool" },
   { id: "nocturne.legacyiconbehavior.enabled", type: "bool" },
+  { id: "nocturne.platformspecificicons.enabled", type: "bool" },
   { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
   { id: "nocturne.ui.ff68downloadicons", type: "bool" },
   { id: "nocturne.ui.oldurlbar", type: "bool" },

@@ -230,6 +230,11 @@ nocturne-small-icon =
 
 nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
 
+nocturne-platform-specific-icons =
+    .label = Use Platform-Specific Icons
+
+nocturne-platform-specific-icons-desc = When enabled, Nocturne uses the legacy platform-specific icon set instead of the platform-neutral icons.
+
 
 nocturne-prompt-tab-modal =
     .label = Use the native system message box for prompts
