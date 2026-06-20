@@ -12,6 +12,7 @@ add_task(async function test_check_right_prompt() {
   let tests = [
     {
       oldWarnOnClose: false,
+      tabModalEnabled: true,
       warnOnQuitShortcut: true,
       warnOnClose: false,
       expectedDialog: "shortcut",
@@ -19,6 +20,7 @@ add_task(async function test_check_right_prompt() {
     },
     {
       oldWarnOnClose: false,
+      tabModalEnabled: true,
       warnOnQuitShortcut: false,
       warnOnClose: true,
       expectedDialog: "tabs",
@@ -26,6 +28,7 @@ add_task(async function test_check_right_prompt() {
     },
     {
       oldWarnOnClose: false,
+      tabModalEnabled: true,
       warnOnQuitShortcut: false,
       warnOnClose: false,
       messageSuffix: "with no warning",
@@ -33,6 +36,7 @@ add_task(async function test_check_right_prompt() {
     },
     {
       oldWarnOnClose: false,
+      tabModalEnabled: true,
       warnOnQuitShortcut: true,
       warnOnClose: true,
       messageSuffix: "with both warnings",
@@ -40,13 +44,23 @@ add_task(async function test_check_right_prompt() {
     },
     {
       oldWarnOnClose: true,
+      tabModalEnabled: true,
       warnOnQuitShortcut: true,
       warnOnClose: true,
-      expectedDialog: "tabs",
+      expectedDialog: "legacy-tabs",
       messageSuffix: "with legacy close warning enabled",
     },
     {
       oldWarnOnClose: true,
+      tabModalEnabled: false,
+      warnOnQuitShortcut: true,
+      warnOnClose: true,
+      expectedDialog: "tabs",
+      messageSuffix: "with legacy close warning but tab-modal prompts disabled",
+    },
+    {
+      oldWarnOnClose: true,
+      tabModalEnabled: true,
       warnOnQuitShortcut: true,
       warnOnClose: false,
       messageSuffix: "with legacy close warning but no tabs warning",
@@ -66,13 +80,22 @@ add_task(async function test_check_right_prompt() {
       } start with Quit ${messageSuffix}`
     );
     let checkLabel = dialogElement.querySelector("checkbox").label;
-    is(
-      checkLabel.includes("before quitting with"),
-      expectedDialog == "shortcut",
-      `checkbox label ${
-        expectedDialog == "shortcut" ? "should" : "should not"
-      } be for quitting ${messageSuffix}`
-    );
+    if (expectedDialog == "shortcut") {
+      ok(
+        checkLabel.startsWith("Ask before quitting with"),
+        `checkbox label should be for quitting ${messageSuffix}`
+      );
+    } else {
+      let expectedCheckLabel =
+        expectedDialog == "legacy-tabs"
+          ? "Warn me when I attempt to close multiple tabs"
+          : "Ask before closing multiple tabs";
+      is(
+        checkLabel,
+        expectedCheckLabel,
+        `checkbox label should match ${expectedDialog} ${messageSuffix}`
+      );
+    }
 
     dialogElement.getButton("cancel").click();
   }
@@ -84,6 +107,7 @@ add_task(async function test_check_right_prompt() {
   Services.obs.addObserver(setDialogOpened, "common-dialog-loaded");
   for (let {
     oldWarnOnClose,
+    tabModalEnabled,
     warnOnClose,
     warnOnQuitShortcut,
     expectedDialog,
@@ -97,6 +121,7 @@ add_task(async function test_check_right_prompt() {
         ["browser.warnOnQuitShortcut", warnOnQuitShortcut],
         ["browser.warnOnQuit", true],
         ["nocturne.tabs.oldWarnOnClose", oldWarnOnClose],
+        ["prompts.tab_modal.enabled", tabModalEnabled],
       ],
     });
     if (expectedDialog) {

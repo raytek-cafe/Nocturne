@@ -1537,10 +1537,9 @@ BrowserGlue.prototype = {
     // The warning will appear even when only one window/tab is open. For other
     // methods of quitting, the warning only appears when there is more than one
     // window or tab open.
-    const useOldWarnBehavior = Services.prefs.getBoolPref(
-      "nocturne.tabs.oldWarnOnClose",
-      true
-    );
+    const useOldWarnBehavior =
+      Services.prefs.getBoolPref("nocturne.tabs.oldWarnOnClose", true) &&
+      Services.prefs.getBoolPref("prompts.tab_modal.enabled", true);
     let shouldWarnForShortcut =
       this._quitSource == "shortcut" &&
       Services.prefs.getBoolPref("browser.warnOnQuitShortcut");
