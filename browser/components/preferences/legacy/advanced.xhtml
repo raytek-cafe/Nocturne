@@ -199,6 +199,8 @@
             name="nocturne.ui.oldaboutconfig" type="bool"/>
 <preference id="nocturne.legacyiconbehavior.enabled"
             name="nocturne.legacyiconbehavior.enabled" type="bool"/>
+<preference id="nocturne.platformspecificicons.enabled"
+            name="nocturne.platformspecificicons.enabled" type="bool"/>
 <preference id="nocturne.smalliconbehavior.enabled"
             name="nocturne.smalliconbehavior.enabled" type="bool"/>
 <preference id="nocturne.ui.ff68downloadicons"
@@ -963,6 +965,14 @@
                   preference="nocturne.legacyiconbehavior.enabled"/>
       </hbox>
       <label data-l10n-id="nocturne-legacy-icon-desc"
+             class="indent" style="font-style: italic; opacity: 0.6;"/>
+
+      <hbox align="center">
+        <checkbox id="nocturnePlatformSpecificIcons"
+                  data-l10n-id="nocturne-platform-specific-icons"
+                  preference="nocturne.platformspecificicons.enabled"/>
+      </hbox>
+      <label data-l10n-id="nocturne-platform-specific-icons-desc"
              class="indent" style="font-style: italic; opacity: 0.6;"/>
 
       <hbox align="center">
