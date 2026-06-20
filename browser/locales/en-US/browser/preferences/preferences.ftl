@@ -315,6 +315,11 @@ nocturne-small-icon =
 
 nocturne-small-icon-desc = When enabled, Windows will use 16x16 icon for the small icon variant.
 
+nocturne-platform-specific-icons =
+    .label = Use Platform-Specific Icons
+
+nocturne-platform-specific-icons-desc = When enabled, { -brand-short-name } uses the legacy platform-specific icon set instead of the platform-neutral icons.
+
 nocturne-ff68-download-icons =
     .label = Use Firefox 68-style download icons
 
