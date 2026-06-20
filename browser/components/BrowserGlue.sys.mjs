@@ -1537,9 +1537,13 @@ BrowserGlue.prototype = {
     // The warning will appear even when only one window/tab is open. For other
     // methods of quitting, the warning only appears when there is more than one
     // window or tab open.
+    const useWarnOnCloseCustomization = Services.prefs.getBoolPref(
+      "nocturne.tabs.oldWarnOnClose",
+      true
+    );
     const useOldWarnBehavior =
-      Services.prefs.getBoolPref("nocturne.tabs.oldWarnOnClose", true) &&
-      Services.prefs.getBoolPref("prompts.tab_modal.enabled", true);
+      useWarnOnCloseCustomization &&
+      !Services.prefs.getBoolPref("prompts.tab_modal.enabled", true);
     let shouldWarnForShortcut =
       this._quitSource == "shortcut" &&
       Services.prefs.getBoolPref("browser.warnOnQuitShortcut");
@@ -1598,7 +1602,7 @@ BrowserGlue.prototype = {
     if (windowcount > 1) {
       // More than 1 window. Compose our own message based on whether
       // the shortcut warning is on or not.
-      if (shouldWarnForShortcut) {
+      if (shouldWarnForShortcut && useWarnOnCloseCustomization) {
         showCloseCurrentTabOption = true;
         titleId = "tabbrowser-confirm-close-warn-shortcut-title";
         quitButtonLabelId =
@@ -1611,7 +1615,10 @@ BrowserGlue.prototype = {
         quitButtonLabelId = "tabbrowser-confirm-close-windows-button";
       }
     } else if (shouldWarnForShortcut) {
-      if (win.gBrowser.visibleTabs.length > 1) {
+      if (
+        useWarnOnCloseCustomization &&
+        win.gBrowser.visibleTabs.length > 1
+      ) {
         showCloseCurrentTabOption = true;
         titleId = "tabbrowser-confirm-close-warn-shortcut-title";
         quitButtonLabelId = "tabbrowser-confirm-close-tabs-with-key-button";

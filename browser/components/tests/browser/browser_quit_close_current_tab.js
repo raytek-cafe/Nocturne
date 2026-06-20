@@ -16,6 +16,12 @@ add_task(async function test_close_current_tab() {
       dialogElement.buttonBox.getElementsByTagName("button")
     );
 
+    is(
+      dialogElement.getAttribute("buttonpack"),
+      "center",
+      "Button pack should use the centered Omega layout when the pref is enabled"
+    );
+
     // button reordering only happens on Unix
     if (AppConstants.XP_UNIX) {
       is(
@@ -42,7 +48,43 @@ add_task(async function test_close_current_tab() {
     set: [
       ["browser.warnOnQuitShortcut", true],
       ["browser.warnOnQuit", true],
+      ["nocturne.tabs.oldWarnOnClose", true],
+      ["prompts.tab_modal.enabled", true],
+    ],
+  });
+
+  // triggers quit-application-requested
+  canQuitApplication(undefined, "shortcut");
+
+  Services.obs.removeObserver(observer, "common-dialog-loaded");
+});
+
+add_task(async function test_close_current_tab_option_is_pref_gated() {
+  async function observer(subject) {
+    let dialogElement = subject.document.getElementById("commonDialog");
+
+
+    is(
+      dialogElement.getAttribute("buttonpack"),
+      "end",
+      "Button pack should use the stock right-aligned layout when the pref is disabled"
+    );
+    ok(
+      dialogElement.getButton("extra1").hidden,
+      "Close current tab button should be hidden when the pref is disabled"
+    );
+
+    dialogElement.getButton("cancel").click();
+  }
+
+  Services.obs.addObserver(observer, "common-dialog-loaded");
+
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["browser.warnOnQuitShortcut", true],
+      ["browser.warnOnQuit", true],
       ["nocturne.tabs.oldWarnOnClose", false],
+      ["prompts.tab_modal.enabled", true],
     ],
   });
 

@@ -132,3 +132,43 @@ add_task(async function test_removesAllIncludingTabGroups() {
 
   await BrowserTestUtils.closeWindow(win);
 });
+
+add_task(async function test_warnAboutClosingTabs_legacy_skin_gate() {
+  let win = await BrowserTestUtils.openNewBrowserWindow();
+  await addTabTo(win.gBrowser);
+  await addTabTo(win.gBrowser);
+
+  async function checkPrompt(tabModalEnabled, expectedCheckboxLabel) {
+    await SpecialPowers.pushPrefEnv({
+      set: [
+        ["browser.tabs.warnOnClose", true],
+        ["nocturne.tabs.oldWarnOnClose", true],
+        ["prompts.tab_modal.enabled", tabModalEnabled],
+      ],
+    });
+
+    let promptPromise = BrowserTestUtils.promiseAlertDialogOpen("", undefined, {
+      callback(promptWin) {
+        let dialogElement = promptWin.document.getElementById("commonDialog");
+        is(
+          dialogElement.querySelector("checkbox").label,
+          expectedCheckboxLabel,
+          `checkbox label should match tab modal pref ${tabModalEnabled}`
+        );
+        dialogElement.getButton("cancel").click();
+      },
+    });
+
+    ok(
+      !win.gBrowser.warnAboutClosingTabs(3, win.gBrowser.closingTabsEnum.ALL),
+      "closing should be canceled after dismissing the prompt"
+    );
+    await promptPromise;
+    await SpecialPowers.popPrefEnv();
+  }
+
+  await checkPrompt(false, "Warn me when I attempt to close multiple tabs");
+  await checkPrompt(true, "Ask before closing multiple tabs");
+
+  await BrowserTestUtils.closeWindow(win);
+});

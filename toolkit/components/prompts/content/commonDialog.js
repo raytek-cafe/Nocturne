@@ -47,6 +47,12 @@ function commonDialogOnLoad() {
   let hideHeaderAppIcon = !lazy.headerAppIconEnabled;
 
   let dialog = document.getElementById("commonDialog");
+  dialog.setAttribute(
+    "buttonpack",
+    Services.prefs.getBoolPref("nocturne.tabs.oldWarnOnClose", true)
+      ? "center"
+      : "end"
+  );
 
   let needIconifiedHeader =
     args.modalType == Ci.nsIPrompt.MODAL_TYPE_CONTENT ||

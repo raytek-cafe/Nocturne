@@ -44,7 +44,7 @@ add_task(async function test_check_right_prompt() {
     },
     {
       oldWarnOnClose: true,
-      tabModalEnabled: true,
+      tabModalEnabled: false,
       warnOnQuitShortcut: true,
       warnOnClose: true,
       expectedDialog: "legacy-tabs",
@@ -52,15 +52,15 @@ add_task(async function test_check_right_prompt() {
     },
     {
       oldWarnOnClose: true,
-      tabModalEnabled: false,
+      tabModalEnabled: true,
       warnOnQuitShortcut: true,
       warnOnClose: true,
       expectedDialog: "tabs",
-      messageSuffix: "with legacy close warning but tab-modal prompts disabled",
+      messageSuffix: "with legacy close warning but tab-modal prompts enabled",
     },
     {
       oldWarnOnClose: true,
-      tabModalEnabled: true,
+      tabModalEnabled: false,
       warnOnQuitShortcut: true,
       warnOnClose: false,
       messageSuffix: "with legacy close warning but no tabs warning",

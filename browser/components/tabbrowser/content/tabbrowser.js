@@ -3793,7 +3793,7 @@
 
       const useNewWarnBehavior = !(
         Services.prefs.getBoolPref("nocturne.tabs.oldWarnOnClose", true) &&
-        Services.prefs.getBoolPref("prompts.tab_modal.enabled", true)
+        !Services.prefs.getBoolPref("prompts.tab_modal.enabled", true)
       );
 
       if (useNewWarnBehavior) {
