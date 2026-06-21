@@ -35,26 +35,21 @@
     <!-- XXX flex below is a hack because wrapping checkboxes don't reflow
              properly; see bug 349098 -->
     <vbox id="tabPrefsBox" align="start" flex="1">
-      <checkbox id="linkTargeting" label="&newWindowsAsTabs.label;"
-                accesskey="&newWindowsAsTabs.accesskey;"
+      <checkbox id="linkTargeting" data-l10n-id="open-new-link-as-tabs"
                 preference="browser.link.open_newwindow"
                 onsyncfrompreference="return gTabsPane.readLinkTarget();"
                 onsynctopreference="return gTabsPane.writeLinkTarget();"/>
-      <checkbox id="warnCloseMultiple" label="&warnCloseMultipleTabs.label;"
-                accesskey="&warnCloseMultipleTabs.accesskey;"
+      <checkbox id="warnCloseMultiple" data-l10n-id="ask-on-close-multiple-tabs"
                 preference="browser.tabs.warnOnClose"/>
-      <checkbox id="warnOpenMany" label="&warnOpenManyTabs.label;"
-                accesskey="&warnOpenManyTabs.accesskey;"
+      <checkbox id="warnOpenMany" data-l10n-id="warn-on-open-many-tabs"
                 preference="browser.tabs.warnOnOpen"/>
       <checkbox id="restoreOnDemand" label="&restoreTabsOnDemand.label;"
                 accesskey="&restoreTabsOnDemand.accesskey;"
                 preference="browser.sessionstore.restore_on_demand"/>
-      <checkbox id="switchToNewTabs" label="&switchToNewTabs.label;"
-                accesskey="&switchToNewTabs.accesskey;"
+      <checkbox id="switchToNewTabs" data-l10n-id="switch-to-new-tabs"
                 preference="browser.tabs.loadInBackground"/>
 #ifdef XP_WIN
-      <checkbox id="showTabsInTaskbar" label="&showTabsInTaskbar.label;"
-                accesskey="&showTabsInTaskbar.accesskey;"
+      <checkbox id="showTabsInTaskbar" data-l10n-id="show-tabs-in-taskbar"
                 preference="browser.taskbar.previews.enable"/>
 #endif
     </vbox>

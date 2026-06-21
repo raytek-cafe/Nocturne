@@ -14,11 +14,15 @@
 
 <prefwindow id="LanguagesDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            title="&languages.customize.Header;"
+            xmlns:html="http://www.w3.org/1999/xhtml"
+            data-l10n-id="webpage-languages-window2"
+            data-l10n-attrs="title, style"
             dlgbuttons="accept,cancel,help"
-            ondialoghelp="openPrefsHelp()"
-            style="width: &window.width;;">
+            ondialoghelp="openPrefsHelp()">
 
+  <linkset>
+    <html:link rel="localization" href="browser/preferences/languages.ftl"/>
+  </linkset>
   <script type="application/javascript" src="chrome://browser/content/utilityOverlay.js"/>
 
   <prefpane id="LanguagesDialogPane"
@@ -48,7 +52,7 @@
       <stringbundle id="bundleAccepted"     src="resource://gre/res/language.properties"/>
     </stringbundleset>
 
-    <description>&languages.customize.description;</description>
+    <description data-l10n-id="languages-description"/>
     <grid flex="1">
       <columns>
         <column flex="1"/>
@@ -63,16 +67,13 @@
                     onsynctopreference="return gLanguagesDialog.writeAcceptLanguages();"/>
           <vbox>
             <button id="up" class="up" oncommand="gLanguagesDialog.moveUp();" disabled="true"
-                    label="&languages.customize.moveUp.label;"
-                    accesskey="&languages.customize.moveUp.accesskey;"
+                    data-l10n-id="languages-customize-moveup"
                     preference="pref.browser.language.disable_button.up"/>
             <button id="down" class="down" oncommand="gLanguagesDialog.moveDown();" disabled="true"
-                    label="&languages.customize.moveDown.label;"
-                    accesskey="&languages.customize.moveDown.accesskey;"
+                    data-l10n-id="languages-customize-movedown"
                     preference="pref.browser.language.disable_button.down"/>
             <button id="remove" oncommand="gLanguagesDialog.removeLanguage();" disabled="true"
-                    label="&languages.customize.deleteButton.label;"
-                    accesskey="&languages.customize.deleteButton.accesskey;"
+                    data-l10n-id="languages-customize-remove"
                     preference="pref.browser.language.disable_button.remove"/>
           </vbox>
         </row>
@@ -86,8 +87,7 @@
             <menupopup id="availableLanguagesPopup"/>
           </menulist>
           <button id="addButton" oncommand="gLanguagesDialog.addLanguage();" disabled="true"
-                  label="&languages.customize.addButton.label;"
-                  accesskey="&languages.customize.addButton.accesskey;"/>
+                  data-l10n-id="languages-customize-add"/>
         </row>
       </rows>
     </grid>

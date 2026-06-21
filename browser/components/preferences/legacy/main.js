@@ -206,12 +206,10 @@ IOUtils.stat(ignoreSeparateProfile).then(
    */
   _updateUseCurrentButton: function () {
     let useCurrent = document.getElementById("useCurrent");
-
     let tabs = this._getTabsForHomePage();
-    if (tabs.length > 1)
-      useCurrent.label = useCurrent.getAttribute("label2");
-    else
-      useCurrent.label = useCurrent.getAttribute("label1");
+    document.l10n.setAttributes(useCurrent, "use-current-pages", {
+      tabCount: tabs.length,
+    });
 
     // In this case, the button's disabled state is set by preferences.xml.
     if (document.getElementById

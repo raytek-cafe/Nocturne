@@ -4,6 +4,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var gConnectionsDialog = {
+  init: function ()
+  {
+    this.checkForSystemProxy();
+    this.localizeAcceptButton();
+  },
+
   beforeAccept: function ()
   {
     var proxyTypePref = document.getElementById("network.proxy.type");
@@ -56,6 +62,35 @@ var gConnectionsDialog = {
   {
     if ("@mozilla.org/system-proxy-settings;1" in Components.classes)
       document.getElementById("systemPref").removeAttribute("hidden");
+  },
+
+  localizeAcceptButton: function ()
+  {
+    document.l10n
+      .formatMessages([{ id: "popup-notification-default-button2" }])
+      .then(([message]) => {
+        if (!message?.attributes) {
+          return;
+        }
+
+        let acceptButton = document.documentElement.getButton("accept");
+        let acceptLabel = message.attributes.find(({ name }) => name == "label");
+        if (acceptLabel) {
+          document.documentElement.setAttribute("buttonlabelaccept", acceptLabel.value);
+          acceptButton.setAttribute("label", acceptLabel.value);
+        }
+
+        let acceptAccessKey = message.attributes.find(
+          ({ name }) => name == "accesskey"
+        );
+        if (acceptAccessKey) {
+          document.documentElement.setAttribute(
+            "buttonaccesskeyaccept",
+            acceptAccessKey.value
+          );
+          acceptButton.setAttribute("accesskey", acceptAccessKey.value);
+        }
+      });
   },
   
   proxyTypeChanged: function ()
