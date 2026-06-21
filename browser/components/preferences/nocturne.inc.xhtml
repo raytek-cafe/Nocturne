@@ -29,12 +29,34 @@
   <description class="indent tip-caption" data-l10n-id="nocturne-native-checkbox-desc"/>
 
   <hbox align="center">
-    <label id="nocturneNativeMenulist" data-l10n-id="nocturne-native-menulist" control="nocturneNativeMenulistType"/>
-    <menulist id="nocturneNativeMenulistType" preference="browser.display.windows.non_native_menus">
+    <label id="nocturneNativeMenus" data-l10n-id="nocturne-native-menus" control="nocturneNativeMenusType"/>
+    <menulist id="nocturneNativeMenusType" preference="browser.display.windows.non_native_menus">
       <menupopup>
-        <menuitem label="Native menulists always" value="0"/>
-        <menuitem label="Custom menulists always" value="1"/>
-        <menuitem label="Native menulists unless Windows 10 (Modern) theme is used (Default)" value="2"/>
+        <menuitem label="Native menus always" value="0"/>
+        <menuitem label="Custom menus always" value="1"/>
+        <menuitem label="Native menus unless Windows 10 (Modern) theme is used (Default)" value="2"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneNativeMenulist" data-l10n-id="nocturne-native-menulist" control="nocturneNativeMenulistType"/>
+    <menulist id="nocturneNativeMenulistType" preference="browser.display.windows.non_native_menulist">
+      <menupopup>
+        <menuitem label="Native dropdown boxes always" value="0"/>
+        <menuitem label="Custom dropdown boxes always" value="1"/>
+        <menuitem label="Native dropdown boxes in light mode, custom in dark mode (Default)" value="2"/>
+      </menupopup>
+    </menulist>
+  </hbox>
+
+  <hbox align="center">
+    <label id="nocturneNativeTabbox" data-l10n-id="nocturne-native-tabbox" control="nocturneNativeTabboxType"/>
+    <menulist id="nocturneNativeTabboxType" preference="browser.display.windows.non_native_tabbox">
+      <menupopup>
+        <menuitem label="Native tab bar always" value="0"/>
+        <menuitem label="Custom tab bar always" value="1"/>
+        <menuitem label="Native tab bar in light mode, custom in dark mode (Default)" value="2"/>
       </menupopup>
     </menulist>
   </hbox>

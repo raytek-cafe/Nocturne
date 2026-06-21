@@ -145,7 +145,11 @@ nocturne-native-checkbox =
 
 nocturne-native-checkbox-desc = This controls whether the scrollbar, checkboxes, and other elements use their native system counterparts or their non-native browser themed style.
 
-nocturne-native-menulist = Menulist type
+nocturne-native-menus = Menu popup type
+
+nocturne-native-menulist = Dropdown box type
+
+nocturne-native-tabbox = Tab bar type
 
 nocturne-native-scroll = Scrollbar type
 
