@@ -51,6 +51,7 @@ struct ManifestDirective {
   int argc;
 
   bool ischrome;
+  bool allowbootstrap;
 
   // The contentaccessible flags only apply to content/resource directives.
   bool contentflags;
@@ -65,35 +66,34 @@ struct ManifestDirective {
       char* const* aArgv, int aFlags);
 };
 static const ManifestDirective kParsingTable[] = {
-    // clang-format off
   {
-    "manifest",         1, true, false,
+    "manifest",         1, true, true, false,
     &nsComponentManagerImpl::ManifestManifest, nullptr,
   },
   {
-    "category",         3, false, false,
+    "category",         3, false, true, false,
     &nsComponentManagerImpl::ManifestCategory, nullptr,
   },
   {
-    "content",          2, true,  true,
+    "content",          2, true, true,  true,
     nullptr, &nsChromeRegistry::ManifestContent,
   },
   {
-    "locale",           3, true, false,
+    "locale",           3, true, true, false,
     nullptr, &nsChromeRegistry::ManifestLocale,
   },
   {
-    "skin",             3, true, false,
+    "skin",             3, true, true, false,
     nullptr, &nsChromeRegistry::ManifestSkin,
   },
   {
     // NB: note that while skin manifests can use this, they are only allowed
     // to use it for chrome://../skin/ URLs
-    "override",         2, true, false,
+    "override",         2, true, true, false,
     nullptr, &nsChromeRegistry::ManifestOverride,
   },
   {
-    "resource",         2, false, true,
+    "resource",         2, false, true, true,
     nullptr, &nsChromeRegistry::ManifestResource,
   }
     // clang-format on
@@ -534,7 +534,7 @@ void ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
       continue;
     }
 
-    if (!directive->ischrome && NS_BOOTSTRAPPED_LOCATION == aType) {
+    if (NS_BOOTSTRAPPED_LOCATION == aType && !directive->allowbootstrap) {
       LogMessageWithContext(
           aFile, line,
           "Bootstrapped manifest not allowed to use '%s' directive.", token);

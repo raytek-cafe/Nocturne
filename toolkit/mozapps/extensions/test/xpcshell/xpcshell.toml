@@ -68,6 +68,7 @@ skip-if = ["os == 'android'"] # Non-extension add-ons are not supported on Andro
 
 ["test_badschema.js"]
 
+
 ["test_builtin_location.js"]
 
 ["test_builtin_theme_missing_fluent_strings.js"]
@@ -388,6 +389,10 @@ head = "head_addons.js head_compat.js"
 run-sequentially = "Uses global XCurProcD dir."
 
 ["test_upgrade_incompatible.js"]
+["test_legacy_iconURL.js"]
+head = ""
+["test_legacy_nonbootstrap_chrome.js"]
+head = ""
 
 ["test_webextension.js"]
 tags = "webextensions"

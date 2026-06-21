@@ -1036,8 +1036,10 @@ export class AddonWrapper {
 
     let canUseIconURLs = this.isActive;
     if (canUseIconURLs && addon.iconURL) {
-      icons[32] = addon.iconURL;
-      icons[48] = addon.iconURL;
+      let path = addon.iconURL.replace(/^\//, "");
+      let iconURL = this.getResourceURI(path).spec;
+      icons[32] = iconURL;
+      icons[48] = iconURL;
     }
 
     Object.freeze(icons);

@@ -26,6 +26,10 @@ const NS_XML = "http://www.w3.org/XML/1998/namespace";
 const NS_XMLNS = "http://www.w3.org/2000/xmlns/";
 const NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 const NS_NC = "http://home.netscape.com/NC-rdf#";
+function RDF_R(name) {
+  return NS_RDF + name;
+}
+
 
 /* eslint prefer-template: 1 */
 

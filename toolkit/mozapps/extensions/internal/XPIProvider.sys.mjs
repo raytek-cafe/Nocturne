@@ -2138,6 +2138,12 @@ class BootstrapScope {
         this.addon.loader
       );
       if (!loader) {
+        let loaderNames = Array.from(
+          AddonManagerPrivate.externalExtensionLoaders.keys()
+        );
+        logger.error(
+          `Missing external loader ${this.addon.loader} for ${this.addon.id}; registered loaders: ${JSON.stringify(loaderNames)}`
+        );
         throw new Error(`Cannot find loader for ${this.addon.loader}`);
       }
 
@@ -2788,6 +2794,22 @@ export var XPIProvider = {
         this.addAddonsToCrashReporter();
       }
 
+      // restore legacy extensions before any bootstrap add-on startup
+      try {
+        const { BootstrapLoader } = ChromeUtils.importESModule(
+          "resource://gre/modules/addons/LegacyBootstrap.sys.mjs"
+        );
+        logger.warn(
+          `Registering legacy bootstrap loader ${BootstrapLoader?.name ?? "<missing-name>"}`
+        );
+        AddonManager.addExternalExtensionLoader(BootstrapLoader);
+        logger.warn(
+          `Registered external loaders after bootstrap import: ${JSON.stringify(Array.from(AddonManagerPrivate.externalExtensionLoaders.keys()))}`
+        );
+      } catch (e) {
+        logger.error("Failed to register legacy bootstrap loader", e);
+      }
+
       try {
         AddonManagerPrivate.recordTimestamp("XPI_bootstrap_addons_begin");
 
@@ -2946,11 +2968,6 @@ export var XPIProvider = {
         }
       }
 	  
-	  // restore legacy extensions
-	  const { BootstrapLoader } = ChromeUtils.importESModule(
-  	    "resource://gre/modules/addons/LegacyBootstrap.sys.mjs"
-	  );
-	  AddonManager.addExternalExtensionLoader(BootstrapLoader);
       AddonManagerPrivate.recordTimestamp("XPI_startup_end");
 
       if (

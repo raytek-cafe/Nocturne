@@ -67,9 +67,24 @@ export class InstallRDF extends Manifest {
     let root = this.ds.getResource(RDFURI_INSTALL_MANIFEST_ROOT);
     let result = {};
 
-    let props = ["id", "version", "type", "updateURL", "optionsURL",
-                 "optionsType", "aboutURL", "iconURL",
-                 "bootstrap", "unpack", "strictCompatibility"];
+    let props = [
+      "id",
+      "version",
+      "type",
+      "internalName",
+      "updateURL",
+      "updateKey",
+      "optionsURL",
+      "optionsType",
+      "aboutURL",
+      "iconURL",
+      "icon64URL",
+      "bootstrap",
+      "unpack",
+      "strictCompatibility",
+      "multiprocessCompatible",
+      "skinnable",
+    ];
     this._readProps(root, result, props);
 
     let decodeTargetApplication = source => {
