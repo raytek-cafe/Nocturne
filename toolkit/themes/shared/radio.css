@@ -78,7 +78,7 @@ radio {
     padding-bottom: 1px;
     padding-inline-start: 1px;
   }
-	@media (-moz-pref("skyfox.widget.old-layout-tweaks")) {
+	@media (-moz-pref("widget.nocturne.old-layout-tweaks")) {
   .radio-label-box {
     margin-inline-start: 5px;
 
@@ -86,7 +86,7 @@ radio {
   }
 }
 
-@media not (-moz-pref("skyfox.widget.old-layout-tweaks")) {
+@media not (-moz-pref("widget.nocturne.old-layout-tweaks")) {
   .radio-label-box {
 	 margin-inline-start: 2px; 
   }

@@ -14,7 +14,7 @@
   }
 }
 
-@media (-moz-pref("skyfox.widget.old-layout-tweaks")) and (-moz-platform: windows) {
+@media (-moz-pref("widget.nocturne.old-layout-tweaks")) and (-moz-platform: windows) {
   #infoContainer,
   #loginLabel,
   #loginTextbox,
