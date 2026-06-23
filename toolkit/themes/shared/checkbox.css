@@ -8,13 +8,19 @@
 checkbox {
   align-items: center;
   margin: 4px 2px;
+}
 
-  &[disabled="true"][native] {
-    color: GrayText;
-  }
+@media (-moz-pref("widget.non-native-theme.enabled")) {
 
-  &[disabled="true"]:not([native]) > .checkbox-label-box {
+  checkbox[disabled="true"] > .checkbox-label-box {
     opacity: 0.4;
+  }
+}
+
+@media not (-moz-pref("widget.non-native-theme.enabled")) {
+
+  checkbox[disabled="true"] {
+    color: GrayText;
   }
 }
 
@@ -30,12 +36,14 @@ checkbox {
   margin: 1px 0;
 }
 
+@media not (-moz-pref("widget.non-native-theme.enabled")) {
   @media (-moz-windows-classic) {
-    checkbox[native][disabled="true"] {
+    checkbox[disabled="true"] {
       color: ThreeDShadow;
       text-shadow: 1px 1px ThreeDHighlight;
     }
   }
+}
 
 /* ::::: checkmark image ::::: */
 
@@ -44,22 +52,27 @@ checkbox {
   -moz-default-appearance: checkbox;
   margin-inline-end: var(--checkbox-margin-inline);
 
-  &:not([native]) {
-    -moz-theme: non-native;
-    width: var(--checkbox-size);
-    height: var(--checkbox-size);
-  }
-
   checkbox:focus-visible > & {
     outline-style: auto;
   }
 }
 
-.checkbox-label[native] {
+@media (-moz-pref("widget.non-native-theme.enabled")) {
+
+  .checkbox-check {
+    -moz-theme: non-native;
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+  }
+}
+
+@media not (-moz-pref("widget.non-native-theme.enabled")) {
+
+.checkbox-label {
   margin: 0;
 }
 
-.checkbox-check[native] {
+.checkbox-check {
   align-items: center;
 
   @media (-moz-platform: windows) {
@@ -83,7 +96,7 @@ checkbox {
 }
 
 @media (-moz-platform: windows) or (-moz-platform: linux) {
-  checkbox[native]:focus-visible > .checkbox-label-box {
+  checkbox:focus-visible > .checkbox-label-box {
     /* On Linux, native theming should take care of this but it appears to be
      * broken with some Gtk themes. Bug 1312169. */
     outline: var(--focus-outline);
@@ -91,7 +104,7 @@ checkbox {
 }
 
 @media (-moz-platform: windows) {
-  checkbox:where([native]) {
+  checkbox {
     appearance: auto;
     -moz-default-appearance: checkbox-container;
     margin: 2px 4px;
@@ -101,17 +114,19 @@ checkbox {
 }
 
 @media (-moz-platform: macos) {
-  checkbox:where([native]) {
+  checkbox {
     margin: 4px 2px;
   }
 
-  .checkbox-label[native] {
+  .checkbox-label {
     margin: 1px 0;
   }
 }
 
 @media (-moz-platform: linux) {
-  checkbox:where([native]) {
+  checkbox {
     margin: 2px 4px;
   }
+}
+
 }
