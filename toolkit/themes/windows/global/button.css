@@ -45,7 +45,10 @@ button {
 }
 
 .button-text {
-  margin: 0;
+  /* omega: fix XUL button dimensions */
+  margin: 0 0 1px -1px;
+  /* this was the original rule */
+  /* margin: 0; */
   text-align: center;
 }
 
