@@ -14,7 +14,8 @@ groupbox {
   -moz-appearance: groupbox;
   border: 2px groove ThreeDFace;
   border-radius: 3px;
-  margin: 3px;
+  /* omega: restore proper spacing between groupboxes */
+  margin: 7px;
   padding: 3px 3px 6px;
 }
 
@@ -23,7 +24,8 @@ groupbox {
 }
 
 caption {
-  margin: 0 6px;
+  /* omega: restore proper (smaller) caption margin from the left */
+  margin: 0 1px;
   background-color: -moz-Dialog;
 }
 
