@@ -12,6 +12,17 @@
     flex-direction: column;
     justify-content: center;
   }
+  #infoContainer,
+  #loginLabel,
+  #loginTextbox,
+  #password1Label,
+  #password1Textbox,
+  #checkbox {
+	/* omega: fix dialog text dimensions */
+	position: relative;
+    top: -2px;
+  }
+}
 
   #infoIcon {
     margin: 3px 5px 4px;
