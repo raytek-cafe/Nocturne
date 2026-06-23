@@ -18543,7 +18543,7 @@
   
 # omega: all my Le Old Layout css hacks are controlled by this preference
 # Firefox 41.0.2 is used as reference for old layout
-- name: skyfox.widget.old-layout-tweaks
+- name: widget.nocturne.old-layout-tweaks
   type: RelaxedAtomicBool
   value: true
   mirror: always
