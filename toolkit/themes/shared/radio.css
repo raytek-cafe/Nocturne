@@ -71,7 +71,10 @@ radio {
 
 @media (-moz-platform: windows) {
   .radio-label-box {
-    margin-inline-start: 2px;
+	/* omega: fix radio button margins */
+    margin-inline-start: 5px;
+	/* original value */
+	/* margin-inline-start: 2px; */
     padding-bottom: 1px;
     padding-inline-start: 1px;
   }
