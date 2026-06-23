@@ -70,7 +70,7 @@ radio {
 }
 
 @media (-moz-platform: windows) {
-  .radio-label-box {
+	  .radio-label-box {
 	/* omega: fix radio button margins */
     margin-inline-start: 5px;
 	/* original value */
@@ -78,6 +78,20 @@ radio {
     padding-bottom: 1px;
     padding-inline-start: 1px;
   }
+	@media (-moz-pref("skyfox.widget.old-layout-tweaks")) {
+  .radio-label-box {
+    margin-inline-start: 5px;
+
+  }
+  }
+}
+
+@media not (-moz-pref("skyfox.widget.old-layout-tweaks")) {
+  .radio-label-box {
+	 margin-inline-start: 2px; 
+  }
+}
+
 }
 
 @media (-moz-platform: macos) {

@@ -52,6 +52,19 @@ button {
   text-align: center;
 }
 
+@media (-moz-pref("skyfox.widget.old-layout-tweaks")) {
+  .button-text {
+    /* omega: fix XUL button dimensions */
+    margin: 0 0 1px -1px;
+  }
+}
+
+@media not (-moz-pref("skyfox.widget.old-layout-tweaks")) {
+  .button-text {
+    margin: 0; 
+  }
+}
+
 @media (-moz-windows-classic) {
   button:where([disabled="true"]) {
     color: ThreeDShadow;

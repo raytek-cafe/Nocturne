@@ -18540,6 +18540,13 @@
   type: RelaxedAtomicBool
   value: false
   mirror: always
+  
+# omega: all my Le Old Layout css hacks are controlled by this preference
+# Firefox 41.0.2 is used as reference for old layout
+- name: skyfox.widget.old-layout-tweaks
+  type: RelaxedAtomicBool
+  value: true
+  mirror: always
 
 # Whether the non-native theme should always use system colors. Useful mostly
 # for testing forced colors mode.

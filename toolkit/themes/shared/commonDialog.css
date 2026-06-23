@@ -12,6 +12,9 @@
     flex-direction: column;
     justify-content: center;
   }
+}
+
+@media (-moz-pref("skyfox.widget.old-layout-tweaks")) and (-moz-platform: windows) {
   #infoContainer,
   #loginLabel,
   #loginTextbox,
