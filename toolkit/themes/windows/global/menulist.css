@@ -7,7 +7,8 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 label {
-  margin: 0 3px;
+  /* omega: restore proper dropdown button text margin */
+  margin: 0 2px;
 }
 
 :host {
@@ -26,6 +27,10 @@ label {
 /* Label box */
 
 #label-box {
+  /* omega: restore proper dropdown button height, this was broken previously and since the dropdown
+     arrow has fixed margins, that also looked broken in turn */
+  margin-top: 2px;
+  margin-bottom: 3px;
   align-items: center;
   justify-content: center;
 }
