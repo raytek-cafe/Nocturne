@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/** * =================== SAVED SIGNONS CODE =================== ***/
+/* eslint-disable-next-line no-var */
+var { AppConstants } = ChromeUtils.import(
+  "resource://gre/modules/AppConstants.jsm"
+);
+/* eslint-disable-next-line no-var */
+var { Services } = ChromeUtils.import("resource://gre/modules/Services.jsm");
+
 ChromeUtils.defineModuleGetter(
   this,
   "DeferredTask",
@@ -78,11 +86,9 @@ function Startup() {
   removeButton = document.getElementById("removeSignon");
   removeAllButton = document.getElementById("removeAllSignons");
 
-  togglePasswordsButton.label = "Show Passwords";
-  togglePasswordsButton.accessKey = "P";
-  signonsIntro.textContent = "Logins for the following sites are stored on your computer";
-  removeAllButton.label = "Remove All";
-  removeAllButton.accessKey = "A";
+  document.l10n.setAttributes(togglePasswordsButton, "show-passwords");
+  document.l10n.setAttributes(signonsIntro, "logins-description-all");
+  document.l10n.setAttributes(removeAllButton, "remove-all");
 
   if (Services.policies && !Services.policies.isAllowed("passwordReveal")) {
     togglePasswordsButton.hidden = true;
@@ -116,6 +122,9 @@ function Startup() {
   }
 
   FocusFilterBox();
+  document.l10n
+    .translateElements(document.querySelectorAll("[data-l10n-id]"))
+    .then(() => window.sizeToContent());
 }
 
 function Shutdown() {
@@ -292,10 +301,10 @@ function SortTree(column, ascending) {
   }
 }
 
-async function LoadSignons() {
+function LoadSignons() {
   // loads signons into table
   try {
-    signons = await Services.logins.getAllLogins();
+    signons = Services.logins.getAllLogins();
   } catch (e) {
     signons = [];
   }
@@ -407,8 +416,8 @@ async function DeleteAllSignons() {
   if (
     Services.prompt.confirmEx(
       window,
-      "Remove all passwords",
-      "Are you sure you wish to remove all passwords?",
+      await document.l10n.formatValue("remove-all-passwords-title"),
+      await document.l10n.formatValue("remove-all-passwords-prompt"),
       Services.prompt.STD_YES_NO_BUTTONS + Services.prompt.BUTTON_POS_1_DEFAULT,
       null,
       null,
@@ -455,8 +464,10 @@ async function DeleteAllSignons() {
 async function TogglePasswordVisible() {
   if (showingPasswords || (await masterPasswordLogin(AskUserShowPasswords))) {
     showingPasswords = !showingPasswords;
-    togglePasswordsButton.label = showingPasswords ? "Hide Passwords" : "Show Passwords";
-    togglePasswordsButton.accessKey = "P";
+    document.l10n.setAttributes(
+      togglePasswordsButton,
+      showingPasswords ? "hide-passwords" : "show-passwords"
+    );
     document.getElementById("passwordCol").hidden = !showingPasswords;
     FilterPasswords();
   }
@@ -482,7 +493,7 @@ async function AskUserShowPasswords() {
     Services.prompt.confirmEx(
       window,
       null,
-      "Are you sure you wish to show your passwords?",
+      await document.l10n.formatValue("no-master-password-prompt"),
       Services.prompt.STD_YES_NO_BUTTONS,
       null,
       null,
@@ -596,9 +607,8 @@ function SignonClearFilter() {
   }
   signonsTreeView._lastSelectedRanges = [];
 
-  signonsIntro.textContent = "Logins for the following sites are stored on your computer";
-  removeAllButton.label = "Remove All";
-  removeAllButton.accessKey = "A";
+  document.l10n.setAttributes(signonsIntro, "logins-description-all");
+  document.l10n.setAttributes(removeAllButton, "remove-all");
 }
 
 function FocusFilterBox() {
@@ -682,9 +692,8 @@ function FilterPasswords() {
     signonsTreeView.selection.select(0);
   }
 
-  signonsIntro.textContent = "The following logins match your search:";
-  removeAllButton.label = "Remove All Shown";
-  removeAllButton.accessKey = "A";
+  document.l10n.setAttributes(signonsIntro, "logins-description-filtered");
+  document.l10n.setAttributes(removeAllButton, "remove-all-shown");
 }
 
 function CopySiteUrl() {
