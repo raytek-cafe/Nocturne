@@ -519,6 +519,21 @@ nscoord nsMenuPopupFrame::IntrinsicISize(const IntrinsicSizeInput& aInput,
   if (ScrollContainerFrame* sf = GetScrollContainerFrame()) {
     iSize += sf->GetDesiredScrollbarSizes().LeftRight();
   }
+  
+  // omega: push our preferred width back to the menulist so it sizes to us
+  // this is hacky (setting CSS attributes from C++), but it works
+  nsIContent* parent = mContent->GetParent();
+  if (parent && iSize > 0) {
+    nsIFrame* parentFrame = parent->GetPrimaryFrame();
+    if (parentFrame && iSize > parentFrame->GetRect().width) {
+      nsAutoString minWidth;
+      minWidth.AppendFloat(NSAppUnitsToFloatPixels(iSize, AppUnitsPerCSSPixel()));
+      minWidth.AppendLiteral("px");
+      parent->AsElement()->SetAttr(
+          kNameSpaceID_None, nsGkAtoms::style,
+          u"min-width: "_ns + minWidth, true);
+    }
+  }
 
   nscoord menuListOrAnchorWidth = 0;
   if (nsIFrame* menuList = GetInFlowParent()) {
