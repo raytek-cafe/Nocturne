@@ -14,26 +14,14 @@ groupbox {
   -moz-appearance: groupbox;
   border: 2px groove ThreeDFace;
   border-radius: 3px;
-  /* omega: restore proper spacing between groupboxes */
-  margin: 7px 3px;
-  /* this was the original rule, but doesn't matter since this CSS file doesn't exist in modern Firefox */
-  /* margin: 3px; */
   padding: 3px 3px 6px;
 }
 
 .groupbox-body {
   padding: inherit;
-  /* omega: restore proper spacing inside groupboxes */
-  margin-left: -5px;
-  margin-right: -5px;
-  margin-bottom: -9px;
 }
 
 caption {
-  /* omega: restore proper (smaller) caption margin from the left */
-  margin: 0 1px;
-  /* this was the original rule, but doesn't matter since this CSS file doesn't exist in modern Firefox */
-  /* margin: 0 6px; */
   background-color: -moz-Dialog;
 }
 
@@ -44,4 +32,29 @@ tabpanels caption {
 /* !important is needed to override label in global.css */
 .caption-text {
   margin: 0 2px !important;
+}
+
+@media (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+  groupbox {
+	/* omega: restore proper spacing between groupboxes */
+    margin: 7px 3px;
+  }
+  .groupbox-body {
+	/* omega: restore proper spacing inside groupboxes */
+    margin-left: -5px;
+    margin-right: -5px;
+    margin-bottom: -9px;
+  }
+  caption {
+	margin: 0 1px; 
+  }
+}
+
+@media not (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+  groupbox {
+    margin: 3px;
+  }
+  caption {
+	margin: 0 6px; 
+  }
 }

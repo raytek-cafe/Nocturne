@@ -520,6 +520,7 @@ nscoord nsMenuPopupFrame::IntrinsicISize(const IntrinsicSizeInput& aInput,
     iSize += sf->GetDesiredScrollbarSizes().LeftRight();
   }
   
+  if (StaticPrefs::widget_nocturne_old_layout_tweaks()) {
   // omega: push our preferred width back to the menulist so it sizes to us
   // this is hacky (setting CSS attributes from C++), but it works
   nsIContent* parent = mContent->GetParent();
@@ -529,11 +530,15 @@ nscoord nsMenuPopupFrame::IntrinsicISize(const IntrinsicSizeInput& aInput,
       nsAutoString minWidth;
       minWidth.AppendFloat(NSAppUnitsToFloatPixels(iSize, AppUnitsPerCSSPixel()));
       minWidth.AppendLiteral("px");
+
       parent->AsElement()->SetAttr(
-          kNameSpaceID_None, nsGkAtoms::style,
-          u"min-width: "_ns + minWidth, true);
+          kNameSpaceID_None,
+          nsGkAtoms::style,
+          u"min-width: "_ns + minWidth,
+          true);
     }
   }
+}
 
   nscoord menuListOrAnchorWidth = 0;
   if (nsIFrame* menuList = GetInFlowParent()) {

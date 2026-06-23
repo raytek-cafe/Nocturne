@@ -11,7 +11,6 @@ checkbox {
 }
 
 @media (-moz-pref("widget.non-native-theme.enabled")) {
-
   checkbox[disabled="true"] > .checkbox-label-box {
     opacity: 0.4;
   }

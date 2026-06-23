@@ -12,6 +12,9 @@
     flex-direction: column;
     justify-content: center;
   }
+}
+
+@media (-moz-pref("widget.nocturne.old-layout-tweaks")) and (-moz-platform: windows) {
   #infoContainer,
   #loginLabel,
   #loginTextbox,

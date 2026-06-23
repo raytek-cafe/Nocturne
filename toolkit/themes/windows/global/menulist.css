@@ -6,12 +6,6 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-label:not([native]) {
-  /* omega: restore proper dropdown button text margin */
-  margin: 0 2px;
-}
-}
-
 :host([native]) {
   appearance: auto;
   -moz-default-appearance: menulist;
@@ -28,13 +22,6 @@ label:not([native]) {
 /* Label box */
 
 #label-box[native] {
-  /* omega: restore proper dropdown button height, this was broken previously and since the dropdown
-     arrow has fixed margins, that also looked broken in turn */
-  margin-top: 2px;
-  margin-bottom: 3px;
-  align-items: center;
-  justify-content: center;
-}
   align-items: center;
   justify-content: center;
 }
@@ -101,4 +88,18 @@ dropmarker:not([native]) {
   content: url("chrome://global/skin/icons/arrow-down-12.svg");
   -moz-context-properties: fill;
   fill: currentColor;
+}
+
+@media (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+  label:not([native]) {
+    /* omega: restore proper dropdown button text margin */
+    margin: 0 2px;
+  }
+
+  #label-box[native] {
+    /* omega: restore proper dropdown button height, this was broken previously and since the dropdown
+       arrow has fixed margins, that also looked broken in turn */
+    margin-top: 2px;
+    margin-bottom: 3px;
+  }
 }
