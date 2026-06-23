@@ -16,6 +16,8 @@ groupbox {
   border-radius: 3px;
   /* omega: restore proper spacing between groupboxes */
   margin: 7px;
+  /* this was the original rule, but doesn't matter since this CSS file doesn't exist in modern Firefox */
+  /* margin: 3px; */
   padding: 3px 3px 6px;
 }
 
@@ -26,6 +28,8 @@ groupbox {
 caption {
   /* omega: restore proper (smaller) caption margin from the left */
   margin: 0 1px;
+  /* this was the original rule, but doesn't matter since this CSS file doesn't exist in modern Firefox */
+  /* margin: 0 6px; */
   background-color: -moz-Dialog;
 }
 
