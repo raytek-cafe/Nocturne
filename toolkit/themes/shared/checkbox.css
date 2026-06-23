@@ -36,12 +36,10 @@ checkbox {
   margin: 1px 0;
 }
 
-@media not (-moz-pref("widget.non-native-theme.enabled")) {
-  @media (-moz-windows-classic) {
-    checkbox[disabled="true"] {
-      color: ThreeDShadow;
-      text-shadow: 1px 1px ThreeDHighlight;
-    }
+@media not (-moz-pref("widget.non-native-theme.enabled")) and (-moz-windows-classic) {
+  checkbox[disabled="true"] {
+    color: ThreeDShadow;
+    text-shadow: 1px 1px ThreeDHighlight;
   }
 }
 
@@ -127,6 +125,6 @@ checkbox {
   checkbox {
     margin: 2px 4px;
   }
-}
+
 
 }
