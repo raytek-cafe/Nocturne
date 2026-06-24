@@ -16,7 +16,7 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <prefpane id="paneContent" 
-            onpaneload="gContentPane.init();"
+            onpaneload="Services.prompt.alert(window, 'Test', 'paneload fired');"
             helpTopic="prefs-content">
 
     <preferences id="contentPreferences">
