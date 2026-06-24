@@ -79,7 +79,6 @@ var gContentPane = {
    */
   _rebuildFonts: function ()
   {
-	  Components.utils.reportError("Rebuild fonts running");
     var langGroupPref = document.getElementById("font.language.group");
     this._selectDefaultLanguageGroup(langGroupPref.value,
                                      this._readDefaultFontTypeForLanguage(langGroupPref.value) == "serif");

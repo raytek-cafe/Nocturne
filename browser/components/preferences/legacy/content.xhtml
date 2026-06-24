@@ -16,7 +16,7 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <prefpane id="paneContent" 
-            onpaneload="Services.prompt.alert(window, 'Test', 'paneload fired');"
+            onpaneload="gContentPane.init();"
             helpTopic="prefs-content">
 
     <preferences id="contentPreferences">
@@ -39,9 +39,6 @@
                   name="browser.translation.detectLanguage"
                   type="bool"/>
     </preferences>
-    
-    <script type="application/javascript" src="chrome://mozapps/content/preferences/fontbuilder.js"/>
-    <script type="application/javascript" src="chrome://browser/content/preferences/legacy/content.js"/>
 
     <stringbundle id="bundlePreferences" src="chrome://browser/locale/preferences/preferences.properties"/>
 

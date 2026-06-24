@@ -881,12 +881,12 @@
             }
 
             requestAnimationFrame(() => {
-				document.documentElement.style.width = ""; // clear mozilla shitcode DTD-injected fixed width
-				document.documentElement.style.minWidth = "";
+                document.documentElement.style.width = ""; // clear mozilla shitcode DTD-injected fixed width
+                document.documentElement.style.minWidth = "";
                 const w = this._selector.scrollWidth;
                 document.documentElement.style.minWidth = w + "px";
-				document.documentElement.style.maxWidth = w + "px";
-            });		
+                document.documentElement.style.maxWidth = w + "px";
+            });
 
             this.showPane(paneToLoad);
 
@@ -965,13 +965,13 @@
                     let overlayPane = doc.documentElement.querySelector(
                             "prefpane#" + aPaneElement.id);
                     let source = overlayPane || doc.documentElement;
-					
-										if (overlayPane) {
-    for (let attr of Array.from(overlayPane.attributes)) {
-        if (attr.name !== "id") // don't overwrite id
-            aPaneElement.setAttribute(attr.name, attr.value);
-    }
-}
+
+                    if (overlayPane) {
+                        for (let attr of Array.from(overlayPane.attributes)) {
+                            if (attr.name !== "id") // don't overwrite id
+                                aPaneElement.setAttribute(attr.name, attr.value);
+                        }
+                    }
 
                     for (let child of Array.from(source.childNodes))
                         target.appendChild(document.importNode(child, true));
@@ -1000,34 +1000,33 @@
         }
 
         _fireEvent(aEventName, aTarget) {
-    try {
-        var event = document.createEvent("Events");
-        event.initEvent(aEventName, true, true);
-        var cancel = !aTarget.dispatchEvent(event);
-        if (aTarget.hasAttribute("on" + aEventName)) {
-            var handler = aTarget["on" + aEventName];
-            if (typeof handler == "function") {
-                var rv = handler.call(aTarget, event);
-                if (rv == false)
-                    cancel = true;
-            } else {
-                var attrVal = aTarget.getAttribute("on" + aEventName);
-                if (attrVal) {
-                    try {
-                        new Function("event", attrVal).call(aTarget, event);
-                    } catch (e) {
-                        Cu.reportError(e);
+            try {
+                var event = document.createEvent("Events");
+                event.initEvent(aEventName, true, true);
+                var cancel = !aTarget.dispatchEvent(event);
+                if (aTarget.hasAttribute("on" + aEventName)) {
+                    var handler = aTarget["on" + aEventName];
+                    if (typeof handler == "function") {
+                        var rv = handler.call(aTarget, event);
+                        if (rv == false)
+                            cancel = true;
+                    } else {
+                        var attrVal = aTarget.getAttribute("on" + aEventName);
+                        if (attrVal) {
+                            try {
+                                new Function("event", attrVal).call(aTarget, event);
+                            } catch (e) {
+                                Cu.reportError(e);
+                            }
+                        }
                     }
-                }
+                } else {}
+                return !cancel;
+            } catch (e) {
+                Cu.reportError(e);
             }
-        } else {
+            return false;
         }
-        return !cancel;
-    } catch (e) {
-        Cu.reportError(e);
-    }
-    return false;
-}
 
         _selectPane(aPaneElement) {
             var helpButton = this.getButton("help");
