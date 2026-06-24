@@ -35,12 +35,22 @@ tabpanels caption {
 }
 
 @media (-moz-pref("widget.native-controls.old-layout-tweaks")) {
+  /* omega: in new firefox, groupbox margin is from the top of groupbox-body and
+  not groupbox-title, so we increase the top margin to compensate */
+  /* this is not the best fix since it breaks with font size changes */
   groupbox {
-	/* omega: restore proper spacing between groupboxes */
-    margin: 7px 3px;
+    margin: 11px 3px 3px 3px;
   }
+  
+  /* omega: caption margin is measured from the end of the curve with 
+  flexbox instead of the start like with moz-box, so decrease the
+  margin to fit */
+  caption {
+	margin: 0 1px; 
+  }
+
+  /* omega: restore proper spacing inside groupboxes */
   .groupbox-body {
-	/* omega: restore proper spacing inside groupboxes */
     margin-left: -5px;
     margin-right: -5px;
     margin-bottom: -9px;
