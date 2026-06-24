@@ -14,7 +14,7 @@
   }
 }
 
-@media (-moz-pref("widget.nocturne.old-layout-tweaks")) and (-moz-platform: windows) {
+@media (-moz-pref("widget.native-controls.old-layout-tweaks")) and (-moz-platform: windows) {
   #infoContainer,
   #loginLabel,
   #loginTextbox,

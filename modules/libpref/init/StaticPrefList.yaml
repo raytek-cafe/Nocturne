@@ -18511,6 +18511,13 @@
   value: 0
   mirror: always
   
+# omega: all my Le Old Layout css hacks are controlled by this preference
+# Firefox 41.0.2 is used as reference for old layout
+- name: widget.native-controls.old-layout-tweaks
+  type: RelaxedAtomicBool
+  value: true
+  mirror: always
+  
 - name: widget.native-controls.override-aero-caption-buttons-mask-width
   type: int32_t
   value: 0
@@ -18539,13 +18546,6 @@
 - name: widget.non-native-theme.enabled
   type: RelaxedAtomicBool
   value: false
-  mirror: always
-  
-# omega: all my Le Old Layout css hacks are controlled by this preference
-# Firefox 41.0.2 is used as reference for old layout
-- name: widget.nocturne.old-layout-tweaks
-  type: RelaxedAtomicBool
-  value: true
   mirror: always
 
 # Whether the non-native theme should always use system colors. Useful mostly

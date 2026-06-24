@@ -52,7 +52,7 @@
   }
 }
 
-@media (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+@media (-moz-pref("widget.native-controls.old-layout-tweaks")) {
   label {
     /* omega: restore proper dropdown button text margin */
     margin: 0 2px;

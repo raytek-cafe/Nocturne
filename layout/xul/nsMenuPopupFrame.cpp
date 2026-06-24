@@ -54,6 +54,7 @@
 #include "mozilla/PresShell.h"
 #include "mozilla/ScrollContainerFrame.h"
 #include "mozilla/Services.h"
+#include "mozilla/StaticPrefs_widget.h"
 #include "mozilla/dom/BrowserParent.h"
 #include "mozilla/dom/Element.h"
 #include "mozilla/dom/Event.h"
@@ -520,7 +521,7 @@ nscoord nsMenuPopupFrame::IntrinsicISize(const IntrinsicSizeInput& aInput,
     iSize += sf->GetDesiredScrollbarSizes().LeftRight();
   }
   
-  if (StaticPrefs::widget_nocturne_old_layout_tweaks()) {
+  if (StaticPrefs::widget_native_controls_old_layout_tweaks()) {
   // omega: push our preferred width back to the menulist so it sizes to us
   // this is hacky (setting CSS attributes from C++), but it works
   nsIContent* parent = mContent->GetParent();
