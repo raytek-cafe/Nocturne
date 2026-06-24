@@ -881,11 +881,12 @@
             }
 
             requestAnimationFrame(() => {
-                document.documentElement.style.width = ""; // clear mozilla shitcode DTD-injected fixed width
+				document.documentElement.style.width = ""; // clear mozilla shitcode DTD-injected fixed width
+				document.documentElement.style.minWidth = "";
                 const w = this._selector.scrollWidth;
-                document.documentElement.style.width = w + "px";
-                document.documentElement.style.maxWidth = w + "px";
-            });
+                document.documentElement.style.minWidth = w + "px";
+				document.documentElement.style.maxWidth = w + "px";
+            });		
 
             this.showPane(paneToLoad);
 

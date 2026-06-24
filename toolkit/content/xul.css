@@ -655,6 +655,21 @@ richlistitem {
   flex-shrink: 0;
 }
 
+/************* Rows *************/
+
+@media (-moz-pref("widget.native-controls.old-layout-tweaks")) {
+  rows {
+    flex-direction: column;
+	width: 100%;
+  }
+  row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}
+
+
 /*********** findbar ************/
 findbar {
   overflow-x: hidden;
