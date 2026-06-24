@@ -194,3 +194,14 @@ label.small {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* omega: legacy hyperlink behavior just for the old preferences */
+
+.text-link {
+  text-decoration: none !important;
+}
+
+.text-link:hover,
+.text-link:active {
+  text-decoration: underline !important;
+}
