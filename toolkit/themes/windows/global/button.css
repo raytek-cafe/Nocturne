@@ -52,14 +52,14 @@ button {
   text-align: center;
 }
 
-@media (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+@media (-moz-pref("widget.native-controls.old-layout-tweaks")) {
   .button-text {
     /* omega: fix XUL button dimensions */
     margin: 0 0 1px -1px;
   }
 }
 
-@media not (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+@media not (-moz-pref("widget.native-controls.old-layout-tweaks")) {
   .button-text {
     margin: 0; 
   }

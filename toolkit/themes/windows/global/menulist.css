@@ -90,7 +90,7 @@ dropmarker:not([native]) {
   fill: currentColor;
 }
 
-@media (-moz-pref("widget.nocturne.old-layout-tweaks")) {
+@media (-moz-pref("widget.native-controls.old-layout-tweaks")) {
   label:not([native]) {
     /* omega: restore proper dropdown button text margin */
     margin: 0 2px;
