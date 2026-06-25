@@ -35,7 +35,8 @@ browser.jar:
   content/browser/preferences/legacy/security.xhtml         
   content/browser/preferences/legacy/security.js              
   content/browser/preferences/legacy/selectBookmark.xhtml     
-  content/browser/preferences/legacy/selectBookmark.js        
+  content/browser/preferences/legacy/selectBookmark.js    
+  content/browser/preferences/legacy/shim.js   
   content/browser/preferences/legacy/sync.xhtml               
   content/browser/preferences/legacy/sync.js                  
   content/browser/preferences/legacy/search.xhtml            
