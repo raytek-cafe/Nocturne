@@ -67,7 +67,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
     function revertCheckbox(error) {
       separateProfileModeCheckbox.checked = !separateProfileModeCheckbox.checked;
       if (error) {
-        Components.utils.reportError("Failed to toggle separate profile mode: " + error);
+        console.error("Failed to toggle separate profile mode: " + error);
       }
     }
 
@@ -175,7 +175,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
   {
     let homePage = document.getElementById("browser.startup.homepage");
     let tabs = this._getTabsForHomePage();
-    function getTabURI(t) t.linkedBrowser.currentURI.spec;
+    function getTabURI(t) { return t.linkedBrowser.currentURI.spec; }
 
     // FIXME Bug 244192: using dangerous "|" joiner!
     if (tabs.length)
@@ -307,10 +307,9 @@ IOUtils.stat(ignoreSeparateProfile).then(
    */
   chooseFolder()
   {
-    return this.chooseFolderTask().catch(Components.utils.reportError);
+    return this.chooseFolderTask().catch(console.error);
   },
-  chooseFolderTask: async(function* ()
-  {
+  chooseFolderTask: async function() {
     let bundlePreferences = document.getElementById("bundlePreferences");
     let title = bundlePreferences.getString("chooseDownloadFolderTitle");
     let folderListPref = document.getElementById("browser.download.folderList");
@@ -319,7 +318,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
     let fp = Components.classes["@mozilla.org/filepicker;1"].
              createInstance(Components.interfaces.nsIFilePicker);
 
-    fp.init(window, title, Components.interfaces.nsIFilePicker.modeGetFolder);
+    fp.init(window.browsingContext, title, Components.interfaces.nsIFilePicker.modeGetFolder);
     fp.appendFilters(Components.interfaces.nsIFilePicker.filterAll);
     // First try to open what's currently configured
     if (currentDirPref && currentDirPref.exists()) {
@@ -344,7 +343,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
     // userDownloadsDirectory may not return the right folder after
     // this code executes. displayDownloadDirPref will be called on
     // the assignment above to update the UI.
-  }),
+  },
 
   /**
    * Initializes the download folder display settings based on the user's 
@@ -352,14 +351,13 @@ IOUtils.stat(ignoreSeparateProfile).then(
    */
   displayDownloadDirPref()
   {
-    this.displayDownloadDirPrefTask().catch(Components.utils.reportError);
+    this.displayDownloadDirPrefTask().catch(console.error);
 
     // don't override the preference's value in UI
     return undefined;
   },
 
-  displayDownloadDirPrefTask: async(function* ()
-  {
+  displayDownloadDirPrefTask: async function() {
     var folderListPref = document.getElementById("browser.download.folderList");
     var bundlePreferences = document.getElementById("bundlePreferences");
     var downloadFolder = document.getElementById("downloadFolder");
@@ -376,7 +374,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
     if (folderListPref.value == 2) {
       // Custom path selected and is configured
       downloadFolder.label = this._getDisplayNameOfFile(currentDirPref.value);
-      iconUrlSpec = fph.getURLSpecFromFile(currentDirPref.value);
+      iconUrlSpec = fph.getURLSpecFromActualFile(currentDirPref.value);
     } else if (folderListPref.value == 1) {
       // 'Downloads'
       // In 1.5, this pointed to a folder we created called 'My Downloads'
@@ -389,14 +387,14 @@ IOUtils.stat(ignoreSeparateProfile).then(
       // platforms and versions that don't support a default system downloads
       // folder. See nsDownloadManager for details. 
       downloadFolder.label = bundlePreferences.getString("downloadsFolderName");
-      iconUrlSpec = fph.getURLSpecFromFile(await this._indexToFolder(1));
+      iconUrlSpec = fph.getURLSpecFromActualFile(await this._indexToFolder(1));
     } else {
       // 'Desktop'
       downloadFolder.label = bundlePreferences.getString("desktopFolderName");
-      iconUrlSpec = fph.getURLSpecFromFile(await this._getDownloadsFolder("Desktop"));
+      iconUrlSpec = fph.getURLSpecFromActualFile(await this._getDownloadsFolder("Desktop"));
     }
     downloadFolder.image = "moz-icon://" + iconUrlSpec + "?size=16";
-  }),
+  },
 
   /**
    * Returns the textual path of a folder in readable form.
@@ -417,8 +415,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
    *
    * @throws if aFolder is not "Desktop" or "Downloads"
    */
-  _getDownloadsFolder: async(function* (aFolder)
-  {
+  _getDownloadsFolder: async function(aFolder) {
     switch (aFolder) {
       case "Desktop":
         var fileLoc = Components.classes["@mozilla.org/file/directory_service;1"]
@@ -429,7 +426,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
         return new FileUtils.File(downloadsDir);
     }
     throw "ASSERTION FAILED: folder type should be 'Desktop' or 'Downloads'";
-  }),
+  },
 
   /**
    * Determines the type of the given folder.
@@ -441,14 +438,13 @@ IOUtils.stat(ignoreSeparateProfile).then(
    *          1 if aFolder is the Downloads folder,
    *          2 otherwise
    */
-  _folderToIndex: async(function* (aFolder)
-  {
+  _folderToIndex: async function(aFolder) {
     if (!aFolder || aFolder.equals(await this._getDownloadsFolder("Desktop")))
       return 0;
     else if (aFolder.equals(await this._getDownloadsFolder("Downloads")))
       return 1;
     return 2;
-  }),
+  },
 
   /**
    * Converts an integer into the corresponding folder.
@@ -459,8 +455,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
    *          the Downloads folder if aIndex == 1,
    *          the folder stored in browser.download.dir
    */
-  _indexToFolder: async(function* (aIndex)
-  {
+  _indexToFolder: async function(aIndex) {
     switch (aIndex) {
       case 0:
         return await this._getDownloadsFolder("Desktop");
@@ -469,7 +464,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
     }
     var currentDirPref = document.getElementById("browser.download.dir");
     return currentDirPref.value;
-  }),
+  },
 
   /**
    * Hide/show the "Show my windows and tabs from last time" option based
@@ -530,7 +525,7 @@ IOUtils.stat(ignoreSeparateProfile).then(
     try {
       shellSvc.setDefaultBrowser(true, false);
     } catch (ex) {
-      Components.utils.reportError(ex);
+      console.error(ex);
       return;
     }
     let selectedIndex =
