@@ -15,7 +15,7 @@ var gContentPane = {
 
     // Show translation preferences if we may:
     const prefName = "browser.translation.ui.show";
-    if (Services.prefs.getBoolPref(prefName)) {
+    if (Services.prefs.getBoolPref(prefName, false)) {
       let row = document.getElementById("translationBox");
       row.removeAttribute("hidden");
     }
@@ -111,13 +111,16 @@ var gContentPane = {
     for (var i = 0; i < prefs.length; ++i) {
       var preference = document.getElementById(prefs[i].format.replace(/%LANG%/, aLanguageGroup));
       if (!preference) {
-        preference = document.createElement("preference");
-        var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
-        preference.id = name;
-        preference.setAttribute("name", name);
-        preference.setAttribute("type", prefs[i].type);
-        preferences.appendChild(preference);
-      }
+    preference = document.createElementNS(
+        "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+        "preference"
+    );
+    var name = prefs[i].format.replace(/%LANG%/, aLanguageGroup);
+    preference.id = name;
+    preference.setAttribute("name", name);
+    preference.setAttribute("type", prefs[i].type);
+    preferences.appendChild(preference);
+}
 
       if (!prefs[i].element)
         continue;
@@ -139,20 +142,23 @@ var gContentPane = {
    * aLanguageGroup.
    */
   _readDefaultFontTypeForLanguage: function (aLanguageGroup)
-  {
+{
     const kDefaultFontType = "font.default.%LANG%";
     var defaultFontTypePref = kDefaultFontType.replace(/%LANG%/, aLanguageGroup);
     var preference = document.getElementById(defaultFontTypePref);
     if (!preference) {
-      preference = document.createElement("preference");
-      preference.id = defaultFontTypePref;
-      preference.setAttribute("name", defaultFontTypePref);
-      preference.setAttribute("type", "string");
-      preference.setAttribute("onchange", "gContentPane._rebuildFonts();");
-      document.getElementById("contentPreferences").appendChild(preference);
+        preference = document.createElementNS(
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
+            "preference"
+        );
+        preference.id = defaultFontTypePref;
+        preference.setAttribute("name", defaultFontTypePref);
+        preference.setAttribute("type", "string");
+        preference.setAttribute("onchange", "gContentPane._rebuildFonts();");
+        document.getElementById("contentPreferences").appendChild(preference);
     }
     return preference.value;
-  },
+},
 
   /**
    * Displays the fonts dialog, where web page font names and sizes can be
