@@ -11,532 +11,725 @@ const ENGINE_FLAVOR = "text/x-moz-search-engine";
 var gEngineView = null;
 
 var gSearchPane = {
+  _engineStore: null,
+  _initialized: false,
 
-  init: function ()
-  {
-    gEngineView = new EngineView(new EngineStore());
-    document.getElementById("engineList").view = gEngineView;
-    this.buildDefaultEngineDropDown();
+  init() {
+    if (this._initialized) {
+      return;
+    }
+    this._initialized = true;
 
-    Services.obs.addObserver(this, "browser-search-engine-modified", false);
-    window.addEventListener("unload", () => {
-      Services.obs.removeObserver(this, "browser-search-engine-modified", false);
-    });
-  },
-
-  buildDefaultEngineDropDown: function() {
-    // This is called each time something affects the list of engines.
-    let list = document.getElementById("defaultEngine");
-    let currentEngine;
-
-    // First, try to preserve the current selection.
-    if (list.selectedItem)
-      currentEngine = list.selectedItem.label;
-
-    // If there's no current selection, use the current default engine.
-    if (!currentEngine)
-      currentEngine = Services.search.currentEngine.name;
-
-    // If the current engine isn't in the list any more, select the first item.
-    let engines = gEngineView._engineStore._engines;
-    if (!engines.some(e => e.name == currentEngine))
-      currentEngine = engines[0].name;
-
-    // Now clean-up and rebuild the list.
-    list.removeAllItems();
-    gEngineView._engineStore._engines.forEach(e => {
-      let item = list.appendItem(e.name);
-      item.setAttribute("class", "menuitem-iconic searchengine-menuitem menuitem-with-favicon");
-      if (e.iconURI) {
-        let uri = PlacesUtils.getImageURLForResolution(window, e.iconURI.spec);
-        item.setAttribute("image", uri);
-      }
-      item.engine = e;
-      if (e.name == currentEngine)
-        list.selectedItem = item;
-    });
-  },
-
-  observe: function(aEngine, aTopic, aVerb) {
-    if (aTopic == "browser-search-engine-modified") {
-      aEngine.QueryInterface(Components.interfaces.nsISearchEngine);
-      switch (aVerb) {
-      case "engine-added":
-        gEngineView._engineStore.addEngine(aEngine);
-        gEngineView.rowCountChanged(gEngineView.lastIndex, 1);
-        gSearchPane.buildDefaultEngineDropDown();
-        break;
-      case "engine-changed":
-        gEngineView._engineStore.reloadIcons();
+    this._engineStore = new EngineStore();
+    gEngineView = new EngineView(this._engineStore);
+    this._engineStore
+      .init()
+      .then(() => {
         gEngineView.invalidate();
-        break;
-      case "engine-removed":
-      case "engine-current":
-      case "engine-default":
-        // Not relevant
-        break;
+        this.buildDefaultEngineDropDown();
+      })
+      .catch(console.error);
+
+    Services.obs.addObserver(this, "browser-search-engine-modified");
+    window.addEventListener("unload", () => {
+      Services.obs.removeObserver(this, "browser-search-engine-modified");
+    });
+  },
+
+  buildDefaultEngineDropDown() {
+    let list = document.getElementById("defaultEngine");
+    let currentEngine =
+      list.selectedItem?.label || Services.search.defaultEngine.name;
+    let engines = this._engineStore.engines;
+
+    list.removeAllItems();
+    if (!engines.length) {
+      return;
+    }
+
+    if (!engines.some(engine => engine.name == currentEngine)) {
+      currentEngine = engines[0].name;
+    }
+
+    for (let engine of engines) {
+      let item = list.appendItem(engine.name);
+      item.setAttribute(
+        "class",
+        "menuitem-iconic searchengine-menuitem menuitem-with-favicon"
+      );
+      if (engine.iconURL) {
+        item.setAttribute("image", engine.iconURL);
+      }
+      item.engine = engine;
+      if (engine.name == currentEngine) {
+        list.selectedItem = item;
       }
     }
   },
 
-  onTreeSelect: function() {
-    document.getElementById("removeEngineButton").disabled =
-      gEngineView.selectedIndex == -1 || gEngineView.lastIndex == 0;
+  observe(engine, topic, data) {
+    if (topic != "browser-search-engine-modified") {
+      return;
+    }
+
+    this._engineStore.browserSearchEngineModified(engine, data);
+    if (data != "engine-icon-changed") {
+      this.buildDefaultEngineDropDown();
+    }
   },
 
-  onTreeKeyPress: function(aEvent) {
+  onTreeSelect() {
+    document.getElementById("removeEngineButton").disabled =
+      !gEngineView.isEngineSelectedAndRemovable();
+  },
+
+  onTreeKeyPress(event) {
     let index = gEngineView.selectedIndex;
     let tree = document.getElementById("engineList");
-    if (tree.hasAttribute("editing"))
+    if (index == -1 || tree.hasAttribute("editing")) {
       return;
-
-    if (aEvent.charCode == KeyEvent.DOM_VK_SPACE) {
-      // Space toggles the checkbox.
-      let newValue = !gEngineView._engineStore.engines[index].shown;
-      gEngineView.setCellValue(index, tree.columns.getFirstColumn(),
-                               newValue.toString());
     }
-    else {
-      let isMac = Services.appinfo.OS == "Darwin";
-      if ((isMac && aEvent.keyCode == KeyEvent.DOM_VK_RETURN) ||
-          (!isMac && aEvent.keyCode == KeyEvent.DOM_VK_F2))
-        tree.startEditing(index, tree.columns.getLastColumn());
+
+    if (event.charCode == KeyEvent.DOM_VK_SPACE) {
+      let newValue = !gEngineView._engineStore.engines[index].shown;
+      gEngineView.setCellValue(
+        index,
+        tree.columns.getFirstColumn(),
+        newValue.toString()
+      );
+      return;
+    }
+
+    let isMac = Services.appinfo.OS == "Darwin";
+    if (
+      (isMac && event.keyCode == KeyEvent.DOM_VK_RETURN) ||
+      (!isMac && event.keyCode == KeyEvent.DOM_VK_F2)
+    ) {
+      tree.startEditing(index, tree.columns.getLastColumn());
     }
   },
 
-  onRestoreDefaults: function() {
-    let num = gEngineView._engineStore.restoreDefaultEngines();
+  async onRestoreDefaults() {
+    let num = await this._engineStore.restoreDefaultEngines();
     gEngineView.rowCountChanged(0, num);
     gEngineView.invalidate();
+    this.buildDefaultEngineDropDown();
   },
 
-  showRestoreDefaults: function(aEnable) {
-    document.getElementById("restoreDefaultSearchEngines").disabled = !aEnable;
+  showRestoreDefaults(enable) {
+    document.getElementById("restoreDefaultSearchEngines").disabled = !enable;
   },
 
-  remove: function() {
-    gEngineView._engineStore.removeEngine(gEngineView.selectedEngine);
+  remove() {
+    if (!gEngineView.isEngineSelectedAndRemovable()) {
+      return;
+    }
+
     let index = gEngineView.selectedIndex;
-    gEngineView.rowCountChanged(index, -1);
+    gEngineView._engineStore.removeEngine(gEngineView.selectedEngine);
     gEngineView.invalidate();
-    gEngineView.selection.select(Math.min(index, gEngineView.lastIndex));
-    gEngineView.ensureRowIsVisible(gEngineView.currentIndex);
+    if (gEngineView.rowCount) {
+      gEngineView.selection.select(Math.min(index, gEngineView.lastIndex));
+      gEngineView.ensureRowIsVisible(Math.min(index, gEngineView.lastIndex));
+    }
     document.getElementById("engineList").focus();
   },
 
-  editKeyword: async(function* (aEngine, aNewKeyword) {
-    if (aNewKeyword) {
-      let eduplicate = false;
-      let dupName = "";
+  async editKeyword(engine, newKeyword) {
+    if (newKeyword) {
+      let duplicateEngine = false;
+      let duplicateName = "";
+      let duplicateBookmark = !!(await PlacesUtils.keywords.fetch(newKeyword));
 
-      // Check for duplicates in Places keywords.
-      let bduplicate = !!(await PlacesUtils.keywords.fetch(aNewKeyword));
-
-      // Check for duplicates in changes we haven't committed yet
-      let engines = gEngineView._engineStore.engines;
-      for each (let engine in engines) {
-        if (engine.alias == aNewKeyword &&
-            engine.name != aEngine.name) {
-          eduplicate = true;
-          dupName = engine.name;
+      for (let otherEngine of gEngineView._engineStore.engines) {
+        if (
+          otherEngine.alias == newKeyword &&
+          otherEngine.name != engine.name
+        ) {
+          duplicateEngine = true;
+          duplicateName = otherEngine.name;
           break;
         }
       }
 
-      // Notify the user if they have chosen an existing engine/bookmark keyword
-      if (eduplicate || bduplicate) {
+      if (duplicateEngine || duplicateBookmark) {
         let strings = document.getElementById("engineManagerBundle");
-        let dtitle = strings.getString("duplicateTitle");
-        let bmsg = strings.getString("duplicateBookmarkMsg");
-        let emsg = strings.getFormattedString("duplicateEngineMsg", [dupName]);
+        let title = strings.getString("duplicateTitle");
+        let bookmarkMsg = strings.getString("duplicateBookmarkMsg");
+        let engineMsg = strings.getFormattedString("duplicateEngineMsg", [
+          duplicateName,
+        ]);
 
-        Services.prompt.alert(window, dtitle, eduplicate ? emsg : bmsg);
+        Services.prompt.alert(
+          window,
+          title,
+          duplicateEngine ? engineMsg : bookmarkMsg
+        );
         return false;
       }
     }
 
-    gEngineView._engineStore.changeEngine(aEngine, "alias", aNewKeyword);
+    gEngineView._engineStore.changeEngine(engine, "alias", newKeyword);
     gEngineView.invalidate();
+    this.buildDefaultEngineDropDown();
     return true;
-  }),
+  },
 
-  saveOneClickEnginesList: function () {
+  saveOneClickEnginesList() {
     let hiddenList = [];
     for (let engine of gEngineView._engineStore.engines) {
-      if (!engine.shown)
+      if (!engine.shown) {
         hiddenList.push(engine.name);
+      }
     }
     document.getElementById("browser.search.hiddenOneOffs").value =
       hiddenList.join(",");
   },
 
-  setDefaultEngine: function () {
+  setDefaultEngine() {
     if (document.documentElement.instantApply) {
-      Services.search.currentEngine =
-        document.getElementById("defaultEngine").selectedItem.engine;
+      Services.search.defaultEngine =
+        document.getElementById(
+          "defaultEngine"
+        ).selectedItem.engine.originalEngine;
     }
   },
 
-  loadAddEngines: function () {
-    window.opener.BrowserSearch.loadAddEngines();
+  loadAddEngines() {
+    let url = Services.urlFormatter.formatURLPref(
+      "browser.search.searchEnginesURL"
+    );
+    window.opener.openTrustedLinkIn(url, "tab");
     window.document.documentElement.acceptDialog();
-  }
+  },
 };
 
-function onDragEngineStart(event) {
-  var selectedIndex = gEngineView.selectedIndex;
-  var tree = document.getElementById("engineList");
-  var row = { }, col = { }, child = { };
-  tree.treeBoxObject.getCellAt(event.clientX, event.clientY, row, col, child);
-  if (selectedIndex >= 0 && !gEngineView.isCheckBox(row.value, col.value)) {
-    event.dataTransfer.setData(ENGINE_FLAVOR, selectedIndex.toString());
-    event.dataTransfer.effectAllowed = "move";
+window.addEventListener("paneload", event => {
+  if (event.target?.id == "paneSearch") {
+    gSearchPane.init();
   }
+});
+
+function onDragEngineStart(event) {
+  gEngineView.onDragEngineStart(event);
 }
 
-// "Operation" objects
-function EngineMoveOp(aEngineClone, aNewIndex) {
-  if (!aEngineClone)
-    throw new Error("bad args to new EngineMoveOp!");
-  this._engine = aEngineClone.originalEngine;
-  this._newIndex = aNewIndex;
+function EngineMoveOp(engineClone, newIndex) {
+  this._engine = engineClone.originalEngine;
+  this._newIndex = newIndex;
 }
 EngineMoveOp.prototype = {
   _engine: null,
   _newIndex: null,
-  commit: function EMO_commit() {
+
+  commit() {
     Services.search.moveEngine(this._engine, this._newIndex);
-  }
+  },
 };
 
-function EngineRemoveOp(aEngineClone) {
-  if (!aEngineClone)
-    throw new Error("bad args to new EngineRemoveOp!");
-  this._engine = aEngineClone.originalEngine;
+function EngineRemoveOp(engineClone) {
+  this._engine = engineClone.originalEngine;
 }
 EngineRemoveOp.prototype = {
   _engine: null,
-  commit: function ERO_commit() {
-    Services.search.removeEngine(this._engine);
-  }
+
+  commit() {
+    Services.search.removeEngine(
+      this._engine,
+      Ci.nsISearchService.CHANGE_REASON_USER
+    );
+  },
 };
 
-function EngineUnhideOp(aEngineClone, aNewIndex) {
-  if (!aEngineClone)
-    throw new Error("bad args to new EngineUnhideOp!");
-  this._engine = aEngineClone.originalEngine;
-  this._newIndex = aNewIndex;
+function EngineUnhideOp(engineClone, newIndex) {
+  this._engine = engineClone.originalEngine;
+  this._newIndex = newIndex;
 }
 EngineUnhideOp.prototype = {
   _engine: null,
   _newIndex: null,
-  commit: function EUO_commit() {
+
+  commit() {
     this._engine.hidden = false;
     Services.search.moveEngine(this._engine, this._newIndex);
-  }
+  },
 };
 
-function EngineChangeOp(aEngineClone, aProp, aValue) {
-  if (!aEngineClone)
-    throw new Error("bad args to new EngineChangeOp!");
-
-  this._engine = aEngineClone.originalEngine;
-  this._prop = aProp;
-  this._newValue = aValue;
+function EngineChangeOp(engineClone, prop, value) {
+  this._engine = engineClone.originalEngine;
+  this._prop = prop;
+  this._newValue = value;
 }
 EngineChangeOp.prototype = {
   _engine: null,
   _prop: null,
   _newValue: null,
-  commit: function ECO_commit() {
+
+  commit() {
     this._engine[this._prop] = this._newValue;
-  }
+  },
 };
 
 function EngineStore() {
   let pref = document.getElementById("browser.search.hiddenOneOffs").value;
   this.hiddenList = pref ? pref.split(",") : [];
-
-  this._engines = Services.search.getVisibleEngines().map(this._cloneEngine, this);
-  this._defaultEngines = Services.search.getDefaultEngines().map(this._cloneEngine, this);
+  this._engines = [];
+  this._defaultEngines = [];
+  this._listeners = [];
 
   if (document.documentElement.instantApply) {
     this._ops = {
-      push: function(op) { op.commit(); }
+      push(op) {
+        op.commit();
+      },
     };
-  }
-  else {
+  } else {
     this._ops = [];
     document.documentElement.addEventListener("beforeaccept", () => {
-      gEngineView._engineStore.commit();
+      this.commit();
     });
   }
-
-  // check if we need to disable the restore defaults button
-  var someHidden = this._defaultEngines.some(function (e) e.hidden);
-  gSearchPane.showRestoreDefaults(someHidden);
 }
 EngineStore.prototype = {
   _engines: null,
   _defaultEngines: null,
+  _listeners: null,
   _ops: null,
+
+  async init() {
+    let visibleEngines = await Services.search.getVisibleEngines();
+    for (let engine of visibleEngines) {
+      this.addEngine(engine);
+    }
+
+    let defaultEngines = await Services.search.getAppProvidedEngines();
+    this._defaultEngines = defaultEngines.map(this._cloneEngine, this);
+
+    this.notifyRowCountChanged(0, visibleEngines.length);
+    gSearchPane.showRestoreDefaults(
+      this._defaultEngines.some(engine => engine.hidden)
+    );
+  },
 
   get engines() {
     return this._engines;
   },
-  set engines(val) {
-    this._engines = val;
-    return val;
+
+  addListener(listener) {
+    this._listeners.push(listener);
   },
 
-  _getIndexForEngine: function ES_getIndexForEngine(aEngine) {
-    return this._engines.indexOf(aEngine);
+  notifyRebuildViews() {
+    for (let listener of this._listeners) {
+      listener.rebuild();
+    }
   },
 
-  _getEngineByName: function ES_getEngineByName(aName) {
-    for each (var engine in this._engines)
-      if (engine.name == aName)
-        return engine;
-
-    return null;
+  notifyRowCountChanged(index, count) {
+    for (let listener of this._listeners) {
+      listener.rowCountChanged(index, count);
+    }
   },
 
-  _cloneEngine: function ES_cloneEngine(aEngine) {
-    var clonedObj={};
-    for (var i in aEngine)
-      clonedObj[i] = aEngine[i];
-    clonedObj.originalEngine = aEngine;
-    clonedObj.shown = this.hiddenList.indexOf(clonedObj.name) == -1;
-    return clonedObj;
-  },
+  notifyEngineIconUpdated(engine) {
+    let index = this._getIndexForEngine(engine);
+    if (index == -1) {
+      return;
+    }
 
-  // Callback for Array's some(). A thisObj must be passed to some()
-  _isSameEngine: function ES_isSameEngine(aEngineClone) {
-    return aEngineClone.originalEngine == this.originalEngine;
-  },
-
-  commit: function ES_commit() {
-    for (op of this._ops)
-      op.commit();
-
-    Services.search.currentEngine =
-      document.getElementById("defaultEngine").selectedItem.engine;
-  },
-
-  addEngine: function ES_addEngine(aEngine) {
-    this._engines.push(this._cloneEngine(aEngine));
-  },
-
-  moveEngine: function ES_moveEngine(aEngine, aNewIndex) {
-    if (aNewIndex < 0 || aNewIndex > this._engines.length - 1)
-      throw new Error("ES_moveEngine: invalid aNewIndex!");
-    var index = this._getIndexForEngine(aEngine);
-    if (index == -1)
-      throw new Error("ES_moveEngine: invalid engine?");
-
-    if (index == aNewIndex)
-      return; // nothing to do
-
-    // Move the engine in our internal store
-    var removedEngine = this._engines.splice(index, 1)[0];
-    this._engines.splice(aNewIndex, 0, removedEngine);
-
-    this._ops.push(new EngineMoveOp(aEngine, aNewIndex));
-  },
-
-  removeEngine: function ES_removeEngine(aEngine) {
-    var index = this._getIndexForEngine(aEngine);
-    if (index == -1)
-      throw new Error("invalid engine?");
-
-    this._engines.splice(index, 1);
-    this._ops.push(new EngineRemoveOp(aEngine));
-    if (this._defaultEngines.some(this._isSameEngine, aEngine))
-      gSearchPane.showRestoreDefaults(true);
+    for (let listener of this._listeners) {
+      if ("engineIconUpdated" in listener) {
+        listener.engineIconUpdated(index);
+      }
+    }
     gSearchPane.buildDefaultEngineDropDown();
   },
 
-  restoreDefaultEngines: function ES_restoreDefaultEngines() {
-    var added = 0;
+  _getIndexForEngine(engine) {
+    return this._engines.indexOf(engine);
+  },
 
-    for (var i = 0; i < this._defaultEngines.length; ++i) {
-      var e = this._defaultEngines[i];
+  _getEngineByName(name) {
+    return this._engines.find(engine => engine.name == name) || null;
+  },
 
-      // If the engine is already in the list, just move it.
-      if (this._engines.some(this._isSameEngine, e)) {
-        this.moveEngine(this._getEngineByName(e.name), i);
+  _cloneEngine(engine) {
+    let clone = {
+      alias: engine.alias,
+      hidden: engine.hidden,
+      iconURL: "",
+      id: engine.id,
+      isAppProvided: !!engine.isAppProvided,
+      name: engine.name,
+      originalEngine: engine,
+    };
+    clone.shown = !this.hiddenList.includes(clone.name);
+
+    engine
+      .getIconURL()
+      .then(iconURL => {
+        clone.iconURL = iconURL || "";
+        if (!clone.iconURL) {
+          this.notifyEngineIconUpdated(clone);
+          return;
+        }
+
+        let img = new Image();
+        let onDone = () => {
+          img.onload = null;
+          img.onerror = null;
+          this.notifyEngineIconUpdated(clone);
+        };
+        img.onload = onDone;
+        img.onerror = onDone;
+        img.src = clone.iconURL;
+      })
+      .catch(console.error);
+
+    return clone;
+  },
+
+  _isSameEngine(engineClone) {
+    return engineClone.originalEngine.id == this.originalEngine.id;
+  },
+
+  commit() {
+    for (let op of this._ops) {
+      op.commit();
+    }
+
+    let selectedItem = document.getElementById("defaultEngine").selectedItem;
+    if (selectedItem) {
+      Services.search.defaultEngine = selectedItem.engine.originalEngine;
+    }
+  },
+
+  addEngine(engine) {
+    this._engines.push(this._cloneEngine(engine));
+  },
+
+  updateEngine(newEngine) {
+    let index = this._engines.findIndex(
+      engine => engine.originalEngine.id == newEngine.id
+    );
+    if (index == -1) {
+      return;
+    }
+
+    let shown = this._engines[index].shown;
+    let clone = this._cloneEngine(newEngine);
+    clone.shown = shown;
+    this._engines[index] = clone;
+  },
+
+  moveEngine(engine, newIndex) {
+    if (newIndex < 0 || newIndex > this._engines.length - 1) {
+      throw new Error("ES_moveEngine: invalid aNewIndex!");
+    }
+
+    let index = this._getIndexForEngine(engine);
+    if (index == -1) {
+      throw new Error("ES_moveEngine: invalid engine?");
+    }
+    if (index == newIndex) {
+      return;
+    }
+
+    let removedEngine = this._engines.splice(index, 1)[0];
+    this._engines.splice(newIndex, 0, removedEngine);
+    this._ops.push(new EngineMoveOp(engine, newIndex));
+  },
+
+  removeEngine(engine) {
+    if (this._engines.length == 1) {
+      throw new Error("Cannot remove last engine!");
+    }
+
+    let engineId = engine.id || engine.originalEngine?.id;
+    let index = this._engines.findIndex(element => element.id == engineId);
+    if (index == -1) {
+      throw new Error("invalid engine?");
+    }
+
+    let removed = this._engines.splice(index, 1)[0];
+    this._ops.push(new EngineRemoveOp(removed));
+    if (removed.isAppProvided) {
+      gSearchPane.showRestoreDefaults(true);
+    }
+    this.notifyRowCountChanged(index, -1);
+  },
+
+  async restoreDefaultEngines() {
+    let added = 0;
+
+    for (let i = 0; i < this._defaultEngines.length; ++i) {
+      let engine = this._defaultEngines[i];
+      if (this._engines.some(this._isSameEngine, engine)) {
+        this.moveEngine(this._getEngineByName(engine.name), i);
       } else {
-        // Otherwise, add it back to our internal store
-
-        // The search service removes the alias when an engine is hidden,
-        // so clear any alias we may have cached before unhiding the engine.
-        e.alias = "";
-
-        this._engines.splice(i, 0, e);
-        this._ops.push(new EngineUnhideOp(e, i));
+        engine.alias = "";
+        this._engines.splice(i, 0, engine);
+        this._ops.push(new EngineUnhideOp(engine, i));
         added++;
       }
     }
+
     gSearchPane.showRestoreDefaults(false);
-    gSearchPane.buildDefaultEngineDropDown();
+    this.notifyRebuildViews();
     return added;
   },
 
-  changeEngine: function ES_changeEngine(aEngine, aProp, aNewValue) {
-    var index = this._getIndexForEngine(aEngine);
-    if (index == -1)
+  changeEngine(engine, prop, value) {
+    let index = this._getIndexForEngine(engine);
+    if (index == -1) {
       throw new Error("invalid engine?");
+    }
 
-    this._engines[index][aProp] = aNewValue;
-    this._ops.push(new EngineChangeOp(aEngine, aProp, aNewValue));
+    this._engines[index][prop] = value;
+    this._ops.push(new EngineChangeOp(engine, prop, value));
   },
 
-  reloadIcons: function ES_reloadIcons() {
-    this._engines.forEach(function (e) {
-      e.uri = e.originalEngine.uri;
-    });
-  }
+  browserSearchEngineModified(engine, data) {
+    engine.QueryInterface(Ci.nsISearchEngine);
+    switch (data) {
+      case "engine-added":
+        this.addEngine(engine);
+        this.notifyRowCountChanged(this._engines.length - 1, 1);
+        break;
+      case "engine-changed":
+      case "engine-icon-changed":
+        this.updateEngine(engine);
+        this.notifyRebuildViews();
+        break;
+      case "engine-removed":
+        this.removeEngine(engine);
+        break;
+      case "engine-default":
+        break;
+    }
+  },
 };
 
-function EngineView(aEngineStore) {
-  this._engineStore = aEngineStore;
+function EngineView(engineStore) {
+  this._engineStore = engineStore;
+  this._engineList = document.getElementById("engineList");
+  this._engineList.view = this;
+  this._engineStore.addListener(this);
 }
 EngineView.prototype = {
   _engineStore: null,
+  _engineList: null,
   tree: null,
+  selection: null,
 
   get lastIndex() {
     return this.rowCount - 1;
   },
+
   get selectedIndex() {
-    var seln = this.selection;
-    if (seln.getRangeCount() > 0) {
-      var min = {};
-      seln.getRangeAt(0, min, {});
+    let selection = this.selection;
+    if (selection && selection.getRangeCount() > 0) {
+      let min = {};
+      selection.getRangeAt(0, min, {});
       return min.value;
     }
     return -1;
   },
+
   get selectedEngine() {
     return this._engineStore.engines[this.selectedIndex];
   },
 
-  // Helpers
-  rowCountChanged: function (index, count) {
-    this.tree.rowCountChanged(index, count);
-  },
-
-  invalidate: function () {
-    this.tree.invalidate();
-  },
-
-  ensureRowIsVisible: function (index) {
-    this.tree.ensureRowIsVisible(index);
-  },
-
-  getSourceIndexFromDrag: function (dataTransfer) {
-    return parseInt(dataTransfer.getData(ENGINE_FLAVOR));
-  },
-
-  isCheckBox: function(index, column) {
-    return column.id == "engineShown";
-  },
-
-  // nsITreeView
   get rowCount() {
     return this._engineStore.engines.length;
   },
 
-  getImageSrc: function(index, column) {
-    if (column.id == "engineName" && this._engineStore.engines[index].iconURI) {
-      let uri = this._engineStore.engines[index].iconURI.spec;
-      return PlacesUtils.getImageURLForResolution(window, uri);
+  rebuild() {
+    this.invalidate();
+  },
+
+  rowCountChanged(index, count) {
+    if (!this.tree) {
+      return;
+    }
+    this.tree.rowCountChanged(index, count);
+  },
+
+  engineIconUpdated(index) {
+    if (!this.tree) {
+      return;
+    }
+    this.tree.invalidateCell(
+      index,
+      this.tree.columns.getNamedColumn("engineName")
+    );
+  },
+
+  invalidate() {
+    if (this.tree) {
+      this.tree.invalidate();
+    }
+  },
+
+  ensureRowIsVisible(index) {
+    if (this.tree) {
+      this.tree.ensureRowIsVisible(index);
+    }
+  },
+
+  getSourceIndexFromDrag(dataTransfer) {
+    return parseInt(dataTransfer.getData(ENGINE_FLAVOR));
+  },
+
+  isCheckBox(_index, column) {
+    return column.id == "engineShown";
+  },
+
+  isEngineSelectedAndRemovable() {
+    let defaultEngine = Services.search.defaultEngine;
+    return (
+      this.selectedIndex != -1 &&
+      this.lastIndex != 0 &&
+      this.selectedEngine.name != defaultEngine.name
+    );
+  },
+
+  onDragEngineStart(event) {
+    let selectedIndex = this.selectedIndex;
+    let cell = this._engineList.getCellAt(event.clientX, event.clientY);
+    if (selectedIndex >= 0 && !this.isCheckBox(cell.row, cell.col)) {
+      event.dataTransfer.setData(ENGINE_FLAVOR, selectedIndex.toString());
+      event.dataTransfer.effectAllowed = "move";
+    }
+  },
+
+  getImageSrc(index, column) {
+    if (column.id == "engineName") {
+      return this._engineStore.engines[index].iconURL;
     }
     return "";
   },
 
-  getCellText: function(index, column) {
-    if (column.id == "engineName")
+  getCellText(index, column) {
+    if (column.id == "engineName") {
       return this._engineStore.engines[index].name;
-    else if (column.id == "engineKeyword")
+    }
+    if (column.id == "engineKeyword") {
       return this._engineStore.engines[index].alias;
+    }
     return "";
   },
 
-  setTree: function(tree) {
+  setTree(tree) {
     this.tree = tree;
   },
 
-  canDrop: function(targetIndex, orientation, dataTransfer) {
-    var sourceIndex = this.getSourceIndexFromDrag(dataTransfer);
-    return (sourceIndex != -1 &&
-            sourceIndex != targetIndex &&
-            sourceIndex != targetIndex + orientation);
+  canDrop(targetIndex, orientation, dataTransfer) {
+    let sourceIndex = this.getSourceIndexFromDrag(dataTransfer);
+    return (
+      sourceIndex != -1 &&
+      sourceIndex != targetIndex &&
+      sourceIndex != targetIndex + orientation
+    );
   },
 
-  drop: function(dropIndex, orientation, dataTransfer) {
-    var sourceIndex = this.getSourceIndexFromDrag(dataTransfer);
-    var sourceEngine = this._engineStore.engines[sourceIndex];
+  drop(dropIndex, orientation, dataTransfer) {
+    let sourceIndex = this.getSourceIndexFromDrag(dataTransfer);
+    let sourceEngine = this._engineStore.engines[sourceIndex];
 
-    const nsITreeView = Components.interfaces.nsITreeView;
     if (dropIndex > sourceIndex) {
-      if (orientation == nsITreeView.DROP_BEFORE)
+      if (orientation == Ci.nsITreeView.DROP_BEFORE) {
         dropIndex--;
-    } else {
-      if (orientation == nsITreeView.DROP_AFTER)
-        dropIndex++;
+      }
+    } else if (orientation == Ci.nsITreeView.DROP_AFTER) {
+      dropIndex++;
     }
 
     this._engineStore.moveEngine(sourceEngine, dropIndex);
     gSearchPane.showRestoreDefaults(true);
     gSearchPane.buildDefaultEngineDropDown();
-
-    // Redraw, and adjust selection
     this.invalidate();
     this.selection.select(dropIndex);
   },
 
-  selection: null,
-  getRowProperties: function(index) { return ""; },
-  getCellProperties: function(index, column) { return ""; },
-  getColumnProperties: function(column) { return ""; },
-  isContainer: function(index) { return false; },
-  isContainerOpen: function(index) { return false; },
-  isContainerEmpty: function(index) { return false; },
-  isSeparator: function(index) { return false; },
-  isSorted: function(index) { return false; },
-  getParentIndex: function(index) { return -1; },
-  hasNextSibling: function(parentIndex, index) { return false; },
-  getLevel: function(index) { return 0; },
-  getProgressMode: function(index, column) { },
-  getCellValue: function(index, column) {
-    if (column.id == "engineShown")
-      return this._engineStore.engines[index].shown;
+  getRowProperties(_index) {
+    return "";
+  },
+  getCellProperties(_index, _column) {
+    return "";
+  },
+  getColumnProperties(_column) {
+    return "";
+  },
+  isContainer(_index) {
+    return false;
+  },
+  isContainerOpen(_index) {
+    return false;
+  },
+  isContainerEmpty(_index) {
+    return false;
+  },
+  isSeparator(_index) {
+    return false;
+  },
+  isSorted(_index) {
+    return false;
+  },
+  getParentIndex(_index) {
+    return -1;
+  },
+  hasNextSibling(_parentIndex, _index) {
+    return false;
+  },
+  getLevel(_index) {
+    return 0;
+  },
+  getProgressMode(_index, _column) {
     return undefined;
   },
-  toggleOpenState: function(index) { },
-  cycleHeader: function(column) { },
-  selectionChanged: function() { },
-  cycleCell: function(row, column) { },
-  isEditable: function(index, column) { return column.id != "engineName"; },
-  isSelectable: function(index, column) { return false; },
-  setCellValue: function(index, column, value) {
+
+  getCellValue(index, column) {
+    if (column.id == "engineShown") {
+      return this._engineStore.engines[index].shown;
+    }
+    return undefined;
+  },
+
+  toggleOpenState(_index) {},
+  cycleHeader(_column) {},
+  selectionChanged() {},
+  cycleCell(_row, _column) {},
+
+  isEditable(_index, column) {
+    return column.id != "engineName";
+  },
+
+  isSelectable(_index, _column) {
+    return false;
+  },
+
+  setCellValue(index, column, value) {
     if (column.id == "engineShown") {
       this._engineStore.engines[index].shown = value == "true";
-      gEngineView.invalidate();
       gSearchPane.saveOneClickEnginesList();
+      this.invalidate();
     }
   },
-  setCellText: function(index, column, value) {
+
+  setCellText(index, column, value) {
     if (column.id == "engineKeyword") {
-      gSearchPane.editKeyword(this._engineStore.engines[index], value)
-                 .then(valid => {
-        if (!valid)
-          document.getElementById("engineList").startEditing(index, column);
-      });
+      gSearchPane
+        .editKeyword(this._engineStore.engines[index], value)
+        .then(valid => {
+          if (!valid) {
+            this._engineList.startEditing(index, column);
+          }
+        });
     }
   },
-  performAction: function(action) { },
-  performActionOnRow: function(action, index) { },
-  performActionOnCell: function(action, index, column) { }
+
+  performAction(_action) {},
+  performActionOnRow(_action, _index) {},
+  performActionOnCell(_action, _index, _column) {},
 };

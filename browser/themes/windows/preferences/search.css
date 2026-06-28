@@ -3,7 +3,42 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #defaultEngine > .menulist-label-box > .menulist-icon {
+  width: 16px;
   height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+}
+
+.searchengine-menuitem > .menu-iconic-left {
+  display: -moz-box;
+  appearance: none;
+  -moz-default-appearance: none;
+  padding-top: 0;
+}
+
+.searchengine-menuitem > .menu-iconic-left > .menu-iconic-icon {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+}
+
+#defaultEngine > menupopup > menuitem.searchengine-menuitem > .menu-iconic-left {
+  display: flex !important;
+  width: 16px;
+  min-width: 16px;
+  margin-inline-end: 8px !important;
+}
+
+#defaultEngine > menupopup > menuitem.searchengine-menuitem > .menu-iconic-left > .menu-iconic-icon {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
 }
 
 /* Reserve space so that localized labels can wrap without hiding the

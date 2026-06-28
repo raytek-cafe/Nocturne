@@ -67,6 +67,7 @@
     <script src="chrome://browser/content/utilityOverlay.js"/>
 	<script src="chrome://browser/content/preferences/main.js"/>
 	<script src="chrome://mozapps/content/preferences/fontbuilder.js"/>
+	<script src="chrome://browser/content/preferences/legacy/search.js"/>
     <script src="chrome://browser/content/preferences/legacy/content.js"/>
 	<script src="chrome://browser/content/preferences/legacy/applications.js"/>
 	<script src="chrome://browser/content/preferences/legacy/privacy.js"/>
@@ -83,6 +84,7 @@
     <prefpane id="paneTabs" label="&paneTabs.title;"
               src="chrome://browser/content/preferences/legacy/tabs.xhtml"/>
     <prefpane id="paneSearch" label="&paneSearch.title;"
+              onpaneload="gSearchPane.init();"
               src="chrome://browser/content/preferences/legacy/search.xhtml"/>
     <prefpane id="paneContent" label="&paneContent.title;"
               src="chrome://browser/content/preferences/legacy/content.xhtml"/>
