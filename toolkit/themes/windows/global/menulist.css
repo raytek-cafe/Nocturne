@@ -103,3 +103,14 @@ dropmarker:not([native]) {
     margin-bottom: 3px;
   }
 }
+
+@media not (-moz-pref("widget.native-controls.old-layout-tweaks")) {
+  label:not([native]) {
+    margin: 0;
+  }
+
+  #label-box[native] {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
