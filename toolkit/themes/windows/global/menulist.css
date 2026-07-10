@@ -103,6 +103,12 @@ dropmarker {
     /* omega: restore proper dropdown button text margin */
     margin: 0 2px;
   }
+  
+  /* omega: needs to be gated in CSS now... */
+  image {
+  max-width: 16px;
+  max-height: 16px;
+}
 
   #label-box {
     /* omega: restore proper dropdown button height, this was broken previously and since the dropdown
