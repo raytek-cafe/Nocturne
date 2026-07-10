@@ -7,10 +7,9 @@
   ======================================================================= */
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
-
-@media -moz-pref("browser.display.windows.non_native_tabbox", 1),
-       (-moz-pref("browser.display.windows.non_native_tabbox", 2) and
-         (prefers-color-scheme: dark)) {
+		 
+@media (-moz-pref("browser.display.windows.non_native_tabbox", 1)),
+       ((-moz-pref("browser.display.windows.non_native_tabbox", 2)) and (prefers-color-scheme: dark)) {
   /* ::::: tabs ::::: */
 
   tabs {
@@ -52,9 +51,8 @@
   }
 }
 
-@media -moz-pref("browser.display.windows.non_native_tabbox", 0),
-       (-moz-pref("browser.display.windows.non_native_tabbox", 2) and
-         not (prefers-color-scheme: dark)) {
+@media (-moz-pref("browser.display.windows.non_native_tabbox", 0)),
+       ((-moz-pref("browser.display.windows.non_native_tabbox", 2)) and (not (prefers-color-scheme: dark))) {
   /* ::::: tabpanels ::::: */
 
   tabpanels {
