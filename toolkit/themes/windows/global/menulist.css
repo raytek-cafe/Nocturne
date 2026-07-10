@@ -6,7 +6,8 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-:host([native]) {
+@media not (-moz-pref("widget.non-native-theme.enabled")) {
+:host {
   appearance: auto;
   -moz-default-appearance: menulist;
   margin: 2px 4px;
@@ -14,44 +15,48 @@
   text-shadow: none;
 }
 
-:host([native][disabled="true"]) {
+:host([disabled="true"]) {
   background-color: -moz-Dialog;
   color: GrayText;
 }
 
 /* Label box */
 
-#label-box[native] {
+#label-box {
   align-items: center;
   justify-content: center;
 }
 
-:host([native]:not([open="true"]):focus) > #label-box {
+:host(:not([open="true"]):focus) > #label-box {
   background-color: SelectedItem;
   color: SelectedItemText;
 }
 
-:host([native]:not([open="true"]):-moz-focusring) > #label-box {
+:host(:not([open="true"]):-moz-focusring) > #label-box {
   outline: var(--default-focusring);
 }
 
 @media (-moz-windows-default-theme) {
-  #label-box[native] {
+  #label-box {
     background-color: transparent !important;
     color: inherit !important;
   }
 
-  image[native],
-  label[native] {
+  image,
+  label {
     margin-block: -1px !important;
   }
 
-  dropmarker[native] {
+  dropmarker {
     margin-inline: 3px -3px;
   }
 }
 
-:host(:not([native])) {
+}
+
+@media (-moz-pref("widget.non-native-theme.enabled")) {
+
+:host {
   appearance: none;
   margin: 2px 4px;
   min-height: 26px;
@@ -63,22 +68,22 @@
   text-shadow: none;
 }
 
-:host(:not([native])[disabled="true"]) {
+:host([disabled="true"]) {
   color: GrayText;
   opacity: 0.7;
 }
 
-#label-box:not([native]) {
+#label-box {
   align-items: center;
   justify-content: flex-start;
 }
 
-:host(:not([native]):not([open="true"]):-moz-focusring) {
+:host(:not([open="true"]):-moz-focusring) {
   outline: var(--default-focusring);
   outline-offset: -1px;
 }
 
-dropmarker:not([native]) {
+dropmarker {
   appearance: none;
   display: flex;
   align-items: center;
@@ -90,13 +95,16 @@ dropmarker:not([native]) {
   fill: currentColor;
 }
 
-@media (-moz-pref("widget.native-controls.old-layout-tweaks")) {
-  label:not([native]) {
+}
+
+@media (-moz-pref("widget.native-controls.old-layout-tweaks")) and
+       (not (-moz-pref("widget.non-native-theme.enabled"))) {
+  label {
     /* omega: restore proper dropdown button text margin */
     margin: 0 2px;
   }
 
-  #label-box[native] {
+  #label-box {
     /* omega: restore proper dropdown button height, this was broken previously and since the dropdown
        arrow has fixed margins, that also looked broken in turn */
     margin-top: 2px;
@@ -104,13 +112,3 @@ dropmarker:not([native]) {
   }
 }
 
-@media not (-moz-pref("widget.native-controls.old-layout-tweaks")) {
-  label:not([native]) {
-    margin: 0;
-  }
-
-  #label-box[native] {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-}

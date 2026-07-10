@@ -10,7 +10,25 @@ label {
   margin: 1px 3px;
 }
 
-:host([native]) {
+
+/* Dropmarker */
+
+@media not (-moz-pref("widget.non-native-theme.enabled")) {
+  dropmarker {
+    display: none;
+  }
+  
+  /* Label box */
+
+#label-box {
+  appearance: auto;
+  -moz-default-appearance: menulist-text;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+  :host {
   appearance: auto;
   -moz-default-appearance: menulist;
   margin: 2px 4px;
@@ -19,33 +37,16 @@ label {
   text-shadow: none;
 }
 
-:host([native]:not([disabled="true"]):hover) {
+:host(:not([disabled="true"]):hover) {
   color: -moz-buttonhovertext;
 }
 
-:host([native]:not([disabled="true"]):hover:active),
-:host([native]:not([disabled="true"])[open="true"]) {
+:host(:not([disabled="true"]):hover:active),
+:host(:not([disabled="true"])[open="true"]) {
   color: -moz-buttonactivetext;
 }
 
-:host([native][disabled="true"]) {
+:host([disabled="true"]) {
   color: GrayText;
 }
-
-/* Label box */
-
-#label-box[native] {
-  appearance: auto;
-  -moz-default-appearance: menulist-text;
-  align-items: center;
-  justify-content: center;
-  color: inherit;
-}
-
-/* Dropmarker */
-
-@media not (-moz-pref("widget.non-native-theme.enabled")) {
-  dropmarker {
-    display: none;
-  }
 }
