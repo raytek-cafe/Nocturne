@@ -15,20 +15,15 @@
 
 <dialog id="selectBookmarkDialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
-        data-l10n-id="select-bookmark-window2"
-        data-l10n-attrs="title, style"
+        title="&selectBookmark.title;" style="width: 32em;"
         persist="screenX screenY width height" screenX="24" screenY="24"      
         onload="SelectBookmarkDialog.init();" 
         ondialogaccept="SelectBookmarkDialog.accept();">
 
-  <linkset>
-    <html:link rel="localization" href="browser/preferences/selectBookmark.ftl"/>
-  </linkset>
   <script type="application/javascript"
           src="chrome://browser/content/preferences/legacy/selectBookmark.js"/>
   
-  <description data-l10n-id="select-bookmark-desc"/>
+  <description>&selectBookmark.label;</description>
 
   <separator class="thin"/>
 

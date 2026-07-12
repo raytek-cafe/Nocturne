@@ -62,13 +62,14 @@
           <row id="popupPolicyRow">
             <vbox align="start">
               <checkbox id="popupPolicy" preference="dom.disable_open_during_load"
-                        data-l10n-id="permissions-block-popups"
+                        label="&blockPopups.label;" accesskey="&blockPopups.accesskey;"
                         onsyncfrompreference="return gContentPane.updateButtons('popupPolicyButton', 
                                                                             'dom.disable_open_during_load');"/>
             </vbox>
             <hbox pack="end">
-              <button id="popupPolicyButton" data-l10n-id="permissions-block-popups-exceptions-button"
-                      oncommand="gContentPane.showPopupExceptions();"/>
+              <button id="popupPolicyButton" label="&popupExceptions.label;"
+                      oncommand="gContentPane.showPopupExceptions();"
+                      accesskey="&popupExceptions.accesskey;"/>
             </hbox>
           </row>
         </rows>
@@ -147,9 +148,10 @@
         </columns>
         <rows id="languagesRows">
           <row id="preferredLanguageRow">
-            <label flex="1" control="chooseLanguage" data-l10n-id="choose-language-description"/>
+            <label flex="1" control="chooseLanguage">&chooseLanguage.label;</label>
             <button id="chooseLanguage"
-                    data-l10n-id="choose-button"
+                    label="&chooseButton.label;"
+                    accesskey="&chooseButton.accesskey;"
                     oncommand="gContentPane.showLanguages();"/>
           </row>
           <row id="translationBox" hidden="true">
@@ -164,8 +166,9 @@
                      src="chrome://browser/content/microsoft-translator-attribution.png"/>
               <label>&translation.options.attribution.afterLogo;</label>
             </hbox>
-            <button id="translateButton" data-l10n-id="translate-exceptions"
-                    oncommand="gContentPane.showTranslationExceptions();"/>
+            <button id="translateButton" label="&translateExceptions.label;"
+                    oncommand="gContentPane.showTranslationExceptions();"
+                    accesskey="&translateExceptions.accesskey;"/>
           </row>
         </rows>
       </grid>

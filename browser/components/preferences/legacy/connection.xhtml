@@ -11,21 +11,16 @@
 
 <prefwindow id="ConnectionsDialog" type="child"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-            xmlns:html="http://www.w3.org/1999/xhtml"
             title="&connectionsDialog.title;"
             dlgbuttons="accept,cancel,help"
             onbeforeaccept="return gConnectionsDialog.beforeAccept();"
-            onload="gConnectionsDialog.init();"
+            onload="gConnectionsDialog.checkForSystemProxy();"
             ondialoghelp="openPrefsHelp()"
 #ifdef XP_MACOSX
             style="width: &window.macWidth; !important;">
 #else
             style="width: &window.width; !important;">
 #endif
-
-  <linkset>
-    <html:link rel="localization" href="toolkit/global/popupnotification.ftl"/>
-  </linkset>
 
   <script type="application/javascript" src="chrome://browser/content/utilityOverlay.js"/>
 

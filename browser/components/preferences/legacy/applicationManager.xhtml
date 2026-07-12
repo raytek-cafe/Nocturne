@@ -9,18 +9,14 @@
 
 <dialog id="appManager"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        xmlns:html="http://www.w3.org/1999/xhtml"
         buttons="accept,cancel"
         onload="gAppManagerDialog.init();"
         ondialogaccept="gAppManagerDialog.onOK();"
         ondialogcancel="gAppManagerDialog.onCancel();"
-        data-l10n-id="app-manager-window2"
-        data-l10n-attrs="title, style"
+        title="&appManager.title;"
+        style="&appManager.style;"
         persist="screenX screenY">
 
-  <linkset>
-    <html:link rel="localization" href="browser/preferences/applicationManager.ftl"/>
-  </linkset>
   <script type="application/javascript"
           src="chrome://browser/content/utilityOverlay.js"/>
   <script type="application/javascript"
@@ -49,7 +45,8 @@
     <listbox id="appList" onselect="gAppManagerDialog.onSelect();" flex="1"/>
     <vbox>
       <button id="remove"
-              data-l10n-id="app-manager-remove"
+              label="&remove.label;"
+              accesskey="&remove.accesskey;"
               command="cmd_remove"/>
       <spacer flex="1"/>
     </vbox>

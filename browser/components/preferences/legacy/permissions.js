@@ -225,31 +225,6 @@ var gPermissionManager = {
     urlField.hidden = !urlFieldVisible;
 
     this.onHostInput(urlField);
-    document.l10n
-      .formatMessages([{ id: "permission-dialog" }])
-      .then(([message]) => {
-        if (!message?.attributes) {
-          return;
-        }
-
-        let applyLabel = message.attributes.find(
-          ({ name }) => name == "buttonlabelaccept"
-        );
-        if (applyLabel) {
-          document
-            .getElementById("btnApplyChanges")
-            .setAttribute("label", applyLabel.value);
-        }
-
-        let applyAccessKey = message.attributes.find(
-          ({ name }) => name == "buttonaccesskeyaccept"
-        );
-        if (applyAccessKey) {
-          document
-            .getElementById("btnApplyChanges")
-            .setAttribute("accesskey", applyAccessKey.value);
-        }
-      });
 
     var urlLabel = document.getElementById("urlLabel");
     urlLabel.hidden = !urlFieldVisible;

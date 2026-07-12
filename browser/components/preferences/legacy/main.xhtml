@@ -90,18 +90,18 @@
       <vbox id="defaultBrowserBox">
         <hbox align="center">
           <checkbox id="alwaysCheckDefault" preference="browser.shell.checkDefaultBrowser"
-                    data-l10n-id="always-check-default"/>
+                    label="&alwaysCheckDefault2.label;" accesskey="&alwaysCheckDefault2.accesskey;"/>
         </hbox>
         <deck id="setDefaultPane">
           <hbox align="center" class="indent">
-            <label id="isNotDefaultLabel" flex="1" data-l10n-id="is-not-default"/>
+            <label id="isNotDefaultLabel" flex="1">&isNotDefault.label;</label>
             <button id="setDefaultButton"
-                    data-l10n-id="set-as-my-default-browser"
+                    label="&setAsMyDefaultBrowser2.label;" accesskey="&setAsMyDefaultBrowser2.accesskey;"
                     oncommand="gMainPane.setDefaultBrowser();"
                     preference="pref.general.disable_button.default_browser"/>
           </hbox>
           <hbox align="center" class="indent">
-            <label id="isDefaultLabel" flex="1" data-l10n-id="is-default"/>
+            <label id="isDefaultLabel" flex="1">&isDefault.label;</label>
           </hbox>
         </deck>
         <separator class="thin"/>
@@ -129,17 +129,17 @@
                  preference="browser.startup.homepage"/>
       </hbox>
       <hbox align="center" pack="end">
-        <button data-l10n-id="use-current-pages"
-                data-l10n-args='{"tabCount": 0}'
-                accesskey="&useCurrentPage.accesskey;"
+        <button label="" accesskey="&useCurrentPage.accesskey;"
+                label1="&useCurrentPage.label;"
+                label2="&useMultiple.label;"
                 oncommand="gMainPane.setHomePageToCurrent();"
                 id="useCurrent"
                 preference="pref.browser.homepage.disable_button.current_page"/>
-        <button data-l10n-id="choose-bookmark"
+        <button label="&chooseBookmark.label;" accesskey="&chooseBookmark.accesskey;"
                 oncommand="gMainPane.setHomePageToBookmark();"
                 id="useBookmark"
                 preference="pref.browser.homepage.disable_button.bookmark_page"/>
-        <button data-l10n-id="home-restore-defaults"
+        <button label="&restoreDefault.label;" accesskey="&restoreDefault.accesskey;"
                 oncommand="gMainPane.restoreDefaultHomePage();"
                 id="restoreDefaultHomePage"
                 preference="pref.browser.homepage.disable_button.restore_default"/>
@@ -155,7 +155,8 @@
                   onsyncfrompreference="return gMainPane.readUseDownloadDir();">
         <hbox id="saveToRow">
           <radio id="saveTo" value="true"
-                 data-l10n-id="download-save-where"
+                 label="&saveTo.label;"
+                 accesskey="&saveTo.accesskey;"
                  aria-labelledby="saveTo downloadFolder"/>
           <filefield id="downloadFolder" flex="1"
                      preference="browser.download.folderList"
@@ -163,11 +164,18 @@
                      aria-labelledby="saveTo"
                      onsyncfrompreference="return gMainPane.displayDownloadDirPref();"/>
           <button id="chooseFolder" oncommand="gMainPane.chooseFolder();"
-                  data-l10n-id="download-choose-folder"
+#ifdef XP_MACOSX
+                  accesskey="&chooseFolderMac.accesskey;"
+                  label="&chooseFolderMac.label;"
+#else
+                  accesskey="&chooseFolderWin.accesskey;"
+                  label="&chooseFolderWin.label;"
+#endif
           />
         </hbox>
         <radio id="alwaysAsk" value="false"
-               data-l10n-id="download-always-ask-where"/>
+               label="&alwaysAsk.label;"
+               accesskey="&alwaysAsk.accesskey;"/>
       </radiogroup>
     </groupbox>
 	<separator/>

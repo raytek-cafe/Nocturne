@@ -52,11 +52,13 @@
     <groupbox id="addonsPhishingGroup">
       <hbox id="addonInstallBox">
         <checkbox id="warnAddonInstall" flex="1"
-                  data-l10n-id="permissions-addon-install-warning"
+                  label="&warnAddonInstall.label;"
+                  accesskey="&warnAddonInstall.accesskey;"
                   preference="xpinstall.whitelist.required"
                   onsyncfrompreference="return gSecurityPane.readWarnAddonInstall();"/>
         <button id="addonExceptions"
-                data-l10n-id="permissions-addon-exceptions"
+                label="&addonExceptions.label;"
+                accesskey="&addonExceptions.accesskey;"
                 oncommand="gSecurityPane.showAddonExceptions();"/>
       </hbox>
 
@@ -73,31 +75,34 @@
 
     <!-- Passwords -->
     <groupbox id="passwordsGroup" orient="vertical">
-      <caption data-l10n-id="pane-privacy-passwords-header"/>
+      <caption label="&passwords.label;"/>
 
       <hbox id="savePasswordsBox">
         <checkbox id="savePasswords" flex="1"
-                  data-l10n-id="forms-ask-to-save-passwords"
+                  label="&rememberPasswords.label;" accesskey="&rememberPasswords.accesskey;"
                   preference="signon.rememberSignons"
                   onsyncfrompreference="return gSecurityPane.readSavePasswords();"/>
         <button id="passwordExceptions"
-                data-l10n-id="forms-exceptions"
+                label="&passwordExceptions.label;"
+                accesskey="&passwordExceptions.accesskey;"
                 oncommand="gSecurityPane.showPasswordExceptions();"
                 preference="pref.privacy.disable_button.view_passwords_exceptions"/>
       </hbox>
       <hbox id="masterPasswordBox">
         <checkbox id="useMasterPassword" flex="1"
                   oncommand="gSecurityPane.updateMasterPasswordButton();"
-                  data-l10n-id="forms-primary-pw-use"/>
+                  label="&useMasterPassword.label;"
+                  accesskey="&useMasterPassword.accesskey;"/>
         <button id="changeMasterPassword"
-                data-l10n-id="forms-master-pw-change"
+                label="&changeMasterPassword.label;"
+                accesskey="&changeMasterPassword.accesskey;"
                 oncommand="gSecurityPane.changeMasterPassword();"/>
       </hbox>
 
       <hbox id="showPasswordsBox">
         <spacer flex="1"/>
         <button id="showPasswords"
-                data-l10n-id="forms-saved-passwords"
+                label="&savedPasswords.label;" accesskey="&savedPasswords.accesskey;"
                 oncommand="gSecurityPane.showPasswords();"
                 preference="pref.privacy.disable_button.view_passwords"/>
       </hbox>
