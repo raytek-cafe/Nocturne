@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* Port of PrefWindow (Preference Window Framework) 6 from XBL */
+/* 
+*  => Port of the Preferences Window Framework from XBL to Custom Elements 
+*  => OmegaAOL, 2026
+*/
 
 /*
  * = Preferences Window Framework
@@ -19,14 +22,6 @@
  *     </prefpane>
  *   </prefwindow>
  *
- *   This is PrefWindow 6. The Code Could Well Be Ready, Are You?
- *
- *   Historical References:
- *   PrefWindow V   (February 1, 2003)
- *   PrefWindow IV  (April 24, 2000)
- *   PrefWindow III (January 6, 2000)
- *   PrefWindow II  (???)
- *   PrefWindow I   (June 4, 1999)
  */
 
 "use strict"; {
@@ -814,7 +809,7 @@
             };
 
             var disclosureBtn = makeBtn("disclosure", "", "disclosure", true);
-            var helpBtn = makeBtn("help", "", "help", true);
+            var helpBtn = makeBtn("help", "Help", "help", true);
             var extra2Btn = makeBtn("extra2", "", "", true);
             var extra1Btn = makeBtn("extra1", "", "", true);
             var spacer = document.createElementNS(XUL_NS, "spacer");
