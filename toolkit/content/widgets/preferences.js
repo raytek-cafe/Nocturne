@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* 
-*  => Port of the Preferences Window Framework from XBL to Custom Elements 
-*  => OmegaAOL, 2026
-*/
-
 /*
  * = Preferences Window Framework
  *
@@ -22,6 +17,19 @@
  *     </prefpane>
  *   </prefwindow>
  *
+ */
+ 
+/*
+ * Port of the Preferences Window Framework from XBL to Custom Elements by OmegaAOL
+ * This is PrefWindow 7. The Code Could Well Be Ready, Are You?
+ *
+ *    Historical References:
+ *    PrefWindow VI  (???)
+ *    PrefWindow V   (February 1, 2003)
+ *    PrefWindow IV  (April 24, 2000)
+ *    PrefWindow III (January 6, 2000)
+ *    PrefWindow II  (???)
+ *    PrefWindow I   (June 4, 1999)
  */
 
 "use strict"; {
