@@ -21,6 +21,9 @@
 
 #if CONFIG_MULTITHREAD
 static INLINE void mutex_lock(pthread_mutex_t *const mutex) {
+#if defined(_WIN32) && !HAVE_PTHREAD_H
+  pthread_mutex_lock(mutex);
+#else
   const int kMaxTryLocks = 4000;
   int locked = 0;
   int i;
@@ -33,6 +36,7 @@ static INLINE void mutex_lock(pthread_mutex_t *const mutex) {
   }
 
   if (!locked) pthread_mutex_lock(mutex);
+#endif
 }
 #endif  // CONFIG_MULTITHREAD
 
