@@ -26,7 +26,6 @@ extern "C" {
 #define NOMINMAX
 #undef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-#include <errno.h>    // NOLINT
 #include <process.h>  // NOLINT
 #include <stddef.h>   // NOLINT
 #include <windows.h>  // NOLINT
@@ -91,10 +90,6 @@ static INLINE int pthread_mutex_init(pthread_mutex_t *const mutex,
   (void)mutexattr;
   InitializeSRWLock(mutex);
   return 0;
-}
-
-static INLINE int pthread_mutex_trylock(pthread_mutex_t *const mutex) {
-  return TryAcquireSRWLockExclusive(mutex) ? 0 : EBUSY;
 }
 
 static INLINE int pthread_mutex_lock(pthread_mutex_t *const mutex) {

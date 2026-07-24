@@ -1,0 +1,39 @@
+Keep VP9 loop-filter mutex spinning without requiring a Windows 7 API
+
+TryAcquireSRWLockExclusive is unavailable on Windows Vista. The explicit
+spin remains necessary for Android performance, so use it only with native
+pthreads and let the Vista-compatible Windows SRW lock implementation block.
+
+--- a/vp9/common/vp9_thread_common.c
++++ b/vp9/common/vp9_thread_common.c
+@@ -21,6 +21,9 @@
+ 
+ #if CONFIG_MULTITHREAD
+ static INLINE void mutex_lock(pthread_mutex_t *const mutex) {
++#if defined(_WIN32) && !HAVE_PTHREAD_H
++  pthread_mutex_lock(mutex);
++#else
+   const int kMaxTryLocks = 4000;
+   int locked = 0;
+   int i;
+@@ -34,6 +37,7 @@ static INLINE void mutex_lock(pthread_mutex_t *const mutex) {
+   }
+ 
+   if (!locked) pthread_mutex_lock(mutex);
++#endif
+ }
+ #endif  // CONFIG_MULTITHREAD
+ 
+--- a/vpx_util/vpx_pthread.h
++++ b/vpx_util/vpx_pthread.h
+@@ -91,10 +91,6 @@ static INLINE int pthread_mutex_init(pthread_mutex_t *const mutex,
+   return 0;
+ }
+ 
+-static INLINE int pthread_mutex_trylock(pthread_mutex_t *const mutex) {
+-  return TryAcquireSRWLockExclusive(mutex) ? 0 : EBUSY;
+-}
+-
+ static INLINE int pthread_mutex_lock(pthread_mutex_t *const mutex) {
+   AcquireSRWLockExclusive(mutex);
+   return 0;
