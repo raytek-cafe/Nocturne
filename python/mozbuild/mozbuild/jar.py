@@ -569,7 +569,7 @@ class JarMaker:
                 return open(out, mode, encoding="utf-8", newline="\n")
 
         def ensureDirFor(self, name):
-            out = os.path.join(self.basepath, name)
+            out = os.path.abspath(os.path.join(self.basepath, name))
             outdir = os.path.dirname(out)
             if not os.path.isdir(outdir):
                 os.makedirs(outdir, exist_ok=True)
