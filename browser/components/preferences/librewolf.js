@@ -54,11 +54,16 @@ Preferences.addSetting({
 });
 Preferences.addSetting({
   id: "librewolfExtensionUpdate",
-  deps: ["librewolfExtensionUpdateEnabled","librewolfExtensionAutoUpdateEnabled"],
-  get: (_, deps) => deps.librewolfExtensionUpdateEnabled.value && deps.librewolfExtensionAutoUpdateEnabled.value,
+  deps: [
+    "librewolfExtensionUpdateEnabled",
+    "librewolfExtensionAutoUpdateEnabled",
+  ],
+  get: (_, deps) =>
+    deps.librewolfExtensionUpdateEnabled.value &&
+    deps.librewolfExtensionAutoUpdateEnabled.value,
   set: (value, deps) => {
-      deps.librewolfExtensionUpdateEnabled.value = value;
-      deps.librewolfExtensionAutoUpdateEnabled.value = value;
+    deps.librewolfExtensionUpdateEnabled.value = value;
+    deps.librewolfExtensionAutoUpdateEnabled.value = value;
   },
 });
 
@@ -73,13 +78,12 @@ Preferences.addSetting({
       false
     ).then(buttonIndex => {
       if (buttonIndex == CONFIRM_RESTART_PROMPT_RESTART_NOW) {
-          Services.startup.quit(
-            Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart
-          );
-          return
-        }
+        Services.startup.quit(
+          Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart
+        );
+      }
     });
-  }
+  },
 });
 
 Preferences.addSetting({
@@ -92,11 +96,11 @@ Preferences.addSetting({
 });
 Preferences.addSetting({
   id: "librewolfMiddleClick",
-  deps: ["librewolfAutocopy","librewolfPaste"],
+  deps: ["librewolfAutocopy", "librewolfPaste"],
   get: (_, deps) => deps.librewolfAutocopy.value && deps.librewolfPaste.value,
   set: (value, deps) => {
-      deps.librewolfAutocopy.value = value;
-      deps.librewolfPaste.value = value;
+    deps.librewolfAutocopy.value = value;
+    deps.librewolfPaste.value = value;
   },
 });
 
@@ -108,21 +112,20 @@ Preferences.addSetting({
 Preferences.addSetting({
   id: "librewolfIPv6",
   pref: "network.dns.disableIPv6",
-  get: (value) => value.value = !value,
-  set: (value) => value.value = !value,
+  get: value => (value.value = !value),
+  set: value => (value.value = !value),
 });
 
 Preferences.addSetting({
   id: "librewolfCrossOrigin",
   pref: "network.http.referer.XOriginPolicy",
-  get: (value) => {
+  get: value => {
     if (value == 2) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   },
-  set: (value) => value ? 2 : 0,
+  set: value => (value ? 2 : 0),
 });
 
 Preferences.addSetting({
@@ -137,18 +140,17 @@ Preferences.addSetting({
 Preferences.addSetting({
   id: "librewolfWebGLPrompt",
   pref: "librewolf.webgl.prompt",
-  get: (value) => value.value = !value,
-  set: (value) => value.value = !value,
+  get: value => (value.value = !value),
+  set: value => (value.value = !value),
 });
 Preferences.addSetting({
   id: "librewolfWebGLPromptHide",
   pref: "librewolf.webgl.prompt.hide",
   deps: ["librewolfWebGLPrompt"],
-  disabled: ({librewolfWebGLPrompt}) => {
+  disabled: ({ librewolfWebGLPrompt }) => {
     return librewolfWebGLPrompt.value;
   },
 });
-
 
 function openProfileDirectory() {
   // Get the profile directory.
