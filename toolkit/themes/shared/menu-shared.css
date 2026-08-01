@@ -139,13 +139,15 @@ menuitem {
     text-shadow: none;
   }
 
-  &:where([_moz-menuactive]:not([disabled])) {
-    color: -moz-menuhovertext;
-    background-color: -moz-menuhover;
-  }
+  @media not (-moz-platform: windows) or (-moz-windows-non-native-menus) {
+    &:where([_moz-menuactive]:not([disabled])) {
+      color: -moz-menuhovertext;
+      background-color: -moz-menuhover;
+    }
 
-  &:where([_moz-menuactive="true"][disabled]) {
-    background-color: -moz-menuhoverdisabled;
+    &:where([_moz-menuactive="true"][disabled]) {
+      background-color: -moz-menuhoverdisabled;
+    }
   }
 }
 
