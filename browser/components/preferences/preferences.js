@@ -333,6 +333,18 @@ const CONFIG_PANES = Object.freeze({
     module: "chrome://browser/content/preferences/config/languages.mjs",
     visible: () => srdSectionEnabled("languages"),
   },
+  librewolf: {
+    l10nId: "librewolf-header",
+    iconSrc: "chrome://browser/skin/preferences/category-general.svg",
+    groupIds: [
+      "librewolfBehavior",
+      "librewolfNetworking",
+      "librewolfPrivacy",
+      "librewolfFingerprinting",
+    ],
+    replaces: "librewolf",
+    visible: () => srdSectionPrefs.all,
+  },
   manageAddresses: {
     parent: "passwordsAutofill",
     l10nId: "autofill-addresses-manage-addresses-title",

@@ -484,7 +484,7 @@ const DefaultBrowserHelper = {
     this._backoffIndex = 0;
 
     try {
-        await this.shellSvc?.setDefaultBrowser(true, false);
+      await this.shellSvc?.setDefaultBrowser(true, false);
     } catch (e) {
       console.error(e);
     }
@@ -745,7 +745,7 @@ SettingGroupManager.registerGroups({
       {
         id: "librewolfIPv6",
         l10nId: "librewolf-ipv6-checkbox2",
-      }
+      },
     ],
   },
   librewolfPrivacy: {
@@ -1012,36 +1012,37 @@ var gMainPane = {
     button.disabled = !preference.value;
     return undefined;
   },
-  
+
   readEnableTranslations(skipInit = false) {
-    const translationsEnabled = Preferences.get("browser.translations.enable").value;
-    document.getElementById("innerTranslationsGroup").hidden = !translationsEnabled;
-    if (!this._translationsInitialized && !skipInit)
+    const translationsEnabled = Preferences.get(
+      "browser.translations.enable"
+    ).value;
+    document.getElementById("innerTranslationsGroup").hidden =
+      !translationsEnabled;
+    if (!this._translationsInitialized && !skipInit) {
       this.initTranslations();
+    }
   },
 
   _translationsInitialized: false,
-
 
   /**
    * Initialize the translations view.
    */
   async initTranslations() {
     this.readEnableTranslations(true);
-    
+
     if (!Services.prefs.getBoolPref("browser.translations.enable")) {
-       return;
+      return;
     }
-    
+
     this._translationsInitialized = true;
-    
+
     /**
      * Which phase a language download is in.
      *
      * @typedef {"downloaded" | "loading" | "uninstalled"} DownloadPhase
      */
-
-
 
     class TranslationsState {
       /**
