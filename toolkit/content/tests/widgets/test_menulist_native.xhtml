@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
-<?xml-stylesheet href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?> <?xml-stylesheet
+href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
 
 <window
   title="Menulist Native Styling Tests"
@@ -36,7 +36,10 @@
           Services.prefs.setBoolPref(pref, true);
         }
         ok(!menulist.hasAttribute("native"), "non-native styling is enabled");
-        ok(explicit.hasAttribute("native"), "explicit native styling is preserved");
+        ok(
+          explicit.hasAttribute("native"),
+          "explicit native styling is preserved"
+        );
       } finally {
         if (isWindows) {
           Services.prefs.setIntPref(pref, original);

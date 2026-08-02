@@ -2,19 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Legacy platform metrics intentionally use fixed values. */
+/* stylelint-disable stylelint-plugin-mozilla/use-design-tokens */
+
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 @namespace html url("http://www.w3.org/1999/xhtml");
 
 textbox {
   -moz-appearance: textfield;
   cursor: text;
-  margin: 2px 4px;
+  margin: var(--space-xxsmall) var(--space-xsmall);
   border: 2px solid;
   -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
   -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
   -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
   -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
-  padding: 2px 2px 3px;
+  padding: var(--space-xxsmall) var(--space-xxsmall) 3px;
   -moz-padding-start: 4px;
   background-color: -moz-Field;
   color: -moz-FieldText;
