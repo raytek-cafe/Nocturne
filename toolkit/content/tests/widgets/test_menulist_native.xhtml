@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
+
+<window
+  title="Menulist Native Styling Tests"
+  onload="runTest()"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
+  <script src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
+  <script>
+    SimpleTest.waitForExplicitFinish();
+
+    function runTest() {
+      const menulist = document.getElementById("menulist");
+      const explicit = document.getElementById("explicit");
+      const isWindows = navigator.platform.startsWith("Win");
+      const pref = isWindows
+        ? "browser.display.windows.non_native_menulist"
+        : "widget.non-native-theme.enabled";
+      const original = isWindows
+        ? Services.prefs.getIntPref(pref, 2)
+        : Services.prefs.getBoolPref(pref, true);
+
+      try {
+        if (isWindows) {
+          Services.prefs.setIntPref(pref, 0);
+        } else {
+          Services.prefs.setBoolPref(pref, false);
+        }
+        ok(menulist.hasAttribute("native"), "native styling is enabled");
+
+        if (isWindows) {
+          Services.prefs.setIntPref(pref, 1);
+        } else {
+          Services.prefs.setBoolPref(pref, true);
+        }
+        ok(!menulist.hasAttribute("native"), "non-native styling is enabled");
+        ok(explicit.hasAttribute("native"), "explicit native styling is preserved");
+      } finally {
+        if (isWindows) {
+          Services.prefs.setIntPref(pref, original);
+        } else {
+          Services.prefs.setBoolPref(pref, original);
+        }
+      }
+
+      SimpleTest.finish();
+    }
+  </script>
+
+  <menulist id="menulist">
+    <menupopup>
+      <menuitem label="One" value="one" />
+    </menupopup>
+  </menulist>
+  <menulist id="explicit" native="true">
+    <menupopup>
+      <menuitem label="Two" value="two" />
+    </menupopup>
+  </menulist>
+</window>
