@@ -99,7 +99,6 @@
   /* Input */
 
   #input {
-    -moz-theme: non-native;
     min-width: var(--input-width);
     min-height: var(--input-height);
     font-size: inherit;
@@ -115,8 +114,16 @@
       margin-inline-end: 0;
     }
 
-    @media not (forced-colors) {
-      accent-color: var(--color-accent-primary);
+    @media -moz-pref("widget.non-native-theme.enabled") {
+      -moz-theme: non-native;
+
+      @media not (forced-colors) {
+        accent-color: var(--color-accent-primary);
+      }
+    }
+
+    @media not -moz-pref("widget.non-native-theme.enabled") {
+      accent-color: auto;
     }
   }
 

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* Only Nova uses custom checkbox styles. Previously, accent-color was the only customization. */
-@media -moz-pref("browser.nova.enabled") {
+@media (-moz-pref("browser.nova.enabled")) and (-moz-pref("widget.non-native-theme.enabled")) {
   input[type="checkbox"] {
     appearance: none;
     border: var(--border-width) solid var(--checkbox-border-color);
