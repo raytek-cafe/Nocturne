@@ -2515,6 +2515,12 @@ bool nsNativeThemeWin::WidgetAttributeChangeRequiresRepaint(
       aAppearance == StyleAppearance::MozMenulistArrowButton) {
     return true;
   }
+  if (aAttribute == nsGkAtoms::menuactive &&
+      (aAppearance == StyleAppearance::Menuitem ||
+       aAppearance == StyleAppearance::Checkmenuitem ||
+       aAppearance == StyleAppearance::Radiomenuitem)) {
+    return true;
+  }
 
   // On Vista, the scrollbar buttons need to change state when the track has/doesn't have hover
   if (!IsVistaOrLater() &&
