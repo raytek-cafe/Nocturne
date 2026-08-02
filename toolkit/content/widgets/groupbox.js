@@ -79,11 +79,20 @@
       }
       this._initialized = true;
 
-      const icon = this.ownerDocument.createXULElement("image");
-      icon.className = "caption-icon";
+      let icon = this.querySelector(".caption-icon");
+      if (!icon) {
+        icon = this.ownerDocument.createXULElement("image");
+        icon.className = "caption-icon";
+      }
 
-      const label = this.ownerDocument.createXULElement("label");
-      label.className = "caption-text";
+      let label =
+        this.querySelector(".caption-text") || this.querySelector("label");
+      if (!label) {
+        label = this.ownerDocument.createXULElement("label");
+        label.className = "caption-text";
+      } else {
+        label.classList.add("caption-text");
+      }
       label.setAttribute("flex", "1");
 
       this.append(icon, label);
@@ -128,10 +137,12 @@
         return;
       }
 
-      const value = this.hasAttribute("value")
-        ? this.getAttribute("value")
-        : this.getAttribute("label");
-      label.setAttribute("value", value || "");
+      if (this.hasAttribute("value") || this.hasAttribute("label")) {
+        const value = this.hasAttribute("value")
+          ? this.getAttribute("value")
+          : this.getAttribute("label");
+        label.setAttribute("value", value || "");
+      }
 
       const icon = this.querySelector(".caption-icon");
       if (icon) {
