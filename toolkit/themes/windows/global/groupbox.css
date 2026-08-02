@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Legacy platform metrics intentionally use fixed values. */
+/* stylelint-disable stylelint-plugin-mozilla/use-design-tokens */
+
 /* ===== groupbox.css ==================================================
   == Styles used by the XUL groupbox and related elements.
   ======================================================================= */
@@ -31,5 +34,5 @@ tabpanels caption {
 
 /* !important is needed to override label in global.css */
 .caption-text {
-  margin: 0 2px !important;
+  margin: 0 var(--space-xxsmall) !important;
 }
