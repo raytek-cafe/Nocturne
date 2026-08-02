@@ -226,9 +226,8 @@
       if (!command) {
         return;
       }
-      const controller = this.ownerDocument.commandDispatcher.getControllerForCommand(
-        command
-      );
+      const controller =
+        this.ownerDocument.commandDispatcher.getControllerForCommand(command);
       controller?.doCommand(command);
     }
 
@@ -272,7 +271,9 @@
           this._ignoreFocus = false;
         } else if (this.clickSelectsAll) {
           try {
-            const imeEditor = this.editor.QueryInterface(Ci.nsIEditorIMESupport);
+            const imeEditor = this.editor.QueryInterface(
+              Ci.nsIEditorIMESupport
+            );
             if (!imeEditor || !imeEditor.composing) {
               this.editor.selectAll();
             }

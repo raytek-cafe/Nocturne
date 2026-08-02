@@ -129,7 +129,10 @@
         }
       }
 
-      return !Services.prefs.getBoolPref("widget.non-native-theme.enabled", true);
+      return !Services.prefs.getBoolPref(
+        "widget.non-native-theme.enabled",
+        true
+      );
     }
 
     _syncNativeStyling() {
@@ -166,7 +169,6 @@
       Services.prefs.addObserver(pref, this._nativeStylingObserver);
       this._syncNativeStyling();
     }
-
 
     connectedCallback() {
       if (this.delayConnectedCallback()) {
