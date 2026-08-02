@@ -35,7 +35,9 @@
       this.appendChild(this.constructor.fragment);
 
       this.initializeAttributeInheritance();
-      if (!Services.prefs.getBoolPref("widget.non-native-theme.enabled", true)) {
+      if (
+        !Services.prefs.getBoolPref("widget.non-native-theme.enabled", true)
+      ) {
         this.setAttribute("native", "true");
       }
     }

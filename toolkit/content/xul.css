@@ -419,12 +419,12 @@ tooltip {
       appearance: none;
       border: 1px solid;
 
-  @media (-moz-windows-default-theme) {
-      background-color: light-dark(#f9f9fb, #2b2a33);
-      color: light-dark(black, white);
-      border-color: light-dark(#67676c, #f9f9fb);
-      border-radius: 4px;
-    }
+      @media (-moz-windows-default-theme) {
+        background-color: light-dark(#f9f9fb, #2b2a33);
+        color: light-dark(black, white);
+        border-color: light-dark(#67676c, #f9f9fb);
+        border-radius: 4px;
+      }
     }
   }
 }

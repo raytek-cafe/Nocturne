@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
-<?xml-stylesheet href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?> <?xml-stylesheet
+href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
 
 <window
   title="Textbox Tests"
@@ -22,8 +22,16 @@
       textbox.value = "Updated";
       is(textbox.inputField.value, "Updated", "textbox value is writable");
       textbox.placeholder = "Hint";
-      is(textbox.inputField.placeholder, "Hint", "textbox placeholder is writable");
-      is(textarea.inputField.localName, "textarea", "textarea wraps a textarea");
+      is(
+        textbox.inputField.placeholder,
+        "Hint",
+        "textbox placeholder is writable"
+      );
+      is(
+        textarea.inputField.localName,
+        "textarea",
+        "textarea wraps a textarea"
+      );
       textarea.value = "Text area";
       is(textarea.inputField.value, "Text area", "textarea value is writable");
 

@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* Legacy platform metrics intentionally use fixed values. */
+/* stylelint-disable stylelint-plugin-mozilla/use-design-tokens */
+
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 groupbox {
@@ -12,7 +15,7 @@ groupbox {
 
 .groupbox-body {
   -moz-appearance: groupbox;
-  padding: 8px 8px 3px;
+  padding: var(--space-small) var(--space-small) 3px;
   margin: 0;
 }
 
