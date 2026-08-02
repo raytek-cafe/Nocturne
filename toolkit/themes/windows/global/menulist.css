@@ -51,6 +51,11 @@ label {
     margin-block: -1px !important;
   }
 
+  image[native] {
+    max-width: 16px;
+    max-height: 16px;
+  }
+
   dropmarker[native] {
     margin-inline: 3px -3px;
   }
