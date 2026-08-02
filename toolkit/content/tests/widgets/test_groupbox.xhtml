@@ -51,6 +51,12 @@ href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
         "chrome://global/skin/icons/info.svg",
         "caption image changes are rendered"
       );
+      const nestedCaption = document.getElementById("nested-caption");
+      is(
+        nestedCaption.querySelector(".caption-text").getAttribute("value"),
+        "Nested",
+        "caption child label is preserved"
+      );
 
       const plainGroupbox = document.getElementById("plain-groupbox");
       is(
@@ -81,6 +87,11 @@ href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
   <groupbox id="groupbox" orient="horizontal" align="start" pack="end">
     <caption id="caption" label="Caption" />
     <label id="content" value="Content" />
+  </groupbox>
+  <groupbox id="nested-groupbox">
+    <caption id="nested-caption">
+      <label class="caption-text" value="Nested" />
+    </caption>
   </groupbox>
   <groupbox id="plain-groupbox">
     <label value="Content" />
