@@ -1,0 +1,59 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+textbox {
+  -moz-appearance: textfield;
+  cursor: text;
+  margin: 2px 4px;
+  border: 2px solid;
+  -moz-border-top-colors: ThreeDShadow ThreeDDarkShadow;
+  -moz-border-right-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-bottom-colors: ThreeDHighlight ThreeDLightShadow;
+  -moz-border-left-colors: ThreeDShadow ThreeDDarkShadow;
+  padding: 2px 2px 3px;
+  -moz-padding-start: 4px;
+  background-color: -moz-Field;
+  color: -moz-FieldText;
+}
+
+html|*.textbox-input,
+html|*.textbox-textarea {
+  margin: 0 !important;
+  border: none !important;
+  padding: 0 1px !important;
+  background-color: inherit;
+  color: inherit;
+  font: inherit;
+}
+
+textbox[readonly="true"] {
+  background-color: -moz-Dialog;
+  color: -moz-DialogText;
+}
+
+textbox[disabled="true"] {
+  cursor: default;
+  background-color: -moz-Dialog;
+  color: GrayText;
+}
+
+textbox.plain {
+  -moz-appearance: none !important;
+  background-color: transparent;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+textbox.plain html|*.textbox-input,
+textbox.plain html|*.textbox-textarea {
+  padding: 0 !important;
+}
+
+toolbarpaletteitem > toolbaritem > textbox > .textbox-input-box > html|*.textbox-input {
+  visibility: hidden;
+}
