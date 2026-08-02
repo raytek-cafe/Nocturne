@@ -29,6 +29,8 @@ skip-if = [
 
 ["test_groupbox.xhtml"]
 
+["test_textbox.xhtml"]
+
 ["test_moz_badge.html"]
 
 ["test_moz_base_input_element.html"]
