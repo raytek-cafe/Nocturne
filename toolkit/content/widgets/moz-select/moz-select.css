@@ -108,6 +108,11 @@ select {
   }
 }
 
+/* stylelint-disable-next-line selector-pseudo-element-no-unknown */
+select::picker-icon {
+  display: none;
+}
+
 .select-option-icon,
 .select-chevron-icon {
   position: absolute;
