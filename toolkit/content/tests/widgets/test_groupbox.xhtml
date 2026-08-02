@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin" type="text/css"?>
+<?xml-stylesheet href="chrome://mochikit/content/tests/SimpleTest/test.css" type="text/css"?>
+
+<window
+  title="Groupbox Tests"
+  onload="runTest()"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+>
+  <script src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js" />
+  <script>
+    SimpleTest.waitForExplicitFinish();
+
+    function runTest() {
+      const groupbox = document.getElementById("groupbox");
+      const title = groupbox.children[0];
+      const body = groupbox.children[1];
+      const caption = document.getElementById("caption");
+
+      ok(customElements.get("groupbox"), "groupbox is registered");
+      ok(caption instanceof customElements.get("caption"), "caption is registered");
+      is(title.className, "groupbox-title", "caption is in the title box");
+      is(title.firstElementChild, caption, "caption is moved into the title box");
+      is(body.className, "groupbox-body", "content is in the body box");
+      is(body.firstElementChild.id, "content", "groupbox content is preserved");
+      is(body.getAttribute("orient"), "horizontal", "orient is inherited");
+      is(body.getAttribute("align"), "start", "align is inherited");
+      is(body.getAttribute("pack"), "end", "pack is inherited");
+      is(
+        caption.querySelector(".caption-text").getAttribute("value"),
+        "Caption",
+        "caption label is rendered"
+      );
+
+      caption.label = "Updated caption";
+      is(
+        caption.querySelector(".caption-text").getAttribute("value"),
+        "Updated caption",
+        "caption label changes are rendered"
+      );
+      caption.setAttribute("image", "chrome://global/skin/icons/info.svg");
+      is(
+        caption.querySelector(".caption-icon").getAttribute("src"),
+        "chrome://global/skin/icons/info.svg",
+        "caption image changes are rendered"
+      );
+
+      const plainGroupbox = document.getElementById("plain-groupbox");
+      is(plainGroupbox.children.length, 1, "groupbox without a caption has one child");
+      is(
+        plainGroupbox.firstElementChild.className,
+        "groupbox-body",
+        "groupbox without a caption still wraps its content"
+      );
+      ok(
+        !plainGroupbox.querySelector(".groupbox-title"),
+        "groupbox without a caption has no title box"
+      );
+      ok(
+        document.querySelector('link[href="chrome://global/skin/groupbox.css"]'),
+        "groupbox styles are loaded when a caption is present"
+      );
+
+      SimpleTest.finish();
+    }
+  </script>
+
+  <groupbox
+    id="groupbox"
+    orient="horizontal"
+    align="start"
+    pack="end"
+  >
+    <caption id="caption" label="Caption" />
+    <label id="content" value="Content" />
+  </groupbox>
+  <groupbox id="plain-groupbox">
+    <label value="Content" />
+  </groupbox>
+</window>

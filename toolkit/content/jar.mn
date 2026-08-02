@@ -99,6 +99,7 @@ toolkit.jar:
    content/global/elements/editor.js           (widgets/editor.js)
    content/global/elements/general.js          (widgets/general.js)
    content/global/elements/menu.js             (widgets/menu.js)
+   content/global/elements/groupbox.js         (widgets/groupbox.js)
    content/global/elements/menupopup.js        (widgets/menupopup.js)
    content/global/elements/menupopup.css       (widgets/menupopup.css)
    content/global/elements/moz-badge.tokens.css    (widgets/moz-badge/moz-badge.tokens.css)
