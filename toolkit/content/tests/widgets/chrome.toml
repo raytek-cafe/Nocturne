@@ -31,8 +31,6 @@ skip-if = [
 
 ["test_textbox.xhtml"]
 
-["test_menulist_native.xhtml"]
-
 ["test_moz_badge.html"]
 
 ["test_moz_base_input_element.html"]
