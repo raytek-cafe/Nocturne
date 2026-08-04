@@ -111,64 +111,7 @@
         <html:slot/>
     `;
     }
-    _shouldUseNativeStyling() {
-      if (AppConstants.platform == "win") {
-        switch (
-          Services.prefs.getIntPref(
-            "browser.display.windows.non_native_menulist",
-            2
-          )
-        ) {
-          case 0:
-            return true;
-          case 1:
-            return false;
-          default:
-            return !this.ownerGlobal.matchMedia("(prefers-color-scheme: dark)")
-              .matches;
-        }
-      }
 
-      return !Services.prefs.getBoolPref(
-        "widget.non-native-theme.enabled",
-        true
-      );
-    }
-
-    _syncNativeStyling() {
-      if (!this._prefControlledNative) {
-        return;
-      }
-
-      this.toggleAttribute("native", this._shouldUseNativeStyling());
-      if (!this.hasAttribute("popuponly")) {
-        this.initializeAttributeInheritance();
-      }
-    }
-
-    _startNativeStylingObserver() {
-      this._prefControlledNative = !this.hasAttribute("native");
-      if (!this._prefControlledNative) {
-        return;
-      }
-
-      this._nativeStylingObserver = () => this._syncNativeStyling();
-      this._colorSchemeQuery = this.ownerGlobal.matchMedia(
-        "(prefers-color-scheme: dark)"
-      );
-      this._colorSchemeQuery.addEventListener(
-        "change",
-        this._nativeStylingObserver
-      );
-
-      const pref =
-        AppConstants.platform == "win"
-          ? "browser.display.windows.non_native_menulist"
-          : "widget.non-native-theme.enabled";
-      this._nativeStylingPref = pref;
-      Services.prefs.addObserver(pref, this._nativeStylingObserver);
-      this._syncNativeStyling();
-    }
 
     connectedCallback() {
       if (this.delayConnectedCallback()) {
@@ -189,7 +132,6 @@
           this._managedNodes.push(child);
         });
       }
-      this._startNativeStylingObserver();
 
       if (!this.hasAttribute("popuponly")) {
         this.initializeAttributeInheritance();
@@ -473,19 +415,6 @@
     disconnectedCallback() {
       if (this.mAttributeObserver) {
         this.mAttributeObserver.disconnect();
-      }
-      if (this._nativeStylingObserver) {
-        this._colorSchemeQuery.removeEventListener(
-          "change",
-          this._nativeStylingObserver
-        );
-        Services.prefs.removeObserver(
-          this._nativeStylingPref,
-          this._nativeStylingObserver
-        );
-        this._nativeStylingObserver = null;
-        this._colorSchemeQuery = null;
-        this._nativeStylingPref = null;
       }
 
       if (this._managedNodes) {

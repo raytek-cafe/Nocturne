@@ -3580,7 +3580,7 @@ RENDER_AGAIN:
     case StyleAppearance::Textfield:
     case StyleAppearance::Textarea:
     case StyleAppearance::Listbox:
-    case StyleAppearance::Menulist:
+    case StyleAppearance::Menulist: {
       // Draw inset edge
       ::DrawEdge(hdc, &widgetRect, EDGE_SUNKEN, BF_RECT | BF_ADJUST);
 
