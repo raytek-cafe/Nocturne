@@ -381,6 +381,8 @@ body {
     visibility: hidden;
   }
 
+  #toolbar-menubar[autohide][inactive]:not([customizing]) > &,
+  #TabsToolbar[collapsed] > &,
   :root:not([chromemargin], [inFullscreen]) & {
     display: none;
   }

@@ -236,13 +236,24 @@
       -moz-default-appearance: -moz-window-titlebar-maximized;
     }
   }
+
+}
+:root[tabsintitlebar]
+  #titlebar:has(#toolbar-menubar[autohide]:not([inactive]))
+  > #TabsToolbar
+  > :is(.titlebar-buttonbox-container, .titlebar-spacer),
+:root[tabsintitlebar]
+  #titlebar:has(#toolbar-menubar[autohide]:not([inactive]))
+  ~ #nav-bar.browser-titlebar
+  > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: none;
 }
 
-  :root[tabsintitlebar][sizemode="normal"] #titlebar:has(#toolbar-menubar[autohide="false"]) ~ #nav-bar.browser-titlebar > .titlebar-buttonbox-container {display: none} /* Hack for vertical tabs */
-  :root[tabsintitlebar][sizemode="maximized"] #titlebar:has(#toolbar-menubar[autohide="false"]) ~ #nav-bar.browser-titlebar > .titlebar-buttonbox-container {display: none}
-
-:root:not([chromehidden~="menubar"], [inFullscreen]) #titlebar:has(#toolbar-menubar:not([autohide], [collapsed])) ~ #nav-bar.browser-titlebar {
-  -moz-window-dragging: no-drag;
+:root:not([chromehidden~="menubar"], [inFullscreen])
+  #titlebar:has(#toolbar-menubar:not([autohide], [collapsed]))
+  ~ #nav-bar.browser-titlebar
+  > :is(.titlebar-buttonbox-container, .titlebar-spacer) {
+  display: none;
 }
 
 @media not (-moz-windows-compositor) {
