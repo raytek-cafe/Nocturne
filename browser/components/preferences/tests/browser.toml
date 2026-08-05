@@ -63,20 +63,6 @@ run-if = ["os == 'mac'"]
 
 ["browser_no_id_collision_between_categories_and_mainPane.js"]
 
-["browser_languages_subdialog.js"]
-
-["browser_layersacceleration.js"]
-
-["browser_localSearchShortcuts.js"]
-fail-if = ["a11y_checks"] # Bug 1854636 clicked treechildren#engineChildren may not be focusable
-
-["browser_newtab_menu.js"]
-
-["browser_notifications_do_not_disturb.js"]
-
-["browser_open_download_preferences.js"]
-support-files = ["empty_pdf_file.pdf"]
-
 ["browser_open_migration_wizard.js"]
 
 ["browser_sessionRestoreNewTab.js"]
