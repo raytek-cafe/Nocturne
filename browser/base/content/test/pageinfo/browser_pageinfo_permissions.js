@@ -75,6 +75,36 @@ async function testPermissions(defaultPermission) {
   });
 }
 
+add_task(async function test_missing_permission_label() {
+  let originalGetPermissionLabel = SitePermissions.getPermissionLabel;
+  SitePermissions.getPermissionLabel = permissionID => {
+    if (permissionID == "webgl") {
+      throw new Error("Missing localization");
+    }
+    return originalGetPermissionLabel.call(SitePermissions, permissionID);
+  };
+
+  try {
+    await BrowserTestUtils.withNewTab(TEST_ORIGIN, async function () {
+      let pageInfo = BrowserCommands.pageInfo(TEST_ORIGIN, "permTab");
+      await BrowserTestUtils.waitForEvent(pageInfo, "load");
+
+      ok(
+        pageInfo.document.getElementById("geoRow"),
+        "Permissions with labels should still be displayed"
+      );
+      ok(
+        !pageInfo.document.getElementById("webglRow"),
+        "The permission with the missing label should be omitted"
+      );
+
+      pageInfo.close();
+    });
+  } finally {
+    SitePermissions.getPermissionLabel = originalGetPermissionLabel;
+  }
+});
+
 // Test displaying website permissions on certificate error pages.
 add_task(async function test_CertificateError() {
   let browser;
