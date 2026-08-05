@@ -971,7 +971,7 @@ void nsHttpHandler::BuildUserAgent() {
   mUserAgent += '/';
   mUserAgent += mProductSub;
 
-  bool isFirefox = mAppName.EqualsLiteral("Firefox");
+  bool isFirefox = mUserAgentStealth || mAppName.EqualsLiteral("Firefox");
   if (isFirefox || mCompatFirefoxEnabled) {
     // "Firefox/x.y" (compatibility) app token
     mUserAgent += ' ';
@@ -1077,7 +1077,7 @@ void nsHttpHandler::InitUserAgentComponents() {
   // Gather OS/CPU.
 #if defined(XP_WIN)
   OSVERSIONINFO info = {sizeof(OSVERSIONINFO)};
-  if (!GetVersionEx(&info) || info.dwMajorVersion >= 10) {
+  if (mUserAgentStealth || !GetVersionEx(&info) || info.dwMajorVersion >= 10) {
     // Cap the reported Windows version to 10.0. This way, Microsoft doesn't
     // get to change Web compat-sensitive values without our veto. The
     // compat-sensitivity keeps going up as 10.0 stays as the current value
@@ -1212,6 +1212,11 @@ void nsHttpHandler::PrefsChanged(const char* pref) {
     rv = Preferences::GetBool(UA_PREF("compatMode.firefox"), &cVar);
     mCompatFirefoxEnabled = (NS_SUCCEEDED(rv) && cVar);
     mUserAgentIsDirty = true;
+  }
+
+  if (PREF_CHANGED(UA_PREF("stealth"))) {
+    mUserAgentStealth = Preferences::GetBool(UA_PREF("stealth"), false);
+    InitUserAgentComponents();
   }
 
   // general.useragent.override

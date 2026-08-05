@@ -646,6 +646,7 @@ class nsHttpHandler final : public nsIHttpProtocolHandler,
   nsCString mAppVersion;
   nsCString mCompatFirefox;
   bool mCompatFirefoxEnabled{false};
+  bool mUserAgentStealth{false};
   nsCString mCompatDevice;
   nsCString mDeviceModelId;
 
