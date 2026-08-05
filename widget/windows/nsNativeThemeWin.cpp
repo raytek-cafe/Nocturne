@@ -2397,8 +2397,17 @@ LayoutDeviceIntSize nsNativeThemeWin::GetMinimumWidgetSize(
     case StyleAppearance::ScrollbarbuttonLeft:
     case StyleAppearance::ScrollbarbuttonRight:
     case StyleAppearance::ScrollbarHorizontal:
-    case StyleAppearance::ScrollbarVertical:
+    case StyleAppearance::ScrollbarVertical: {
+      auto result = ClassicGetMinimumWidgetSize(aFrame, aAppearance);
+      ScaleForFrameDPI(&result, aFrame);
+      return result;
+    }
     case StyleAppearance::MozMenulistArrowButton: {
+      if (nsComboboxControlFrame* combobox =
+              do_QueryFrame(aFrame->GetParent());
+          combobox && !combobox->HasDropDownButton()) {
+        return {};
+      }
       auto result = ClassicGetMinimumWidgetSize(aFrame, aAppearance);
       ScaleForFrameDPI(&result, aFrame);
       return result;
