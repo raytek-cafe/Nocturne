@@ -15,17 +15,17 @@ const EXCLUDE_PERMS = ["open-protocol-handler"];
 
 // Array of permissionIDs sorted alphabetically by label.
 let gPermissions = SitePermissions.listPermissions()
-  .filter(permissionID => {
-    if (!SitePermissions.getPermissionLabel(permissionID)) {
-      return false;
+  .map(permissionID => {
+    try {
+      let label = SitePermissions.getPermissionLabel(permissionID);
+      return label ? { id: permissionID, label } : null;
+    } catch {
+      return null;
     }
-    return !EXCLUDE_PERMS.includes(permissionID);
   })
-  .sort((a, b) => {
-    let firstLabel = SitePermissions.getPermissionLabel(a);
-    let secondLabel = SitePermissions.getPermissionLabel(b);
-    return firstLabel.localeCompare(secondLabel);
-  });
+  .filter(permission => permission && !EXCLUDE_PERMS.includes(permission.id))
+  .sort((a, b) => a.label.localeCompare(b.label))
+  .map(permission => permission.id);
 
 var permissionObserver = {
   observe(aSubject, aTopic) {
