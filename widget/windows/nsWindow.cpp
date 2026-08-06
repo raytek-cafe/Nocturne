@@ -1246,17 +1246,20 @@ const wchar_t kShellLibraryName[] =  L"shell32.dll";
       }
     }
     ::FreeLibrary(hDLL);
-    bool loadSmallIconProperly = 
+    bool loadSmallIconProperly =
         Preferences::GetBool("nocturne.smalliconbehavior.enabled", true);
-      bool useSeparateIcons =
-          Preferences::GetBool("nocturne.legacyiconbehavior.enabled", true);
-          
-    if (usePrivateAumid) {
+    bool useSeparateIcons =
+        Preferences::GetBool("nocturne.legacyiconbehavior.enabled", true);
+    bool showAppIcon =
+        mWindowType != WindowType::Dialog ||
+        Preferences::GetBool("prompts.headerAppIcon.enabled", true);
+
+    if (showAppIcon && usePrivateAumid) {
       HICON icon = ::LoadIconW(::GetModuleHandleW(nullptr),
                                MAKEINTRESOURCEW(IDI_PBMODE));
       SetBigIcon(icon);
       SetSmallIcon(icon);
-    } else {
+    } else if (showAppIcon) {
       HICON smallIcon;
       if (loadSmallIconProperly) {
         smallIcon = (HICON)::LoadImageW(
