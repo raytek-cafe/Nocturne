@@ -626,13 +626,11 @@ const POLICIES_TESTS = [
     policies: {
       FirefoxHome: {
         Stories: false,
-        SponsoredStories: false,
         Locked: true,
       },
     },
     lockedPrefs: {
       "browser.newtabpage.activity-stream.feeds.section.topstories": false,
-      "browser.newtabpage.activity-stream.showSponsored": false,
     },
   },
 
@@ -647,21 +645,6 @@ const POLICIES_TESTS = [
     lockedPrefs: {
       "browser.newtabpage.activity-stream.showWeather": false,
       "browser.newtabpage.activity-stream.widgets.weather.enabled": false,
-    },
-  },
-
-  // POLICY: FirefoxHome (locking both sponsored settings locks the parent
-  // "Support Firefox" toggle to their combined value)
-  {
-    policies: {
-      FirefoxHome: {
-        SponsoredTopSites: false,
-        SponsoredStories: false,
-        Locked: true,
-      },
-    },
-    lockedPrefs: {
-      "browser.newtabpage.activity-stream.showSponsoredCheckboxes": false,
     },
   },
 

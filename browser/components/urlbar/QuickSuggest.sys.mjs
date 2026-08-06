@@ -114,16 +114,7 @@ const SUGGEST_PREFS = Object.freeze({
       US: [EN_LOCALES, true],
     },
   },
-  "suggest.quicksuggest.sponsored": {
-    nimbusVariableIfExposedInUi: "quickSuggestSponsoredEnabled",
-    defaultValues: {
-      DE: [["de"], true],
-      FR: [["fr"], true],
-      GB: [EN_LOCALES, true],
-      IT: [["it"], true],
-      US: [EN_LOCALES, true],
-    },
-  },
+  "suggest.quicksuggest.sponsored": {},
 
   // Prefs related to individual features
   //
@@ -982,7 +973,7 @@ class _QuickSuggest {
    * @returns {number}
    */
   get MIGRATION_VERSION() {
-    return 7;
+    return 8;
   }
 
   /**
@@ -1173,6 +1164,12 @@ class _QuickSuggest {
       // keyword length as of 149. This will effectively disable addon
       // suggestions unless/until longer keywords are added.
       userBranch.setIntPref("addons.minKeywordLength", 20);
+    }
+  }
+
+  _migrateUserPrefsTo_8(userBranch) {
+    if (userBranch.prefHasUserValue("suggest.quicksuggest.sponsored")) {
+      userBranch.setBoolPref("suggest.quicksuggest.sponsored", false);
     }
   }
 

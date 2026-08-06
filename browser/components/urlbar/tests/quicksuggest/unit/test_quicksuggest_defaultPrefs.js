@@ -41,7 +41,6 @@ const EXPECTED_PREFS_EU_NATIVE = {
   "quicksuggest.enabled": true,
   "quicksuggest.settingsUi": QuickSuggest.SETTINGS_UI.OFFLINE_ONLY,
   "suggest.quicksuggest.all": true,
-  "suggest.quicksuggest.sponsored": true,
   "importantDates.featureGate": true,
   "weather.featureGate": true,
 };
@@ -62,7 +61,6 @@ const EXPECTED_PREFS_BASE_EN_NATIVE = {
   "quicksuggest.enabled": true,
   "quicksuggest.settingsUi": QuickSuggest.SETTINGS_UI.OFFLINE_ONLY,
   "suggest.quicksuggest.all": true,
-  "suggest.quicksuggest.sponsored": true,
   "amp.featureGate": true,
   "importantDates.featureGate": true,
   "weather.featureGate": true,
