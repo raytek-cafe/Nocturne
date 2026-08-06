@@ -1285,7 +1285,7 @@ pref("browser.preferences.experimental", true);
 // Whether we had to hide the "Firefox Labs" section because it would be empty.
 pref("browser.preferences.experimental.hidden", false);
 // Whether we show the "More from Mozilla" section.
-pref("browser.preferences.moreFromMozilla", true);
+pref("browser.preferences.moreFromMozilla", false);
 
 // Used by settings to track whether the user customized advanced
 // performance settings. Not used directly elsewhere.
@@ -1598,8 +1598,6 @@ pref("services.sync.prefs.sync.browser.menu.showViewImageInfo", true);
 pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", true);
 pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", true);
 pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.showSearch", true);
-pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsored", true);
-pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.showSponsoredTopSites", true);
 pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.feeds.topsites", true);
 pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.topSitesRows", true);
 pref("services.sync.prefs.sync.browser.newtabpage.activity-stream.feeds.section.topstories", true);
@@ -1734,9 +1732,9 @@ pref("prompts.defaultModalType", 3);
 // Whether to use the discrete Top Sites component.
 pref("browser.topsites.component.enabled", false);
 
-pref("browser.topsites.useRemoteSetting", true);
+pref("browser.topsites.useRemoteSetting", false);
 // Fetch sponsored Top Sites from Mozilla Tiles Service (Contile)
-pref("browser.topsites.contile.enabled", true);
+pref("browser.topsites.contile.enabled", false);
 pref("browser.topsites.contile.endpoint", "https://contile.services.mozilla.com/v1/tiles");
 
 // Whether to enable the Share-of-Voice feature for Sponsored Topsites via Contile.
@@ -1763,9 +1761,9 @@ pref("browser.newtabpage.activity-stream.mobileDownloadModal.variant-c", false);
 pref("browser.newtabpage.activity-stream.discoverystream.refinedCardsLayout.enabled", false);
 
 // Mozilla Ad Routing Service (MARS) unified ads service
-pref("browser.newtabpage.activity-stream.unifiedAds.tiles.enabled", true);
-pref("browser.newtabpage.activity-stream.unifiedAds.spocs.enabled", true);
-pref("browser.newtabpage.activity-stream.unifiedAds.endpoint", "https://ads.mozilla.org/");
+pref("browser.newtabpage.activity-stream.unifiedAds.tiles.enabled", false);
+pref("browser.newtabpage.activity-stream.unifiedAds.spocs.enabled", false);
+pref("browser.newtabpage.activity-stream.unifiedAds.endpoint", "");
 pref("browser.newtabpage.activity-stream.unifiedAds.adsFeed.enabled", false);
 pref("browser.newtabpage.activity-stream.unifiedAds.adsFeed.tiles.enabled", false);
 pref("browser.newtabpage.activity-stream.unifiedAds.ohttp.enabled", false);
@@ -1833,8 +1831,8 @@ pref("browser.newtabpage.activity-stream.asrouter.providers.cfr", "{\"id\":\"cfr
 pref("browser.newtabpage.activity-stream.asrouter.providers.messaging-experiments", "{\"id\":\"messaging-experiments\",\"enabled\":true,\"type\":\"remote-experiments\",\"updateCycleInMs\":3600000}");
 
 // ASRouter user prefs
-pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", true);
-pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", true);
+pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
+pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.features", false);
 pref("messaging-system.askForFeedback", false);
 
 // The pref that controls if ASRouter uses the remote fluent files.
@@ -1865,17 +1863,17 @@ pref("browser.newtabpage.activity-stream.discoverystream.editorsPicksHeader.enab
 pref("browser.newtabpage.activity-stream.discoverystream.spoc-positions", "1,5,7,11,18,20");
 
 // For both spoc and tiles, count corresponds to the matching placement. So the first placement in an array corresponds to the first count.
-pref("browser.newtabpage.activity-stream.discoverystream.placements.spocs", "newtab_spocs");
-pref("browser.newtabpage.activity-stream.discoverystream.placements.spocs.counts", "6");
-pref("browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs", "newtab_stories_1, newtab_stories_2, newtab_stories_3, newtab_stories_4, newtab_stories_5, newtab_stories_6");
-pref("browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs.counts", "1, 1, 1, 1, 1, 1");
-pref("browser.newtabpage.activity-stream.discoverystream.placements.tiles", "newtab_tile_1, newtab_tile_2, newtab_tile_3");
+pref("browser.newtabpage.activity-stream.discoverystream.placements.spocs", "");
+pref("browser.newtabpage.activity-stream.discoverystream.placements.spocs.counts", "");
+pref("browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs", "");
+pref("browser.newtabpage.activity-stream.discoverystream.placements.contextualSpocs.counts", "");
+pref("browser.newtabpage.activity-stream.discoverystream.placements.tiles", "");
 pref("browser.newtabpage.activity-stream.discoverystream.placements.tiles.counts", "1, 1, 1");
 
 pref("browser.newtabpage.activity-stream.discoverystream.spoc-topsites-positions", "2");
 // This is a 0-based index, for consistency with the other position CSVs,
 // but Contile positions are a 1-based index, so we end up adding 1 to these before using them.
-pref("browser.newtabpage.activity-stream.discoverystream.contile-topsites-positions", "0,1,2");
+pref("browser.newtabpage.activity-stream.discoverystream.contile-topsites-positions", "");
 pref("browser.newtabpage.activity-stream.discoverystream.widget-positions", "");
 
 pref("browser.newtabpage.activity-stream.discoverystream.spocs-endpoint", "");
@@ -1955,8 +1953,8 @@ pref("browser.newtabpage.activity-stream.discoverystream.merino-provider.ohttp.e
 pref("browser.newtabpage.activity-stream.discoverystream.ohttp.relayURL", "https://mozilla-ohttp.fastly-edge.com/");
 pref("browser.newtabpage.activity-stream.discoverystream.ohttp.configURL", "https://prod.ohttp-gateway.prod.webservices.mozgcp.net/ohttp-configs");
 
-// List of regions that get spocs by default.
-pref("browser.newtabpage.activity-stream.discoverystream.region-spocs-config", "US,CA,DE,GB,FR,IT,ES");
+// No regions receive sponsored stories.
+pref("browser.newtabpage.activity-stream.discoverystream.region-spocs-config", "");
 // List of regions that don't get the 7 row layout.
 pref("browser.newtabpage.activity-stream.discoverystream.region-basic-config", "");
 
@@ -2010,11 +2008,13 @@ pref("browser.newtabpage.activity-stream.discoverystream.thumbsUpDown.searchTops
 pref("browser.newtabpage.activity-stream.discoverystream.publisherFavicon.enabled", false);
 
 // User pref to show stories on newtab (feeds.system.topstories has to be set to true as well)
-pref("browser.newtabpage.activity-stream.feeds.section.topstories", true);
+pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
 
 // User pref to show stories on newtab (feeds.system.topstories has to be set to true as well)
 pref("browser.newtabpage.activity-stream.feeds.system.topstories", false);
 pref("browser.newtabpage.activity-stream.system.showSponsored", false);
+pref("browser.newtabpage.activity-stream.showSponsored", false);
+pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
 
 // The pref controls if search hand-off is enabled for Activity Stream.
 pref("browser.newtabpage.activity-stream.improvesearch.handoffToAwesomebar", true);
@@ -2406,7 +2406,7 @@ pref("browser.contentblocking.report.monitor.enabled", false);
 pref("browser.contentblocking.report.proxy.enabled", false);
 
 // Disable the mobile promotion by default.
-pref("browser.contentblocking.report.show_mobile_app", true);
+pref("browser.contentblocking.report.show_mobile_app", false);
 
 // Locales in which Send to Device emails are supported
 // The most recent list of supported locales can be found at https://github.com/mozilla/bedrock/blob/6a08c876f65924651554decc57b849c00874b4e7/bedrock/settings/base.py#L963
@@ -2415,8 +2415,8 @@ pref("browser.send_to_device_locales", "de,en-GB,en-US,es-AR,es-CL,es-ES,es-MX,f
 // Avoid advertising in certain regions. Comma separated string of two letter ISO 3166-1 country codes.
 pref("browser.vpn_promo.disallowed_regions", "ae,by,cn,cu,iq,ir,kp,om,ru,sd,sy,tm,tr");
 
-// Default to enabling VPN promo messages to be shown when specified and allowed
-pref("browser.vpn_promo.enabled", true);
+// Default to disabling VPN promo messages.
+pref("browser.vpn_promo.enabled", false);
 // Only show vpn card to certain regions. Comma separated string of two letter ISO 3166-1 country codes.
 // The most recent list of supported countries can be found at https://support.mozilla.org/en-US/kb/mozilla-vpn-countries-available-subscribe
 // The full lists of supported country codes can also be found at https://github.com/mozilla/bedrock/search?q=VPN_COUNTRY_CODES and https://github.com/mozilla/bedrock/search?q=VPN_MOBILE_SUB_COUNTRY_CODES
@@ -2426,8 +2426,8 @@ pref("browser.contentblocking.report.vpn_regions", "as,at,au,bd,be,bg,br,ca,ch,c
 // ISO 3166-1 country codes.
 pref("browser.promo.focus.disallowed_regions", "cn");
 
-// Default to enabling focus promos to be shown where allowed.
-pref("browser.promo.focus.enabled", true);
+// Default to disabling focus promos.
+pref("browser.promo.focus.enabled", false);
 
 // Default to enabling pin promos to be shown where allowed.
 pref("browser.promo.pin.enabled", false);
@@ -2436,7 +2436,7 @@ pref("browser.promo.pin.enabled", false);
 // Set to true for Fx113 (see bug 1808611)
 pref("browser.promo.cookiebanners.enabled", false);
 
-pref("browser.contentblocking.report.hide_vpn_banner", false);
+pref("browser.contentblocking.report.hide_vpn_banner", true);
 pref("browser.contentblocking.report.vpn_sub_id", "sub_HrfCZF7VPHzZkA");
 
 pref("browser.contentblocking.report.monitor.url", "https://monitor.firefox.com/?entrypoint=protection_report_monitor&utm_source=about-protections");
@@ -2756,7 +2756,7 @@ pref("toolkit.coverage.enabled", false);
 pref("toolkit.coverage.endpoint.base", "https://coverage.mozilla.org");
 
 // Discovery prefs
-pref("browser.discovery.enabled", true);
+pref("browser.discovery.enabled", false);
 pref("browser.discovery.containers.enabled", true);
 pref("browser.discovery.sites", "addons.mozilla.org");
 

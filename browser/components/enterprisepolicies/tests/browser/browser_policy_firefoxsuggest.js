@@ -8,7 +8,6 @@ add_task(async function test_firefox_suggest_with_policy() {
     policies: {
       FirefoxSuggest: {
         WebSuggestions: false,
-        SponsoredSuggestions: true,
         ImproveSuggest: true,
         Locked: true,
       },
@@ -25,12 +24,6 @@ add_task(async function test_firefox_suggest_with_policy() {
         "Web suggestions is disabled"
       );
       is(
-        browser.contentDocument.getElementById("firefoxSuggestSponsored")
-          .checked,
-        true,
-        "Sponsored suggestions is enabled"
-      );
-      is(
         browser.contentDocument.getElementById(
           "firefoxSuggestDataCollectionSearchToggle"
         ).pressed,
@@ -42,12 +35,6 @@ add_task(async function test_firefox_suggest_with_policy() {
           .disabled,
         true,
         "Web suggestions is disabled"
-      );
-      is(
-        browser.contentDocument.getElementById("firefoxSuggestSponsored")
-          .disabled,
-        true,
-        "Sponsored suggestions is enabled"
       );
       is(
         browser.contentDocument.getElementById(

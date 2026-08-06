@@ -91,7 +91,6 @@ add_task(async function test_firefoxhome_preferences_set() {
       FirefoxHome: {
         Search: false,
         TopSites: false,
-        SponsoredTopSites: false,
         Highlights: false,
         Locked: true,
       },
@@ -102,8 +101,6 @@ add_task(async function test_firefoxhome_preferences_set() {
     let data = {
       Search: "browser.newtabpage.activity-stream.showSearch",
       TopSites: "browser.newtabpage.activity-stream.feeds.topsites",
-      SponsoredTopSites:
-        "browser.newtabpage.activity-stream.showSponsoredTopSites",
       Highlights: "browser.newtabpage.activity-stream.feeds.section.highlights",
     };
     for (let [section, preference] of Object.entries(data)) {

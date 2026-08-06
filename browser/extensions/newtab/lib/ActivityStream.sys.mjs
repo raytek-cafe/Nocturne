@@ -227,22 +227,21 @@ export const PREFS_CONFIG = new Map([
     "showSponsored",
     {
       title: "User pref for sponsored Pocket content",
-      value: true,
+      value: false,
     },
   ],
   [
     "system.showSponsored",
     {
       title: "System pref for sponsored Pocket content",
-      // This pref is dynamic as the sponsored content depends on the region
-      getValue: showSpocs,
+      value: false,
     },
   ],
   [
     "showSponsoredTopSites",
     {
       title: "Show sponsored top sites",
-      value: true,
+      value: false,
     },
   ],
   [
@@ -1192,23 +1191,6 @@ export const PREFS_CONFIG = new Map([
       getValue: () => {
         return Services.appinfo.caretBlinkTime;
       },
-    },
-  ],
-  // Sponsored checkboxes placement experiment
-  [
-    "system.showSponsoredCheckboxes",
-    {
-      title:
-        "Switches on grouping of sponsored checkboxes on 'about:settings#home' page",
-      value: false,
-    },
-  ],
-  [
-    "showSponsoredCheckboxes",
-    {
-      title:
-        "'Support Firefox' pref on 'about:settings#home' page. Toggles all sponsored results on and off at the same time",
-      value: true,
     },
   ],
 ]);

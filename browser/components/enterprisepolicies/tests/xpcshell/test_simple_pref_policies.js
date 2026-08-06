@@ -634,14 +634,12 @@ const POLICIES_TESTS = [
     policies: {
       FirefoxHome: {
         Stories: false,
-        SponsoredStories: false,
         Locked: true,
       },
     },
     lockedPrefs: {
       "browser.newtabpage.activity-stream.feeds.system.topstories": false,
       "browser.newtabpage.activity-stream.feeds.section.topstories": false,
-      "browser.newtabpage.activity-stream.showSponsored": false,
     },
   },
 

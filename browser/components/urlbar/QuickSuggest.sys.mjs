@@ -67,13 +67,7 @@ const SUGGEST_PREFS = Object.freeze({
       US: [["en"], true],
     },
   },
-  "suggest.quicksuggest.sponsored": {
-    nimbusVariableIfExposedInUi: "quickSuggestSponsoredEnabled",
-    defaultValues: {
-      GB: [["en"], true],
-      US: [["en"], true],
-    },
-  },
+  "suggest.quicksuggest.sponsored": {},
 
   // Prefs related to individual features
   "addons.featureGate": {
@@ -811,7 +805,7 @@ class _QuickSuggest {
    * @returns {number}
    */
   get MIGRATION_VERSION() {
-    return 2;
+    return 3;
   }
 
   /**
@@ -910,6 +904,16 @@ class _QuickSuggest {
       ) {
         lazy.UrlbarPrefs.set("suggest.quicksuggest.sponsored", false);
       }
+    }
+  }
+
+  _migrateFirefoxSuggestPrefsTo_3() {
+    if (
+      Services.prefs.prefHasUserValue(
+        "browser.urlbar.suggest.quicksuggest.sponsored"
+      )
+    ) {
+      lazy.UrlbarPrefs.set("suggest.quicksuggest.sponsored", false);
     }
   }
 

@@ -44,18 +44,6 @@ const PREFS_FOR_SETTINGS = () => [
       feed: "feeds.topsites",
       titleString: "home-prefs-shortcuts-header",
       descString: "home-prefs-shortcuts-description",
-      nestedPrefs: [
-        {
-          name: "showSponsoredTopSites",
-          titleString: "home-prefs-shortcuts-by-option-sponsored",
-          eventSource: "SPONSORED_TOP_SITES",
-          // Hide this nested pref if "Support Firefox" checkbox is enabled
-          shouldHidePref: Services.prefs.getBoolPref(
-            "browser.newtabpage.activity-stream.system.showSponsoredCheckboxes",
-            false
-          ),
-        },
-      ],
     },
     maxRows: 4,
     rowsPref: "topSitesRows",
@@ -71,63 +59,12 @@ const PREFS_FOR_SETTINGS = () => [
       descString: {
         id: "home-prefs-recommended-by-description-generic",
       },
-      nestedPrefs: [
-        ...(Services.prefs.getBoolPref(
-          "browser.newtabpage.activity-stream.system.showSponsored",
-          true
-        ) && // Hide this nested pref if "Support Firefox" checkbox is enabled
-        !Services.prefs.getBoolPref(
-          "browser.newtabpage.activity-stream.system.showSponsoredCheckboxes",
-          false
-        )
-          ? [
-              {
-                name: "showSponsored",
-                titleString:
-                  "home-prefs-recommended-by-option-sponsored-stories",
-                icon: "icon-info",
-                eventSource: "POCKET_SPOCS",
-              },
-            ]
-          : []),
-      ],
     },
     shouldHidePref: !Services.prefs.getBoolPref(
       "browser.newtabpage.activity-stream.feeds.system.topstories",
       true
     ),
     eventSource: "TOP_STORIES",
-  },
-  {
-    id: "support-firefox",
-    pref: {
-      feed: "showSponsoredCheckboxes",
-      titleString: "home-prefs-support-firefox-header",
-      nestedPrefs: [
-        {
-          name: "showSponsoredTopSites",
-          titleString: "home-prefs-shortcuts-by-option-sponsored",
-          eventSource: "SPONSORED_TOP_SITES",
-        },
-        {
-          name: "showSponsored",
-          titleString: "home-prefs-recommended-by-option-sponsored-stories",
-          eventSource: "POCKET_SPOCS",
-          shouldHidePref: !Services.prefs.getBoolPref(
-            "browser.newtabpage.activity-stream.feeds.system.topstories",
-            true
-          ),
-          shouldDisablePref: !Services.prefs.getBoolPref(
-            "browser.newtabpage.activity-stream.feeds.section.topstories",
-            true
-          ),
-        },
-      ],
-    },
-    shouldHidePref: !Services.prefs.getBoolPref(
-      "browser.newtabpage.activity-stream.system.showSponsoredCheckboxes",
-      false
-    ),
   },
 ];
 
@@ -329,40 +266,9 @@ export class AboutPreferences {
       }
     });
 
-    // Special cases to like the nested prefs with another pref,
-    // so we can disable it real time.
-    if (id === "support-firefox") {
-      function setupSupportFirefoxSubCheck(triggerPref, subPref) {
-        const subCheckFullName = `browser.newtabpage.activity-stream.${triggerPref}`;
-        const subCheckPref = Preferences.get(subCheckFullName);
-
-        subCheckPref?.on("change", () => {
-          const showSponsoredFullName = `browser.newtabpage.activity-stream.${subPref}`;
-          const showSponsoredSubcheck = subChecks.find(
-            subcheck =>
-              subcheck.getAttribute("preference") === showSponsoredFullName
-          );
-          if (showSponsoredSubcheck) {
-            showSponsoredSubcheck.disabled = !Services.prefs.getBoolPref(
-              subCheckFullName,
-              true
-            );
-          }
-        });
-      }
-
-      setupSupportFirefoxSubCheck("feeds.section.topstories", "showSponsored");
-      setupSupportFirefoxSubCheck("feeds.topsites", "showSponsoredTopSites");
-    }
 
     pref.on("change", () => {
       subChecks.forEach(subcheck => {
-        // Update child preferences for the "Support Firefox" checkbox group
-        // so that they're turned on and off at the same time.
-        if (id === "support-firefox") {
-          const subPref = Preferences.get(subcheck.getAttribute("preference"));
-          subPref.value = pref.value;
-        }
 
         // Disable any nested checkboxes if the parent pref is not enabled.
         subcheck.disabled = !pref._value;

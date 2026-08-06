@@ -1510,13 +1510,6 @@ export var Policies = {
           param.Locked
         );
       }
-      if ("SponsoredTopSites" in param) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsoredTopSites",
-          param.SponsoredTopSites,
-          param.Locked
-        );
-      }
       if ("Highlights" in param) {
         PoliciesUtils.setDefaultPref(
           "browser.newtabpage.activity-stream.feeds.section.highlights",
@@ -1548,20 +1541,6 @@ export var Policies = {
           param.Locked
         );
       }
-      if ("SponsoredPocket" in param) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsored",
-          param.SponsoredPocket,
-          param.Locked
-        );
-      }
-      if ("SponsoredStories" in param) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsored",
-          param.SponsoredStories,
-          param.Locked
-        );
-      }
     },
   },
 
@@ -1573,13 +1552,6 @@ export var Policies = {
           PoliciesUtils.setDefaultPref(
             "browser.urlbar.suggest.quicksuggest.nonsponsored",
             param.WebSuggestions,
-            param.Locked
-          );
-        }
-        if ("SponsoredSuggestions" in param) {
-          PoliciesUtils.setDefaultPref(
-            "browser.urlbar.suggest.quicksuggest.sponsored",
-            param.SponsoredSuggestions,
             param.Locked
           );
         }
