@@ -308,6 +308,35 @@
 /* Backgrounds needs to override all */
 
 @media -moz-pref("nocturne.backgrounds.enabled") {
+  @media not (-moz-platform: windows-win10) {
+    @media (not -moz-pref("sidebar.verticalTabs")) {
+      :root[taskbartab]
+        :is(#back-button, #forward-button, #reload-button, #stop-button, #unified-extensions-button, #PanelUI-menu-button)
+        > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack),
+      :root[taskbartab] #urlbar > .urlbar-background {
+        background-color: rgba(243, 242, 245, 0.72) !important;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45) !important;
+      }
+
+      :root[taskbartab]
+        :is(#back-button, #forward-button, #reload-button, #stop-button, #unified-extensions-button, #PanelUI-menu-button):not([disabled]):hover
+        > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack),
+      :root[taskbartab] #urlbar:hover > .urlbar-background {
+        background-color: rgba(255, 255, 255, 0.84) !important;
+      }
+
+      :root[taskbartab]
+        :is(#back-button, #forward-button, #reload-button, #stop-button, #unified-extensions-button, #PanelUI-menu-button):not([disabled]):active
+        > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      :root[taskbartab] :is(#back-button, #forward-button, #reload-button, #stop-button)[disabled] {
+        opacity: 0.65;
+      }
+    }
+  }
+
   .tabs-alltabs-button > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
     border-radius: 4px 0px 0px 4px !important;
   }
