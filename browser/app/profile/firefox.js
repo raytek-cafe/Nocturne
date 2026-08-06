@@ -1112,7 +1112,7 @@ pref("browser.tabs.groups.enabled", true);
 pref("browser.tabs.groups.hoverPreview.enabled", true);
 pref("browser.tabs.groups.alternateMenu", false);
 
-pref("browser.tabs.groups.smart.enabled", true);
+pref("browser.tabs.groups.smart.enabled", false);
 
 pref("browser.tabs.notes.enabled", false);
 
@@ -1136,7 +1136,7 @@ pref("browser.tabs.firefox-view.logLevel", "Warn");
 // Special case to use search term when making a group from a single page search
 pref("browser.tabs.groups.smart.searchTopicEnabled", true);
 
-pref("browser.tabs.groups.smart.userEnabled", true);
+pref("browser.tabs.groups.smart.userEnabled", false);
 
 pref("security.allow_parent_unrestricted_js_loads", false);
 
@@ -1420,6 +1420,13 @@ pref("browser.preferences.experimental.hidden", false);
 pref("browser.preferences.moreFromMozilla", true);
 // Whether we show the "AI Controls" pane.
 pref("browser.preferences.aiControls", true);
+pref("browser.ai.control.default", "blocked");
+pref("browser.ai.control.linkPreviewKeyPoints", "blocked");
+pref("browser.ai.control.pdfjsAltText", "blocked");
+pref("browser.ai.control.sidebarChatbot", "blocked");
+pref("browser.ai.control.smartTabGroups", "blocked");
+pref("browser.ai.control.smartWindow", "blocked");
+pref("browser.ai.control.translations", "available");
 // Whether to show unavailable AI controls regardless of region/locale
 // restrictions. This is intended for localizers to be able to see the strings.
 pref("browser.preferences.aiControls.showUnavailable", false);
@@ -2241,25 +2248,27 @@ pref("sidebar.openTabsPanel.enabled", false);
 
 pref("sidebar.notification.badge.aichat", false);
 
-pref("browser.ml.chat.enabled", true);
+pref("browser.ml.enable", false);
+pref("extensions.ui.mlmodel.hidden", true);
+pref("browser.ml.chat.enabled", false);
 pref("browser.ml.chat.hideLocalhost", true);
 pref("browser.ml.chat.maxLength", 7000);
-pref("browser.ml.chat.menu", true);
+pref("browser.ml.chat.menu", false);
 pref("browser.ml.chat.page", false);
-pref("browser.ml.chat.page.footerBadge", true);
-pref("browser.ml.chat.page.menuBadge", true);
+pref("browser.ml.chat.page.footerBadge", false);
+pref("browser.ml.chat.page.menuBadge", false);
 pref("browser.ml.chat.prompt.prefix", '{"l10nId":"genai-prompt-prefix-selection"}');
 pref("browser.ml.chat.prompts.0", '{"id":"summarize","l10nId":"genai-prompts-summarize"}');
 pref("browser.ml.chat.prompts.1", '{"id":"explain","l10nId":"genai-prompts-explain","targeting":"contentType != \'page\'"}');
 pref("browser.ml.chat.prompts.3", '{"id":"quiz","l10nId":"genai-prompts-quiz","targeting":"(!provider|regExpMatch(\'gemini\') || region == \'US\') && contentType != \'page\'"}');
 pref("browser.ml.chat.prompts.4", '{"id":"proofread", "l10nId":"genai-prompts-proofread","targeting":"contentType != \'page\'"}');
 pref("browser.ml.chat.provider", "");
-pref("browser.ml.chat.shortcuts", true);
-pref("browser.ml.chat.shortcuts.custom", true);
-pref("browser.ml.chat.shortcuts.smartwindow", true);
+pref("browser.ml.chat.shortcuts", false);
+pref("browser.ml.chat.shortcuts.custom", false);
+pref("browser.ml.chat.shortcuts.smartwindow", false);
 pref("browser.ml.chat.shortcuts.longPress", 60000);
 pref("browser.ml.chat.shortcut.onboardingMouseoverCount", 0);
-pref("browser.ml.chat.sidebar", true);
+pref("browser.ml.chat.sidebar", false);
 
 pref("browser.ml.linkPreview.allowedLanguages", "en");
 pref("browser.ml.linkPreview.blockListEnabled", true);
@@ -2274,7 +2283,7 @@ pref("browser.ml.linkPreview.outputSentences", 3);
 pref("browser.ml.linkPreview.recentTypingMs", 1000);
 pref("browser.ml.linkPreview.shift", false);
 pref("browser.ml.linkPreview.shiftAlt", false);
-pref("browser.ml.linkPreview.supportedLocales", "en");
+pref("browser.ml.linkPreview.supportedLocales", "null");
 
 pref("browser.ml.pageAssist.enabled", false);
 
