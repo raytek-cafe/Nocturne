@@ -22,13 +22,11 @@ const EXPECTED = {
       l10nId: "addressbar-header-firefox-suggest-2",
     },
     firefoxSuggestAll: { isVisible: true },
-    firefoxSuggestSponsored: { isVisible: true },
     dismissedSuggestionsDescription: { isVisible: true },
   },
   [QuickSuggest.SETTINGS_UI.NONE]: {
     locationBarGroupHeader: { isVisible: true, l10nId: "addressbar-header-1" },
     firefoxSuggestAll: { isVisible: false },
-    firefoxSuggestSponsored: { isVisible: false },
     dismissedSuggestionsDescription: { isVisible: false },
   },
   [QuickSuggest.SETTINGS_UI.OFFLINE_ONLY]: {
@@ -38,7 +36,6 @@ const EXPECTED = {
       l10nId: "addressbar-header-firefox-suggest-2",
     },
     firefoxSuggestAll: { isVisible: true },
-    firefoxSuggestSponsored: { isVisible: true },
     dismissedSuggestionsDescription: { isVisible: true },
   },
 };
@@ -199,7 +196,7 @@ add_task(async function initiallyEnabled_settingsUiOfflineOnly() {
   });
 });
 
-add_task(async function toggling_all_firefoxsuggest_disables_other_options() {
+add_task(async function toggling_all_firefoxsuggest_disables_online_option() {
   // Enable quicksuggest since it could be off by default depending on location.
   await SpecialPowers.pushPrefEnv({
     set: [["browser.urlbar.suggest.quicksuggest.all", true]],
@@ -209,7 +206,6 @@ add_task(async function toggling_all_firefoxsuggest_disables_other_options() {
 
   let doc = gBrowser.selectedBrowser.contentDocument;
   let allCheckbox = doc.getElementById("firefoxSuggestAll");
-  let sponsoredCheckbox = doc.getElementById("firefoxSuggestSponsored");
   let onlineEnabledCheckbox = doc.getElementById(
     "firefoxSuggestOnlineEnabledToggle"
   );
@@ -220,10 +216,6 @@ add_task(async function toggling_all_firefoxsuggest_disables_other_options() {
     "firefoxSuggestAll should initially be checked"
   );
   Assert.ok(
-    !sponsoredCheckbox.disabled,
-    "sponsoredCheckbox should initially be enabled"
-  );
-  Assert.ok(
     !onlineEnabledCheckbox.disabled,
     "onlineEnabledCheckbox should initially be enabled"
   );
@@ -232,7 +224,6 @@ add_task(async function toggling_all_firefoxsuggest_disables_other_options() {
   await allCheckbox.parentElement.updateComplete;
 
   Assert.ok(!allCheckbox.checked, "firefoxSuggestAll should now be unchecked");
-  Assert.ok(sponsoredCheckbox.disabled, "sponsoredCheckbox should be disabled");
   Assert.ok(
     onlineEnabledCheckbox.disabled,
     "onlineEnabledCheckbox should be disabled"
@@ -243,10 +234,6 @@ add_task(async function toggling_all_firefoxsuggest_disables_other_options() {
 
   Assert.ok(allCheckbox.checked, "firefoxSuggestAll should be checked");
   Assert.ok(
-    !sponsoredCheckbox.disabled,
-    "sponsoredCheckbox should be enabled again"
-  );
-  Assert.ok(
     !onlineEnabledCheckbox.disabled,
     "onlineEnabledCheckbox should be enabled again"
   );
@@ -255,12 +242,11 @@ add_task(async function toggling_all_firefoxsuggest_disables_other_options() {
 });
 
 add_task(
-  async function all_firefoxsuggest_disabled_disables_other_options_on_open() {
-    // Disable the "all" preference and enable the others before opening settings.
+  async function all_firefoxsuggest_disabled_disables_online_option_on_open() {
+    // Disable the "all" preference and enable the online option before opening settings.
     await SpecialPowers.pushPrefEnv({
       set: [
         ["browser.urlbar.suggest.quicksuggest.all", false],
-        ["browser.urlbar.suggest.quicksuggest.sponsored", true],
         ["browser.urlbar.quicksuggest.online.enabled", true],
       ],
     });
@@ -269,17 +255,12 @@ add_task(
 
     let doc = gBrowser.selectedBrowser.contentDocument;
     let allCheckbox = doc.getElementById("firefoxSuggestAll");
-    let sponsoredCheckbox = doc.getElementById("firefoxSuggestSponsored");
     let onlineEnabledCheckbox = doc.getElementById(
       "firefoxSuggestOnlineEnabledToggle"
     );
 
     // Initial state.
     Assert.ok(!allCheckbox.checked, "firefoxSuggestAll should not be checked");
-    Assert.ok(
-      sponsoredCheckbox.disabled,
-      "sponsoredCheckbox should initially be disabled"
-    );
     Assert.ok(
       onlineEnabledCheckbox.disabled,
       "onlineEnabledCheckbox should initially be disabled"

@@ -142,7 +142,6 @@ add_task(async function test_firefoxhome_preferences_set() {
       FirefoxHome: {
         Search: false,
         TopSites: false,
-        SponsoredTopSites: false,
         Highlights: false,
         Locked: true,
       },
@@ -161,14 +160,11 @@ add_task(async function test_firefoxhome_preferences_set() {
       ? {
           Search: "webSearch",
           TopSites: "shortcuts",
-          SponsoredTopSites: "sponsoredShortcuts",
           Highlights: "recentActivity",
         }
       : {
           Search: "browser.newtabpage.activity-stream.showSearch",
           TopSites: "browser.newtabpage.activity-stream.feeds.topsites",
-          SponsoredTopSites:
-            "browser.newtabpage.activity-stream.showSponsoredTopSites",
           Highlights:
             "browser.newtabpage.activity-stream.feeds.section.highlights",
         };
@@ -230,47 +226,6 @@ add_task(async function test_firefoxhome_widgets_blocked() {
     let clocks = doc.getElementById("setting-control-clocks");
     await clocks.updateComplete;
     ok(!clocks.disabled, "Widget that was not blocked stays editable");
-  });
-
-  await setupPolicyEngineWithJson({
-    policies: {
-      FirefoxHome: {},
-    },
-  });
-  await SpecialPowers.popPrefEnv();
-});
-
-add_task(async function test_firefoxhome_support_firefox_sponsored_locked() {
-  // The supportFirefox setting only exists in the Settings Redesign UI.
-  await SpecialPowers.pushPrefEnv({
-    set: [["browser.settings-redesign.enabled", true]],
-  });
-
-  await setupPolicyEngineWithJson({
-    policies: {
-      FirefoxHome: {
-        SponsoredTopSites: false,
-        SponsoredStories: false,
-        Locked: true,
-      },
-    },
-  });
-
-  await BrowserTestUtils.withNewTab("about:preferences#home", async browser => {
-    let doc = browser.contentDocument;
-    let control = await TestUtils.waitForCondition(() =>
-      doc.getElementById("setting-control-supportFirefox")
-    );
-    await control.updateComplete;
-    let toggle = control.querySelector("moz-toggle");
-    ok(
-      toggle.disabled,
-      "Support Firefox toggle is disabled when both sponsored prefs are locked"
-    );
-    ok(
-      !toggle.pressed,
-      "Support Firefox toggle is off when both sponsored prefs are locked off"
-    );
   });
 
   await setupPolicyEngineWithJson({

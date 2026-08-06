@@ -14,6 +14,16 @@ async function clearPolicies() {
   await EnterprisePolicyTesting.setupPolicyEngineWithJson("");
 }
 
+add_setup(async function enablePromoSurfacesForTests() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["browser.preferences.moreFromMozilla", true],
+      ["browser.vpn_promo.enabled", true],
+      ["browser.contentblocking.report.show_mobile_app", true],
+    ],
+  });
+});
+
 async function getPromoCards() {
   await openPreferencesViaOpenPreferencesAPI("paneMoreFromMozilla", {
     leaveOpen: true,

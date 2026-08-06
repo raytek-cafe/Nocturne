@@ -56,7 +56,6 @@ Preferences.addAll([
   { id: "browser.urlbar.quicksuggest.settingsUi", type: "int" },
   { id: "browser.urlbar.quicksuggest.enabled", type: "bool" },
   { id: "browser.urlbar.suggest.quicksuggest.all", type: "bool" },
-  { id: "browser.urlbar.suggest.quicksuggest.sponsored", type: "bool" },
   { id: "browser.urlbar.quicksuggest.online.enabled", type: "bool" },
 ]);
 
@@ -553,21 +552,6 @@ Preferences.addSetting({
     "nimbusListener",
   ],
   visible: determineSuggestionSettingsVisibility,
-});
-
-Preferences.addSetting({
-  id: "firefoxSuggestSponsored",
-  pref: "browser.urlbar.suggest.quicksuggest.sponsored",
-  deps: [
-    "firefoxSuggestAll",
-    "quickSuggestEnabledPref",
-    "quickSuggestSettingsUiPref",
-    "nimbusListener",
-  ],
-  visible: determineSuggestionSettingsVisibility,
-  disabled: deps => {
-    return !deps.firefoxSuggestAll.value;
-  },
 });
 
 Preferences.addSetting({
@@ -1233,10 +1217,6 @@ SettingGroupManager.registerGroups({
             id: "firefoxSuggestAll",
             l10nId: "addressbar-locbar-suggest-all-option-2",
             items: [
-              {
-                id: "firefoxSuggestSponsored",
-                l10nId: "addressbar-locbar-suggest-sponsored-option-2",
-              },
               {
                 id: "firefoxSuggestOnlineEnabledToggle",
                 l10nId: "addressbar-firefox-suggest-online",

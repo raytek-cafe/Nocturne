@@ -99,33 +99,6 @@ const PREFS_FOR_SETTINGS = () => {
       ),
       eventSource: "TOP_STORIES",
     },
-    {
-      id: "support-firefox",
-      pref: {
-        feed: "showSponsoredCheckboxes",
-        titleString: "home-prefs-support-firefox-header",
-        nestedPrefs: [
-          {
-            name: "showSponsoredTopSites",
-            titleString: "home-prefs-shortcuts-by-option-sponsored",
-            eventSource: "SPONSORED_TOP_SITES",
-          },
-          {
-            name: "showSponsored",
-            titleString: "home-prefs-recommended-by-option-sponsored-stories",
-            eventSource: "POCKET_SPOCS",
-            shouldHidePref: !Services.prefs.getBoolPref(
-              "browser.newtabpage.activity-stream.feeds.system.topstories",
-              true
-            ),
-            shouldDisablePref: !Services.prefs.getBoolPref(
-              "browser.newtabpage.activity-stream.feeds.section.topstories",
-              true
-            ),
-          },
-        ],
-      },
-    },
   ];
 };
 
@@ -441,18 +414,6 @@ export class AboutPreferences {
       },
       {
         id: "browser.newtabpage.activity-stream.discoverystream.sections.customizeMenuPanel.enabled",
-        type: "bool",
-      },
-      {
-        id: "browser.newtabpage.activity-stream.showSponsoredCheckboxes",
-        type: "bool",
-      },
-      {
-        id: "browser.newtabpage.activity-stream.showSponsoredTopSites",
-        type: "bool",
-      },
-      {
-        id: "browser.newtabpage.activity-stream.showSponsored",
         type: "bool",
       },
       {
@@ -1419,40 +1380,9 @@ export class AboutPreferences {
       },
     });
 
-    // Support Firefox: sponsored content
-    Preferences.addSetting({
-      id: "supportFirefox",
-      pref: "browser.newtabpage.activity-stream.showSponsoredCheckboxes",
-      deps: ["sponsoredShortcuts", "sponsoredStories", ...firefoxHomeDeps],
-      disabled: deps => !firefoxHomeActive(deps),
-      onUserChange(value, { sponsoredShortcuts, sponsoredStories }) {
-        // When supportFirefox changes, automatically update child preferences to match
-        sponsoredShortcuts.value = !!value;
-        sponsoredStories.value = !!value;
-      },
-    });
     Preferences.addSetting({
       id: "topsitesEnabled",
       pref: "browser.newtabpage.activity-stream.feeds.topsites",
-    });
-    Preferences.addSetting({
-      id: "sponsoredShortcuts",
-      pref: "browser.newtabpage.activity-stream.showSponsoredTopSites",
-      deps: ["topsitesEnabled"],
-      disabled: ({ topsitesEnabled }) => !topsitesEnabled.value,
-    });
-    Preferences.addSetting({
-      id: "sponsoredStories",
-      pref: "browser.newtabpage.activity-stream.showSponsored",
-      deps: ["systemTopstories", "stories"],
-      visible: ({ systemTopstories }) => !!systemTopstories.value,
-      disabled: ({ stories }) => !stories.value,
-    });
-    // Not disabled when Firefox Home is off — the promo remains visible
-    // regardless of the homepage setting.
-    Preferences.addSetting({
-      id: "supportFirefoxPromo",
-      deps: ["supportFirefox"],
     });
 
     // Recent activity
@@ -1605,39 +1535,6 @@ export class AboutPreferences {
               controlAttrs: {
                 href: HOME_CUSTOMIZE_TOPICS_URL,
               },
-            },
-          ],
-        },
-        {
-          id: "supportFirefox",
-          subcategory: "support-firefox",
-          l10nId: "home-prefs-support-firefox-header-srd",
-          control: "moz-toggle",
-          items: [
-            {
-              id: "sponsoredShortcuts",
-              l10nId: "home-prefs-shortcuts-by-option-sponsored-srd",
-            },
-            {
-              id: "sponsoredStories",
-              l10nId: "home-prefs-recommended-by-option-sponsored-stories-srd",
-            },
-            {
-              id: "supportFirefoxPromo",
-              l10nId: "home-prefs-mission-message2",
-              control: "moz-promo",
-              options: [
-                {
-                  control: "a",
-                  l10nId: "home-prefs-mission-message-learn-more-link-srd",
-                  slot: "support-link",
-                  controlAttrs: {
-                    is: "moz-support-link",
-                    "support-page": "sponsor-privacy",
-                    "utm-content": "inproduct",
-                  },
-                },
-              ],
             },
           ],
         },
@@ -1859,42 +1756,9 @@ export class AboutPreferences {
       }
     });
 
-    // Special cases to like the nested prefs with another pref,
-    // so we can disable it real time.
-    if (id === "support-firefox") {
-      function setupSupportFirefoxSubCheck(triggerPref, subPref) {
-        const subCheckFullName = `browser.newtabpage.activity-stream.${triggerPref}`;
-        const subCheckPref = Preferences.get(subCheckFullName);
-
-        subCheckPref?.on("change", () => {
-          const showSponsoredFullName = `browser.newtabpage.activity-stream.${subPref}`;
-          const showSponsoredSubcheck = subChecks.find(
-            subcheck =>
-              subcheck.getAttribute("preference") === showSponsoredFullName
-          );
-          if (showSponsoredSubcheck) {
-            showSponsoredSubcheck.disabled = !Services.prefs.getBoolPref(
-              subCheckFullName,
-              true
-            );
-          }
-        });
-      }
-
-      setupSupportFirefoxSubCheck("feeds.section.topstories", "showSponsored");
-      setupSupportFirefoxSubCheck("feeds.topsites", "showSponsoredTopSites");
-    }
-
     pref.on("change", () => {
       subChecks.forEach(subcheck => {
-        // Update child preferences for the "Support Firefox" checkbox group
-        // so that they're turned on and off at the same time.
-        if (id === "support-firefox") {
-          const subPref = Preferences.get(subcheck.getAttribute("preference"));
-          subPref.value = pref.value;
-        }
-
-        // Disable any nested checkboxes if the parent pref is not enabled.
+        // Disable nested checkboxes if the parent pref is not enabled.
         subcheck.disabled = !pref._value;
       });
     });

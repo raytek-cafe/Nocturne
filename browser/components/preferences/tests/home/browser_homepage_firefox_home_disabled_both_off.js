@@ -57,7 +57,6 @@ async function assertSectionDisabled(win) {
     "widgets",
     "shortcuts",
     "stories",
-    "supportFirefox",
     "recentActivity",
     ...(novaEnabled ? ["firefoxLogo"] : []),
   ]) {
