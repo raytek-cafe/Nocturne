@@ -1771,13 +1771,6 @@ export var Policies = {
           param.Locked
         );
       }
-      if ("SponsoredTopSites" in param) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsoredTopSites",
-          param.SponsoredTopSites,
-          param.Locked
-        );
-      }
       if ("Highlights" in param) {
         PoliciesUtils.setDefaultPref(
           "browser.newtabpage.activity-stream.feeds.section.highlights",
@@ -1796,34 +1789,6 @@ export var Policies = {
         PoliciesUtils.setDefaultPref(
           "browser.newtabpage.activity-stream.feeds.section.topstories",
           param.Stories,
-          param.Locked
-        );
-      }
-      if ("SponsoredPocket" in param) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsored",
-          param.SponsoredPocket,
-          param.Locked
-        );
-      }
-      if ("SponsoredStories" in param) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsored",
-          param.SponsoredStories,
-          param.Locked
-        );
-      }
-      // The "Support Firefox" toggle in the settings UI is a parent control for
-      // the two sponsored child settings. When both are locked by policy, lock
-      // it to their combined value so it can't be toggled to no effect.
-      if (
-        param.Locked &&
-        "SponsoredTopSites" in param &&
-        "SponsoredStories" in param
-      ) {
-        PoliciesUtils.setDefaultPref(
-          "browser.newtabpage.activity-stream.showSponsoredCheckboxes",
-          param.SponsoredTopSites || param.SponsoredStories,
           param.Locked
         );
       }
@@ -1858,13 +1823,6 @@ export var Policies = {
           PoliciesUtils.setDefaultPref(
             "browser.urlbar.suggest.quicksuggest.all",
             param.WebSuggestions,
-            param.Locked
-          );
-        }
-        if ("SponsoredSuggestions" in param) {
-          PoliciesUtils.setDefaultPref(
-            "browser.urlbar.suggest.quicksuggest.sponsored",
-            param.SponsoredSuggestions,
             param.Locked
           );
         }

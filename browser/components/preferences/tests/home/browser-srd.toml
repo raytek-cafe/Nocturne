@@ -46,15 +46,9 @@ tags = "os_integration"
 
 ["browser_homepage_firefox_home_shortcuts.js"]
 
-["browser_homepage_firefox_home_sponsored_shortcuts.js"]
-
-["browser_homepage_firefox_home_sponsored_stories.js"]
-
 ["browser_homepage_firefox_home_stories.js"]
 
 ["browser_homepage_firefox_home_stories_personalization.js"]
-
-["browser_homepage_firefox_home_support_firefox.js"]
 
 ["browser_homepage_firefox_home_widgets.js"]
 

@@ -990,9 +990,6 @@
         "TopSites": {
           "type": "boolean"
         },
-        "SponsoredTopSites": {
-          "type": "boolean"
-        },
         "Highlights": {
           "type": "boolean"
         },
@@ -1000,12 +997,6 @@
           "type": "boolean"
         },
         "Stories": {
-          "type": "boolean"
-        },
-        "SponsoredPocket": {
-          "type": "boolean"
-        },
-        "SponsoredStories": {
           "type": "boolean"
         },
         "Snippets": {
@@ -1035,9 +1026,6 @@
       "type": "object",
       "properties": {
         "WebSuggestions": {
-          "type": "boolean"
-        },
-        "SponsoredSuggestions": {
           "type": "boolean"
         },
         "ImproveSuggest": {

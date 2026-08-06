@@ -206,14 +206,6 @@ function useContextualAds({ geo, locale }) {
   );
 }
 
-// Determine if spocs should be shown for a geo/locale
-function showSpocs({ geo }) {
-  const spocsGeoString =
-    lazy.NimbusFeatures.pocketNewtab.getVariable("regionSpocsConfig") || "";
-  const spocsGeo = spocsGeoString.split(",").map(s => s.trim());
-  return spocsGeo.includes(geo);
-}
-
 function showWeather({ geo, locale }) {
   return (
     csvPrefHasValue(REGION_WEATHER_CONFIG, geo) &&
@@ -345,22 +337,21 @@ export const PREFS_CONFIG = new Map([
     "showSponsored",
     {
       title: "User pref for sponsored Pocket content",
-      value: true,
+      value: false,
     },
   ],
   [
     "system.showSponsored",
     {
       title: "System pref for sponsored Pocket content",
-      // This pref is dynamic as the sponsored content depends on the region
-      getValue: showSpocs,
+      value: false,
     },
   ],
   [
     "showSponsoredTopSites",
     {
       title: "Show sponsored top sites",
-      value: true,
+      value: false,
     },
   ],
   [
@@ -436,7 +427,7 @@ export const PREFS_CONFIG = new Map([
     "unifiedAds.endpoint",
     {
       title: "Mozilla Ad Routing Service (MARS) unified ads API endpoint URL",
-      value: "https://ads.mozilla.org/",
+      value: "",
     },
   ],
   [
@@ -1784,14 +1775,6 @@ export const PREFS_CONFIG = new Map([
       getValue: () => {
         return Services.appinfo.caretBlinkTime;
       },
-    },
-  ],
-  [
-    "showSponsoredCheckboxes",
-    {
-      title:
-        "'Support Firefox' pref on 'about:settings#home' page. Toggles all sponsored results on and off at the same time",
-      value: true,
     },
   ],
   [

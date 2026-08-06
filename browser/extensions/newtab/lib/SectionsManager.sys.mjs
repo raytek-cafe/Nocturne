@@ -41,28 +41,6 @@ const BUILT_IN_SECTIONS = () => ({
       descString: {
         id: "home-prefs-recommended-by-description-generic",
       },
-      nestedPrefs: [
-        ...(Services.prefs.getBoolPref(
-          "browser.newtabpage.activity-stream.system.showSponsored",
-          true
-        )
-          ? [
-              {
-                name: "showSponsored",
-                titleString:
-                  "home-prefs-recommended-by-option-sponsored-stories",
-                icon: "icon-info",
-                eventSource: "POCKET_SPOCS",
-              },
-            ]
-          : []),
-      ],
-      learnMore: {
-        link: {
-          href: "https://getpocket.com/firefox/new_tab_learn_more",
-          id: "home-prefs-recommended-by-learn-more",
-        },
-      },
     },
     shouldHidePref: options.hidden,
     eventSource: "TOP_STORIES",

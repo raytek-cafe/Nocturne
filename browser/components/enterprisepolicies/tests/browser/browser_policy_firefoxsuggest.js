@@ -8,7 +8,6 @@ add_task(async function test_firefox_suggest_with_policy() {
     policies: {
       FirefoxSuggest: {
         WebSuggestions: false,
-        SponsoredSuggestions: true,
         OnlineEnabled: true,
         Locked: true,
       },
@@ -24,12 +23,6 @@ add_task(async function test_firefox_suggest_with_policy() {
         "All suggestions are turned off"
       );
       is(
-        browser.contentDocument.getElementById("firefoxSuggestSponsored")
-          .checked,
-        true,
-        "Sponsored suggestions is enabled"
-      );
-      is(
         browser.contentDocument.getElementById(
           "firefoxSuggestOnlineEnabledToggle"
         ).checked,
@@ -40,12 +33,6 @@ add_task(async function test_firefox_suggest_with_policy() {
         browser.contentDocument.getElementById("firefoxSuggestAll").disabled,
         true,
         "All suggestions checkbox is disabled"
-      );
-      is(
-        browser.contentDocument.getElementById("firefoxSuggestSponsored")
-          .disabled,
-        true,
-        "Sponsored suggestions is disabled"
       );
       is(
         browser.contentDocument.getElementById(

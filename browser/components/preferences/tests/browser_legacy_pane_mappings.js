@@ -218,7 +218,6 @@ add_task(async function test_legacy_name_routing_and_subcategory_attr() {
     ["home-weather", "#home", "paneHome", "weather"],
     ["home-topsites", "#home", "paneHome", "topsites"],
     ["home-topstories", "#home", "paneHome", "topstories"],
-    ["home-support-firefox", "#home", "paneHome", "support-firefox"],
     ["home-highlights", "#home", "paneHome", "highlights"],
     ["privacy-trackingprotection", "#privacy", "panePrivacy", "etpStatus"],
     ["privacy-doh", "#privacy", "panePrivacy", "dnsOverHttps"],
