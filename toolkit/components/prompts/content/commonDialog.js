@@ -8,9 +8,6 @@ const { CommonDialog } = ChromeUtils.importESModule(
 const { XPCOMUtils } = ChromeUtils.importESModule(
   "resource://gre/modules/XPCOMUtils.sys.mjs"
 );
-const { AppConstants } = ChromeUtils.importESModule(
-  "resource://gre/modules/AppConstants.sys.mjs"
-);
 const lazy = {};
 
 ChromeUtils.defineESModuleGetters(lazy, {
@@ -24,9 +21,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
   true
 );
 
-XPCOMUtils.defineLazyServiceGetters(lazy, {
-  WindowsUIUtils: ["@mozilla.org/windows-ui-utils;1", "nsIWindowsUIUtils"],
-});
 
 
 // imported by adjustableTitle.js loaded in the same context:
@@ -92,10 +86,6 @@ function commonDialogOnLoad() {
     } else {
       root.style.setProperty("--icon-url", headerIconCSSValue);
     }
-  }
-  if (hideHeaderAppIcon && AppConstants.platform == "win" &&
-    !window.docShell.chromeEventHandler) {
-    lazy.WindowsUIUtils.setWindowIconNoData(window);
   }
 
   // Fade and crop potentially long raw titles, e.g., origins and hostnames.

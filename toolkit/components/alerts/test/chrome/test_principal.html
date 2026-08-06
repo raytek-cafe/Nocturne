@@ -113,7 +113,10 @@ function runTest() {
   add_setup(async () => {
     // This test verifies behavior specific to XUL alerts.
     await SpecialPowers.pushPrefEnv({
-      set: [["alerts.useSystemBackend", false]],
+      set: [
+        ["alerts.useSystemBackend", false],
+        ["prompts.headerAppIcon.enabled", false],
+      ],
     });
   });
 
