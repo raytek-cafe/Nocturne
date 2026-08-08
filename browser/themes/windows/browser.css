@@ -92,7 +92,7 @@
 }
 
 /* This is needed for Windows 10, see bug 1961257 */
-@media (-moz-windows-accent-color-in-titlebar) {
+@media (-moz-platform: windows-win10) and (-moz-windows-accent-color-in-titlebar) {
   :root[tabsintitlebar][sizemode="normal"] #navigator-toolbox {
     border-top: 0.5px solid ActiveBorder;
     &:-moz-window-inactive {
