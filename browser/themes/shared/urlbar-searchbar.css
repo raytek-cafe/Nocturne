@@ -237,11 +237,12 @@ toolbar[inactive="true"] .urlbar,
     border-color: transparent;
   }
 
-  .urlbar[breakout-extend] > & {
-    border: var(--urlbar-background-border-breakout);
-    box-shadow: var(--urlbar-background-box-shadow-breakout);
-    inset: var(--urlbar-background-inset-breakout);
-  }
+  @media not -moz-pref("browser.nova.enabled") {
+    .urlbar[breakout-extend] > & {
+      border: var(--urlbar-background-border-breakout);
+      box-shadow: var(--urlbar-background-box-shadow-breakout);
+      inset: var(--urlbar-background-inset-breakout);
+    }
 
   :root[uidensity="compact"] .urlbar[breakout-extend] > & {
     inset: var(--urlbar-background-inset-breakout-compact);
@@ -266,6 +267,7 @@ toolbar[inactive="true"] .urlbar,
       outline: 1px solid var(--focus-outline-color);
     }
   }
+}
 }
 
 .urlbar-input-container {
