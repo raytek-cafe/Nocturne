@@ -195,6 +195,19 @@
 /* Titlebar */
 
 @media not (-moz-platform: windows-win10) {
+  /* Keep the native pre-Windows 10 titlebar visible through Nova's toolbox. */
+  @media -moz-pref("browser.nova.enabled") {
+    @media not -moz-pref("sidebar.verticalTabs") {
+      :root[tabsintitlebar] #navigator-toolbox {
+        background-color: transparent;
+      }
+    }
+
+    .chrome-block {
+      border: none;
+    }
+  }
+
   :root[taskbartab] #titlebar {
     -moz-window-dragging: drag;
   }
