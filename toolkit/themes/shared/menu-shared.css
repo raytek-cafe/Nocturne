@@ -102,6 +102,10 @@ menucaption {
   list-style-image: none;
   max-width: var(--menuitem-max-width);
 
+  @media -moz-pref("browser.ui.menu.squaredcorners") {
+    border-radius: 0;
+  }
+
   @media (-moz-platform: linux) {
     padding: 4px 6px;
   }

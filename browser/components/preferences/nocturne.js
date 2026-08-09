@@ -49,6 +49,7 @@ for (let preference of [
   { id: "browser.urlbar.formatting.enabled", type: "bool", inverted: true },
   { id: "geo.enabled", type: "bool", inverted: true },
   { id: "browser.ui.oldaboutconfig", type: "bool" },
+  { id: "browser.ui.menu.squaredcorners", type: "bool" },
   { id: "prompts.tab_modal.enabled", type: "bool", inverted: true },
   { id: "prompts.headerAppIcon.enabled", type: "bool" },
   { id: "prompts.tab_modal.sound.enabled", type: "bool" },

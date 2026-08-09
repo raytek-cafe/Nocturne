@@ -247,6 +247,9 @@ nocturne-menubar =
 nocturne-navbar =
     .label = Translucent design
 
+nocturne-squared-corners =
+    .label = Use squared menu corners
+
 nocturne-functional-header =
     .label = Functionality configurations
 nocturne-legacy-functional-header = Functionality configurations
