@@ -76,6 +76,7 @@ for (let id of [
   "nocturne.backgrounds.enabled",
   "nocturne.transparent.menubar",
   "nocturne.translucent.navbar",
+  "browser.ui.menu.squaredcorners",
   "browser.urlbar.oneOffsInstant",
   "browser.menu.viewImage",
   "browser.e10s.disabled",
@@ -195,6 +196,7 @@ SettingGroupManager.registerGroups({
       checkbox("nocturne.backgrounds.enabled", "nocturne-backgrounds"),
       checkbox("nocturne.transparent.menubar", "nocturne-menubar"),
       checkbox("nocturne.translucent.navbar", "nocturne-navbar"),
+      checkbox("browser.ui.menu.squaredcorners", "nocturne-squared-corners"),
       select("nocturne.aero.fog", "nocturne-fog-type", [
         [0, "nocturne-option-fog-disabled"],
         [1, "nocturne-option-fog-nocturne"],

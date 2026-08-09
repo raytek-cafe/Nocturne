@@ -1833,6 +1833,8 @@ pref("services.sync.syncedTabs.syncDelayAfterTabChange", 5000);
 
 // Enable old about:config by default
 pref("browser.ui.oldaboutconfig", true);
+// Whether menu items should have squared corners.
+pref("browser.ui.menu.squaredcorners", false);
 
 // Use smaller corner radii throughout browser chrome.
 pref("browser.ui.reducedRounding.enabled", true);

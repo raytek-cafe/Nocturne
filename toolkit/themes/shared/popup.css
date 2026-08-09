@@ -117,6 +117,10 @@ menupopup {
   /* Also apply the padding in the inline axis for menus */
   --panel-padding: var(--panel-padding-block);
 
+  @media -moz-pref("browser.ui.menu.squaredcorners") {
+    --panel-border-radius: 0;
+  }
+
   @media (-moz-windows-mica-popups) {
     appearance: auto;
     -moz-default-appearance: menupopup;
