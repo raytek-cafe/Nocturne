@@ -35,6 +35,7 @@ Preferences.addAll([
   { id: "browser.urlbar.secondaryActions.switchToTab", type: "bool" },
   { id: "gfx.dwrite.enabled", type: "bool",  inverted: true },
   { id: "screenshots.browser.component.enabled", type: "bool" },
+  { id: "browser.ui.menu.squaredcorners", type: "bool" },
   { id: "cookiebanners.service.mode", type: "int" },
   { id: "cookiebanners.service.mode.privateBrowsing", type: "int" },
   { id: "widget.native-controls.override-aero-caption-buttons-mask-height", type: "int" },

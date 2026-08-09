@@ -1723,6 +1723,8 @@ pref("services.sync.syncedTabs.syncDelayAfterTabChange", 5000);
 // Whether the character encoding menu is under the main Firefox button. This
 // preference is a string so that localizers can alter it.
 pref("browser.menu.showCharacterEncoding", "chrome://browser/locale/browser.properties");
+// Whether menu items should have squared corners.
+pref("browser.ui.menu.squaredcorners", false);
 
 
 // Whether prompts should be content modal (1) tab modal (2) or window modal(3) by default
