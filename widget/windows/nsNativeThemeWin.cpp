@@ -2653,6 +2653,12 @@ bool nsNativeThemeWin::ThemeSupportsWidget(nsPresContext* aPresContext,
   else
     theme = GetTheme(aAppearance);
 
+  if (aAppearance == StyleAppearance::Resizer && aFrame &&
+      LookAndFeel::ColorSchemeForFrame(aFrame) ==
+          LookAndFeel::ColorScheme::Dark) {
+    return false;
+  }
+
   if (theme && aAppearance == StyleAppearance::Resizer) return true;
 
   if (theme || ClassicThemeSupportsWidget(aFrame, aAppearance))
