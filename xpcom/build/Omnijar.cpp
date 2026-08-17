@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "Omnijar.h"
+#include "brightwork-abi.h"
 
 #include "nsDirectoryService.h"
 #include "nsDirectoryServiceDefs.h"
@@ -12,6 +13,9 @@
 #include "nsIFile.h"
 #include "nsZipArchive.h"
 #include "nsNetUtil.h"
+#include "mozilla/Debug.h"
+#include "prio.h"
+#include "prenv.h"
 
 namespace mozilla {
 
@@ -20,10 +24,200 @@ StaticRefPtr<nsZipArchive> Omnijar::sReader[2];
 StaticRefPtr<nsZipArchive> Omnijar::sOuterReader[2];
 bool Omnijar::sInitialized = false;
 bool Omnijar::sIsUnified = false;
+bool Omnijar::sBrightworkActive[2] = {false, false};
 
 static const char* sProp[2] = {NS_GRE_DIR, NS_XPCOM_CURRENT_PROCESS_DIR};
 
 #define SPROP(Type) ((Type == mozilla::Omnijar::GRE) ? sProp[GRE] : sProp[APP])
+
+static bool ReadBrightworkAbi(nsZipArchive* aReader, uint32_t& aAbi) {
+  nsZipItemPtr<char> item(aReader, "brightwork.abi"_ns);
+  if (!item) {
+    return false;
+  }
+  nsDependentCSubstring data(item.Buffer(), item.Length());
+  int32_t newline = data.FindChar('\n');
+  nsCString line(
+      Substring(data, 0, newline == kNotFound ? data.Length() : newline));
+  line.Trim(" \t\r\n");
+  nsresult rv;
+  aAbi = line.ToInteger(&rv);
+  return NS_SUCCEEDED(rv);
+}
+
+static bool IsSafePackageId(const nsACString& aId) {
+  return !aId.IsEmpty() && aId.FindChar('/') < 0 && aId.FindChar('\\') < 0 &&
+         aId.Find(".."_ns) == kNotFound;
+}
+
+static bool ReadActiveId(nsIFile* aPrefsJs, nsACString& aId) {
+  PRFileDesc* file = nullptr;
+  if (NS_FAILED(aPrefsJs->OpenNSPRFileDesc(PR_RDONLY, 0, &file)) || !file) {
+    return false;
+  }
+  nsAutoCString contents;
+  char buffer[4096];
+  int32_t count;
+  constexpr uint32_t kMaxPrefsSize = 4 * 1024 * 1024;
+  while ((count = PR_Read(file, buffer, sizeof(buffer))) > 0) {
+    contents.Append(buffer, count);
+    if (contents.Length() > kMaxPrefsSize) {
+      PR_Close(file);
+      return false;
+    }
+  }
+  PR_Close(file);
+
+  constexpr auto kPref = "\"browser.brightwork.active\""_ns;
+  int32_t position = contents.Find(kPref);
+  if (position < 0) {
+    return false;
+  }
+  position += kPref.Length();
+  while (position < static_cast<int32_t>(contents.Length()) &&
+         contents[position] != ',') {
+    ++position;
+  }
+  while (++position < static_cast<int32_t>(contents.Length()) &&
+         (contents[position] == ' ' || contents[position] == '\t')) {
+  }
+  if (position >= static_cast<int32_t>(contents.Length()) ||
+      contents[position] != '"') {
+    return false;
+  }
+  int32_t start = ++position;
+  while (position < static_cast<int32_t>(contents.Length()) &&
+         contents[position] != '"') {
+    ++position;
+  }
+  if (position >= static_cast<int32_t>(contents.Length())) {
+    return false;
+  }
+  nsAutoCString id(Substring(contents, start, position - start));
+  id.Trim(" \t\r\n");
+  if (!IsSafePackageId(id)) {
+    return false;
+  }
+  aId = id;
+  return true;
+}
+
+static already_AddRefed<nsIFile> ResolveBrightworkPackageDir(
+    nsIFile* aProfileOverride) {
+  if (const char* environment = PR_GetEnv("MOZ_BRIGHTWORK_DIR");
+      environment && *environment) {
+    nsCOMPtr<nsIFile> directory;
+    if (NS_SUCCEEDED(NS_NewNativeLocalFile(nsDependentCString(environment),
+                                           getter_AddRefs(directory)))) {
+      return directory.forget();
+    }
+    return nullptr;
+  }
+
+  nsCOMPtr<nsIFile> profile = aProfileOverride;
+  if (!profile && nsDirectoryService::gService) {
+    nsDirectoryService::gService->Get(NS_APP_USER_PROFILE_50_DIR,
+                                      NS_GET_IID(nsIFile),
+                                      getter_AddRefs(profile));
+  }
+  if (!profile) {
+    return nullptr;
+  }
+  nsCOMPtr<nsIFile> prefs;
+  profile->Clone(getter_AddRefs(prefs));
+  if (!prefs) {
+    return nullptr;
+  }
+  prefs->AppendNative("prefs.js"_ns);
+  nsAutoCString id;
+  if (!ReadActiveId(prefs, id)) {
+    return nullptr;
+  }
+  nsCOMPtr<nsIFile> package;
+  profile->Clone(getter_AddRefs(package));
+  package->AppendNative("brightwork"_ns);
+  package->AppendNative("packages"_ns);
+  package->AppendNative(id);
+  return package.forget();
+}
+
+#if defined(XP_WIN)
+static constexpr char kBrightworkPlatform[] = "win";
+#else
+static constexpr char kBrightworkPlatform[] = "linux";
+#endif
+
+static already_AddRefed<nsIFile> BrightworkJarPath(nsIFile* aDirectory,
+                                                   Omnijar::Type aType,
+                                                   const char* aSubdirectory) {
+  constexpr auto kOmnijarName = nsLiteralCString{MOZ_STRINGIFY(OMNIJAR_NAME)};
+  nsCOMPtr<nsIFile> file;
+  aDirectory->Clone(getter_AddRefs(file));
+  if (!file) {
+    return nullptr;
+  }
+  if (aSubdirectory && *aSubdirectory) {
+    file->AppendNative(nsDependentCString(aSubdirectory));
+  }
+  if (aType == Omnijar::APP) {
+    file->AppendNative("browser"_ns);
+  }
+  file->AppendNative(kOmnijarName);
+  return file.forget();
+}
+
+static already_AddRefed<nsIFile> ResolveBrightworkCandidate(
+    Omnijar::Type aType, nsIFile* aProfileOverride) {
+  nsCOMPtr<nsIFile> directory =
+      ResolveBrightworkPackageDir(aProfileOverride);
+  if (!directory) {
+    return nullptr;
+  }
+  nsCOMPtr<nsIFile> platform =
+      BrightworkJarPath(directory, aType, kBrightworkPlatform);
+  bool isFile = false;
+  if (platform && NS_SUCCEEDED(platform->IsFile(&isFile)) && isFile) {
+    return platform.forget();
+  }
+  return BrightworkJarPath(directory, aType, nullptr);
+}
+
+static bool sBrightworkGreAccepted = false;
+
+static already_AddRefed<nsIFile> TryBrightwork(Omnijar::Type aType) {
+  if (aType == Omnijar::GRE) {
+    sBrightworkGreAccepted = false;
+  } else if (!sBrightworkGreAccepted) {
+    return nullptr;
+  }
+  nsCOMPtr<nsIFile> file = ResolveBrightworkCandidate(aType, nullptr);
+  bool isFile = false;
+  if (!file || NS_FAILED(file->IsFile(&isFile)) || !isFile) {
+    return nullptr;
+  }
+  RefPtr<nsZipArchive> reader = nsZipArchive::OpenArchive(file);
+  uint32_t abi = 0;
+  if (!reader || !ReadBrightworkAbi(reader, abi) ||
+      abi != MOZ_BRIGHTWORK_ABI) {
+    printf_stderr(
+        "brightwork: rejecting custom %s omni.ja (abi %u, need %u); using "
+        "bundled\n",
+        aType == Omnijar::GRE ? "GRE" : "APP", abi,
+        static_cast<unsigned>(MOZ_BRIGHTWORK_ABI));
+    return nullptr;
+  }
+  if (aType == Omnijar::GRE &&
+      !reader->GetItem("modules/AppConstants.sys.mjs"_ns)) {
+    printf_stderr(
+        "brightwork: rejecting custom GRE omni.ja (missing startup canary); "
+        "using bundled\n");
+    return nullptr;
+  }
+  sBrightworkGreAccepted = true;
+  printf_stderr("brightwork: using custom %s omni.ja (abi %u)\n",
+                aType == Omnijar::GRE ? "GRE" : "APP", abi);
+  return file.forget();
+}
 
 void Omnijar::CleanUpOne(Type aType) {
   if (sReader[aType]) {
@@ -33,6 +227,28 @@ void Omnijar::CleanUpOne(Type aType) {
     sOuterReader[aType] = nullptr;
   }
   sPath[aType] = nullptr;
+  sBrightworkActive[aType] = false;
+}
+
+void Omnijar::ComputeBrightworkFingerprint(nsIFile* aProfileDir,
+                                           nsACString& aResult) {
+  aResult.Truncate();
+  nsCOMPtr<nsIFile> directory =
+      ResolveBrightworkPackageDir(aProfileDir);
+  if (!directory) {
+    return;
+  }
+  nsAutoCString leaf;
+  if (NS_SUCCEEDED(directory->GetNativeLeafName(leaf))) {
+    aResult.Assign(leaf);
+  }
+  nsCOMPtr<nsIFile> jar =
+      ResolveBrightworkCandidate(Omnijar::GRE, aProfileDir);
+  PRTime modified = 0;
+  if (jar && NS_SUCCEEDED(jar->GetLastModifiedTime(&modified))) {
+    aResult.Append(':');
+    aResult.AppendInt(static_cast<int64_t>(modified));
+  }
 }
 
 nsresult Omnijar::InitOne(nsIFile* aPath, Type aType) {
@@ -40,6 +256,9 @@ nsresult Omnijar::InitOne(nsIFile* aPath, Type aType) {
   nsCOMPtr<nsIFile> file;
   if (aPath) {
     file = aPath;
+  } else if (nsCOMPtr<nsIFile> brightwork = TryBrightwork(aType)) {
+    file = brightwork;
+    sBrightworkActive[aType] = true;
   } else {
     nsCOMPtr<nsIFile> dir;
     MOZ_TRY(nsDirectoryService::gService->Get(SPROP(aType), NS_GET_IID(nsIFile),

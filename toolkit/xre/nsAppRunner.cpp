@@ -3786,9 +3786,15 @@ void BuildCompatVersion(const char* aAppVersion, const char* aAppBuildID,
   aBuf.Append(aToolkitBuildID);
 }
 
-static void BuildVersion(nsCString& aBuf) {
+static void BuildVersion(nsCString& aBuf, nsIFile* aProfileDir) {
   BuildCompatVersion(gAppData->version, gAppData->buildID, gToolkitBuildID,
                      aBuf);
+  nsAutoCString brightwork;
+  mozilla::Omnijar::ComputeBrightworkFingerprint(aProfileDir, brightwork);
+  if (!brightwork.IsEmpty()) {
+    aBuf.AppendLiteral("/bw:");
+    aBuf.Append(brightwork);
+  }
 }
 
 static void WriteVersion(nsIFile* aProfileDir, const nsCString& aVersion,
@@ -5588,7 +5594,7 @@ int XREMain::XRE_mainStartup(bool* aExitFlag,
   gProfileLock = mProfileLock;
 
   nsAutoCString version;
-  BuildVersion(version);
+  BuildVersion(version, mProfD);
 
 #ifdef TARGET_OS_ABI
   constexpr auto osABI = nsLiteralCString{TARGET_OS_ABI};

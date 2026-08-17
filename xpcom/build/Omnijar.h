@@ -46,6 +46,8 @@ class Omnijar {
    */
   static bool sIsUnified;
 
+  static bool sBrightworkActive[2];
+
  public:
   enum Type { GRE = 0, APP = 1 };
 
@@ -160,6 +162,9 @@ class Omnijar {
    * The returned URI is guaranteed to end with a slash.
    */
   static nsresult GetURIString(Type aType, nsACString& aResult);
+
+  static void ComputeBrightworkFingerprint(nsIFile* aProfileDir,
+                                           nsACString& aResult);
 
  private:
   /**
