@@ -100,6 +100,14 @@ const CATEGORIES = [
     defaultHidden: true,
   },
   {
+    name: "brightwork",
+    viewId: "addons://list/brightwork",
+    iconSrc: "chrome://mozapps/skin/extensions/category-brightwork.svg",
+    l10nId: "addon-category-brightwork",
+    titleL10nId: "addon-category-brightwork-title",
+    defaultHidden: false,
+  },
+  {
     name: "available-updates",
     viewId: "addons://updates/available",
     iconSrc: "chrome://mozapps/skin/extensions/category-available.svg",

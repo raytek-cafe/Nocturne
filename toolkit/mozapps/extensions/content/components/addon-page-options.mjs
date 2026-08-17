@@ -52,6 +52,16 @@ class AddonPageOptions extends AboutAddonsHTMLElement {
             data-l10n-attrs="accesskey"
           ></panel-item>
           <panel-item
+            action="install-brightwork-from-file"
+            data-l10n-id="addon-install-brightwork-from-file"
+            data-l10n-attrs="accesskey"
+          ></panel-item>
+          <panel-item
+            action="install-brightwork-from-folder"
+            data-l10n-id="addon-install-brightwork-from-folder"
+            data-l10n-attrs="accesskey"
+          ></panel-item>
+          <panel-item
             action="debug-addons"
             data-l10n-id="addon-open-about-debugging"
             data-l10n-attrs="accesskey"
@@ -112,6 +122,12 @@ class AddonPageOptions extends AboutAddonsHTMLElement {
     // more-options moz-button menuId attribute to wire the two together.
     this.panel.id = this.panelListId;
     this.installFromFile = this.querySelector('[action="install-from-file"]');
+    this.installBrightworkFromFile = this.querySelector(
+      '[action="install-brightwork-from-file"]'
+    );
+    this.installBrightworkFromFolder = this.querySelector(
+      '[action="install-brightwork-from-folder"]'
+    );
     this.toggleUpdatesEl = this.querySelector(
       '[action="set-update-automatically"]'
     );
@@ -135,6 +151,10 @@ class AddonPageOptions extends AboutAddonsHTMLElement {
           : "addon-install-from-file"
       );
       this.installFromFile.hidden = !lazy.XPINSTALL_ENABLED;
+      let brightworkView =
+        gViewController.currentViewId === "addons://list/brightwork";
+      this.installBrightworkFromFile.hidden = !brightworkView;
+      this.installBrightworkFromFolder.hidden = !brightworkView;
     }
   }
 
@@ -151,6 +171,12 @@ class AddonPageOptions extends AboutAddonsHTMLElement {
           installAddonsFromFilePicker();
         }
         break;
+      case "install-brightwork-from-file":
+        await this.installBrightwork(false);
+        break;
+      case "install-brightwork-from-folder":
+        await this.installBrightwork(true);
+        break;
       case "debug-addons":
         this.openAboutDebugging();
         break;
@@ -164,6 +190,36 @@ class AddonPageOptions extends AboutAddonsHTMLElement {
         gViewController.loadView("shortcuts/shortcuts");
         break;
     }
+  }
+
+  async installBrightwork(selectFolder) {
+    let picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+    await picker.init(
+      window.browsingContext,
+      await document.l10n.formatValue(
+        selectFolder
+          ? "addon-install-brightwork-folder-dialog-title"
+          : "addon-install-brightwork-file-dialog-title"
+      ),
+      selectFolder ? Ci.nsIFilePicker.modeGetFolder : Ci.nsIFilePicker.modeOpen
+    );
+    if (!selectFolder) {
+      picker.appendFilter(
+        await document.l10n.formatValue("addon-install-brightwork-filter-name"),
+        "*.zip; *.bwpkg"
+      );
+    }
+    await new Promise(resolve => {
+      picker.open(async result => {
+        if (result === Ci.nsIFilePicker.returnOK) {
+          let { BrightworkProvider } = ChromeUtils.importESModule(
+            "resource://gre/modules/addons/BrightworkProvider.sys.mjs"
+          );
+          await BrightworkProvider.installFromPath(picker.file.path);
+        }
+        resolve();
+      });
+    });
   }
 
   async checkForUpdates() {

@@ -109,6 +109,25 @@ gViewController.defineView("list", async type => {
   return frag;
 });
 
+gViewController.defineView("brightwork", async () => {
+  let list = document.createElement("addon-list");
+  list.type = "brightwork";
+  list.setSections([
+    {
+      headingId: "brightwork-enabled-heading",
+      sectionClass: "brightwork-enabled-section",
+      filterFn: addon => !addon.hidden && addon.isActive,
+    },
+    {
+      headingId: "brightwork-disabled-heading",
+      sectionClass: "brightwork-disabled-section",
+      filterFn: addon => !addon.hidden && !addon.isActive,
+    },
+  ]);
+  await list.render();
+  return list;
+});
+
 gViewController.defineView("detail", async param => {
   let [id, selectedTab] = param.split("/");
   let addon = await AddonManager.getAddonByID(id);

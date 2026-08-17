@@ -29,6 +29,10 @@ def buildid_header(output):
     output.write("#define MOZ_BUILDID %s\n" % buildid)
 
 
+def brightwork_abi_header(output):
+    output.write("#define MOZ_BRIGHTWORK_ABI 2\n")
+
+
 def get_program_output(*command):
     try:
         with open(os.devnull) as stderr:

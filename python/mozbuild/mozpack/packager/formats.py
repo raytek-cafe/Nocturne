@@ -344,6 +344,8 @@ class OmniJarSubFormatter(PiecemealFormatter):
         if len(path) <= 2 and path[-1] == "greprefs.js":
             # Accommodate `greprefs.js` and `$ANDROID_CPU_ARCH/greprefs.js`.
             return True
+        if len(path) == 1 and path[0] == "brightwork.abi":
+            return True
         return path[0] in [
             "modules",
             "moz-src",
