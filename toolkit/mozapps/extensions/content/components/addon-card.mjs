@@ -571,7 +571,8 @@ export class AddonCard extends AboutAddonsHTMLElement {
         );
       } else if (
         addon.type === "extension" ||
-        addon.type === "sitepermission"
+        addon.type === "sitepermission" ||
+        addon.type === "brightwork"
       ) {
         toggleDisabledButton.pressed = !addon.userDisabled;
       }
@@ -736,7 +737,11 @@ export class AddonCard extends AboutAddonsHTMLElement {
     if (addon.type != "theme") {
       this.card.querySelector(".theme-enable-button").remove();
     }
-    if (addon.type != "extension" && addon.type != "sitepermission") {
+    if (
+      addon.type != "extension" &&
+      addon.type != "sitepermission" &&
+      addon.type != "brightwork"
+    ) {
       this.card.querySelector(".extension-enable-button").remove();
     }
     let nameContainer = this.card.querySelector(".addon-name-container");

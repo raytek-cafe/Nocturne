@@ -192,16 +192,21 @@ if not CONFIG["JS_STANDALONE"] or not CONFIG["MOZ_BUILD_APP"]:
         "mozilla-config.h",
     ]
     EXPORTS += [
+        "!brightwork-abi.h",
         "!buildid.h",
         "!mozilla-config.h",
         "!source-repo.h",
     ]
 
     GENERATED_FILES += [
+        "brightwork-abi.h",
         "buildid.h",
         "source-repo.h",
     ]
 
+    GENERATED_FILES[
+        "brightwork-abi.h"
+    ].script = "build/variables.py:brightwork_abi_header"
     GENERATED_FILES["buildid.h"].script = "build/variables.py:buildid_header"
     GENERATED_FILES["source-repo.h"].script = "build/variables.py:source_repo_header"
 

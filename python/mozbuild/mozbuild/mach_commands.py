@@ -4177,3 +4177,89 @@ def repackage_flatpak(
         template_dir,
         langpack_pattern,
     )
+
+
+def _brightwork_manifests(command_context):
+    faster_dir = os.path.join(command_context.topobjdir, "faster")
+    unified = os.path.join(faster_dir, "unified_install_dist_bin")
+    if os.path.exists(unified):
+        return [unified]
+    if os.path.isdir(faster_dir):
+        return sorted(
+            os.path.join(faster_dir, name)
+            for name in os.listdir(faster_dir)
+            if name.startswith("install_dist_bin") and not name.endswith(".track")
+        )
+    return []
+
+
+@Command(
+    "brightwork-extract",
+    category="post-build",
+    description="Export a standalone Brightwork addon development kit",
+)
+@CommandArgument(
+    "--output",
+    "-o",
+    default=None,
+    help="Directory to write the standalone repo into",
+)
+def brightwork_extract(command_context, output=None):
+    from mozpack.brightwork.extract import extract_standalone
+
+    output = output or os.path.join(command_context.distdir, "bw-pkg")
+    manifests = _brightwork_manifests(command_context)
+    if not manifests:
+        print(
+            "No FasterMake install manifests found under %s/faster. "
+            "Run ./mach build first." % command_context.topobjdir
+        )
+        return 1
+
+    summary = extract_standalone(
+        command_context.config_environment, manifests, output
+    )
+    print(
+        "Wrote standalone work dir to %s\n"
+        "  source files: %d (%.1f MiB)\n"
+        "  to build, run python build.py in that directory"
+        % (
+            output,
+            summary["source_files"],
+            summary["source_bytes"] / (1024 * 1024),
+        )
+    )
+    return 0
+
+
+@Command(
+    "brightwork-append",
+    category="post-build",
+    description="Build a Brightwork delta package from two SDK or package trees",
+)
+@CommandArgument("--old", required=True, help="Previous SDK or package directory/zip")
+@CommandArgument("--new", required=True, help="New SDK or package directory/zip")
+@CommandArgument("--output", "-o", default=None, help="Output delta directory")
+@CommandArgument("--zip", dest="zip_path", default=None, help="Optional output zip path")
+def brightwork_append(command_context, old, new, output=None, zip_path=None):
+    from mozpack.brightwork.append import build_append_package
+
+    output = output or os.path.join(command_context.distdir, "bw-append")
+    summary = build_append_package(old, new, output, zip_path)
+    print(
+        "Wrote Brightwork append package to %s\n"
+        "  added: %d\n"
+        "  changed: %d\n"
+        "  removed: %d\n"
+        "  payload: %.1f KiB"
+        % (
+            summary["output_dir"],
+            len(summary["added"]),
+            len(summary["changed"]),
+            len(summary["removed"]),
+            summary["bytes"] / 1024,
+        )
+    )
+    if summary["zip"]:
+        print("  zip: %s" % summary["zip"])
+    return 0
