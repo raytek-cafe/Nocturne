@@ -1281,6 +1281,7 @@ static bool CanDrawFont(ScaledFont* aFont) {
     case FontType::FONTCONFIG:
     case FontType::MAC:
     case FontType::DWRITE:
+    case FontType::GDI:
       return true;
     default:
       return false;
