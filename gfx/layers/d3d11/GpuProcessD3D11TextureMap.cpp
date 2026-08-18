@@ -86,7 +86,7 @@ RefPtr<ID3D11Texture2D> GpuProcessD3D11TextureMap::GetTexture(
   return it->second.mTexture;
 }
 
-RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
+Maybe<HANDLE> GpuProcessD3D11TextureMap::GetSharedHandleOfCopiedTexture(
     GpuProcessTextureId aTextureId) {
   TextureHolder holder;
   {
@@ -94,14 +94,10 @@ RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
 
     auto it = mD3D11TexturesById.find(aTextureId);
     if (it == mD3D11TexturesById.end()) {
-      return nullptr;
+      return Nothing();
     }
 
-    if (it->second.mSharedHandle) {
-      return it->second.mSharedHandle;
-    }
-
-    if (it->second.mCopiedTextureSharedHandle) {
+    if (it->second.mCopiedTextureSharedHandle.isSome()) {
       return it->second.mCopiedTextureSharedHandle;
     }
 
@@ -111,13 +107,13 @@ RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
   RefPtr<ID3D11Device> device;
   holder.mTexture->GetDevice(getter_AddRefs(device));
   if (!device) {
-    return nullptr;
+    return Nothing();
   }
 
   RefPtr<ID3D11DeviceContext> context;
   device->GetImmediateContext(getter_AddRefs(context));
   if (!context) {
-    return nullptr;
+    return Nothing();
   }
 
   D3D11_TEXTURE2D_DESC existingDesc;
@@ -132,7 +128,7 @@ RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
   HRESULT hr =
       device->CreateTexture2D(&newDesc, nullptr, getter_AddRefs(copiedTexture));
   if (FAILED(hr)) {
-    return nullptr;
+    return Nothing();
   }
 
   D3D11_TEXTURE2D_DESC inDesc;
@@ -151,13 +147,13 @@ RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
   RefPtr<IDXGIResource> resource;
   copiedTexture->QueryInterface((IDXGIResource**)getter_AddRefs(resource));
   if (!resource) {
-    return nullptr;
+    return Nothing();
   }
 
   HANDLE sharedHandle;
   hr = resource->GetSharedHandle(&sharedHandle);
   if (FAILED(hr)) {
-    return nullptr;
+    return Nothing();
   }
 
   RefPtr<ID3D11Query> query;
@@ -165,7 +161,7 @@ RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
   hr = device->CreateQuery(&desc, getter_AddRefs(query));
   if (FAILED(hr) || !query) {
     gfxWarning() << "Could not create D3D11_QUERY_EVENT: " << gfx::hexa(hr);
-    return nullptr;
+    return Nothing();
   }
 
   context->End(query);
@@ -182,7 +178,7 @@ RefPtr<gfx::FileHandleWrapper> GpuProcessD3D11TextureMap::GetSharedHandle(
     auto it = mD3D11TexturesById.find(aTextureId);
     if (it == mD3D11TexturesById.end()) {
       MOZ_ASSERT_UNREACHABLE("unexpected to be called");
-      return nullptr;
+      return Nothing();
     }
 
     // Disable no video copy for future decoded video frames. Since
