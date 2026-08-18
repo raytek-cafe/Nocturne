@@ -2208,12 +2208,7 @@ static Result<nsString, nsresult> EnsurePinnableShortcutExists(
 
   MOZ_TRY(EnsureShellAppsFolderShortcut(aAppUserModelId));
 
-  if (IsWin10OrLater()) {
-    return PinShortcutToTaskbarImpl(aCheckOnly, aAppUserModelId, shortcutPath,
-                                    aFireAndForget);
-  }
-
-  return PinCurrentAppToTaskbarWin7(aCheckOnly, shortcutPath);
+  return shortcutPath;
 }
 
 static nsresult PinCurrentAppToTaskbarImpl(bool aPrivateBrowsing,
@@ -2300,12 +2295,24 @@ static nsresult PinCurrentAppToTaskbarImpl(bool aPrivateBrowsing,
                  promiseHolder = std::move(promiseHolder)] {
                   dom::Promise* promise = promiseHolder.get()->get();
 
-                  if (rv.isOk()) {
-                    shell_windows_taskbar_pin_app_to_taskbar(
-                        &aumid, &rv.inspect(), aFireAndForget, promise);
-                  } else {
+                  if (rv.isErr()) {
                     promise->MaybeReject(rv.inspectErr());
+                    return;
                   }
+
+                  if (!IsWin10OrLater()) {
+                    nsresult pinResult =
+                        PinCurrentAppToTaskbarWin7(false, nsAutoString(rv.inspect()));
+                    if (NS_SUCCEEDED(pinResult)) {
+                      promise->MaybeResolve(true);
+                    } else {
+                      promise->MaybeReject(pinResult);
+                    }
+                    return;
+                  }
+
+                  shell_windows_taskbar_pin_app_to_taskbar(
+                      &aumid, &rv.inspect(), aFireAndForget, promise);
                 }));
           }),
       NS_DISPATCH_EVENT_MAY_BLOCK);
