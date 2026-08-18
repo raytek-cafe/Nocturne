@@ -112,7 +112,10 @@ GDIFontEntry::GDIFontEntry(const nsACString& aFaceName,
                            gfxWindowsFontType aFontType, SlantStyleRange aStyle,
                            WeightRange aWeight, StretchRange aStretch,
                            gfxUserFontData* aUserFontData)
-    : gfxFontEntry(aFaceName), mFontType(aFontType), mForceGDI(false) {
+    : gfxFontEntry(aFaceName),
+      mFontType(aFontType),
+      mForceGDI(false),
+      mFontTableCache(nullptr) {
   mUserFontData.reset(aUserFontData);
   mStyleRange = aStyle;
   mWeightRange = aWeight;
@@ -123,6 +126,10 @@ GDIFontEntry::GDIFontEntry(const nsACString& aFaceName,
   mIsDataUserFont = aUserFontData != nullptr;
 
   InitLogFont(aFaceName, aFontType);
+}
+
+GDIFontEntry::~GDIFontEntry() {
+  delete mFontTableCache.exchange(nullptr);
 }
 
 gfxFontEntry* GDIFontEntry::Clone() const {
@@ -228,6 +235,16 @@ nsresult GDIFontEntry::CopyFontTable(uint32_t aTableTag,
     }
   }
   return NS_ERROR_FAILURE;
+}
+
+gfxFontEntry::FontTableCache* GDIFontEntry::GetFontTableCache(bool aCreate) {
+  if (!mFontTableCache && aCreate) {
+    auto* cache = new FontTableCache();
+    if (!mFontTableCache.compareExchange(nullptr, cache)) {
+      delete cache;
+    }
+  }
+  return mFontTableCache;
 }
 
 already_AddRefed<UnscaledFontGDI> GDIFontEntry::LookupUnscaledFont(
