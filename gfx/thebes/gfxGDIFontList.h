@@ -160,7 +160,7 @@ class GDIFontEntry final : public gfxFontEntry {
                                        StretchRange aStretch,
                                        gfxUserFontData* aUserFontData);
 
-  FontTableCache* GetFontTableCache(bool aCreate) override { return nullptr; }
+  FontTableCache* GetFontTableCache(bool aCreate) override;
 
   gfxWindowsFontType mFontType;
   bool mForceGDI;
@@ -173,6 +173,8 @@ class GDIFontEntry final : public gfxFontEntry {
                SlantStyleRange aStyle, WeightRange aWeight,
                StretchRange aStretch, gfxUserFontData* aUserFontData);
 
+  ~GDIFontEntry() override;
+
   void InitLogFont(const nsACString& aName, gfxWindowsFontType aFontType);
 
   gfxFont* CreateFontInstance(const gfxFontStyle* aFontStyle) override;
@@ -182,6 +184,8 @@ class GDIFontEntry final : public gfxFontEntry {
 
   already_AddRefed<mozilla::gfx::UnscaledFontGDI> LookupUnscaledFont(
       HFONT aFont);
+
+  mozilla::Atomic<FontTableCache*> mFontTableCache;
 
   LOGFONTW mLogFont;
 
