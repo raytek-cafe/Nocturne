@@ -9,6 +9,8 @@
 #include <windows.h>
 
 #include "mozilla/Maybe.h"
+#include "mozilla/HashTable.h"
+#include "mozilla/gfx/2D.h"
 #include "mozilla/TimeStamp.h"
 #include "Theme.h"
 #include "nsUXThemeConstants.h"
@@ -86,8 +88,16 @@ class nsNativeThemeWin : public Theme {
 
   nsNativeThemeWin();
 
+  static Maybe<nsUXThemeClass> GetThemeClass(StyleAppearance aAppearance);
+
+  static bool RenderWidgetSurface(StyleAppearance aAppearance, int32_t aPart,
+                                  int32_t aState,
+                                  const mozilla::gfx::IntSize& aThemeSize,
+                                  const mozilla::gfx::IntSize& aSurfaceSize,
+                                  double aThemeScale, bool aIsRtl,
+                                  bool aIsVertical, nsTArray<uint8_t>& aPixels);
+
  protected:
-  Maybe<nsUXThemeClass> GetThemeClass(StyleAppearance aAppearance);
   HANDLE GetTheme(StyleAppearance aAppearance);
   nsresult GetThemePartAndState(nsIFrame* aFrame, StyleAppearance aAppearance,
                                 int32_t& aPart, int32_t& aState);
@@ -110,7 +120,7 @@ class nsNativeThemeWin : public Theme {
                                   StyleAppearance aAppearance);
   void DrawCheckedRect(HDC hdc, const RECT& rc, int32_t fore, int32_t back,
                        HBRUSH defaultBack);
-  uint32_t GetWidgetNativeDrawingFlags(StyleAppearance aAppearance);
+  static uint32_t GetWidgetNativeDrawingFlags(StyleAppearance aAppearance);
   int32_t StandardGetState(nsIFrame* aFrame, StyleAppearance aAppearance,
                            bool wantFocused);
   bool IsMenuActive(nsIFrame* aFrame, StyleAppearance aAppearance);
@@ -119,7 +129,8 @@ class nsNativeThemeWin : public Theme {
                                     bool aIsClassic);
   void DrawThemedProgressMeter(nsIFrame* aFrame, StyleAppearance aAppearance,
                                HANDLE aTheme, HDC aHdc, int aPart, int aState,
-                               RECT* aWidgetRect, RECT* aClipRect, gfxFloat aAppUnits);
+                               RECT* aWidgetRect, RECT* aClipRect,
+                               gfxFloat aAppUnits);
 
   [[nodiscard]] LayoutDeviceIntMargin GetCachedWidgetBorder(
       HANDLE aTheme, nsUXThemeClass aThemeClass, StyleAppearance aAppearance,
@@ -137,6 +148,17 @@ class nsNativeThemeWin : public Theme {
  private:
   TimeStamp mProgressDeterminateTimeStamp;
   TimeStamp mProgressIndeterminateTimeStamp;
+  bool GetWidgetMetricsFromAtlas(nsIFrame* aFrame, StyleAppearance aAppearance,
+                                 uint8_t aSizeReq,
+                                 LayoutDeviceIntMargin& aBorder,
+                                 LayoutDeviceIntSize& aMinimumSize);
+
+  bool DrawWidgetBackgroundFromAtlas(gfxContext* aContext, nsIFrame* aFrame,
+                                     StyleAppearance aAppearance,
+                                     const nsRect& aRect);
+
+  mozilla::HashMap<uint64_t, RefPtr<mozilla::gfx::SourceSurface>>
+      mThemeAtlasSurfaceCache;
 
   // eUXNumClasses * THEME_PART_DISTINCT_VALUE_COUNT is about 800 at the time of
   // writing this, and nsIntMargin is 16 bytes wide, which makes this cache (1/8

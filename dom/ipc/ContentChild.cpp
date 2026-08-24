@@ -243,6 +243,7 @@
 #  include <process.h>
 #  define getpid _getpid
 #  include "mozilla/WinDllServices.h"
+#  include "mozilla/widget/WinThemeSurface.h"
 #endif
 
 #if defined(XP_MACOSX)
@@ -2324,8 +2325,24 @@ mozilla::ipc::IPCResult ContentChild::RecvNotifyVisited(
   return IPC_OK();
 }
 
+#ifdef XP_WIN
+mozilla::ipc::IPCResult ContentChild::RecvSetWindowsNativeThemeAtlas(
+    Maybe<mozilla::ipc::ReadOnlySharedMemoryHandle>&& aHandle) {
+  widget::SetWindowsNativeThemeAtlas(
+      aHandle ? std::move(*aHandle)
+              : mozilla::ipc::ReadOnlySharedMemoryHandle{});
+  return IPC_OK();
+}
+#endif
+
 mozilla::ipc::IPCResult ContentChild::RecvThemeChanged(
-    FullLookAndFeel&& aLookAndFeelData, widget::ThemeChangeKind aKind) {
+    FullLookAndFeel&& aLookAndFeelData, widget::ThemeChangeKind aKind,
+    Maybe<mozilla::ipc::ReadOnlySharedMemoryHandle>&& aWindowsThemeAtlas) {
+#ifdef XP_WIN
+  widget::SetWindowsNativeThemeAtlas(
+      aWindowsThemeAtlas ? std::move(*aWindowsThemeAtlas)
+                         : mozilla::ipc::ReadOnlySharedMemoryHandle{});
+#endif
   LookAndFeel::SetData(std::move(aLookAndFeelData));
   LookAndFeel::NotifyChangedAllWindows(aKind);
   return IPC_OK();

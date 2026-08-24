@@ -275,8 +275,14 @@ class ContentChild final : public PContentChild,
 
   mozilla::ipc::IPCResult RecvNotifyVisited(nsTArray<VisitedQueryResult>&&);
 
-  mozilla::ipc::IPCResult RecvThemeChanged(FullLookAndFeel&&,
-                                           widget::ThemeChangeKind);
+  mozilla::ipc::IPCResult RecvThemeChanged(
+      FullLookAndFeel&&, widget::ThemeChangeKind,
+      Maybe<mozilla::ipc::ReadOnlySharedMemoryHandle>&&);
+
+#ifdef XP_WIN
+  mozilla::ipc::IPCResult RecvSetWindowsNativeThemeAtlas(
+      Maybe<mozilla::ipc::ReadOnlySharedMemoryHandle>&&);
+#endif
 
   mozilla::ipc::IPCResult RecvPreferenceUpdate(const Pref& aPref);
   mozilla::ipc::IPCResult RecvVarUpdate(const nsTArray<GfxVarUpdate>& var);
