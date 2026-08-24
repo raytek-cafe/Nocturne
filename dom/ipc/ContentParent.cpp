@@ -26,6 +26,7 @@
 #include "HandlerServiceParent.h"
 #include "IHistory.h"
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <utility>
 
@@ -313,7 +314,9 @@
 #endif
 
 #ifdef XP_WIN
+#  include "MemMapSnapshot.h"
 #  include "mozilla/WinDllServices.h"
+#  include "mozilla/widget/WinThemeSurface.h"
 #endif
 
 #ifdef MOZ_CODE_COVERAGE
@@ -1546,10 +1549,54 @@ void ContentParent::BroadcastShmBlockAdded(uint32_t aGeneration,
   }
 }
 
+#ifdef XP_WIN
+static StaticAutoPtr<ReadOnlySharedMemoryHandle> sWindowsNativeThemeAtlas;
+
+static Maybe<ReadOnlySharedMemoryHandle> CloneWindowsNativeThemeAtlas() {
+  if (!widget::ShouldUseWindowsNativeThemeAtlas()) {
+    sWindowsNativeThemeAtlas = nullptr;
+    return Nothing();
+  }
+  if (!sWindowsNativeThemeAtlas) {
+    static bool initialized = false;
+    if (!initialized) {
+      initialized = true;
+      ClearOnShutdown(&sWindowsNativeThemeAtlas);
+    }
+
+    nsTArray<uint8_t> data;
+    if (!widget::BuildWindowsNativeThemeAtlas(data)) {
+      return Nothing();
+    }
+    MemMapSnapshot snapshot;
+    if (snapshot.Init(data.Length()).isErr()) {
+      return Nothing();
+    }
+    std::memcpy(snapshot.Get<uint8_t>().get(), data.Elements(), data.Length());
+    auto handle = snapshot.Finalize();
+    if (handle.isErr()) {
+      return Nothing();
+    }
+    sWindowsNativeThemeAtlas = new ReadOnlySharedMemoryHandle(handle.unwrap());
+  }
+
+  ReadOnlySharedMemoryHandle handle = sWindowsNativeThemeAtlas->Clone();
+  return handle ? Some(std::move(handle)) : Nothing();
+}
+#endif
+
 void ContentParent::BroadcastThemeUpdate(widget::ThemeChangeKind aKind) {
   const FullLookAndFeel& lnf = *RemoteLookAndFeel::ExtractData();
+#ifdef XP_WIN
+  sWindowsNativeThemeAtlas = nullptr;
+#endif
   for (auto* cp : AllProcesses(eLive)) {
-    Unused << cp->SendThemeChanged(lnf, aKind);
+#ifdef XP_WIN
+    auto atlas = CloneWindowsNativeThemeAtlas();
+#else
+    Maybe<ReadOnlySharedMemoryHandle> atlas;
+#endif
+    (void)cp->SendThemeChanged(lnf, aKind, std::move(atlas));
   }
 }
 
@@ -2893,6 +2940,10 @@ bool ContentParent::InitInternal(ProcessPriority aInitialPriority) {
       xpcomInit, initialData, lnf, fontList, std::move(sharedUASheetHandle),
       sharedUASheetAddress, std::move(sharedFontListBlocks),
       isReadyForBackgroundProcessing);
+
+#ifdef XP_WIN
+  (void)SendSetWindowsNativeThemeAtlas(CloneWindowsNativeThemeAtlas());
+#endif
 
   ipc::WritableSharedMap* sharedData =
       nsFrameMessageManager::sParentProcessManager->SharedData();
