@@ -962,6 +962,9 @@ WeakPtr.h:
 
 WindowsVersion.h:
   functions:
+    - IsVistaOrLater
+    - IsWin8Point1OrLater
+    - IsWin10OrLater
     - IsWindows10BuildOrLater
     - IsWin10AnniversaryUpdateOrLater
     - IsWin10CreatorsUpdateOrLater

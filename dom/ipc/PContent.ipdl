@@ -260,6 +260,7 @@ struct ClipboardCapabilities {
   bool supportsSelectionCache;
 };
 
+
 union FileDescOrError {
     FileDescriptor;
     nsresult;
@@ -712,7 +713,12 @@ child:
      * Tell the child that the system theme has changed, and that a repaint is
      * necessary.
      */
-    async ThemeChanged(FullLookAndFeel lookAndFeelData, ThemeChangeKind aKind);
+    async ThemeChanged(FullLookAndFeel lookAndFeelData, ThemeChangeKind aKind,
+                       ReadOnlySharedMemoryHandle? aWindowsThemeAtlas);
+
+#ifdef XP_WIN
+    async SetWindowsNativeThemeAtlas(ReadOnlySharedMemoryHandle? aHandle);
+#endif
 
     async PreferenceUpdate(Pref pref);
     async VarUpdate(GfxVarUpdate[] var);
@@ -1289,6 +1295,7 @@ parent:
 
     sync GetIconForExtension(nsCString aFileExt, uint32_t aIconSize)
         returns (uint8_t[] bits);
+
 
     // Tell the parent that the child has gone idle for the first time.
     async FirstIdle();

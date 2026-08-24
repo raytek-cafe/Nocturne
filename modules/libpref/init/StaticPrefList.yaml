@@ -20244,35 +20244,40 @@
   type: int32_t
   value: 0
   mirror: always
-  
+
 - name: widget.native-controls.force-dwm-report-off
   type: bool
   value: false
   mirror: always
-  
+
 - name: widget.native-controls.force-glass-reporting
   type: int32_t
   value: 0
   mirror: always
-  
+
 - name: widget.native-controls.override-aero-caption-buttons-mask-width
   type: int32_t
   value: 0
   mirror: always
-  
+
 - name: widget.native-controls.override-aero-caption-buttons-mask-height
   type: int32_t
   value: 0
   mirror: always
-  
+
 - name: widget.native-controls.scrollbar-style
   type: int32_t
   value: 2
   mirror: always
-  
+
 - name: widget.native-controls.tooltip-style
   type: int32_t
   value: 0
+  mirror: always
+
+- name: widget.native-controls.windows-theme-atlas.enabled
+  type: bool
+  value: true
   mirror: always
 
 # Global user preference for disabling native theme in content processes.
