@@ -147,6 +147,8 @@ AutoHandlingUserInputStatePusher::AutoHandlingUserInputStatePusher(
     bool aIsHandlingUserInput, WidgetEvent* aEvent)
     : mMessage(aEvent ? aEvent->mMessage : eVoidEvent),
       mIsHandlingUserInput(aIsHandlingUserInput) {
+  MOZ_ASSERT(NS_IsMainThread());
+
   if (!aIsHandlingUserInput) {
     return;
   }

@@ -989,10 +989,13 @@ void RunJSMicroTask(JSContext* aCx, CycleCollectedJSContext* aCCJS,
     }
 
     {
+      mozilla::Maybe<AutoHandlingUserInputStatePusher> userInputStateSwitcher;
       // A new scope is used to make sure the UserInputState is reset before
       // potentially draining more microtasks.
-      bool propagate = ShouldPropagateUserInputEventHandlingState(aMicroTask);
-      AutoHandlingUserInputStatePusher userInputStateSwitcher(propagate);
+      if (NS_IsMainThread()) {
+        bool propagate = ShouldPropagateUserInputEventHandlingState(aMicroTask);
+        userInputStateSwitcher.emplace(propagate);
+      }
 
       // Inform the profiler about the flow for this microtask.
       mozilla::Maybe<AutoProfilerTerminatingFlowMarkerFlowOnly>
@@ -1101,8 +1104,11 @@ void RunJSMicroTask(JSContext* aCx, CycleCollectedJSContext* aCCJS,
         incumbentGlobal->SetWebTaskSchedulingState(peekedSchedulingState);
       }
 
-      bool propagate = ShouldPropagateUserInputEventHandlingState(aMicroTask);
-      AutoHandlingUserInputStatePusher userInputStateSwitcher(propagate);
+      mozilla::Maybe<AutoHandlingUserInputStatePusher> userInputStateSwitcher;
+      if (NS_IsMainThread()) {
+        bool propagate = ShouldPropagateUserInputEventHandlingState(aMicroTask);
+        userInputStateSwitcher.emplace(propagate);
+      }
 
       // If this task fails we need cleanup code, which is in AutoJSAPI's
       // destructor to run, so abort execution.
