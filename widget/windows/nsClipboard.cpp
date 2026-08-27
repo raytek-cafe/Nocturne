@@ -160,6 +160,55 @@ mozilla::Maybe<UINT> nsClipboard::GetSecondaryFormat(const char* aMimeStr) {
   return mozilla::Nothing();
 }
 
+template <typename CharT>
+static bool HasValidDropFilesList(DROPFILES* aDropFiles, size_t aBufferSize) {
+  // The file list offset has to be at least past the DROPFILES metadata and
+  // has to contain at least room for the double-NUL terminator.
+  if (aDropFiles->pFiles < sizeof(DROPFILES) ||
+      aDropFiles->pFiles > aBufferSize ||
+      aBufferSize - aDropFiles->pFiles < 2 * sizeof(CharT)) {
+    return false;
+  }
+
+  const BYTE* list =
+      reinterpret_cast<const BYTE*>(aDropFiles) + aDropFiles->pFiles;
+  const CharT* charList = reinterpret_cast<const CharT*>(list);
+  // Whether the size evenly divides by sizeof(CharT) is irrelevant.
+  const CharT* endCharList =
+      charList + ((aBufferSize - aDropFiles->pFiles) / sizeof(CharT));
+
+  while (charList <= endCharList - 2) {
+    if (charList[0] == CharT(0) && charList[1] == CharT(0)) {
+      return true;
+    }
+    ++charList;
+  }
+  return false;
+}
+
+/* static */
+bool nsClipboard::IsValidDropFilesData(HGLOBAL aHGlobal) {
+  if (!aHGlobal) {
+    return false;
+  }
+
+  size_t size = ::GlobalSize(aHGlobal);
+  if (size < sizeof(DROPFILES)) {
+    return false;
+  }
+
+  ScopedOLELock<DROPFILES*> dropFiles(aHGlobal);
+  if (!dropFiles) {
+    return false;
+  }
+
+  if (dropFiles->fWide) {
+    return HasValidDropFilesList<WCHAR>(dropFiles.get(), size);
+  }
+
+  return HasValidDropFilesList<CHAR>(dropFiles.get(), size);
+}
+
 //-------------------------------------------------------------------------
 // static
 nsresult nsClipboard::CreateNativeDataObject(
@@ -861,6 +910,10 @@ nsresult nsClipboard::GetNativeDataOffClipboard(IDataObject* aDataObject,
       // single data object. In order to match mozilla's D&D apis, we
       // just pull out the file at the requested index, pretending as
       // if there really are multiple drag items.
+      if (!IsValidDropFilesData(stm.hGlobal)) {
+        return NS_ERROR_INVALID_ARG;
+      }
+
       ScopedOLELock<HDROP> dropFiles(stm.hGlobal);
 
       UINT numFiles = ::DragQueryFileW(dropFiles.get(), 0xFFFFFFFF, nullptr, 0);

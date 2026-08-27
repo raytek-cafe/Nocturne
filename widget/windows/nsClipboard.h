@@ -58,6 +58,9 @@ class nsClipboard final : public nsBaseClipboard, public nsIObserver {
                                             uint64_t aThreshold = 0);
   static nsresult GetGlobalData(HGLOBAL aHGBL, void** aData, uint32_t* aLen);
 
+  // True if aHGlobal reports DROPFILES data that fits in the global.
+  static bool IsValidDropFilesData(HGLOBAL aHGlobal);
+
   // This function returns the internal Windows clipboard format identifier
   // for a given Mime string. The default is to map kHTMLMime ("text/html")
   // to the clipboard format CF_HTML ("HTLM Format"), but it can also be

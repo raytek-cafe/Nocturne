@@ -414,7 +414,11 @@ nsDragSession::GetNumDropItems(uint32_t* aNumItems) {
     }
     HDROP hdrop = static_cast<HDROP>(GlobalLock(stm.hGlobal));
     MOZ_ASSERT(hdrop != NULL);
-    *aNumItems = ::DragQueryFileW(hdrop, 0xFFFFFFFF, nullptr, 0);
+    // Let the per-item read fail in nsClipboard::GetNativeDataOffClipboard
+    // instead of returning an error and failing the drag session.
+    *aNumItems = nsClipboard::IsValidDropFilesData(stm.hGlobal)
+                     ? ::DragQueryFileW(hdrop, 0xFFFFFFFF, nullptr, 0)
+                     : 0;
     ::GlobalUnlock(stm.hGlobal);
     ::ReleaseStgMedium(&stm);
     // Data may be provided later, so assume we have 1 item
