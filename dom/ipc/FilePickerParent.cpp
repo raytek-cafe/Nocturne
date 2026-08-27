@@ -280,6 +280,10 @@ mozilla::ipc::IPCResult FilePickerParent::RecvOpen(
     return IPC_OK();
   }
 
+  if (aFilters.Length() != aFilterNames.Length()) {
+    return IPC_FAIL(this, "PFilePicker::Open filter arrays lengths mismatch");
+  }
+
   mFilePicker->SetAddToRecentDocs(aAddToRecentDocs);
 
   for (uint32_t i = 0; i < aFilters.Length(); ++i) {
