@@ -521,7 +521,7 @@ class WinUtils {
   static nsresult WriteBitmap(nsIFile* aFile, imgIContainer* aImage);
 
   /**
-   * Wrapper for PathCanonicalize().
+   * Canonicalize a path, using a bounded legacy fallback before Windows 8.
    * Upon success, the resulting output string length is <= MAX_PATH.
    * @param  aPath [in,out] The path to transform.
    * @return true on success, false on failure.
