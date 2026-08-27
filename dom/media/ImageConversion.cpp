@@ -483,6 +483,13 @@ nsresult ConvertToNV12(layers::Image* aImage, uint8_t* aDestY, int aDestStrideY,
     return NS_ERROR_INVALID_ARG;
   }
 
+  // An interleaved chroma row is 2 * ceil(width / 2) bytes wide.
+  if (aDestStrideY < aDestSize.width ||
+      aDestStrideUV < 2 * CeilingOfHalf(aDestSize.width)) {
+    NS_WARNING("ConvertToNV12: destination strides too small for NV12");
+    return NS_ERROR_INVALID_ARG;
+  }
+
   if (const PlanarYCbCrData* data = GetPlanarYCbCrData(aImage)) {
     const ImageUtils imageUtils(aImage);
     Maybe<dom::ImageBitmapFormat> format = imageUtils.GetFormat();
