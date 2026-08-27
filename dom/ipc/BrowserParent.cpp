@@ -2180,7 +2180,7 @@ void BrowserParent::SendRealKeyEvent(WidgetKeyboardEvent& aEvent) {
   // NOTE: If you call `InitAllEditCommands()` for the other messages too,
   //       you also need to update
   //       TextEventDispatcher::DispatchKeyboardEventInternal().
-  if (aEvent.mMessage == eKeyPress) {
+  if (aEvent.mMessage == eKeyPress || aEvent.mMessage == eKeyDown) {
     // If current input context is editable, the edit commands are initialized
     // by TextEventDispatcher::DispatchKeyboardEventInternal().  Otherwise,
     // we need to do it here (they are not necessary for the parent process,

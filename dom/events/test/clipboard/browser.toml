@@ -32,6 +32,11 @@ skip-if = [
 
 ["browser_document_command_paste_contextmenu_suppression_ext.js"]
 
+["browser_document_command_paste_contextmenu_suppression_key.js"]
+skip-if = [
+  "headless",
+]
+
 ["browser_navigator_clipboard_clickjacking.js"]
 support-files = ["simple_navigator_clipboard_keydown.html"]
 run-if = [
