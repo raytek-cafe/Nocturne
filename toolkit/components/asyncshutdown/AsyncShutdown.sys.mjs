@@ -277,27 +277,26 @@ function safeGetState(fetchState) {
 }
 
 /**
- * Countdown for a given duration, skipping beats if the computer is too busy,
- * sleeping or otherwise unavailable.
+ * Countdown for a given duration of monotonic time: a busy main thread cannot
+ * stretch it, while a suspended computer does not count against it.
  *
- * @param {number} delay An approximate delay to wait in milliseconds (rounded
- * up to the closest second).
+ * @param {number} delay A delay to wait in milliseconds. We may resolve up to
+ * one beat late.
  *
  * @return Deferred
  */
-function looseTimer(delay) {
+function monotonicCountdown(delay) {
   let DELAY_BEAT = 1000;
   let timer = Cc["@mozilla.org/timer;1"].createInstance(Ci.nsITimer);
-  let beats = Math.ceil(delay / DELAY_BEAT);
+  let deadline = ChromeUtils.now() + delay;
   let deferred = Promise.withResolvers();
   timer.initWithCallback(
     function () {
-      if (beats <= 0) {
+      if (ChromeUtils.now() >= deadline) {
         deferred.resolve();
       }
-      --beats;
     },
-    DELAY_BEAT,
+    Math.min(DELAY_BEAT, Math.max(delay, 1)),
     Ci.nsITimer.TYPE_REPEATING_PRECISE_CAN_SKIP
   );
   // Ensure that the timer is both canceled once we are done with it
@@ -1012,12 +1011,12 @@ Barrier.prototype = Object.freeze({
       let timeToCrash = null;
 
       // If after |crashAfterMS| milliseconds (adjusted to take into
-      // account sleep and otherwise busy computer) we have not finished
-      // this shutdown phase, we assume that the shutdown is somehow
-      // frozen, presumably deadlocked. At this stage, the only thing we
-      // can do to avoid leaving the user's computer in an unstable (and
-      // battery-sucking) situation is report the issue and crash.
-      timeToCrash = looseTimer(crashAfterMS);
+      // account sleep) we have not finished this shutdown phase, we
+      // assume that the shutdown is somehow frozen, presumably
+      // deadlocked. At this stage, the only thing we can do to avoid
+      // leaving the user's computer in an unstable (and battery-sucking)
+      // situation is report the issue and crash.
+      timeToCrash = monotonicCountdown(crashAfterMS);
       timeToCrash.promise.then(
         () => {
           // Report the problem as best as we can, then crash.
