@@ -31,6 +31,8 @@ skip-if = [
 
 ["test_distribution.js"]
 
+["test_distribution_bookmarks_first.js"]
+
 ["test_distribution_cachedexistence.js"]
 
 ["test_distribution_mozillaonline.js"]
