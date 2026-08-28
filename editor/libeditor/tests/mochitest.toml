@@ -478,6 +478,8 @@ skip-if = [
 
 ["test_dragdrop.html"]
 
+["test_dragdrop_img_with_data_url.html"]
+
 ["test_dragend_target.html"]
 
 ["test_editing_UI_in_plaintext-only.html"]
