@@ -676,7 +676,8 @@ void TextComposition::MaybeNotifyIMEOfCompositionEventHandled(
   //     destroying IMEContentObserver notifies IME of blur.  So, native IME
   //     handler can treat it as this notification too.
   if (contentObserver && contentObserver->IsObserving(*this)) {
-    contentObserver->MaybeNotifyCompositionEventHandled();
+    contentObserver->MaybeNotifyCompositionEventHandled(
+        aCompositionEvent->mMessage);
     return;
   }
   // Otherwise, e.g., this composition is in non-active window, we should

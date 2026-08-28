@@ -19,6 +19,7 @@
 #include "mozilla/StaticPrefs_test.h"
 #include "mozilla/TextComposition.h"
 #include "mozilla/TextControlElement.h"
+#include "mozilla/TextControlState.h"
 #include "mozilla/TextEvents.h"
 #include "mozilla/dom/AncestorIterator.h"
 #include "mozilla/dom/Document.h"
@@ -690,6 +691,20 @@ bool IMEContentObserver::IsEditorHandlingEventForComposition() const {
   return composition->EditorIsHandlingLatestChange();
 }
 
+bool IMEContentObserver::IsPreparingTextEditor() const {
+  if (!mIsTextControl || !mRootEditableNodeOrTextControlElement) [[unlikely]] {
+    return false;
+  }
+  const auto* textControl =
+      TextControlElement::FromNode(mRootEditableNodeOrTextControlElement);
+  MOZ_ASSERT(textControl);
+  const auto* state = textControl->GetTextControlState();
+  if (!state) [[unlikely]] {
+    return false;
+  }
+  return state->IsPreparingEditor();
+}
+
 bool IMEContentObserver::IsEditorComposing() const {
   // Note that don't use TextComposition here. The important thing is,
   // whether the editor already started to handle composition because
@@ -715,17 +730,19 @@ nsresult IMEContentObserver::GetSelectionAndRoot(Selection** aSelection,
 }
 
 void IMEContentObserver::OnSelectionChange(Selection& aSelection) {
-  if (!mIsObserving) {
+  if (!mIsObserving || !mWidget) {
     return;
   }
 
-  if (mWidget) {
-    bool causedByComposition = IsEditorHandlingEventForComposition();
-    bool causedBySelectionEvent = TextComposition::IsHandlingSelectionEvent();
-    bool duringComposition = IsEditorComposing();
-    MaybeNotifyIMEOfSelectionChange(causedByComposition, causedBySelectionEvent,
-                                    duringComposition);
-  }
+  bool duringComposition = IsEditorComposing();
+  bool causedByComposition =
+      IsEditorHandlingEventForComposition() ||
+      // Treat the selection changes during initializing `TextEditor` because it
+      // inherits the composition from the previous one.
+      (mIsTextControl && duringComposition && IsPreparingTextEditor());
+  bool causedBySelectionEvent = TextComposition::IsHandlingSelectionEvent();
+  MaybeNotifyIMEOfSelectionChange(causedByComposition, causedBySelectionEvent,
+                                  duringComposition);
 }
 
 void IMEContentObserver::ScrollPositionChanged() {
@@ -1519,11 +1536,12 @@ void IMEContentObserver::CancelNotifyingIMEOfTextChange() {
 void IMEContentObserver::MaybeNotifyIMEOfSelectionChange(
     bool aCausedByComposition, bool aCausedBySelectionEvent,
     bool aOccurredDuringComposition) {
-  MOZ_LOG(
-      sIMECOLog, LogLevel::Debug,
-      ("0x%p MaybeNotifyIMEOfSelectionChange(aCausedByComposition=%s, "
-       "aCausedBySelectionEvent=%s, aOccurredDuringComposition)",
-       this, ToChar(aCausedByComposition), ToChar(aCausedBySelectionEvent)));
+  MOZ_LOG_FMT(sIMECOLog, LogLevel::Info,
+              "{} MaybeNotifyIMEOfSelectionChange(aCausedByComposition={}, "
+              "aCausedBySelectionEvent={}, aOccurredDuringComposition={})",
+              static_cast<void*>(this), TrueOrFalse(aCausedByComposition),
+              TrueOrFalse(aCausedBySelectionEvent),
+              TrueOrFalse(aOccurredDuringComposition));
 
   mSelectionData.AssignReason(aCausedByComposition, aCausedBySelectionEvent,
                               aOccurredDuringComposition);
@@ -1557,9 +1575,11 @@ void IMEContentObserver::CancelNotifyingIMEOfPositionChange() {
   mTicksUntilNotifyIMEOfPositionChange = 0;
 }
 
-void IMEContentObserver::MaybeNotifyCompositionEventHandled() {
-  MOZ_LOG(sIMECOLog, LogLevel::Debug,
-          ("0x%p MaybeNotifyCompositionEventHandled()", this));
+void IMEContentObserver::MaybeNotifyCompositionEventHandled(
+    EventMessage aEventMessage) {
+  MOZ_LOG_FMT(sIMECOLog, LogLevel::Info,
+              "{} MaybeNotifyCompositionEventHandled(aEventMessage={})",
+              static_cast<void*>(this), ToChar(aEventMessage));
 
   PostCompositionEventHandledNotification();
   FlushMergeableNotifications();
