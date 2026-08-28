@@ -662,6 +662,17 @@
             }
           }
 
+          // This load could replace the current session history entry in the
+          // target tab, which may not have had user interaction before. We
+          // consider the drag onto the tab as being user interaction so this
+          // entry is still accessible via the back-button.
+          let activeEntry =
+            targetTab?.linkedBrowser?.browsingContext
+              ?.activeSessionHistoryEntry;
+          if (activeEntry) {
+            activeEntry.hasUserInteraction = true;
+          }
+
           let nextItem = this._tabbrowserTabs.dragAndDropElements[newIndex];
           let tabGroup = isTab(nextItem) && nextItem.group;
           gBrowser.loadTabs(urls, {
