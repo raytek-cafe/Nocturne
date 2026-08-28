@@ -40,7 +40,7 @@ async function testResizePip(isRFP, src) {
       );
 
       const { PictureInPicture } = ChromeUtils.importESModule(
-        "moz-src:///toolkit/components/pictureinpicture/PictureInPicture.sys.mjs"
+        "resource://gre/modules/PictureInPicture.sys.mjs"
       );
       let pipWindow = PictureInPicture.apiPipWindow?.get();
       Assert.ok(pipWindow, "We found the chrome PiP window.");
