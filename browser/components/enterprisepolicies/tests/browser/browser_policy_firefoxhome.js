@@ -194,6 +194,52 @@ add_task(async function test_firefoxhome_preferences_set() {
   await SpecialPowers.popPrefEnv();
 });
 
+add_task(async function test_firefoxhome_widgets_blocked() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      // Widget toggles only exist in the Settings Redesign UI.
+      ["browser.settings-redesign.enabled", true],
+      // Stand in for a rollout that has made these two widgets available.
+      ["browser.newtabpage.activity-stream.widgets.system.enabled", true],
+      ["browser.newtabpage.activity-stream.widgets.system.lists.enabled", true],
+      [
+        "browser.newtabpage.activity-stream.widgets.system.clocks.enabled",
+        true,
+      ],
+    ],
+  });
+
+  await setupPolicyEngineWithJson({
+    policies: {
+      FirefoxHome: {
+        Widgets: {
+          Blocked: ["lists"],
+        },
+      },
+    },
+  });
+
+  await BrowserTestUtils.withNewTab("about:preferences#home", async browser => {
+    let doc = browser.contentDocument;
+    let lists = await TestUtils.waitForCondition(() =>
+      doc.getElementById("setting-control-lists")
+    );
+    await lists.updateComplete;
+    ok(lists.disabled, "Blocked widget toggle is disabled");
+
+    let clocks = doc.getElementById("setting-control-clocks");
+    await clocks.updateComplete;
+    ok(!clocks.disabled, "Widget that was not blocked stays editable");
+  });
+
+  await setupPolicyEngineWithJson({
+    policies: {
+      FirefoxHome: {},
+    },
+  });
+  await SpecialPowers.popPrefEnv();
+});
+
 add_task(async function test_firefoxhome_support_firefox_sponsored_locked() {
   // The supportFirefox setting only exists in the Settings Redesign UI.
   await SpecialPowers.pushPrefEnv({

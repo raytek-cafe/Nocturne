@@ -1827,6 +1827,26 @@ export var Policies = {
           param.Locked
         );
       }
+      if (param.Widgets) {
+        if ("Enabled" in param.Widgets) {
+          PoliciesUtils.setDefaultPref(
+            "browser.newtabpage.activity-stream.widgets.enabled",
+            param.Widgets.Enabled,
+            param.Locked
+          );
+        }
+        // Blocked always locks, regardless of the Locked property: the lock is
+        // what blocks the widget, and it is enough on its own whatever the
+        // widget's system pref is set to. IDs aren't validated, so one policy
+        // file stays valid across versions that add or remove widgets.
+        for (let id of param.Widgets.Blocked ?? []) {
+          PoliciesUtils.setDefaultPref(
+            `browser.newtabpage.activity-stream.widgets.${id}.enabled`,
+            false,
+            true
+          );
+        }
+      }
     },
   },
 

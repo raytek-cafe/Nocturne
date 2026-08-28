@@ -1011,6 +1011,20 @@
         "Snippets": {
           "type": "boolean"
         },
+        "Widgets": {
+          "type": "object",
+          "properties": {
+            "Enabled": {
+              "type": "boolean"
+            },
+            "Blocked": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "Locked": {
           "type": "boolean"
         }
