@@ -102,6 +102,7 @@ var NonBrowserWindow = {
       }
       if (!PrivateBrowsingUtils.enabled) {
         document.getElementById("macDockMenuNewPrivateWindow").hidden = true;
+        document.getElementById("menu_newPrivateWindow").hidden = true;
       }
       if (BrowserUIUtils.quitShortcutDisabled) {
         document.getElementById("key_quitApplication").remove();
