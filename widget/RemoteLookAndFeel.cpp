@@ -11,6 +11,7 @@
 #include "mozilla/ResultExtensions.h"
 #include "mozilla/StaticPrefs_widget.h"
 #include "mozilla/Try.h"
+#include "nsLookAndFeel.h"
 #include "nsXULAppAPI.h"
 
 #include <limits>
@@ -30,6 +31,14 @@ RemoteLookAndFeel::RemoteLookAndFeel(FullLookAndFeel&& aData)
     : mTables(std::move(aData.tables())) {
   MOZ_ASSERT(XRE_IsContentProcess(),
              "Only content processes should be using a RemoteLookAndFeel");
+
+#ifdef MOZ_WIDGET_GTK
+  if (!StaticPrefs::widget_non_native_theme_enabled()) {
+    // Configure the theme in this content process with the Gtk theme that was
+    // chosen by WithThemeConfiguredForContent in the parent process.
+    nsLookAndFeel::ConfigureTheme(aData.theme());
+  }
+#endif
 }
 
 RemoteLookAndFeel::~RemoteLookAndFeel() = default;
@@ -39,6 +48,14 @@ void RemoteLookAndFeel::SetDataImpl(FullLookAndFeel&& aData) {
              "Only content processes should be using a RemoteLookAndFeel");
   MOZ_ASSERT(NS_IsMainThread());
   mTables = std::move(aData.tables());
+
+#ifdef MOZ_WIDGET_GTK
+  if (!StaticPrefs::widget_non_native_theme_enabled()) {
+    // Configure the theme in this content process with the Gtk theme that was
+    // chosen by WithThemeConfiguredForContent in the parent process.
+    nsLookAndFeel::ConfigureTheme(aData.theme());
+  }
+#endif
 }
 
 namespace {
@@ -209,6 +226,10 @@ const FullLookAndFeel* RemoteLookAndFeel::ExtractData() {
 
   FullLookAndFeel* lf = new FullLookAndFeel{};
   nsXPLookAndFeel* impl = nsXPLookAndFeel::GetInstance();
+
+#ifdef MOZ_WIDGET_GTK
+  impl->GetGtkContentTheme(lf->theme());
+#endif
 
   lf->tables().passwordChar() = impl->GetPasswordCharacterImpl();
   lf->tables().passwordEcho() = impl->GetEchoPasswordImpl();
