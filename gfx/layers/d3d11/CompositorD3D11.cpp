@@ -114,6 +114,10 @@ void CompositorD3D11::SetVertexBuffer(ID3D11Buffer* aBuffer) {
 
 bool CompositorD3D11::Initialize(nsCString* const out_failureReason) {
   ScopedGfxFeatureReporter reporter("D3D11 Layers");
+  if (XRE_IsGPUProcess() && !mWidget->AsWindows()->GetCompositorHwnd()) {
+    *out_failureReason = "FEATURE_FAILURE_D3D11_NO_COMPOSITOR_WINDOW";
+    return false;
+  }
 
   HRESULT hr;
 
@@ -158,7 +162,7 @@ bool CompositorD3D11::Initialize(nsCString* const out_failureReason) {
         (IDXGIFactory2**)getter_AddRefs(dxgiFactory2));
 
     if (gfxVars::UseDoubleBufferingWithCompositor() && SUCCEEDED(hr) &&
-        dxgiFactory2) {
+        dxgiFactory2 && !mWidget->AsWindows()->UsesLegacyCompositorWindow()) {
       // DXGI_SCALING_NONE is not available on Windows 7 with Platform Update.
       // This looks awful for things like the awesome bar and browser window
       // resizing so we don't use a flip buffer chain here. When using
@@ -203,7 +207,8 @@ bool CompositorD3D11::Initialize(nsCString* const out_failureReason) {
     // In some configurations double buffering may have failed with an
     // ACCESS_DENIED error.
     if (!mSwapChain) {
-      if (mWidget->AsWindows()->GetCompositorHwnd()) {
+      if (mWidget->AsWindows()->GetCompositorHwnd() &&
+          !mWidget->AsWindows()->UsesLegacyCompositorWindow()) {
         // Destroy compositor window.
         mWidget->AsWindows()->DestroyCompositorWindow();
         mHwnd = mWidget->AsWindows()->GetHwnd();

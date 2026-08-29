@@ -57,6 +57,7 @@ EXPORTS.mozilla.widget += [
     "InProcessWinCompositorWidget.h",
     "JumpListBuilder.h",
     "nsWindowLoggedMessages.h",
+    "RemoteBackbuffer.h",
     "WinCompositorWidget.h",
     "WinCompositorWindowThread.h",
     "WindowsSMTCProvider.h",
@@ -209,7 +210,6 @@ USE_LIBS += [
 
 OS_LIBS += [
     "ktmw32",
-    "pathcch",
     "rpcrt4",
     "shcore",
     "urlmon",

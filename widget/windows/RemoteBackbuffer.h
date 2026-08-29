@@ -10,7 +10,10 @@
 #include "mozilla/Maybe.h"
 #include "mozilla/gfx/2D.h"
 #include "prthread.h"
+#include "mozilla/Mutex.h"
 #include <windows.h>
+
+struct ID3D11Texture2D;
 
 namespace mozilla {
 namespace widget {
@@ -22,6 +25,9 @@ struct BorrowResponseData;
 struct PresentRequestData;
 struct PresentResponseData;
 class SharedImage;
+struct D3D11InitializeRequestData;
+struct D3D11ResponseData;
+class D3D11Presenter;
 class PresentableSharedImage;
 
 class Provider {
@@ -48,6 +54,10 @@ class Provider {
                            bool aAllowSameBuffer);
   void HandlePresentRequest(const PresentRequestData& aRequestData,
                             PresentResponseData* aResponseData);
+  void HandleD3D11InitializeRequest(
+      const D3D11InitializeRequestData& aRequestData,
+      D3D11ResponseData* aResponseData);
+  void HandleD3D11PresentRequest(D3D11ResponseData* aResponseData);
 
   HWND mWindowHandle;
   HANDLE mTargetProcess;
@@ -58,6 +68,7 @@ class Provider {
   bool mStopServiceThread;
   PRThread* mServiceThread;
   std::unique_ptr<PresentableSharedImage> mBackbuffer;
+  std::unique_ptr<D3D11Presenter> mD3D11Presenter;
   mozilla::Atomic<uint32_t, MemoryOrdering::Relaxed> mTransparencyMode;
   TransparencyMode GetTransparencyMode() const {
     return TransparencyMode(uint32_t(mTransparencyMode));
@@ -73,6 +84,9 @@ class Client {
 
   already_AddRefed<gfx::DrawTarget> BorrowDrawTarget();
   bool PresentDrawTarget(gfx::IntRegion aDirtyRegion);
+  bool InitializeD3D11Texture(ID3D11Texture2D* aTexture);
+  bool PresentD3D11Texture();
+  void ReleaseD3D11Texture();
 
   Client(const Client&) = delete;
   Client(Client&&) = delete;
@@ -80,6 +94,10 @@ class Client {
   Client& operator=(Client&&) = delete;
 
  private:
+  bool SendRequestAndWait(uint32_t aExpectedResponseType);
+
+  Mutex mRequestMutex;
+  bool mConnectionFailed;
   HANDLE mFileMapping;
   HANDLE mRequestReadyEvent;
   HANDLE mResponseReadyEvent;

@@ -482,13 +482,16 @@ bool DeviceManagerDx::CreateCompositorDevicesLocked() {
     Sleep(sleepSec * 1000);
   }
 
-  if (!LoadD3D11()) {
-    return false;
+  if (LoadD3D11()) {
+    CreateCompositorDevice(d3d11);
   }
 
-  CreateCompositorDevice(d3d11);
-
   if (!d3d11.IsEnabled()) {
+    if (gfxConfig::IsEnabled(Feature::D3D11_HW_ANGLE)) {
+      gfxConfig::SetFailed(Feature::D3D11_HW_ANGLE, FeatureStatus::Unavailable,
+                           "D3D11 compositing is disabled",
+                           "FEATURE_FAILURE_HW_ANGLE_D3D11_DISABLED"_ns);
+    }
     MOZ_ASSERT(!mCompositorDevice);
     ReleaseD3D11();
 
@@ -859,9 +862,28 @@ bool DeviceManagerDx::CreateCompositorDeviceHelper(
     flags |= D3D11_CREATE_DEVICE_VIDEO_SUPPORT;
   }
 
-  HRESULT hr;
+  HRESULT hr = E_FAIL;
   RefPtr<ID3D11Device> device;
-  if (!CreateDevice(aAdapter, D3D_DRIVER_TYPE_UNKNOWN, flags, hr, device)) {
+  bool createReturned =
+      CreateDevice(aAdapter, D3D_DRIVER_TYPE_UNKNOWN, flags, hr, device);
+
+  if ((!createReturned || FAILED(hr) || !device) && !IsWin7OrLater() &&
+      (flags & D3D11_CREATE_DEVICE_PREVENT_INTERNAL_THREADING_OPTIMIZATIONS)) {
+    flags &= ~D3D11_CREATE_DEVICE_PREVENT_INTERNAL_THREADING_OPTIMIZATIONS;
+    hr = E_FAIL;
+    device = nullptr;
+    createReturned =
+        CreateDevice(aAdapter, D3D_DRIVER_TYPE_UNKNOWN, flags, hr, device);
+  }
+
+  if ((!createReturned || FAILED(hr) || !device) && !IsWin7OrLater()) {
+    hr = E_FAIL;
+    device = nullptr;
+    createReturned =
+        CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, flags, hr, device);
+  }
+
+  if (!createReturned) {
     if (!aAttemptVideoSupport) {
       gfxCriticalError() << "Crash during D3D11 device creation";
       aD3d11.SetFailed(FeatureStatus::CrashedInHandler,
@@ -873,9 +895,12 @@ bool DeviceManagerDx::CreateCompositorDeviceHelper(
 
   if (FAILED(hr) || !device) {
     if (!aAttemptVideoSupport) {
-      aD3d11.SetFailed(FeatureStatus::Failed,
-                       "Failed to acquire a D3D11 device",
-                       "FEATURE_FAILURE_D3D11_DEVICE2"_ns);
+      aD3d11.SetFailed(
+          FeatureStatus::Failed,
+          nsPrintfCString("Failed to acquire D3D11 device (HRESULT=0x%08lx)",
+                          static_cast<unsigned long>(hr))
+              .get(),
+          "FEATURE_FAILURE_D3D11_DEVICE2"_ns);
     }
     return false;
   }
@@ -913,13 +938,6 @@ void DeviceManagerDx::CreateCompositorDevice(FeatureState& d3d11) {
     d3d11.SetFailed(FeatureStatus::Unavailable,
                     "Failed to acquire a DXGI adapter",
                     "FEATURE_FAILURE_D3D11_DXGI"_ns);
-    return;
-  }
-
-  if (XRE_IsGPUProcess() && !D3D11Checks::DoesRemotePresentWork(adapter)) {
-    d3d11.SetFailed(FeatureStatus::Unavailable,
-                    "DXGI does not support out-of-process presentation",
-                    "FEATURE_FAILURE_D3D11_REMOTE_PRESENT"_ns);
     return;
   }
 

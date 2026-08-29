@@ -7,6 +7,10 @@
 #include "mozilla/gfx/Logging.h"
 #include "mozilla/widget/CompositorWidget.h"
 
+#ifdef XP_WIN
+#  include "mozilla/widget/WinCompositorWidget.h"
+#endif
+
 #ifdef MOZ_WIDGET_GTK
 #  include "mozilla/WidgetUtilsGtk.h"
 #endif
@@ -22,6 +26,11 @@ extern LazyLogModule gRenderThreadLog;
 /* static */
 UniquePtr<RenderCompositor> RenderCompositorSWGL::Create(
     const RefPtr<widget::CompositorWidget>& aWidget, nsACString& aError) {
+#ifdef XP_WIN
+  if (auto* widget = aWidget->AsWindows()) {
+    widget->DestroyCompositorWindow();
+  }
+#endif
   void* ctx = wr_swgl_create_context();
   if (!ctx) {
     gfxCriticalNote << "Failed SWGL context creation for WebRender";

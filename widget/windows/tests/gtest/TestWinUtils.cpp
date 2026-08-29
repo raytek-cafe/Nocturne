@@ -274,11 +274,41 @@ TEST(WinUtils, MaybeWriteFileZoneId)
 
 /*****************************************************************************/
 
+TEST(WinUtils, CanonicalizePathComponents)
+{
+  struct {
+    const char16_t* input;
+    const char16_t* expected;
+  } cases[] = {
+      {u"C:\\a\\..\\b", u"C:\\b"},
+      {u"\\\\server\\share\\a\\..\\b", u"\\\\server\\share\\b"},
+      {u"folder\\a\\..\\b", u"folder\\b"},
+  };
+  for (const auto& test : cases) {
+    nsAutoString path(test.input);
+    ASSERT_TRUE(WinUtils::CanonicalizePath(path));
+    EXPECT_TRUE(path.Equals(test.expected));
+  }
+}
+
 TEST(WinUtils, CanonicalizePathLength)
 {
   nsAutoString shortPath(u"C:\\a\\.\\b");
   EXPECT_TRUE(WinUtils::CanonicalizePath(shortPath));
   EXPECT_STREQ(NS_ConvertUTF16toUTF8(shortPath).get(), "C:\\a\\b");
+
+  nsAutoString boundaryPath(u"C:\\");
+  for (size_t i = 0; i < MAX_PATH - 4; ++i) {
+    boundaryPath.Append(u'a');
+  }
+  nsAutoString originalBoundaryPath(boundaryPath);
+  EXPECT_TRUE(WinUtils::CanonicalizePath(boundaryPath));
+  EXPECT_EQ(boundaryPath, originalBoundaryPath);
+
+  boundaryPath.Append(u'a');
+  originalBoundaryPath = boundaryPath;
+  EXPECT_FALSE(WinUtils::CanonicalizePath(boundaryPath));
+  EXPECT_EQ(boundaryPath, originalBoundaryPath);
 
   nsAutoString longPath(u"C:\\");
   for (size_t i = 0; i < 5000; ++i) {

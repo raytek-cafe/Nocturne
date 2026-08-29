@@ -360,6 +360,17 @@ static void UpdateANGLEConfig() {
   }
 }
 
+void gfxWindowsPlatform::InitPlatformGPUProcessPrefs() {
+  MOZ_ASSERT(XRE_IsParentProcess());
+
+  if (!IsVistaOrLater()) {
+    gfxConfig::GetFeature(Feature::GPU_PROCESS)
+        .Disable(FeatureStatus::Unavailable,
+                 "GPU process requires Windows Vista or later",
+                 "FEATURE_FAILURE_GPU_PROCESS_VISTA"_ns);
+  }
+}
+
 void gfxWindowsPlatform::InitAcceleration() {
   gfxPlatform::InitAcceleration();
 
@@ -387,7 +398,9 @@ void gfxWindowsPlatform::InitAcceleration() {
 
   if (XRE_IsParentProcess()) {
     BOOL dwmEnabled = FALSE;
-    if (!WinUtils::dwmIsCompositionEnabledPtr || FAILED(WinUtils::dwmIsCompositionEnabledPtr(&dwmEnabled)) || !dwmEnabled) {
+    if (!WinUtils::dwmIsCompositionEnabledPtr ||
+        FAILED(WinUtils::dwmIsCompositionEnabledPtr(&dwmEnabled)) ||
+        !dwmEnabled) {
       gfxVars::SetDwmCompositionEnabled(false);
     } else {
       gfxVars::SetDwmCompositionEnabled(true);
@@ -600,7 +613,7 @@ bool gfxWindowsPlatform::CreatePlatformFontList() {
 // DrawTargetD2D/1 instances.
 void gfxWindowsPlatform::DisableD2D(FeatureStatus aStatus, const char* aMessage,
                                     const nsACString& aFailureId) {
-//gfxConfig::SetFailed(Feature::DIRECT2D, aStatus, aMessage, aFailureId);
+  // gfxConfig::SetFailed(Feature::DIRECT2D, aStatus, aMessage, aFailureId);
   Factory::SetDirect3D11Device(nullptr);
   UpdateBackendPrefs();
 }
@@ -1929,6 +1942,14 @@ void gfxWindowsPlatform::ImportGPUDeviceData(
   // on its own, and we won't use ANGLE in the UI process if we're using a GPU
   // process.
   UpdateANGLEConfig();
+
+  if (!gfxConfig::IsEnabled(Feature::D3D11_COMPOSITING) &&
+      gfxConfig::IsEnabled(Feature::WEBRENDER) &&
+      gfxVars::UseWebRenderANGLE()) {
+    FallbackFromAcceleration(FeatureStatus::Unavailable,
+                             "Failed to create a D3D11 device for WebRender",
+                             "FEATURE_FAILURE_WEBRENDER_D3D11_DEVICE"_ns);
+  }
 }
 
 void gfxWindowsPlatform::ImportContentDeviceData(

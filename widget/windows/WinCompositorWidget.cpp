@@ -39,16 +39,22 @@ WinCompositorWidget::~WinCompositorWidget() { DestroyCompositorWindow(); }
 
 uintptr_t WinCompositorWidget::GetWidgetKey() { return mWidgetKey; }
 
-void WinCompositorWidget::EnsureCompositorWindow() {
+void WinCompositorWidget::EnsureCompositorWindow(bool aUseLegacyWindow) {
   if (mCompositorWnds.mCompositorWnd || mCompositorWnds.mInitialParentWnd) {
-    return;
+    if (mUsesLegacyCompositorWindow == aUseLegacyWindow) {
+      return;
+    }
+    DestroyCompositorWindow();
   }
 
-  mCompositorWnds = WinCompositorWindowThread::CreateCompositorWindow();
+  mUsesLegacyCompositorWindow = aUseLegacyWindow;
+  mCompositorWnds =
+      WinCompositorWindowThread::CreateCompositorWindow(aUseLegacyWindow);
+  if (!mCompositorWnds.mCompositorWnd || !mCompositorWnds.mInitialParentWnd) {
+    DestroyCompositorWindow();
+    return;
+  }
   UpdateCompositorWnd(mCompositorWnds.mCompositorWnd, mWnd);
-
-  MOZ_ASSERT(mCompositorWnds.mCompositorWnd);
-  MOZ_ASSERT(mCompositorWnds.mInitialParentWnd);
 }
 
 void WinCompositorWidget::DestroyCompositorWindow() {
@@ -57,6 +63,9 @@ void WinCompositorWidget::DestroyCompositorWindow() {
   }
   WinCompositorWindowThread::DestroyCompositorWindow(mCompositorWnds);
   mCompositorWnds = WinCompositorWnds(nullptr, nullptr);
+  mSetParentCompleted = false;
+  mLastCompositorWndSize = LayoutDeviceIntSize();
+  mUsesLegacyCompositorWindow = false;
 }
 
 void WinCompositorWidget::UpdateCompositorWndSizeIfNecessary() {

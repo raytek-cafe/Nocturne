@@ -120,7 +120,8 @@ bool CompositorWidgetParent::HasGlass() const {
   MOZ_ASSERT(layers::CompositorThreadHolder::IsInCompositorThread() ||
              wr::RenderThread::IsInRenderThread());
 
-  TransparencyMode transparencyMode = TransparencyMode(uint32_t(mTransparencyMode));
+  TransparencyMode transparencyMode =
+      TransparencyMode(uint32_t(mTransparencyMode));
   return transparencyMode == TransparencyMode::Glass ||
          transparencyMode == TransparencyMode::BorderlessGlass;
 }
@@ -211,8 +212,9 @@ void CompositorWidgetParent::UpdateCompositorWnd(const HWND aCompositorWnd,
                           reinterpret_cast<WindowsHandle>(aParentWnd))
       ->Then(
           layers::CompositorThread(), __func__,
-          [self](const bool& aSuccess) {
-            if (aSuccess && self->mRootLayerTreeID.isSome() &&
+          [self, aCompositorWnd](const bool& aSuccess) {
+            if (aSuccess && self->GetCompositorHwnd() == aCompositorWnd &&
+                self->mRootLayerTreeID.isSome() &&
                 layers::CompositorThreadHolder::IsActive()) {
               self->mSetParentCompleted = true;
               // Schedule composition after ::SetParent() call in parent

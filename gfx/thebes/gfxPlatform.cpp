@@ -2643,7 +2643,13 @@ void gfxPlatform::InitWebRenderConfig() {
   }
 #endif
 
-  if (gfxConfig::IsEnabled(Feature::WEBRENDER_SHADER_CACHE)) {
+  bool useShaderCache =
+      gfxConfig::IsEnabled(Feature::WEBRENDER_SHADER_CACHE);
+#ifdef XP_WIN
+  // FindExInfoBasic, used by Rust's directory iterator, requires Windows 7.
+  useShaderCache &= IsWin7OrLater();
+#endif
+  if (useShaderCache) {
     gfxVars::SetUseWebRenderProgramBinaryDisk(true);
     bool warmUp = true;
 #ifdef MOZ_WIDGET_ANDROID

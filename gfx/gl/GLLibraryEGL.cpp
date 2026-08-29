@@ -427,7 +427,15 @@ static std::shared_ptr<EglDisplay> GetAndInitDisplayForAccelANGLE(
   }
 
   if (!ret) {
-    ret = GetAndInitDisplay(egl, EGL_DEFAULT_DISPLAY, aProofOfLock);
+    // ANGLE's default display can select D3D11 even when it is disabled above.
+    const EGLAttrib attrib_list[] = {
+        LOCAL_EGL_PLATFORM_ANGLE_TYPE_ANGLE,
+        LOCAL_EGL_PLATFORM_ANGLE_TYPE_D3D9_ANGLE, LOCAL_EGL_NONE};
+    const auto display = egl.fGetPlatformDisplay(
+        LOCAL_EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, attrib_list);
+    if (display != EGL_NO_DISPLAY) {
+      ret = EglDisplay::Create(egl, display, false, aProofOfLock);
+    }
   }
 
   if (!ret && out_failureId->IsEmpty()) {
