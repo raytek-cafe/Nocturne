@@ -18,6 +18,9 @@
 class nsWindow;
 
 namespace mozilla::widget {
+namespace remote_backbuffer {
+class Client;
+}
 
 class PlatformCompositorWidgetDelegate : public CompositorWidgetDelegate {
  public:
@@ -66,8 +69,15 @@ class WinCompositorWidget : public CompositorWidget {
   }
 
   HWND GetCompositorHwnd() const { return mCompositorWnds.mCompositorWnd; }
+  virtual remote_backbuffer::Client* GetRemoteBackbufferClient() {
+    return nullptr;
+  }
 
-  void EnsureCompositorWindow();
+  bool UsesLegacyCompositorWindow() const {
+    return mCompositorWnds.mCompositorWnd && mUsesLegacyCompositorWindow;
+  }
+
+  void EnsureCompositorWindow(bool aUseLegacyWindow);
   void DestroyCompositorWindow();
   void UpdateCompositorWndSizeIfNecessary();
 
@@ -93,6 +103,7 @@ class WinCompositorWidget : public CompositorWidget {
 
   WinCompositorWnds mCompositorWnds;
   LayoutDeviceIntSize mLastCompositorWndSize;
+  bool mUsesLegacyCompositorWindow = false;
 
   UniquePtr<FxROutputHandler> mFxrHandler;
 };

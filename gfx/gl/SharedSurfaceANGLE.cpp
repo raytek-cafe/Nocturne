@@ -244,11 +244,12 @@ UniquePtr<SurfaceFactory_ANGLEShareHandle>
 SurfaceFactory_ANGLEShareHandle::Create(GLContext& gl) {
   if (!gl.IsANGLE()) return nullptr;
 
-  const auto& gle = *GLContextEGL::Cast(&gl);
-  const auto& egl = gle.mEgl;
+  const auto gle = GLContextEGL::Cast(&gl);
+  const auto& egl = gle->mEgl;
 
   if (!egl->IsExtensionSupported(
-          EGLExtension::ANGLE_surface_d3d_texture_2d_share_handle)) {
+          EGLExtension::ANGLE_surface_d3d_texture_2d_share_handle) ||
+      !GetD3D11DeviceOfEGLDisplay(gle)) {
     return nullptr;
   }
 

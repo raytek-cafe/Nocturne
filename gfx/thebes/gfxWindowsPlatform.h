@@ -189,6 +189,7 @@ class gfxWindowsPlatform final : public gfxPlatform {
 
   void Init();
   void InitAcceleration() override;
+  void InitPlatformGPUProcessPrefs() override;
   void InitWebRenderConfig() override;
   void InitPlatformHardwareVideoConfig() override;
 #ifdef MOZ_WMF_CDM

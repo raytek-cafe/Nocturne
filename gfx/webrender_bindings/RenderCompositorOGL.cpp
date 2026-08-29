@@ -12,6 +12,10 @@
 #include "mozilla/webrender/RenderThread.h"
 #include "mozilla/widget/CompositorWidget.h"
 
+#ifdef XP_WIN
+#  include "mozilla/widget/WinCompositorWidget.h"
+#endif
+
 namespace mozilla::wr {
 
 extern LazyLogModule gRenderThreadLog;
@@ -20,6 +24,12 @@ extern LazyLogModule gRenderThreadLog;
 /* static */
 UniquePtr<RenderCompositor> RenderCompositorOGL::Create(
     const RefPtr<widget::CompositorWidget>& aWidget, nsACString& aError) {
+#ifdef XP_WIN
+  if (XRE_IsGPUProcess() && !aWidget->AsWindows()->GetCompositorHwnd()) {
+    aError.Assign("RcOGL(no GPU-owned compositor window)"_ns);
+    return nullptr;
+  }
+#endif
   RefPtr<gl::GLContext> gl = RenderThread::Get()->SingletonGL();
   if (!gl) {
     gl = gl::GLContextProvider::CreateForCompositorWidget(
@@ -56,6 +66,9 @@ RenderCompositorOGL::~RenderCompositorOGL() {
 }
 
 bool RenderCompositorOGL::BeginFrame() {
+#ifdef XP_WIN
+  mWidget->AsWindows()->UpdateCompositorWndSizeIfNecessary();
+#endif
   if (!mGL->MakeCurrent()) {
     gfxCriticalNote << "Failed to make render context current, can't draw.";
     return false;

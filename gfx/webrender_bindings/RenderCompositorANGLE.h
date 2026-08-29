@@ -16,6 +16,7 @@ struct IDXGIDevice;
 struct IDXGIFactory;
 struct ID3D11DeviceContext;
 struct ID3D11Device;
+struct ID3D11Texture2D;
 struct ID3D11Query;
 struct IDXGIFactory2;
 struct IDXGISwapChain;
@@ -146,6 +147,8 @@ class RenderCompositorANGLE : public RenderCompositor {
   bool CreateSwapChain(nsACString& aError);
   void CreateSwapChainForDCompIfPossible();
   bool CreateSwapChainForHWND();
+  bool CreateRemoteBackbuffer();
+  void ReleaseRemoteBackbuffer();
   RefPtr<IDXGISwapChain1> CreateSwapChainForDComp(bool aUseTripleBuffering,
                                                   bool aUseAlpha);
   RefPtr<ID3D11Query> GetD3D11Query();
@@ -167,6 +170,8 @@ class RenderCompositorANGLE : public RenderCompositor {
   RefPtr<ID3D11DeviceContext> mCtx;
   RefPtr<IDXGISwapChain> mSwapChain;
   RefPtr<IDXGISwapChain1> mSwapChain1;
+  RefPtr<ID3D11Texture2D> mRemoteBackbufferTexture;
+  bool mUseRemoteBackbuffer = false;
 
   UniquePtr<DCLayerTree> mDCLayerTree;
 

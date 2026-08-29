@@ -39,7 +39,7 @@ class WinCompositorWindowThread final {
   static bool IsInCompositorWindowThread();
 
   /// Can be called from any thread.
-  static WinCompositorWnds CreateCompositorWindow();
+  static WinCompositorWnds CreateCompositorWindow(bool aUseLegacyWindow);
 
   /// Can be called from any thread.
   static void DestroyCompositorWindow(WinCompositorWnds aWnds);

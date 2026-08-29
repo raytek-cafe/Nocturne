@@ -44,6 +44,10 @@ class CompositorWidgetParent final : public PCompositorWidgetParent,
   bool InitCompositor(layers::Compositor* aCompositor) override;
   bool IsHidden() const override;
 
+  remote_backbuffer::Client* GetRemoteBackbufferClient() override {
+    return mRemoteBackbufferClient.get();
+  }
+
   bool HasGlass() const override;
 
   nsSizeMode GetWindowSizeMode() const override;
