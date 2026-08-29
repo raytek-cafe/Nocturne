@@ -179,8 +179,6 @@ hb_codepoint_t gfxHarfBuzzShaper::GetVariationGlyph(
     return mFont->GetGlyph(unicode, variation_selector);
   }
 
-  NS_ASSERTION(mFont->GetFontEntry()->HasCmapTable(),
-               "we cannot be using this font!");
   NS_ASSERTION(mCmapTable && (mCmapFormat > 0) && (mSubtableOffset > 0),
                "cmap data not correctly set up, expect disaster");
 
