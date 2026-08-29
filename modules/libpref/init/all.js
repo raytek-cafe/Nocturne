@@ -3132,6 +3132,7 @@ pref("network.tcp.keepalive.idle_time", 600); // seconds; 10 mins
 #endif
 
 #ifdef MOZ_WIDGET_GTK
+  pref("widget.content.gtk-theme-override", "");
   pref("widget.disable-workspace-management", false);
 #endif
 
