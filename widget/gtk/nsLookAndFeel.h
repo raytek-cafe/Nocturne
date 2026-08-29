@@ -62,7 +62,10 @@ class nsLookAndFeel final : public nsXPLookAndFeel {
   nsXPLookAndFeel::TitlebarAction GetTitlebarAction(
       TitlebarEvent aEvent) override;
 
+  void GetGtkContentTheme(LookAndFeelTheme&) override;
   void GetThemeInfo(nsACString&) override;
+
+  static void ConfigureTheme(const LookAndFeelTheme& aTheme);
 
   nsresult GetKeyboardLayoutImpl(nsACString& aLayout) override;
 
