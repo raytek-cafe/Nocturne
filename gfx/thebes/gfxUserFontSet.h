@@ -637,11 +637,12 @@ class gfxUserFontEntry : public gfxFontEntry {
     return true;
   }
 
-  gfxCharacterMap* GetUnicodeRangeMap() const { return GetCharacterMap(); }
+  gfxCharacterMap* GetUnicodeRangeMap() const { return GetCharacterMapRaw(); }
   void SetUnicodeRangeMap(RefPtr<gfxCharacterMap>&& aCharMap) {
     auto* oldCmap = GetUnicodeRangeMap();
     if (oldCmap != aCharMap) {
       auto* newCmap = aCharMap.forget().take();
+      mozilla::AutoWriteLock lock(mLock);
       if (mCharacterMap.compareExchange(oldCmap, newCmap)) {
         NS_IF_RELEASE(oldCmap);
       } else {

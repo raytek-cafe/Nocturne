@@ -242,7 +242,7 @@ static CFStringRef CreateCFStringForString(const nsACString& aSrc) {
 
 nsresult CTFontEntry::ReadCMAP(FontInfoData* aFontInfoData) {
   // attempt this once, if errors occur leave a blank cmap
-  if (mCharacterMap || mShmemCharacterMap) {
+  if (HasCharacterMap()) {
     return NS_OK;
   }
 
@@ -356,6 +356,7 @@ nsresult CTFontEntry::ReadCMAP(FontInfoData* aFontInfoData) {
   if (setCharMap) {
     // Temporarily retain charmap, until the shared version is
     // ready for use.
+    AutoWriteLock lock(mLock);
     if (mCharacterMap.compareExchange(nullptr, charmap.get())) {
       charmap.get()->AddRef();
     }
@@ -363,7 +364,7 @@ nsresult CTFontEntry::ReadCMAP(FontInfoData* aFontInfoData) {
 
   LOG_FONTLIST(("(fontlist-cmap) name: %s, size: %zu hash: %8.8x%s\n",
                 mName.get(), charmap->SizeOfIncludingThis(moz_malloc_size_of),
-                charmap->mHash, mCharacterMap == charmap ? " new" : ""));
+                charmap->mHash, GetCharacterMapRaw() == charmap ? " new" : ""));
   if (LOG_CMAPDATA_ENABLED()) {
     char prefix[256];
     SprintfLiteral(prefix, "(cmapdata) name: %.220s", mName.get());
