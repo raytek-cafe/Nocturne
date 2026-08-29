@@ -21,6 +21,7 @@
 #include "mozilla/webrender/RenderThread.h"
 #include "mozilla/widget/CompositorWidget.h"
 #include "mozilla/widget/WinCompositorWidget.h"
+#include "mozilla/widget/RemoteBackbuffer.h"
 #include "mozilla/glean/GfxMetrics.h"
 #include "nsPrintfCString.h"
 #include "FxROutputHandler.h"
@@ -80,6 +81,7 @@ RenderCompositorANGLE::~RenderCompositorANGLE() {
   LOG("RenderCompositorANGLE::~RenderCompositorANGLE()");
 
   DestroyEGLSurface();
+  ReleaseRemoteBackbuffer();
   MOZ_ASSERT(!mEGLSurface);
 }
 
@@ -291,7 +293,7 @@ bool RenderCompositorANGLE::CreateSwapChainForHWND() {
   hr =
       mSwapChain->QueryInterface((IDXGISwapChain1**)getter_AddRefs(swapChain1));
   if (SUCCEEDED(hr)) {
-      mSwapChain1 = swapChain1;
+    mSwapChain1 = swapChain1;
   } else {
     mSwapChain1 = nullptr;
   }
@@ -309,14 +311,23 @@ bool RenderCompositorANGLE::CreateSwapChain(nsACString& aError) {
     return false;
   }
 
+  const bool canUseRemoteBackbuffer =
+      !mSwapChain && !mDCLayerTree && XRE_IsGPUProcess() &&
+      !gfx::gfxVars::UseWebRenderFlipSequentialWin() &&
+      mWidget->AsWindows()->GetRemoteBackbufferClient();
   if (!mSwapChain && !CreateSwapChainForHWND()) {
-    aError.Assign("RcANGLE(swap chain create failed)"_ns);
-    return false;
+    if (!canUseRemoteBackbuffer) {
+      aError.Assign("RcANGLE(swap chain create failed)"_ns);
+      return false;
+    }
+    mUseRemoteBackbuffer = true;
   }
 
-  // We need this because we don't want DXGI to respond to Alt+Enter.
-  HWND hwnd = mWidget->AsWindows()->GetHwnd();
-  DXGIFactory()->MakeWindowAssociation(hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+  if (!mUseRemoteBackbuffer) {
+    // We need this because we don't want DXGI to respond to Alt+Enter.
+    HWND hwnd = mWidget->AsWindows()->GetHwnd();
+    DXGIFactory()->MakeWindowAssociation(hwnd, DXGI_MWA_NO_WINDOW_CHANGES);
+  }
 
   if (!ResizeBufferIfNeeded()) {
     aError.Assign("RcANGLE(resize buffer failed)"_ns);
@@ -483,10 +494,32 @@ bool RenderCompositorANGLE::BeginFrame() {
 RenderedFrameId RenderCompositorANGLE::EndFrame(
     const nsTArray<DeviceIntRect>& aDirtyRects) {
   RenderedFrameId frameId = GetNextRenderFrameId();
-  InsertGraphicsCommandsFinishedWaitQuery(frameId);
-
+  if (mUseRemoteBackbuffer) {
+    gl()->fFlush();
+  } else {
+    InsertGraphicsCommandsFinishedWaitQuery(frameId);
+  }
   if (mFence) {
     mFence->IncrementAndSignal();
+  }
+
+  if (mUseRemoteBackbuffer) {
+    InsertGraphicsCommandsFinishedWaitQuery(frameId);
+    auto* client = mWidget->AsWindows()->GetRemoteBackbufferClient();
+    const bool shouldPresent = !mUsePartialPresent || !aDirtyRects.IsEmpty();
+    if (!client || mWaitForPresentQueries.empty() ||
+        mWaitForPresentQueries.back().first != frameId ||
+        !WaitForPreviousGraphicsCommandsFinishedQuery(true) ||
+        (shouldPresent && !client->PresentD3D11Texture())) {
+      gfxCriticalNote << "Remote backbuffer present failed";
+      RenderThread::Get()->HandleWebRenderError(WebRenderError::NEW_SURFACE);
+      return frameId;
+    }
+    if (shouldPresent) {
+      mFullRender = false;
+      mFirstPresent = false;
+    }
+    return frameId;
   }
 
   if (!UseCompositor()) {
@@ -620,7 +653,7 @@ bool RenderCompositorANGLE::WaitForGPU() {
 }
 
 bool RenderCompositorANGLE::ResizeBufferIfNeeded() {
-  MOZ_ASSERT(mSwapChain);
+  MOZ_ASSERT(mSwapChain || mUseRemoteBackbuffer);
 
   LayoutDeviceIntSize size = mWidget->GetClientSize();
 
@@ -644,7 +677,7 @@ bool RenderCompositorANGLE::ResizeBufferIfNeeded() {
     return false;
   }
 
-  if (mUsePartialPresent) {
+  if (mUsePartialPresent || mUseRemoteBackbuffer) {
     mFullRender = true;
   }
   return true;
@@ -664,30 +697,54 @@ bool RenderCompositorANGLE::CreateEGLSurface() {
 
   const LayoutDeviceIntSize& size = mBufferSize.ref();
 
-  // Resize swap chain
-  DXGI_SWAP_CHAIN_DESC desc;
-  hr = mSwapChain->GetDesc(&desc);
-  if (FAILED(hr)) {
-    gfxCriticalNote << "Failed to read swap chain description: "
-                    << gfx::hexa(hr) << " Size : " << size;
-    return false;
-  }
-  hr = mSwapChain->ResizeBuffers(desc.BufferCount, size.width, size.height,
-                                 DXGI_FORMAT_B8G8R8A8_UNORM, 0);
-  if (FAILED(hr)) {
-    gfxCriticalNote << "Failed to resize swap chain buffers: " << gfx::hexa(hr)
-                    << " Size : " << size;
-    return false;
-  }
-
-  hr = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
-                             (void**)getter_AddRefs(backBuf));
-  if (hr == DXGI_ERROR_INVALID_CALL) {
-    // This happens on some GPUs/drivers when there's a TDR.
-    if (mDevice->GetDeviceRemovedReason() != S_OK) {
-      gfxCriticalError() << "GetBuffer returned invalid call: " << gfx::hexa(hr)
-                         << " Size : " << size;
+  if (mUseRemoteBackbuffer) {
+    D3D11_TEXTURE2D_DESC desc{};
+    desc.Width = size.width;
+    desc.Height = size.height;
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    desc.SampleDesc.Count = 1;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+    desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED;
+    hr = mDevice->CreateTexture2D(&desc, nullptr, getter_AddRefs(backBuf));
+    if (FAILED(hr) || !backBuf) {
+      gfxCriticalNote << "Failed to create remote backbuffer texture: "
+                      << gfx::hexa(hr) << " Size : " << size;
       return false;
+    }
+    mRemoteBackbufferTexture = backBuf;
+    if (!CreateRemoteBackbuffer()) {
+      mRemoteBackbufferTexture = nullptr;
+      return false;
+    }
+  } else {
+    // Resize swap chain
+    DXGI_SWAP_CHAIN_DESC desc;
+    hr = mSwapChain->GetDesc(&desc);
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Failed to read swap chain description: "
+                      << gfx::hexa(hr) << " Size : " << size;
+      return false;
+    }
+    hr = mSwapChain->ResizeBuffers(desc.BufferCount, size.width, size.height,
+                                   DXGI_FORMAT_B8G8R8A8_UNORM, 0);
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Failed to resize swap chain buffers: "
+                      << gfx::hexa(hr) << " Size : " << size;
+      return false;
+    }
+
+    hr = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+                               (void**)getter_AddRefs(backBuf));
+    if (hr == DXGI_ERROR_INVALID_CALL) {
+      // This happens on some GPUs/drivers when there's a TDR.
+      if (mDevice->GetDeviceRemovedReason() != S_OK) {
+        gfxCriticalError() << "GetBuffer returned invalid call: "
+                           << gfx::hexa(hr) << " Size : " << size;
+        return false;
+      }
     }
   }
 
@@ -705,6 +762,9 @@ bool RenderCompositorANGLE::CreateEGLSurface() {
     EGLint err = egl->mLib->fGetError();
     gfxCriticalError() << "Failed to create Pbuffer of back buffer error: "
                        << gfx::hexa(err) << " Size : " << size;
+    if (mUseRemoteBackbuffer) {
+      ReleaseRemoteBackbuffer();
+    }
     return false;
   }
 
@@ -722,6 +782,32 @@ void RenderCompositorANGLE::DestroyEGLSurface() {
     egl->fDestroySurface(mEGLSurface);
     mEGLSurface = nullptr;
   }
+}
+
+bool RenderCompositorANGLE::CreateRemoteBackbuffer() {
+  MOZ_ASSERT(mUseRemoteBackbuffer);
+  MOZ_ASSERT(mRemoteBackbufferTexture);
+
+  auto* client = mWidget->AsWindows()->GetRemoteBackbufferClient();
+  if (!client ||
+      !client->InitializeD3D11Texture(mRemoteBackbufferTexture.get())) {
+    gfxCriticalNote << "Failed to initialize remote D3D11 backbuffer";
+    if (client) {
+      client->ReleaseD3D11Texture();
+    }
+    return false;
+  }
+  return true;
+}
+
+void RenderCompositorANGLE::ReleaseRemoteBackbuffer() {
+  if (!mUseRemoteBackbuffer) {
+    return;
+  }
+  if (auto* client = mWidget->AsWindows()->GetRemoteBackbufferClient()) {
+    client->ReleaseD3D11Texture();
+  }
+  mRemoteBackbufferTexture = nullptr;
 }
 
 void RenderCompositorANGLE::Pause() {}
@@ -975,6 +1061,9 @@ bool RenderCompositorANGLE::RecreateNonNativeCompositorSwapChain() {
   DestroyEGLSurface();
   mBufferSize.reset();
 
+  if (mUseRemoteBackbuffer) {
+    return ResizeBufferIfNeeded();
+  }
   if (mDCLayerTree) {
     RefPtr<IDXGISwapChain1> swapChain1 =
         CreateSwapChainForDComp(mUseTripleBuffering, false);
@@ -993,9 +1082,6 @@ bool RenderCompositorANGLE::RecreateNonNativeCompositorSwapChain() {
 }
 
 void RenderCompositorANGLE::InitializeUsePartialPresent() {
-  // Even when mSwapChain1 is null, we could enable WR partial present, since
-  // when mSwapChain1 is null, SwapChain is blit model swap chain with one
-  // buffer.
   mUsePartialPresent = !UseCompositor() &&
                        !mWidget->AsWindows()->HasFxrOutputHandler() &&
                        gfx::gfxVars::WebRenderMaxPartialPresentRects() > 0;

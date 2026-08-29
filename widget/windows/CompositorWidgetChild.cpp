@@ -93,8 +93,16 @@ mozilla::ipc::IPCResult CompositorWidgetChild::RecvUpdateCompositorWnd(
     UpdateCompositorWndResolver&& aResolve) {
   HWND parentWnd = reinterpret_cast<HWND>(aParentWnd);
   if (mWnd == parentWnd) {
-    mCompositorWnd = reinterpret_cast<HWND>(aCompositorWnd);
-    ::SetParent(mCompositorWnd, mWnd);
+    HWND compositorWnd = reinterpret_cast<HWND>(aCompositorWnd);
+    ::SetLastError(ERROR_SUCCESS);
+    if (!::SetParent(compositorWnd, mWnd) &&
+        ::GetLastError() != ERROR_SUCCESS) {
+      gfxCriticalNote << "Could not parent compositor window: "
+                      << ::GetLastError();
+      aResolve(false);
+      return IPC_OK();
+    }
+    mCompositorWnd = compositorWnd;
     aResolve(true);
   } else {
     aResolve(false);

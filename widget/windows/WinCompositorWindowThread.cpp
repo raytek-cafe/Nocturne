@@ -222,7 +222,8 @@ void InitializeWindowClass() {
 }
 
 /* static */
-WinCompositorWnds WinCompositorWindowThread::CreateCompositorWindow() {
+WinCompositorWnds WinCompositorWindowThread::CreateCompositorWindow(
+    bool aUseLegacyWindow) {
   MOZ_ASSERT(Loop());
 
   if (!Loop()) {
@@ -255,10 +256,12 @@ WinCompositorWnds WinCompositorWindowThread::CreateCompositorWindow() {
           return;
         }
 
-        DWORD extendedStyle = WS_EX_NOPARENTNOTIFY | WS_EX_NOREDIRECTIONBITMAP;
-
-        if (!StaticPrefs::apz_windows_force_disable_direct_manipulation()) {
-          extendedStyle |= WS_EX_LAYERED | WS_EX_TRANSPARENT;
+        DWORD extendedStyle = WS_EX_NOPARENTNOTIFY;
+        if (!aUseLegacyWindow) {
+          extendedStyle |= WS_EX_NOREDIRECTIONBITMAP;
+          if (!StaticPrefs::apz_windows_force_disable_direct_manipulation()) {
+            extendedStyle |= WS_EX_LAYERED | WS_EX_TRANSPARENT;
+          }
         }
 
         compositorWnd = ::CreateWindowEx(
@@ -281,8 +284,6 @@ WinCompositorWnds WinCompositorWindowThread::CreateCompositorWindow() {
 /* static */
 void WinCompositorWindowThread::DestroyCompositorWindow(
     WinCompositorWnds aWnds) {
-  MOZ_ASSERT(aWnds.mCompositorWnd);
-  MOZ_ASSERT(aWnds.mInitialParentWnd);
   MOZ_ASSERT(Loop());
 
   if (!Loop()) {

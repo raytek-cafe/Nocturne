@@ -168,7 +168,7 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
   if (HasGlass() && knowsCompositor && knowsCompositor->GetUseCompositorWnd()) {
     HDC hdc;
     RECT rect;
-    hdc = ::GetWindowDC(mWnd);
+    hdc = ::GetDCEx(mWnd, nullptr, DCX_WINDOW | DCX_CACHE | DCX_CLIPCHILDREN);
     ::GetWindowRect(mWnd, &rect);
     ::MapWindowPoints(nullptr, mWnd, (LPPOINT)&rect, 2);
     ::FillRect(hdc, &rect,

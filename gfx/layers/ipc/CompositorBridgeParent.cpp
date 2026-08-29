@@ -10,9 +10,10 @@
 
 #include "apz/src/APZCTreeManager.h"  // for APZCTreeManager
 #include "base/process.h"             // for ProcessId
-#include "gfxContext.h"               // for gfxContext
-#include "gfxPlatform.h"              // for gfxPlatform
-#include "TreeTraversal.h"            // for ForEachNode
+#include "gfxConfig.h"
+#include "gfxContext.h"     // for gfxContext
+#include "gfxPlatform.h"    // for gfxPlatform
+#include "TreeTraversal.h"  // for ForEachNode
 #ifdef MOZ_WIDGET_GTK
 #  include "gfxPlatformGtk.h"  // for gfxPlatform
 #endif
@@ -66,6 +67,7 @@
 #include "nsTArray.h"         // for nsTArray
 #include "nsThreadUtils.h"    // for NS_IsMainThread
 #ifdef XP_WIN
+#  include "mozilla/WindowsVersion.h"
 #  include "mozilla/layers/CompositorD3D11.h"
 #  include "mozilla/widget/WinCompositorWidget.h"
 #endif
@@ -1104,12 +1106,22 @@ CompositorBridgeParent::AllocPWebRenderBridgeParent(
 #ifdef XP_WIN
   if (mWidget && mWidget->AsWindows()) {
     const auto options = mWidget->GetCompositorOptions();
-    if (!options.UseSoftwareWebRender() &&
-        (DeviceManagerDx::Get()->CanUseDComp() ||
-         gfxVars::UseWebRenderFlipSequentialWin())) {
-      mWidget->AsWindows()->EnsureCompositorWindow();
-    } else if (options.UseSoftwareWebRender() &&
-               mWidget->AsWindows()->GetCompositorHwnd()) {
+    const bool useModernWindow = IsWin8OrLater() &&
+                                 !options.UseSoftwareWebRender() &&
+                                 gfxVars::UseWebRenderANGLE() &&
+                                 (DeviceManagerDx::Get()->CanUseDComp() ||
+                                  gfxVars::UseWebRenderFlipSequentialWin());
+    // Legacy ANGLE presentation must target the browser HWND to preserve Aero
+    // glass alpha, rather than an opaque child window.
+    const bool needsGPUWindow =
+        XRE_IsGPUProcess() &&
+        (options.UseSoftwareWebRender()
+             ? options.AllowSoftwareWebRenderD3D11() &&
+                   gfxConfig::IsEnabled(Feature::D3D11_COMPOSITING)
+             : !gfxVars::UseWebRenderANGLE());
+    if (useModernWindow || needsGPUWindow) {
+      mWidget->AsWindows()->EnsureCompositorWindow(!useModernWindow);
+    } else if (mWidget->AsWindows()->GetCompositorHwnd()) {
       mWidget->AsWindows()->DestroyCompositorWindow();
     }
   }

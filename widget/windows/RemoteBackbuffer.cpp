@@ -7,9 +7,14 @@
 #include "nsThreadUtils.h"
 #include "mozilla/Span.h"
 #include "mozilla/gfx/Point.h"
+#include "mozilla/gfx/Logging.h"
+#include "mozilla/layers/HelpersD3D11.h"
+#include "mozilla/RefPtr.h"
+#include "nsWindowsHelpers.h"
 #include "WinUtils.h"
 #include <algorithm>
 #include <type_traits>
+#include <dxgi.h>
 
 namespace mozilla {
 namespace widget {
@@ -32,15 +37,22 @@ enum class ResponseResult {
   Error,
   BorrowSuccess,
   BorrowSameBuffer,
-  PresentSuccess
+  PresentSuccess,
+  D3D11Success
 };
 
-enum class SharedDataType {
+enum class SharedDataType : uint32_t {
   BorrowRequest,
   BorrowRequestAllowSameBuffer,
   BorrowResponse,
   PresentRequest,
-  PresentResponse
+  PresentResponse,
+  D3D11InitializeRequest,
+  D3D11InitializeResponse,
+  D3D11PresentRequest,
+  D3D11PresentResponse,
+  D3D11ReleaseRequest,
+  D3D11ReleaseResponse
 };
 
 struct BorrowResponseData {
@@ -58,6 +70,17 @@ struct PresentRequestData {
 struct PresentResponseData {
   ResponseResult result;
 };
+struct D3D11InitializeRequestData {
+  HANDLE sharedHandle;
+  LUID adapterLuid;
+  uint32_t width;
+  uint32_t height;
+  uint32_t format;
+};
+
+struct D3D11ResponseData {
+  ResponseResult result;
+};
 
 struct SharedData {
   SharedDataType dataType;
@@ -65,6 +88,8 @@ struct SharedData {
     BorrowResponseData borrowResponse;
     PresentRequestData presentRequest;
     PresentResponseData presentResponse;
+    D3D11InitializeRequestData d3d11InitializeRequest;
+    D3D11ResponseData d3d11Response;
   } data;
 };
 
@@ -345,6 +370,267 @@ class PresentableSharedImage {
   HBITMAP mDIBSection;
   HGDIOBJ mSavedObject;
 };
+class D3D11Presenter {
+ public:
+  explicit D3D11Presenter(HWND aWindowHandle)
+      : mWindowHandle(aWindowHandle), mAdapterLuid{}, mHasAdapter(false) {}
+
+  bool Initialize(const D3D11InitializeRequestData& aRequest) {
+    mSourceTexture = nullptr;
+
+    if (!aRequest.sharedHandle || !aRequest.width || !aRequest.height ||
+        aRequest.format != DXGI_FORMAT_B8G8R8A8_UNORM) {
+      gfxCriticalNote
+          << "Remote D3D11 presenter received invalid texture metadata";
+      return false;
+    }
+
+    if (!mDevice || !mHasAdapter ||
+        mAdapterLuid.HighPart != aRequest.adapterLuid.HighPart ||
+        mAdapterLuid.LowPart != aRequest.adapterLuid.LowPart) {
+      if (!CreateDevice(aRequest.adapterLuid)) {
+        return false;
+      }
+    }
+
+    RefPtr<ID3D11Resource> resource;
+    HRESULT hr = mDevice->OpenSharedResource(aRequest.sharedHandle,
+                                             __uuidof(ID3D11Resource),
+                                             (void**)getter_AddRefs(resource));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 OpenSharedResource failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    RefPtr<ID3D11Texture2D> sourceTexture;
+    hr = resource->QueryInterface(__uuidof(ID3D11Texture2D),
+                                  (void**)getter_AddRefs(sourceTexture));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 shared resource is not a texture: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    D3D11_TEXTURE2D_DESC sourceDesc{};
+    sourceTexture->GetDesc(&sourceDesc);
+    if (sourceDesc.Width != aRequest.width ||
+        sourceDesc.Height != aRequest.height ||
+        sourceDesc.Format != DXGI_FORMAT_B8G8R8A8_UNORM ||
+        sourceDesc.MipLevels != 1 || sourceDesc.ArraySize != 1 ||
+        sourceDesc.SampleDesc.Count != 1 ||
+        sourceDesc.Usage != D3D11_USAGE_DEFAULT) {
+      gfxCriticalNote
+          << "Remote D3D11 shared texture has incompatible descriptor";
+      return false;
+    }
+
+    if (!CreateOrResizeSwapChain(aRequest.width, aRequest.height)) {
+      return false;
+    }
+
+    RefPtr<ID3D11Texture2D> backbuffer;
+    hr = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+                               (void**)getter_AddRefs(backbuffer));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 swap chain GetBuffer failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    mSourceTexture = std::move(sourceTexture);
+    mBackbuffer = std::move(backbuffer);
+    return true;
+  }
+
+  bool Present() {
+    if (!mSourceTexture || !mBackbuffer || !mCompletionQuery) {
+      return false;
+    }
+
+    mContext->CopyResource(mBackbuffer, mSourceTexture);
+    mContext->End(mCompletionQuery);
+    mContext->Flush();
+    BOOL complete = FALSE;
+    if (!layers::WaitForFrameGPUQuery(mDevice, mContext, mCompletionQuery,
+                                      &complete) ||
+        !complete) {
+      HRESULT hr = mDevice->GetDeviceRemovedReason();
+      gfxCriticalNote << "Remote D3D11 copy completion failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    HRESULT hr = mSwapChain->Present(0, 0);
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 Present failed: " << gfx::hexa(hr);
+      return false;
+    }
+    return true;
+  }
+
+  void ReleaseTexture() {
+    mSourceTexture = nullptr;
+    mBackbuffer = nullptr;
+  }
+
+ private:
+  bool LoadModules() {
+    if (mDXGIModule && mD3D11Module) {
+      return true;
+    }
+    if (!mDXGIModule) {
+      mDXGIModule.own(LoadLibrarySystem32(L"dxgi.dll"));
+    }
+    if (!mD3D11Module) {
+      mD3D11Module.own(LoadLibrarySystem32(L"d3d11.dll"));
+    }
+    if (!mDXGIModule || !mD3D11Module) {
+      gfxCriticalNote << "Remote D3D11 failed to load system DLLs: "
+                      << ::GetLastError();
+      return false;
+    }
+    return true;
+  }
+
+  bool CreateDevice(const LUID& aAdapterLuid) {
+    ReleaseTexture();
+    mCompletionQuery = nullptr;
+    mSwapChain = nullptr;
+    mContext = nullptr;
+    mDevice = nullptr;
+    mFactory = nullptr;
+    mHasAdapter = false;
+
+    if (!LoadModules()) {
+      return false;
+    }
+
+    auto createDXGIFactory = reinterpret_cast<decltype(&CreateDXGIFactory)>(
+        ::GetProcAddress(mDXGIModule, "CreateDXGIFactory"));
+    auto d3d11CreateDevice = reinterpret_cast<decltype(&D3D11CreateDevice)>(
+        ::GetProcAddress(mD3D11Module, "D3D11CreateDevice"));
+    if (!createDXGIFactory || !d3d11CreateDevice) {
+      gfxCriticalNote << "Remote D3D11 failed to resolve system entry points";
+      return false;
+    }
+
+    HRESULT hr = createDXGIFactory(__uuidof(IDXGIFactory),
+                                   (void**)getter_AddRefs(mFactory));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 CreateDXGIFactory failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    RefPtr<IDXGIAdapter> matchingAdapter;
+    for (UINT index = 0;; ++index) {
+      RefPtr<IDXGIAdapter> adapter;
+      hr = mFactory->EnumAdapters(index, getter_AddRefs(adapter));
+      if (hr == DXGI_ERROR_NOT_FOUND) {
+        break;
+      }
+      if (FAILED(hr)) {
+        gfxCriticalNote << "Remote D3D11 EnumAdapters failed: "
+                        << gfx::hexa(hr);
+        return false;
+      }
+      DXGI_ADAPTER_DESC desc{};
+      hr = adapter->GetDesc(&desc);
+      if (FAILED(hr)) {
+        gfxCriticalNote << "Remote D3D11 adapter GetDesc failed: "
+                        << gfx::hexa(hr);
+        return false;
+      }
+      if (desc.AdapterLuid.HighPart == aAdapterLuid.HighPart &&
+          desc.AdapterLuid.LowPart == aAdapterLuid.LowPart) {
+        matchingAdapter = std::move(adapter);
+        break;
+      }
+    }
+    if (!matchingAdapter) {
+      gfxCriticalNote << "Remote D3D11 could not find the producer adapter";
+      return false;
+    }
+
+    hr = d3d11CreateDevice(matchingAdapter, D3D_DRIVER_TYPE_UNKNOWN, nullptr,
+                           D3D11_CREATE_DEVICE_BGRA_SUPPORT, nullptr, 0,
+                           D3D11_SDK_VERSION, getter_AddRefs(mDevice), nullptr,
+                           getter_AddRefs(mContext));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 device creation failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    D3D11_QUERY_DESC queryDesc{D3D11_QUERY_EVENT, 0};
+    hr = mDevice->CreateQuery(&queryDesc, getter_AddRefs(mCompletionQuery));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 event query creation failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+
+    mAdapterLuid = aAdapterLuid;
+    mHasAdapter = true;
+    return true;
+  }
+
+  bool CreateOrResizeSwapChain(uint32_t aWidth, uint32_t aHeight) {
+    HRESULT hr;
+    if (mSwapChain) {
+      mBackbuffer = nullptr;
+      hr = mSwapChain->ResizeBuffers(1, aWidth, aHeight,
+                                     DXGI_FORMAT_B8G8R8A8_UNORM, 0);
+      if (FAILED(hr)) {
+        gfxCriticalNote << "Remote D3D11 ResizeBuffers failed: "
+                        << gfx::hexa(hr);
+        return false;
+      }
+      return true;
+    }
+
+    DXGI_SWAP_CHAIN_DESC desc{};
+    desc.BufferDesc.Width = aWidth;
+    desc.BufferDesc.Height = aHeight;
+    desc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    desc.BufferDesc.RefreshRate.Numerator = 60;
+    desc.BufferDesc.RefreshRate.Denominator = 1;
+    desc.SampleDesc.Count = 1;
+    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    desc.BufferCount = 1;
+    desc.OutputWindow = mWindowHandle;
+    desc.Windowed = TRUE;
+    desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+    hr = mFactory->MakeWindowAssociation(mWindowHandle,
+                                         DXGI_MWA_NO_WINDOW_CHANGES);
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 MakeWindowAssociation failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+    hr = mFactory->CreateSwapChain(mDevice, &desc, getter_AddRefs(mSwapChain));
+    if (FAILED(hr)) {
+      gfxCriticalNote << "Remote D3D11 CreateSwapChain failed: "
+                      << gfx::hexa(hr);
+      return false;
+    }
+    return true;
+  }
+
+  HWND mWindowHandle;
+  nsModuleHandle mDXGIModule;
+  nsModuleHandle mD3D11Module;
+  RefPtr<IDXGIFactory> mFactory;
+  RefPtr<ID3D11Device> mDevice;
+  RefPtr<ID3D11DeviceContext> mContext;
+  RefPtr<IDXGISwapChain> mSwapChain;
+  RefPtr<ID3D11Texture2D> mSourceTexture;
+  RefPtr<ID3D11Texture2D> mBackbuffer;
+  RefPtr<ID3D11Query> mCompletionQuery;
+  LUID mAdapterLuid;
+  bool mHasAdapter;
+};
 
 Provider::Provider()
     : mWindowHandle(nullptr),
@@ -355,11 +641,10 @@ Provider::Provider()
       mSharedDataPtr(nullptr),
       mStopServiceThread(false),
       mServiceThread(nullptr),
-      mBackbuffer() {}
+      mBackbuffer(),
+      mD3D11Presenter() {}
 
 Provider::~Provider() {
-  mBackbuffer.reset();
-
   if (mServiceThread) {
     mStopServiceThread = true;
     MOZ_ALWAYS_TRUE(::SetEvent(mRequestReadyEvent));
@@ -432,20 +717,13 @@ bool Provider::Initialize(HWND aWindowHandle, DWORD aTargetProcessId,
 
   mStopServiceThread = false;
 
-  // This matches the stack size used by the SwComposite thread. If we are
-  // compositing in the parent process, it would perform the same operations
-  // done on RemoteBackBuffer thread, so it should be sufficient. This is likely
-  // rounded up to 64kB on Windows, but much smaller than the default.
-  static constexpr PRUint32 kRemoteBackbufferStackSize = 40 * 1024;
-
   // Use a raw NSPR OS-level thread here instead of nsThread because we are
   // performing low-level synchronization across processes using Win32 Events,
   // and nsThread is designed around an incompatible "in-process task queue"
   // model
   mServiceThread = PR_CreateThread(
       PR_USER_THREAD, [](void* p) { static_cast<Provider*>(p)->ThreadMain(); },
-      this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD,
-      kRemoteBackbufferStackSize);
+      this, PR_PRIORITY_NORMAL, PR_GLOBAL_THREAD, PR_JOINABLE_THREAD, 0);
   if (!mServiceThread) {
     return false;
   }
@@ -510,10 +788,39 @@ void Provider::ThreadMain() {
 
         break;
       }
+      case SharedDataType::D3D11InitializeRequest: {
+        D3D11InitializeRequestData requestData =
+            mSharedDataPtr->data.d3d11InitializeRequest;
+        D3D11ResponseData responseData{};
+        HandleD3D11InitializeRequest(requestData, &responseData);
+        mSharedDataPtr->dataType = SharedDataType::D3D11InitializeResponse;
+        mSharedDataPtr->data.d3d11Response = responseData;
+        MOZ_ALWAYS_TRUE(::SetEvent(mResponseReadyEvent));
+        break;
+      }
+      case SharedDataType::D3D11PresentRequest: {
+        D3D11ResponseData responseData{};
+        HandleD3D11PresentRequest(&responseData);
+        mSharedDataPtr->dataType = SharedDataType::D3D11PresentResponse;
+        mSharedDataPtr->data.d3d11Response = responseData;
+        MOZ_ALWAYS_TRUE(::SetEvent(mResponseReadyEvent));
+        break;
+      }
+      case SharedDataType::D3D11ReleaseRequest: {
+        mD3D11Presenter.reset();
+        mSharedDataPtr->dataType = SharedDataType::D3D11ReleaseResponse;
+        mSharedDataPtr->data.d3d11Response.result =
+            ResponseResult::D3D11Success;
+        MOZ_ALWAYS_TRUE(::SetEvent(mResponseReadyEvent));
+        break;
+      }
       default:
         break;
     };
   }
+
+  mD3D11Presenter.reset();
+  mBackbuffer.reset();
 }
 
 void Provider::HandleBorrowRequest(BorrowResponseData* aResponseData,
@@ -588,8 +895,29 @@ void Provider::HandlePresentRequest(const PresentRequestData& aRequestData,
   aResponseData->result = ResponseResult::PresentSuccess;
 }
 
+void Provider::HandleD3D11InitializeRequest(
+    const D3D11InitializeRequestData& aRequestData,
+    D3D11ResponseData* aResponseData) {
+  aResponseData->result = ResponseResult::Error;
+  if (!mD3D11Presenter) {
+    mD3D11Presenter = std::make_unique<D3D11Presenter>(mWindowHandle);
+  }
+  if (mD3D11Presenter->Initialize(aRequestData)) {
+    aResponseData->result = ResponseResult::D3D11Success;
+  }
+}
+
+void Provider::HandleD3D11PresentRequest(D3D11ResponseData* aResponseData) {
+  aResponseData->result = ResponseResult::Error;
+  if (mD3D11Presenter && mD3D11Presenter->Present()) {
+    aResponseData->result = ResponseResult::D3D11Success;
+  }
+}
+
 Client::Client()
-    : mFileMapping(nullptr),
+    : mRequestMutex("remote_backbuffer::Client::mRequestMutex"),
+      mConnectionFailed(false),
+      mFileMapping(nullptr),
       mRequestReadyEvent(nullptr),
       mResponseReadyEvent(nullptr),
       mSharedDataPtr(nullptr),
@@ -646,20 +974,19 @@ bool Client::Initialize(const RemoteBackbufferHandles& aRemoteHandles) {
 }
 
 already_AddRefed<gfx::DrawTarget> Client::BorrowDrawTarget() {
+  MutexAutoLock lock(mRequestMutex);
+  if (mConnectionFailed || !mSharedDataPtr) {
+    return nullptr;
+  }
+
   mSharedDataPtr->dataType = mBackbuffer
                                  ? SharedDataType::BorrowRequestAllowSameBuffer
                                  : SharedDataType::BorrowRequest;
-
-  MOZ_ALWAYS_TRUE(::SetEvent(mRequestReadyEvent));
-  MOZ_ALWAYS_TRUE(::WaitForSingleObject(mResponseReadyEvent, INFINITE) ==
-                  WAIT_OBJECT_0);
-
-  if (mSharedDataPtr->dataType != SharedDataType::BorrowResponse) {
+  if (!SendRequestAndWait(uint32_t(SharedDataType::BorrowResponse))) {
     return nullptr;
   }
 
   BorrowResponseData responseData = mSharedDataPtr->data.borrowResponse;
-
   if ((responseData.result != ResponseResult::BorrowSameBuffer) &&
       (responseData.result != ResponseResult::BorrowSuccess)) {
     return nullptr;
@@ -667,28 +994,28 @@ already_AddRefed<gfx::DrawTarget> Client::BorrowDrawTarget() {
 
   if (responseData.result == ResponseResult::BorrowSuccess) {
     mBackbuffer.reset();
-
     auto newBackbuffer = std::make_unique<SharedImage>();
     if (!newBackbuffer->InitializeRemote(responseData.width,
                                          responseData.height,
                                          responseData.fileMapping)) {
       return nullptr;
     }
-
     mBackbuffer = std::move(newBackbuffer);
   }
 
   MOZ_ASSERT(mBackbuffer);
-
   return mBackbuffer->CreateDrawTarget();
 }
 
 bool Client::PresentDrawTarget(gfx::IntRegion aDirtyRegion) {
-  mSharedDataPtr->dataType = SharedDataType::PresentRequest;
+  MutexAutoLock lock(mRequestMutex);
+  if (mConnectionFailed || !mSharedDataPtr) {
+    return false;
+  }
 
+  mSharedDataPtr->dataType = SharedDataType::PresentRequest;
   // Simplify the region until it has <= kMaxDirtyRects
   aDirtyRegion.SimplifyOutward(kMaxDirtyRects);
-
   Span rectSpan(mSharedDataPtr->data.presentRequest.dirtyRects, kMaxDirtyRects);
 
   uint8_t rectIndex = 0;
@@ -696,22 +1023,124 @@ bool Client::PresentDrawTarget(gfx::IntRegion aDirtyRegion) {
     rectSpan[rectIndex] = IpcSafeRect(iter.Get());
     ++rectIndex;
   }
-
   mSharedDataPtr->data.presentRequest.lenDirtyRects = rectIndex;
 
-  MOZ_ALWAYS_TRUE(::SetEvent(mRequestReadyEvent));
-  MOZ_ALWAYS_TRUE(::WaitForSingleObject(mResponseReadyEvent, INFINITE) ==
-                  WAIT_OBJECT_0);
+  return SendRequestAndWait(uint32_t(SharedDataType::PresentResponse)) &&
+         mSharedDataPtr->data.presentResponse.result ==
+             ResponseResult::PresentSuccess;
+}
 
-  if (mSharedDataPtr->dataType != SharedDataType::PresentResponse) {
+bool Client::InitializeD3D11Texture(ID3D11Texture2D* aTexture) {
+  if (!aTexture) {
     return false;
   }
 
-  if (mSharedDataPtr->data.presentResponse.result !=
-      ResponseResult::PresentSuccess) {
+  RefPtr<IDXGIResource> resource;
+  HRESULT hr = aTexture->QueryInterface(__uuidof(IDXGIResource),
+                                        (void**)getter_AddRefs(resource));
+  if (FAILED(hr)) {
+    gfxCriticalNote << "Remote D3D11 texture QueryInterface failed: "
+                    << gfx::hexa(hr);
     return false;
   }
 
+  HANDLE sharedHandle = nullptr;
+  hr = resource->GetSharedHandle(&sharedHandle);
+  if (FAILED(hr) || !sharedHandle) {
+    gfxCriticalNote << "Remote D3D11 GetSharedHandle failed: " << gfx::hexa(hr);
+    return false;
+  }
+
+  RefPtr<ID3D11Device> device;
+  aTexture->GetDevice(getter_AddRefs(device));
+  RefPtr<IDXGIDevice> dxgiDevice;
+  hr = device->QueryInterface(__uuidof(IDXGIDevice),
+                              (void**)getter_AddRefs(dxgiDevice));
+  if (FAILED(hr)) {
+    gfxCriticalNote << "Remote D3D11 device QueryInterface failed: "
+                    << gfx::hexa(hr);
+    return false;
+  }
+  RefPtr<IDXGIAdapter> adapter;
+  hr = dxgiDevice->GetAdapter(getter_AddRefs(adapter));
+  if (FAILED(hr)) {
+    gfxCriticalNote << "Remote D3D11 GetAdapter failed: " << gfx::hexa(hr);
+    return false;
+  }
+  DXGI_ADAPTER_DESC adapterDesc{};
+  hr = adapter->GetDesc(&adapterDesc);
+  if (FAILED(hr)) {
+    gfxCriticalNote << "Remote D3D11 adapter GetDesc failed: " << gfx::hexa(hr);
+    return false;
+  }
+
+  D3D11_TEXTURE2D_DESC textureDesc{};
+  aTexture->GetDesc(&textureDesc);
+
+  MutexAutoLock lock(mRequestMutex);
+  if (mConnectionFailed || !mSharedDataPtr) {
+    return false;
+  }
+  mSharedDataPtr->dataType = SharedDataType::D3D11InitializeRequest;
+  auto& request = mSharedDataPtr->data.d3d11InitializeRequest;
+  request.sharedHandle = sharedHandle;
+  request.adapterLuid = adapterDesc.AdapterLuid;
+  request.width = textureDesc.Width;
+  request.height = textureDesc.Height;
+  request.format = uint32_t(textureDesc.Format);
+
+  return SendRequestAndWait(
+             uint32_t(SharedDataType::D3D11InitializeResponse)) &&
+         mSharedDataPtr->data.d3d11Response.result ==
+             ResponseResult::D3D11Success;
+}
+
+bool Client::PresentD3D11Texture() {
+  MutexAutoLock lock(mRequestMutex);
+  if (mConnectionFailed || !mSharedDataPtr) {
+    return false;
+  }
+  mSharedDataPtr->dataType = SharedDataType::D3D11PresentRequest;
+  return SendRequestAndWait(uint32_t(SharedDataType::D3D11PresentResponse)) &&
+         mSharedDataPtr->data.d3d11Response.result ==
+             ResponseResult::D3D11Success;
+}
+
+void Client::ReleaseD3D11Texture() {
+  MutexAutoLock lock(mRequestMutex);
+  if (mConnectionFailed || !mSharedDataPtr) {
+    return;
+  }
+  mSharedDataPtr->dataType = SharedDataType::D3D11ReleaseRequest;
+  (void)SendRequestAndWait(uint32_t(SharedDataType::D3D11ReleaseResponse));
+}
+
+bool Client::SendRequestAndWait(uint32_t aExpectedResponseType) {
+  MOZ_ASSERT(!mConnectionFailed);
+  if (!::SetEvent(mRequestReadyEvent)) {
+    gfxCriticalNote << "Remote backbuffer SetEvent failed: "
+                    << ::GetLastError();
+    mConnectionFailed = true;
+    return false;
+  }
+
+  constexpr DWORD kResponseTimeoutMs = 5000;
+  DWORD waitResult =
+      ::WaitForSingleObject(mResponseReadyEvent, kResponseTimeoutMs);
+  if (waitResult != WAIT_OBJECT_0) {
+    gfxCriticalNote << "Remote backbuffer response wait failed: " << waitResult
+                    << ", error: " << ::GetLastError();
+    // Never issue another request: a late response could otherwise be
+    // consumed as the response to that request.
+    mConnectionFailed = true;
+    return false;
+  }
+
+  if (uint32_t(mSharedDataPtr->dataType) != aExpectedResponseType) {
+    gfxCriticalNote << "Remote backbuffer received an unexpected response";
+    mConnectionFailed = true;
+    return false;
+  }
   return true;
 }
 
