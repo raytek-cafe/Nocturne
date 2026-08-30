@@ -8,6 +8,8 @@ Nocturne is a fork of firefox that restores various removed customization option
 [star]: https://github.com/raytek-cafe/Nocturne/stargazers
 [star-badge]: https://img.shields.io/github/stars/raytek-cafe/Nocturne
 
+## All the themes in the screenshots were taken from the ESR 140 (3.x.x) version of Nocturne and might not work on 4.0+ (153 ESR). I will retake new screenshots when I have time. Sorry...
+
 #### Nocturne on Windows 10
 <p align="center">
   <img width="1440" height="900" alt="Nocturne Browser on Windows 10" src="./docs/readme/Nocturne_Win10.png" />
