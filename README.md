@@ -66,8 +66,8 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 - [Nareny](https://github.com/nt5point1/) - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
 - [e3kskoy7wqk](https://github.com/e3kskoy7wqk) - Firefox for Windows 7 patches to make Nocturne work on Windows 8.1 and lower.
 - [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
-- [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, and some miscellaneous fixes from Marble Browser
-- [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
+- [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, brightwork, and more miscellaneous fixes from Marble Browser
+- [OmegaAOL](https://github.com/OmegaAOL) - Miscellaneous improvements and features.
 - [K4sum1](https://github.com/K4sum1) - J’ai repris certains patchs que je ne savais pas comment améliorer, ou qui ne contenaient tout simplement rien que je puisse améliorer, puisque je m’étais à l’origine basé sur leur branche forkée.
 - [Feodor2](https://github.com/Feodor2/) - Portable mode and Vista compatibility changes from Mypal68
 - [MrAlex94/Waterfox](https://github.com/BrowserWorks/waterfox/) - Some patches and some commits for XUL extensions.
