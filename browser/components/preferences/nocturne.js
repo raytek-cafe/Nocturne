@@ -50,7 +50,7 @@ for (let preference of [
   { id: "geo.enabled", type: "bool", inverted: true },
   { id: "browser.ui.oldaboutconfig", type: "bool" },
   { id: "browser.ui.menu.squaredcorners", type: "bool" },
-  { id: "prompts.tab_modal.enabled", type: "bool", inverted: true },
+  { id: "prompts.tab_modal.enabled", type: "bool" },
   { id: "prompts.headerAppIcon.enabled", type: "bool" },
   { id: "prompts.tab_modal.sound.enabled", type: "bool" },
   { id: "cookiebanners.service.mode", type: "int" },
