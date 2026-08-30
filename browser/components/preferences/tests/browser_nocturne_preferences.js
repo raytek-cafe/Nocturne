@@ -28,6 +28,8 @@ const NOCTURNE_LEGACY_OPTION_COUNTS = {
   nocturneSandboxLevelType: 3,
 };
 
+const PROMPT_TAB_MODAL_PREF = "prompts.tab_modal.enabled";
+
 add_task(async function test_nocturne_preferences_have_localized_controls() {
   let tab = await openPrefsTab("nocturne");
   let doc = tab.linkedBrowser.contentDocument;
@@ -147,6 +149,46 @@ add_task(async function test_nocturne_preferences_have_localized_controls() {
       );
     }
   }
+
+  await BrowserTestUtils.removeTab(tab);
+});
+
+add_task(async function test_nocturne_prompt_tab_modal_matches_pref() {
+  await SpecialPowers.pushPrefEnv({
+    set: [[PROMPT_TAB_MODAL_PREF, false]],
+  });
+
+  let tab = await openPrefsTab("nocturne");
+  let win = tab.linkedBrowser.contentWindow;
+  let checkbox;
+
+  if (SRD_PREF_VALUE) {
+    let control = await settingControlRenders(PROMPT_TAB_MODAL_PREF, win);
+    checkbox = control.controlEl;
+  } else {
+    checkbox = win.document.getElementById("nocturnePromptTabModal");
+    await BrowserTestUtils.waitForCondition(
+      () => checkbox,
+      "Wait for the legacy prompt tab modal checkbox"
+    );
+  }
+
+  is(
+    checkbox.checked,
+    false,
+    "Prompt tab modal checkbox is unchecked when the preference is disabled"
+  );
+
+  checkbox.click();
+  await BrowserTestUtils.waitForCondition(
+    () => Services.prefs.getBoolPref(PROMPT_TAB_MODAL_PREF) && checkbox.checked,
+    "Wait for the prompt tab modal preference to be enabled"
+  );
+  is(
+    checkbox.checked,
+    true,
+    "Prompt tab modal checkbox is checked when the preference is enabled"
+  );
 
   await BrowserTestUtils.removeTab(tab);
 });
