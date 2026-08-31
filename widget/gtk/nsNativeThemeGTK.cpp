@@ -1153,6 +1153,17 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
     return NonNative::Always;
   }
 
+  if (!aFrame->PresContext()->Document()->IsInChromeDocShell()) {
+    switch (StaticPrefs::widget_native_controls_content_style()) {
+      case 0:
+        return NonNative::Always;
+      case 2:
+        return NonNative::No;
+      default:
+        break;
+    }
+  }
+
   if (IsWidgetScrollbarPart(aAppearance)) {
     // GTK native scrollbar rendering cannot handle custom scrollbar colors
     // (set via scrollbar-color CSS property) or thin scrollbar widths.
@@ -1204,10 +1215,6 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
 
   // If the non-native theme doesn't support the widget then oh well...
   if (!Theme::ThemeSupportsWidget(aFrame->PresContext(), aFrame, aAppearance)) {
-    return NonNative::No;
-  }
-
-  if (StaticPrefs::widget_native_controls_ignore_color_scheme_mismatch()) {
     return NonNative::No;
   }
 
