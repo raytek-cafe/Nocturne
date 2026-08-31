@@ -18,6 +18,9 @@
   background-color: var(--player-bg-color);
   overflow: hidden;
 }
+button::-moz-focus-inner {
+  border: 0;
+}
 
 body {
   margin: 0;
