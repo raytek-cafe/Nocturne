@@ -201,6 +201,14 @@ sub_properties = ["overflow-x", "overflow-y"]
 spec="https://drafts.csswg.org/css-overflow/#propdef-overflow"
 kind = "two_properties"
 
+[overflow-clip-box]
+engine = "gecko"
+sub_properties = ["overflow-clip-box-block", "overflow-clip-box-inline"]
+enabled_in = "chrome"
+gecko_pref = "layout.css.overflow-clip-box.enabled"
+spec = "Internal, may be standardized in the future (https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-clip-box)"
+kind = "two_properties"
+
 [overscroll-behavior]
 engine = "gecko"
 sub_properties = ["overscroll-behavior-x", "overscroll-behavior-y"]

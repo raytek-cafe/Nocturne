@@ -10972,6 +10972,12 @@
 #endif
   mirror: always
 
+# Is support for CSS overflow-clip-box enabled for non-UA sheets?
+- name: layout.css.overflow-clip-box.enabled
+  type: bool
+  value: false
+  mirror: always
+
 # Is support for CSS overflow: -moz-hidden-unscrollable enabled
 - name: layout.css.overflow-moz-hidden-unscrollable.enabled
   type: RelaxedAtomicBool
