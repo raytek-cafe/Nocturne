@@ -6846,6 +6846,7 @@ nsBlockInFlowLineIterator::nsBlockInFlowLineIterator(nsBlockFrame* aFrame,
 
 static bool AnonymousBoxIsBFC(const ComputedStyle* aStyle) {
   switch (aStyle->GetPseudoType()) {
+    case PseudoStyleType::MozButtonContent:
     case PseudoStyleType::MozFieldsetContent:
     case PseudoStyleType::MozColumnContent:
     case PseudoStyleType::MozCellContent:
@@ -8396,6 +8397,8 @@ void nsBlockFrame::SetInitialChildList(ChildListID aListID,
          PseudoStyle::IsElementBackedPseudo(pseudo) ||
          (pseudo == PseudoStyleType::MozCellContent &&
           !GetParent()->Style()->IsPseudoOrAnonBox()) ||
+         (pseudo == PseudoStyleType::MozButtonContent &&
+          !GetParent()->IsComboboxControlFrame()) ||
          pseudo == PseudoStyleType::MozFieldsetContent ||
          pseudo == PseudoStyleType::MozColumnContent ||
          pseudo == PseudoStyleType::MozScrolledContent ||
