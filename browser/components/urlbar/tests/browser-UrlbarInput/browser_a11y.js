@@ -51,6 +51,15 @@ add_task(async function test_searchmode_switcher_exposed_once() {
     containerAcc,
     "The button's host contributes no accessible of its own"
   );
+  let dropmarkerLabel = switcher.querySelector(
+    ".searchmode-switcher-dropmarker"
+  ).title;
+  Assert.ok(dropmarkerLabel, "The dropmarker is localized");
+  is(
+    buttonAcc.name,
+    dropmarkerLabel,
+    "The button takes its name from the dropmarker"
+  );
 
   let state = {},
     extraState = {};
