@@ -902,7 +902,7 @@ void PuppetWidget::Paint() {
   RefPtr<PuppetWidget> strongThis(this);
 
   if (auto* listener = GetPaintListener()) {
-    listener->PaintWindow(this);
+    listener->PaintWindow(this, false);
   }
 }
 

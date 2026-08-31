@@ -106,7 +106,7 @@ class nsIWidgetListener {
 
   /** Paint the window if needed. */
   MOZ_CAN_RUN_SCRIPT_BOUNDARY
-  virtual void PaintWindow(nsIWidget* aWidget) {}
+  virtual void PaintWindow(nsIWidget* aWidget, bool aFlushRendering = true) {}
 
   virtual void DidCompositeWindow(mozilla::layers::TransactionId aTransactionId,
                                   const mozilla::TimeStamp& aCompositeStart,

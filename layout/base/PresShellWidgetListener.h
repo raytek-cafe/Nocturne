@@ -62,7 +62,7 @@ class PresShellWidgetListener final : public nsIWidgetListener {
   void KeyboardHeightChanged(mozilla::ScreenIntCoord aHeight) override;
   void AndroidPipModeChanged(bool) override;
   MOZ_CAN_RUN_SCRIPT_BOUNDARY
-  void PaintWindow(nsIWidget* aWidget) override;
+  void PaintWindow(nsIWidget* aWidget, bool aFlushRendering) override;
   void DidCompositeWindow(mozilla::layers::TransactionId aTransactionId,
                           const mozilla::TimeStamp& aCompositeStart,
                           const mozilla::TimeStamp& aCompositeEnd) override;

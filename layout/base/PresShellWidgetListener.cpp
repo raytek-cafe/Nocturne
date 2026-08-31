@@ -198,7 +198,8 @@ void PresShellWidgetListener::AndroidPipModeChanged(bool aPipMode) {
 #endif
 }
 
-void PresShellWidgetListener::PaintWindow(nsIWidget* aWidget) {
+void PresShellWidgetListener::PaintWindow(nsIWidget* aWidget,
+                                          bool aFlushRendering) {
   RefPtr ps = mPresShell;
   if (!ps) {
     return;
@@ -206,7 +207,9 @@ void PresShellWidgetListener::PaintWindow(nsIWidget* aWidget) {
   RefPtr renderer = aWidget->GetWindowRenderer();
   if (!renderer->NeedsWidgetInvalidation()) {
     ps->PaintSynchronously();
-    renderer->FlushRendering(wr::RenderReasons::WIDGET);
+    if (aFlushRendering) {
+      renderer->FlushRendering(wr::RenderReasons::WIDGET);
+    }
   } else {
     ps->SyncPaintFallback(ps->GetRootFrame(), renderer);
   }
