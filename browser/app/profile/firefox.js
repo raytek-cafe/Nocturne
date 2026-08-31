@@ -1653,12 +1653,7 @@ pref("browser.bookmarks.editDialog.maxRecentFolders", 7);
   // the sandbox while we fix their problems, or to allow running Firefox with
   // exotic configurations we can't reasonably support out of the box.
   //
-  // Level 4 rather than 6: levels >= 5 set MOZ_HEADLESS for content processes,
-  // which makes do_CreateNativeThemeDoNotUseDirectly() hand content a plain
-  // Theme instead of nsNativeThemeGTK, so web content can never draw native
-  // GTK widgets. Level 4 keeps seccomp-bpf, read/write file brokering,
-  // network/socket restrictions and chroot.
-  pref("security.sandbox.content.level", 4);
+  pref("security.sandbox.content.level", 6);
   pref("security.sandbox.content.write_path_whitelist", "");
   pref("security.sandbox.content.read_path_whitelist", "");
   pref("security.sandbox.content.syscall_whitelist", "");
