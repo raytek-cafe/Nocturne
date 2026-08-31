@@ -22,6 +22,7 @@
 #include "WidgetUtilsGtk.h"
 
 #include <math.h>
+#include <algorithm>
 #include <dlfcn.h>
 
 static gboolean checkbox_check_state;
@@ -2285,7 +2286,16 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
       (state->depressed || state->active || state->inHover)
           ? GetActiveScrollbarMetrics(orientation)
           : GetScrollbarMetrics(orientation);
-  Inset(&rect, metrics->margin.thumb);
+  // Only ever shrink: layout already sized the thumb frame, so a negative
+  // margin (Breeze uses -9px/-6px with a transparent border) must not push the
+  // slider outside it. The transparent border plus background-clip:padding-box
+  // is what produces the narrow pill.
+  GtkBorder thumbMargin = metrics->margin.thumb;
+  thumbMargin.top = std::max<gint16>(0, thumbMargin.top);
+  thumbMargin.right = std::max<gint16>(0, thumbMargin.right);
+  thumbMargin.bottom = std::max<gint16>(0, thumbMargin.bottom);
+  thumbMargin.left = std::max<gint16>(0, thumbMargin.left);
+  Inset(&rect, thumbMargin);
 
   gtk_render_slider(style, cr, rect.x, rect.y, rect.width, rect.height,
                     orientation);

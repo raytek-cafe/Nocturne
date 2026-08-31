@@ -9,6 +9,10 @@
 #include "nsLayoutUtils.h"
 #include "nsNativeTheme.h"
 
+#ifdef MOZ_WIDGET_GTK
+#  include "gtkdrawing.h"
+#endif
+
 using namespace mozilla;
 using namespace mozilla::gfx;
 using namespace mozilla::widget;
@@ -131,5 +135,17 @@ void ScrollbarDrawingGTK::RecomputeScrollbarParams() {
   if (overrideSize > 0) {
     defaultSize = overrideSize;
   }
+#ifdef MOZ_WIDGET_GTK
+  else if (StaticPrefs::widget_native_controls_scrollbar_style() == 0) {
+    // Native GTK drawing sizes the scrollbar parts from the GTK metrics, so
+    // the scrollbar itself has to come from the same place or the box and its
+    // contents disagree.
+    const ScrollbarGTKMetrics* metrics =
+        GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL);
+    if (metrics->size.scrollbar.width > 0) {
+      defaultSize = metrics->size.scrollbar.width;
+    }
+  }
+#endif
   ConfigureScrollbarSize(defaultSize);
 }
