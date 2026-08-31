@@ -114,6 +114,8 @@ nsFirstLineFrame* NS_NewFirstLineFrame(mozilla::PresShell* aPresShell,
                                        mozilla::ComputedStyle* aStyle);
 
 // forms
+nsContainerFrame* NS_NewHTMLButtonControlFrame(
+    mozilla::PresShell* aPresShell, mozilla::ComputedStyle* aStyle);
 nsCheckboxRadioFrame* NS_NewCheckboxRadioFrame(mozilla::PresShell* aPresShell,
                                                mozilla::ComputedStyle* aStyle);
 nsIFrame* NS_NewImageControlFrame(mozilla::PresShell* aPresShell,

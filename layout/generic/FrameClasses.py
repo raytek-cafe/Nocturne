@@ -68,6 +68,7 @@ FRAME_CLASSES = [
     Frame("nsFlexContainerFrame", "FlexContainer", BLOCK),
     Frame("nsIFrame", "None", COMMON),
     Frame("nsGridContainerFrame", "GridContainer", BLOCK),
+    Frame("nsHTMLButtonControlFrame", "HTMLButtonControl", REPLACED),
     Frame("nsHTMLCanvasFrame", "HTMLCanvas", REPLACED_SIZING),
     Frame("nsHTMLFramesetBlankFrame", "None", COMMON | LEAF),
     Frame("nsHTMLFramesetBorderFrame", "None", COMMON | LEAF),

@@ -5000,6 +5000,9 @@ bool nsIFrame::ShouldHaveLineIfEmpty() const {
   switch (Style()->GetPseudoType()) {
     case PseudoStyleType::NotPseudo:
       break;
+    case PseudoStyleType::MozButtonContent:
+      // HTML quirk.
+      return GetContent()->IsHTMLElement(nsGkAtoms::input);
     case PseudoStyleType::MozScrolledContent:
       return GetParent()->ShouldHaveLineIfEmpty();
     default:
@@ -8857,6 +8860,7 @@ bool nsIFrame::IsPercentageResolvedAgainstZero(const LengthPercentage& aSize,
 bool nsIFrame::IsBlockWrapper() const {
   auto pseudoType = Style()->GetPseudoType();
   return pseudoType == PseudoStyleType::MozBlockInsideInlineWrapper ||
+         pseudoType == PseudoStyleType::MozButtonContent ||
          pseudoType == PseudoStyleType::MozCellContent ||
          pseudoType == PseudoStyleType::MozColumnSpanWrapper;
 }
@@ -12481,6 +12485,7 @@ PhysicalAxes nsIFrame::ShouldApplyOverflowClipping(
     LayoutFrameType type = Type();
     switch (type) {
       case LayoutFrameType::CheckboxRadio:
+      case LayoutFrameType::HTMLButtonControl:
       case LayoutFrameType::ComboboxControl:
       case LayoutFrameType::Progress:
       case LayoutFrameType::Range:

@@ -2633,6 +2633,7 @@ STATIC_ATOMS = [
     Atom("PseudoStyle_MozBlockInsideInlineWrapper", ":-moz-block-inside-inline-wrapper"),
     Atom("PseudoStyle_MozMathmlAnonymousBlock", ":-moz-mathml-anonymous-block"),
     Atom("PseudoStyle_MozLineFrame", ":-moz-line-frame"),
+    Atom("PseudoStyle_MozButtonContent", ":-moz-button-content"),
     Atom("PseudoStyle_MozCellContent", ":-moz-cell-content"),
     Atom("PseudoStyle_MozFieldsetContent", ":-moz-fieldset-content"),
     Atom("PseudoStyle_MozHtmlCanvasContent", ":-moz-html-canvas-content"),
