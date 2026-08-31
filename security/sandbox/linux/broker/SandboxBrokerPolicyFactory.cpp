@@ -13,6 +13,7 @@
 #include "mozilla/SandboxLaunch.h"
 #include "mozilla/SandboxSettings.h"
 #include "mozilla/StaticPrefs_security.h"
+#include "mozilla/StaticPrefs_widget.h"
 #include "mozilla/StaticMutex.h"
 #include "mozilla/UniquePtr.h"
 #include "mozilla/UniquePtrExtensions.h"
@@ -447,6 +448,11 @@ const char* PathFromEnvIfAbsolute(const char* aPath) {
 void SandboxBrokerPolicyFactory::InitContentPolicy() {
   const int level = GetEffectiveContentSandboxLevel();
   const bool headless = level >= 5;
+  // Drawing native GTK widgets in content needs a display-server connection,
+  // so keep X11 access when the non-native theme is turned off. GL stays
+  // blocked at level >= 5 either way.
+  const bool needsX11 =
+      !headless || !StaticPrefs::widget_non_native_theme_enabled();
 
   // Policy entries that are the same in every process go here, and
   // are cached over the lifetime of the factory.
@@ -458,6 +464,8 @@ void SandboxBrokerPolicyFactory::InitContentPolicy() {
 
   if (!headless) {
     AddGLDependencies(policy);
+  }
+  if (needsX11) {
     AddX11Dependencies(policy);
   }
 
@@ -693,7 +701,7 @@ void SandboxBrokerPolicyFactory::InitContentPolicy() {
   }
 #endif
 
-  if (!headless) {
+  if (needsX11) {
     AddX11Dependencies(policy);
   }
 

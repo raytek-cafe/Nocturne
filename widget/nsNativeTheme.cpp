@@ -155,6 +155,33 @@ bool nsNativeTheme::IsButtonTypeMenu(nsIFrame* aFrame) {
                                            u"menu"_ns, eCaseMatters);
 }
 
+int32_t nsNativeTheme::GetScrollbarButtonType(nsIFrame* aFrame) {
+  if (!aFrame) return 0;
+
+  static Element::AttrValuesArray strings[] = {
+      nsGkAtoms::scrollbarDownBottom, nsGkAtoms::scrollbarDownTop,
+      nsGkAtoms::scrollbarUpBottom, nsGkAtoms::scrollbarUpTop, nullptr};
+
+  nsIContent* content = aFrame->GetContent();
+  if (!content || !content->IsElement()) {
+    return 0;
+  }
+
+  switch (content->AsElement()->FindAttrValueIn(
+      kNameSpaceID_None, nsGkAtoms::sbattr, strings, eCaseMatters)) {
+    case 0:
+      return eScrollbarButton_Down | eScrollbarButton_Bottom;
+    case 1:
+      return eScrollbarButton_Down;
+    case 2:
+      return eScrollbarButton_Bottom;
+    case 3:
+      return eScrollbarButton_UpTop;
+  }
+
+  return 0;
+}
+
 bool nsNativeTheme::IsPressedButton(nsIFrame* aFrame) {
   ElementState state = GetContentState(aFrame, StyleAppearance::Toolbarbutton);
   if (state.HasState(ElementState::DISABLED)) {
