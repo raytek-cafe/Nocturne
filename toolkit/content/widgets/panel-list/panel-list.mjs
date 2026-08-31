@@ -85,6 +85,21 @@ export class PanelList extends HTMLElement {
     this.toggleAttribute("stay-open", val);
   }
 
+  /**
+   * Whether an item is activated by a mouse release over it even when the press
+   * happened elsewhere, so that the panel can be opened and an item chosen with
+   * a single click. Suitable for panels that open on mousedown.
+   *
+   * @type {boolean}
+   */
+  get clickOnMouseup() {
+    return this.hasAttribute("click-on-mouseup");
+  }
+
+  set clickOnMouseup(val) {
+    this.toggleAttribute("click-on-mouseup", val);
+  }
+
   getTargetForEvent(event) {
     if (!event) {
       return null;
@@ -980,7 +995,7 @@ export class PanelItem extends HTMLElement {
         if (
           // preventClickEvent is undefined outside of chrome contexts.
           !event.preventClickEvent ||
-          this.panel?.lastAnchorNode?.role != "combobox" ||
+          !this.panel?.clickOnMouseup ||
           e.button != 0
         ) {
           break;
