@@ -2246,15 +2246,14 @@ gboolean nsWindow::OnExposeEvent(cairo_t* cr) {
 
   RefPtr<nsWindow> strongThis(this);
 
-  // If the window has been destroyed during the will paint notification,
-  // there is nothing left to do.
+  // If the window has been destroyed before painting, there is nothing left
+  // to do.
   if (mIsDestroyed) {
     LOG("quit, mIsDestroyed");
     return TRUE;
   }
 
-  // Re-get all rendering components since the will paint notification
-  // might have killed it.
+  // Re-get all rendering components in case they were recreated.
   nsIWidgetListener* listener = GetPaintListener();
   if (!listener) {
     LOG("quit, !listener");

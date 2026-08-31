@@ -239,23 +239,15 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
 
   RefPtr<nsWindow> strongThis(this);
 
-  if (nsIWidgetListener* listener = GetPaintListener()) {
-    // Note that this might kill the listener.
-    listener->WillPaintWindow(this);
-  }
-
   bool didPaint = false;
   auto endPaint = MakeScopeExit([&] {
-  if (!aDC) {
+    if (!aDC) {
       ::EndPaint(mWnd, &ps);
     }
     if (didPaint) {
       mLastPaintEndTime = TimeStamp::Now();
-      if (nsIWidgetListener* listener = GetPaintListener()) {
-        listener->DidPaintWindow();
-      }
       if (aNestingLevel == 0 && ::GetUpdateRect(mWnd, nullptr, false)) {
-    OnPaint(aDC, 1);
+        OnPaint(aDC, 1);
       }
     }
   });
@@ -276,7 +268,6 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
                        (int32_t)mWnd);
 #endif  // WIDGET_DEBUG_OUTPUT
 
-  bool result = true;
   if (isFallback) {
       RefPtr<gfxASurface> targetSurface;
 
@@ -329,7 +320,7 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
     {
       AutoLayerManagerSetup setupLayerManager(this, &thebesContext);
       if (nsIWidgetListener* listener = GetPaintListener()) {
-        result = listener->PaintWindow(this, region);
+        listener->PaintWindow(this);
       }
     }
 
@@ -341,7 +332,7 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
       }
   } else {
     if (nsIWidgetListener* listener = GetPaintListener()) {
-      result = listener->PaintWindow(this, region);
+      listener->PaintWindow(this);
     }
         if (!gfxEnv::MOZ_DISABLE_FORCE_PRESENT() &&
             gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled()) {
@@ -352,7 +343,7 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
   }
 
   didPaint = true;
-  return result;
+  return true;
 }
 
 bool nsWindow::NeedsToTrackWindowOcclusionState() {
