@@ -12557,8 +12557,7 @@ void PresShell::PaintSynchronously() {
     return;
   }
 
-  // FIXME: This might not be needed now except for widget paints
-  // (WillPaintWindow) and maybe FlushWillPaintObservers.
+  // FIXME: This might not be needed now except for widget paints.
   WillPaint();
 
   if (MOZ_UNLIKELY(mIsDestroying)) {
