@@ -12,6 +12,7 @@ UNIFIED_SOURCES += [
     "ButtonControlFrame.cpp",
     "InputButtonControlFrame.cpp",
     "ListMutationObserver.cpp",
+    "nsButtonFrameRenderer.cpp",
     "nsCheckboxRadioFrame.cpp",
     "nsColorControlFrame.cpp",
     "nsComboboxControlFrame.cpp",
