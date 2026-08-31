@@ -151,6 +151,8 @@ gint nsNativeThemeGTK::GetTabMarginPixels(nsIFrame* aFrame) {
       std::max(0, aFrame->PresContext()->AppUnitsToDevPixels(-margin)));
 }
 
+static bool GtkCanDrawWidget(StyleAppearance aAppearance);
+
 static bool ShouldScrollbarButtonBeDisabled(int32_t aCurpos, int32_t aMaxpos,
                                             StyleAppearance aAppearance) {
   return (aCurpos == 0 &&
@@ -1153,6 +1155,12 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
     return NonNative::Always;
   }
 
+  // Anything GTK has no drawing path for must go to the non-native theme;
+  // otherwise the widget reserves space and then paints nothing at all.
+  if (!GtkCanDrawWidget(aAppearance)) {
+    return NonNative::Always;
+  }
+
   if (!aFrame->PresContext()->Document()->IsInChromeDocShell()) {
     switch (StaticPrefs::widget_native_controls_content_style()) {
       case 0:
@@ -1443,28 +1451,11 @@ nsNativeThemeGTK::ThemeChanged() {
   return NS_OK;
 }
 
-NS_IMETHODIMP_(bool)
-nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
-                                      nsIFrame* aFrame,
-                                      StyleAppearance aAppearance) {
-  if (IsWidgetTypeDisabled(mDisabledWidgetTypes, aAppearance)) {
-    return false;
-  }
-
-  if (IsWidgetNonNative(aFrame, aAppearance) == NonNative::Always) {
-    return Theme::ThemeSupportsWidget(aPresContext, aFrame, aAppearance);
-  }
-
+static bool GtkCanDrawWidget(StyleAppearance aAppearance) {
   switch (aAppearance) {
-    // Combobox dropdowns don't support native theming in vertical mode.
     case StyleAppearance::Menulist:
     case StyleAppearance::MenulistButton:
     case StyleAppearance::MenulistText:
-      if (aFrame && aFrame->GetWritingMode().IsVertical()) {
-        return false;
-      }
-      [[fallthrough]];
-
     case StyleAppearance::Button:
     case StyleAppearance::Radio:
     case StyleAppearance::Checkbox:
@@ -1491,17 +1482,13 @@ nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
     case StyleAppearance::Toolbargripper:
     case StyleAppearance::Listbox:
     case StyleAppearance::Treeview:
-      // case StyleAppearance::Treeitem:
     case StyleAppearance::Treetwisty:
-      // case StyleAppearance::Treeline:
-      // case StyleAppearance::Treeheader:
     case StyleAppearance::Treeheadercell:
     case StyleAppearance::Treeheadersortarrow:
     case StyleAppearance::Treetwistyopen:
     case StyleAppearance::ProgressBar:
     case StyleAppearance::Progresschunk:
     case StyleAppearance::Tab:
-    // case StyleAppearance::Tabpanel:
     case StyleAppearance::Tabpanels:
     case StyleAppearance::TabScrollArrowBack:
     case StyleAppearance::TabScrollArrowForward:
@@ -1530,12 +1517,25 @@ nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
     case StyleAppearance::MozWindowTitlebar:
     case StyleAppearance::MozWindowTitlebarMaximized:
     case StyleAppearance::MozWindowDecorations:
-      return !IsWidgetStyled(aPresContext, aFrame, aAppearance);
+      return true;
     default:
-      break;
+      return false;
+  }
+}
+
+NS_IMETHODIMP_(bool)
+nsNativeThemeGTK::ThemeSupportsWidget(nsPresContext* aPresContext,
+                                      nsIFrame* aFrame,
+                                      StyleAppearance aAppearance) {
+  if (IsWidgetTypeDisabled(mDisabledWidgetTypes, aAppearance)) {
+    return false;
   }
 
-  return false;
+  if (IsWidgetNonNative(aFrame, aAppearance) == NonNative::Always) {
+    return Theme::ThemeSupportsWidget(aPresContext, aFrame, aAppearance);
+  }
+
+  return !IsWidgetStyled(aPresContext, aFrame, aAppearance);
 }
 
 NS_IMETHODIMP_(bool)
