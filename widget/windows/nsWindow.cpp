@@ -1531,7 +1531,7 @@ static LPWSTR const gStockApplicationIcon = MAKEINTRESOURCEW(32512);
 const wchar_t* nsWindow::ChooseWindowClass(WindowType aWindowType) {
   switch (aWindowType) {
     case WindowType::Dialog:
-      return RegisterWindowClass(kClassNameDialog, 0, 0);
+      return RegisterWindowClass(kClassNameDialog, 0, nullptr);
     case WindowType::Popup:
       return RegisterWindowClass(kClassNameDropShadow, CS_DROPSHADOW,
                                  gStockApplicationIcon);
@@ -1641,6 +1641,7 @@ DWORD nsWindow::WindowStyle() {
 
 // Return nsWindow extended styles
 DWORD nsWindow::WindowExStyle() {
+  MOZ_ASSERT_IF(mIsAlert, mWindowType == WindowType::Dialog);
   switch (mWindowType) {
     case WindowType::Popup: {
       DWORD extendedStyle = WS_EX_TOOLWINDOW;
@@ -1651,7 +1652,7 @@ DWORD nsWindow::WindowExStyle() {
     }
     case WindowType::Dialog: {
       if (mIsAlert) {
-        return WS_EX_TOOLWINDOW;
+        return WS_EX_TOOLWINDOW | WS_EX_TOPMOST;
       }
       return WS_EX_WINDOWEDGE | WS_EX_DLGMODALFRAME;
     }
