@@ -822,7 +822,8 @@ bool TextOverflow::CanHaveOverflowMarkers(nsBlockFrame* aBlockFrame,
   //    inner label inherits 'text-overflow' and does the right thing.
   //  * Similar story for <input>, ::placeholder and the control preview inherit
   //    text-overflow as needed.
-  if (aBlockFrame->IsComboboxControlFrame() ||
+  if ((aBlockFrame->GetParent() &&
+       aBlockFrame->GetParent()->IsComboboxControlFrame()) ||
       IsTextInputScrolledContent(aBlockFrame)) {
     return false;
   }

@@ -21,7 +21,7 @@
   box-decoration-break: inherit;
   block-size: 100%; /* Need this so percentage block-sizes of kids work right */
   /* Please keep the declarations below in sync with ::-moz-scrolled-content in
-     ua.css. */
+     ua.css and ::-moz-button-content below. */
   content: inherit;
   /* Multicol container */
   column-count: inherit;
@@ -550,6 +550,36 @@ button,
   display: inline-block;
 }
 
+*|*::-moz-button-content {
+  display: block;
+  /* Please keep the declarations below in sync with ::-moz-scrolled-content in
+     ua.css and ::-moz-fieldset-content above. */
+  content: inherit;
+  column-count: inherit;
+  column-width: inherit;
+  column-gap: inherit;
+  column-rule: inherit;
+  column-fill: inherit;
+  flex-direction: inherit;
+  flex-wrap: inherit;
+  -moz-box-orient: inherit;
+  -moz-box-direction: inherit;
+  -moz-box-pack: inherit;
+  -moz-box-align: inherit;
+  grid-auto-columns: inherit;
+  grid-auto-rows: inherit;
+  grid-auto-flow: inherit;
+  grid-column-gap: inherit;
+  grid-row-gap: inherit;
+  grid-template-areas: inherit;
+  grid-template-columns: inherit;
+  grid-template-rows: inherit;
+  align-content: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+  justify-items: inherit;
+}
+
 ::file-selector-button:hover,
 button:hover,
 input:where([type="reset"], [type="button"], [type="submit"], [type="color"]):hover {
@@ -632,6 +662,10 @@ input[type="file"] {
  *  inherit into the scroll frame with pseudo ::-moz-text-control-editing-root
  *  which is a (direct or indirect) child of the text control.
  *
+ * Buttons (either <button>, <input type=submit>, <input type=button>
+ *          or <input type=reset>):
+ *  inherit into the ::-moz-button-content pseudo-element.
+ *
  * <select>:
  *  inherit into the label and the <optgroup>'s ':before' pseudo-element,
  *  which is where the label of the <optgroup> gets displayed. The <option>s
@@ -639,6 +673,7 @@ input[type="file"] {
  */
 ::placeholder,
 ::-moz-text-control-editing-root,
+*|*::-moz-button-content,
 ::-moz-select-content,
 optgroup::before {
   unicode-bidi: inherit;
