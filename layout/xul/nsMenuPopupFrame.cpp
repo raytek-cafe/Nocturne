@@ -346,8 +346,8 @@ void nsMenuPopupFrame::CreateWidget() {
   if (!title.IsEmpty()) {
     mWidget->SetTitle(title);
   }
-
 }
+
 
 LayoutDeviceIntRect nsMenuPopupFrame::CalcWidgetBounds() const {
   auto a2d = PresContext()->AppUnitsPerDevPixel();
@@ -2595,7 +2595,7 @@ nsEventStatus nsMenuPopupFrame::HandleEvent(mozilla::WidgetGUIEvent* aEvent) {
   return status;
 }
 
-void nsMenuPopupFrame::PaintWindow(nsIWidget* aWidget) {
+void nsMenuPopupFrame::PaintWindow(nsIWidget* aWidget, bool) {
   MOZ_ASSERT(aWidget == mWidget);
   nsAutoScriptBlocker scriptBlocker;
   RefPtr ps = PresShell();
