@@ -406,6 +406,9 @@ button:disabled {
   /* !important to override other uses of `fill` where the specificity there is greater. */
   fill: var(--icon-disabled-fill) !important;
 }
+.toolbar button::-moz-focus-inner {
+  border: 0;
+}
 
 .toolbar-button {
   position: relative;
