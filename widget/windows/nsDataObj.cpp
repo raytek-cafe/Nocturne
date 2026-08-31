@@ -197,7 +197,17 @@ NS_IMETHODIMP nsDataObj::CStream::OnStopRequest(nsIRequest* aRequest,
 // Pumps thread messages while waiting for the async listener operation to
 // complete. Failing this call will fail the stream incall from Windows
 // and cancel the operation.
+// The method spins the event loop during operation and may unregister the
+// CStream, so it holds a strong reference for its duration.  Callers
+// must consider that, upon return, the CStream may have been unregistered and
+// destroyed, so they will need to hold a strong reference if they need it to
+// exist after this.
 nsresult nsDataObj::CStream::WaitForCompletion() {
+  // HttpBaseChannel::ReleaseListeners, as part of
+  // nsIRequestObserver::OnStopRequest, may drop its reference when we spin the
+  // event loop.
+  RefPtr<CStream> keepAliveDuringWait(this);
+
   // We are guaranteed OnStopRequest will get called, so this should be ok.
   SpinEventLoopUntil("widget:nsDataObj::CStream::WaitForCompletion"_ns,
                      [&]() { return mChannelRead; });
@@ -234,6 +244,8 @@ STDMETHODIMP nsDataObj::CStreamBase::LockRegion(ULARGE_INTEGER nStart,
 //-----------------------------------------------------------------------------
 STDMETHODIMP nsDataObj::CStream::Read(void* pvBuffer, ULONG nBytesToRead,
                                       ULONG* nBytesRead) {
+  RefPtr<CStream> keepAliveDuringRead(this);
+
   // Wait for the write into our buffer to complete via the stream listener.
   // We can't respond to this by saying "call us back later".
   if (NS_FAILED(WaitForCompletion())) return E_FAIL;
@@ -276,6 +288,8 @@ STDMETHODIMP nsDataObj::CStreamBase::SetSize(ULARGE_INTEGER nNewSize) {
 STDMETHODIMP nsDataObj::CStream::Stat(STATSTG* statstg, DWORD dwFlags) {
   if (statstg == nullptr) return STG_E_INVALIDPOINTER;
 
+  RefPtr<CStream> keepAliveDuringStat(this);
+
   if (!mChannel || NS_FAILED(WaitForCompletion())) return E_FAIL;
 
   memset((void*)statstg, 0, sizeof(STATSTG));
@@ -288,6 +302,8 @@ STDMETHODIMP nsDataObj::CStream::Stat(STATSTG* statstg, DWORD dwFlags) {
 
     nsAutoCString strFileName;
     nsCOMPtr<nsIURL> sourceURL = do_QueryInterface(sourceURI);
+    if (!sourceURL) return E_FAIL;
+
     sourceURL->GetFileName(strFileName);
 
     if (strFileName.IsEmpty()) return E_FAIL;
