@@ -129,6 +129,8 @@ exports.ANIMATION_TYPE_FOR_LONGHANDS = [
       "outline-style",
       "overflow-anchor",
       "overflow-block",
+      "overflow-clip-box-block",
+      "overflow-clip-box-inline",
       "overflow-inline",
       "overflow-wrap",
       "overflow-x",

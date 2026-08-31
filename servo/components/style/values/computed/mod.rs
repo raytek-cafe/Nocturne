@@ -59,10 +59,10 @@ pub use self::border::{
 pub use self::box_::{
     AlignmentBaseline, Appearance, BaselineShift, BaselineSource, BreakBetween, BreakWithin, Clear,
     Contain, ContainIntrinsicSize, ContainerName, ContainerType, ContentVisibility, Display,
-    DominantBaseline, Float, LineClamp, Overflow, OverflowAnchor, OverflowClipMargin,
-    OverscrollBehavior, Perspective, PositionProperty, Resize, ScrollSnapAlign, ScrollSnapAxis,
-    ScrollSnapStop, ScrollSnapStrictness, ScrollSnapType, ScrollbarGutter, TouchAction, WillChange,
-    WritingModeProperty, Zoom,
+    DominantBaseline, Float, LineClamp, Overflow, OverflowAnchor, OverflowClipBox,
+    OverflowClipMargin, OverscrollBehavior, Perspective, PositionProperty, Resize,
+    ScrollSnapAlign, ScrollSnapAxis, ScrollSnapStop, ScrollSnapStrictness, ScrollSnapType,
+    ScrollbarGutter, TouchAction, WillChange, WritingModeProperty, Zoom,
 };
 pub use self::color::{
     Color, ColorOrAuto, ColorPropertyValue, ColorScheme, ForcedColorAdjust, PrintColorAdjust,

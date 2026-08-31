@@ -1578,6 +1578,28 @@ spec = "https://drafts.csswg.org/css-overflow-3/#propdef-overflow-block"
 servo_restyle_damage = "rebuild_box"
 affects = "layout"
 
+[overflow-clip-box-block]
+type = "OverflowClipBox"
+initial = "computed::OverflowClipBox::PaddingBox"
+struct = "box"
+engine = "gecko"
+enabled_in = "chrome"
+gecko_pref = "layout.css.overflow-clip-box.enabled"
+animation_type = "discrete"
+spec = "Internal, may be standardized in the future: https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-clip-box"
+affects = "layout"
+
+[overflow-clip-box-inline]
+type = "OverflowClipBox"
+initial = "computed::OverflowClipBox::PaddingBox"
+struct = "box"
+engine = "gecko"
+enabled_in = "chrome"
+gecko_pref = "layout.css.overflow-clip-box.enabled"
+animation_type = "discrete"
+spec = "Internal, may be standardized in the future: https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-clip-box"
+affects = "layout"
+
 [overflow-clip-margin]
 type = "OverflowClipMargin"
 initial = "computed::OverflowClipMargin::zero()"

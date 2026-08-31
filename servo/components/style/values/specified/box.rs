@@ -1089,6 +1089,29 @@ pub enum OverflowAnchor {
     None,
 }
 
+#[allow(missing_docs)]
+#[cfg_attr(feature = "servo", derive(Deserialize, Serialize))]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    MallocSizeOf,
+    Parse,
+    PartialEq,
+    SpecifiedValueInfo,
+    ToComputedValue,
+    ToCss,
+    ToResolvedValue,
+    ToShmem,
+    ToTyped,
+)]
+#[repr(u8)]
+pub enum OverflowClipBox {
+    PaddingBox,
+    ContentBox,
+}
+
 #[derive(
     Clone,
     Debug,
