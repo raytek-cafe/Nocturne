@@ -1109,7 +1109,6 @@ class PresShell final : public nsStubDocumentObserver,
   // Notify that we called PaintWindow() from widget.
   MOZ_CAN_RUN_SCRIPT
   void DidPaintWindow();
-
   bool IsVisible() const;
   bool IsUnderHiddenEmbedderElement() const {
     return mUnderHiddenEmbedderElement;

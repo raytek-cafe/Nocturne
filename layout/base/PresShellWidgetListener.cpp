@@ -199,7 +199,7 @@ void PresShellWidgetListener::AndroidPipModeChanged(bool aPipMode) {
 }
 
 void PresShellWidgetListener::PaintWindow(nsIWidget* aWidget) {
-  RefPtr ps = GetPresShell();
+  RefPtr ps = mPresShell;
   if (!ps) {
     return;
   }
