@@ -56,6 +56,13 @@ class RemoteLookAndFeel final : public nsXPLookAndFeel {
 
  private:
   LookAndFeelTables mTables;
+
+#ifdef MOZ_WIDGET_GTK
+  // Whether the GTK theme the parent chose for content is a dark one. Content's
+  // colour scheme has to follow the theme its widgets are actually painted
+  // with, not the chrome theme the parent computed the tables under.
+  bool mContentThemeIsDark = false;
+#endif
 };
 
 }  // namespace mozilla::widget

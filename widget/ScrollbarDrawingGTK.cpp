@@ -10,6 +10,10 @@
 #include "nsLayoutUtils.h"
 #include "nsNativeTheme.h"
 
+#ifdef MOZ_WIDGET_GTK
+#  include "gtkdrawing.h"
+#endif
+
 using namespace mozilla;
 using namespace mozilla::gfx;
 using namespace mozilla::widget;
@@ -129,10 +133,34 @@ bool ScrollbarDrawingGTK::ShouldDrawScrollbarButtons() {
 
 void ScrollbarDrawingGTK::RecomputeScrollbarParams() {
   uint32_t defaultSize = 12;
+  uint32_t overlaySize = 0;
   uint32_t overrideSize =
       StaticPrefs::widget_non_native_theme_scrollbar_size_override();
   if (overrideSize > 0) {
     defaultSize = overrideSize;
   }
+#ifdef MOZ_WIDGET_GTK
+  else if (StaticPrefs::widget_native_controls_scrollbar_style() == 0) {
+    // Native GTK drawing sizes the scrollbar parts from the GTK metrics, so
+    // the scrollbar itself has to come from the same place or the box and its
+    // contents disagree.
+    const ScrollbarGTKMetrics* metrics =
+        GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL);
+    if (metrics->size.scrollbar.width > 0) {
+      defaultSize = metrics->size.scrollbar.width;
+    }
+    const ScrollbarGTKMetrics* overlayMetrics =
+        GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL, true);
+    if (overlayMetrics->size.scrollbar.width > 0) {
+      overlaySize = overlayMetrics->size.scrollbar.width;
+    }
+  }
+#endif
   ConfigureScrollbarSize(defaultSize);
+  if (overlaySize > 0) {
+    ConfigureScrollbarSize(StyleScrollbarWidth::Auto, Overlay::Yes,
+                           overlaySize);
+    ConfigureScrollbarSize(StyleScrollbarWidth::Thin, Overlay::Yes,
+                           overlaySize / 2);
+  }
 }

@@ -48,6 +48,8 @@
 #include <dlfcn.h>
 #include "WidgetStyleCache.h"
 #include "prenv.h"
+#include "nsCharSeparatedTokenizer.h"
+#include <unistd.h>
 #include "nsCSSColorUtils.h"
 #include "mozilla/Preferences.h"
 
@@ -924,6 +926,13 @@ static int32_t ConvertGTKStepperStyleToMozillaScrollArrowStyle(
                           mozilla::LookAndFeel::eScrollArrow_StartForward);
 }
 
+static bool GetGtkOverlayScrolling() {
+  GtkSettings* settings = gtk_settings_get_default();
+  gboolean overlayScrolling = TRUE;
+  g_object_get(settings, "gtk-overlay-scrolling", &overlayScrolling, nullptr);
+  return overlayScrolling == TRUE;
+}
+
 nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
   nsresult res = NS_OK;
 
@@ -1163,7 +1172,8 @@ nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
       }();
       break;
     case IntID::UseOverlayScrollbars: {
-      aResult = StaticPrefs::widget_gtk_overlay_scrollbars_enabled();
+      aResult = StaticPrefs::widget_gtk_overlay_scrollbars_enabled() &&
+                GetGtkOverlayScrolling();
       break;
     }
     case IntID::HideCursorWhileTyping: {
@@ -1346,6 +1356,14 @@ static bool GetThemeIsDark() {
          RelativeLuminanceUtils::Compute(GDK_RGBA_TO_NS_RGBA(fg));
 }
 
+void nsLookAndFeel::ConfigureTheme(const LookAndFeelTheme& aTheme) {
+  MOZ_ASSERT(XRE_IsContentProcess());
+  GtkSettings* settings = gtk_settings_get_default();
+  g_object_set(settings, "gtk-theme-name", aTheme.themeName().get(),
+               "gtk-application-prefer-dark-theme",
+               aTheme.preferDarkTheme() ? TRUE : FALSE, nullptr);
+  moz_gtk_refresh();
+}
 void nsLookAndFeel::RestoreSystemTheme() {
   LOGLNF("RestoreSystemTheme(%s, %d, %d)\n", mSystemTheme.mName.get(),
          mSystemTheme.mPreferDarkTheme, mSystemThemeOverridden);
@@ -1884,6 +1902,86 @@ static bool GetColorFromBackgroundImage(GtkStyleContext* aStyle,
   return false;
 }
 
+// Some themes (Breeze, for one) ship their dark variant as a separate theme
+// rather than as a dark variant of the same one, so
+// gtk-application-prefer-dark-theme has nothing to switch to and content ends
+// up light while chrome is dark. Look for the sibling explicitly.
+static bool GtkThemeExists(const nsACString& aName) {
+  auto hasTheme = [&aName](const char* aDir) -> bool {
+    if (!aDir || !*aDir) {
+      return false;
+    }
+    nsAutoCString path(aDir);
+    path.AppendLiteral("/themes/");
+    path.Append(aName);
+    path.AppendLiteral("/gtk-3.0/gtk.css");
+    return access(path.get(), R_OK) == 0;
+  };
+
+  if (const char* dataHome = PR_GetEnv("XDG_DATA_HOME")) {
+    if (hasTheme(dataHome)) {
+      return true;
+    }
+  } else if (const char* home = PR_GetEnv("HOME")) {
+    nsAutoCString local(home);
+    local.AppendLiteral("/.local/share");
+    if (hasTheme(local.get())) {
+      return true;
+    }
+  }
+
+  if (const char* home = PR_GetEnv("HOME")) {
+    nsAutoCString dotThemes(home);
+    dotThemes.AppendLiteral("/.themes/");
+    dotThemes.Append(aName);
+    dotThemes.AppendLiteral("/gtk-3.0/gtk.css");
+    if (access(dotThemes.get(), R_OK) == 0) {
+      return true;
+    }
+  }
+
+  if (const char* dataDirs = PR_GetEnv("XDG_DATA_DIRS")) {
+    for (const nsACString& dir :
+         nsCCharSeparatedTokenizer(nsDependentCString(dataDirs), ':')
+             .ToRange()) {
+      if (hasTheme(PromiseFlatCString(dir).get())) {
+        return true;
+      }
+    }
+  }
+
+  return hasTheme("/usr/share") || hasTheme("/usr/local/share");
+}
+
+void nsLookAndFeel::GetGtkContentTheme(LookAndFeelTheme& aTheme) {
+  // The pref is registered with an empty default, so GetCString succeeds even
+  // when it is unset. Only honour it when it actually names a theme, otherwise
+  // content is handed an empty theme name and GTK falls back to its built-in
+  // default instead of the system theme.
+  nsAutoCString themeOverride;
+  if (NS_SUCCEEDED(Preferences::GetCString("widget.content.gtk-theme-override",
+                                           themeOverride)) &&
+      !themeOverride.IsEmpty()) {
+    aTheme.themeName() = themeOverride;
+    return;
+  }
+
+  auto& theme = StaticPrefs::widget_content_allow_gtk_dark_theme()
+                    ? mSystemTheme
+                    : LightTheme();
+  aTheme.preferDarkTheme() = theme.mPreferDarkTheme;
+  aTheme.themeName() = theme.mName;
+  aTheme.isDark() = theme.mIsDark;
+
+  if (theme.mIsDark && !StringEndsWith(aTheme.themeName(), "-Dark"_ns,
+                                       nsCaseInsensitiveCStringComparator)) {
+    nsAutoCString dark(aTheme.themeName());
+    dark.AppendLiteral("-Dark");
+    if (GtkThemeExists(dark)) {
+      aTheme.themeName() = dark;
+    }
+  }
+}
 static nscolor GetBackgroundColor(
     GtkStyleContext* aStyle, nscolor aForForegroundColor,
     GtkStateFlags aState = GTK_STATE_FLAG_NORMAL,

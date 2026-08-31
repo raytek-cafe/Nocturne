@@ -12,6 +12,9 @@
 
 namespace mozilla::widget {
 
+// Needs to be a public export for Photon styles.
+const ComputedStyle* GetCustomScrollbarStyle(nsIFrame* aFrame);
+
 class ScrollbarDrawingGTK final : public ScrollbarDrawing {
  public:
   ScrollbarDrawingGTK() : ScrollbarDrawing(Kind::Gtk) {}

@@ -60,6 +60,7 @@ class nsLookAndFeel final : public nsXPLookAndFeel {
     // When calling Refresh(), we don't need to reload all our GTK theme info,
     // but we might need to change our effective theme.
     RecordChange(NativeChangeKind::OtherSettings);
+    nsXPLookAndFeel::RefreshImpl();
   }
 
   bool GetDefaultDrawInTitlebar() override;

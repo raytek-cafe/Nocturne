@@ -48,11 +48,17 @@ struct LookAndFeelTables {
     bool passwordEcho;
 };
 
+struct LookAndFeelTheme {
+    nsCString themeName;
+    bool preferDarkTheme;
+    bool isDark;
+};
 /**
  * Stores the entirety of a LookAndFeel's data.
  */
 struct FullLookAndFeel {
     LookAndFeelTables tables;
+    LookAndFeelTheme theme;
 };
 
 } // namespace widget

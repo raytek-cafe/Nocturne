@@ -35,6 +35,7 @@
 #include "mozilla/StaticPrefs_media.h"
 #include "mozilla/StaticPrefs_security.h"
 #include "mozilla/Unused.h"
+#include "mozilla/StaticPrefs_widget.h"
 #include "mozilla/ipc/UtilityProcessSandboxing.h"
 #include "nsCOMPtr.h"
 #include "nsDebug.h"
@@ -326,7 +327,8 @@ bool SandboxLaunch::Configure(GeckoProcessType aType, SandboxingKind aKind,
 
     // The intent of level 5 is to block display server access, so
     // tell the content process not to attempt to connect.
-    if (GetEffectiveContentSandboxLevel() >= 5) {
+    if (GetEffectiveContentSandboxLevel() >= 5 &&
+        StaticPrefs::widget_non_native_theme_enabled()) {
       aOptions->env_map["MOZ_HEADLESS"] = "1";
     }
   }
