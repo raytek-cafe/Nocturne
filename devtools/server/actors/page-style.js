@@ -862,6 +862,15 @@ class PageStyleActor extends Actor {
       (node.mozIsTextField(false) || node.type == "number")
     );
   }
+  #nodeIsButtonLike(node) {
+    if (node.nodeName == "BUTTON") {
+      return true;
+    }
+    return (
+      node.nodeName == "INPUT" &&
+      ["submit", "color", "button"].includes(node.type)
+    );
+  }
 
   #nodeIsListItem(node) {
     const computed = CssLogic.getComputedStyle(node);
@@ -936,6 +945,8 @@ class PageStyleActor extends Actor {
       case "::placeholder":
       case "::-moz-placeholder":
         return !isInherited && this.#nodeIsTextfieldLike(node);
+      case "::-moz-focus-inner":
+        return !isInherited && this.#nodeIsButtonLike(node);
       case "::-moz-meter-bar":
         return !isInherited && node.nodeName == "METER";
       case "::-moz-progress-bar":

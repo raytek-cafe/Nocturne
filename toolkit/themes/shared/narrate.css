@@ -266,6 +266,10 @@ body.hcm .narrate-word-highlight {
       text-align: start;
       padding-inline-start: var(--space-medium);
     }
+    > button.option::-moz-focus-inner {
+      outline: none;
+      border: 0;
+    }
 
     &:not(.hovering) > button.option:hover:not(:focus) {
       background-color: transparent;

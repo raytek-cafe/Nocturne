@@ -165,6 +165,9 @@ button {
   /* Use the same margin of other elements for the alignment */
   margin-inline: var(--space-xsmall);
 }
+::-moz-focus-inner {
+  border: none;
+}
 
 button:focus-visible,
 html|select:focus-visible,
