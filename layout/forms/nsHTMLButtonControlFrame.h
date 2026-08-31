@@ -7,6 +7,7 @@
 #ifndef nsHTMLButtonControlFrame_h___
 #define nsHTMLButtonControlFrame_h___
 
+#include "nsButtonFrameRenderer.h"
 #include "nsCSSRenderingBorders.h"
 #include "nsContainerFrame.h"
 
@@ -65,6 +66,11 @@ class nsHTMLButtonControlFrame : public nsContainerFrame {
 
   void AppendDirectlyOwnedAnonBoxes(nsTArray<OwnedAnonBox>& aResult) override;
 
+  void Init(nsIContent* aContent, nsContainerFrame* aParent,
+            nsIFrame* aPrevInFlow) override;
+
+  void DidSetComputedStyle(ComputedStyle* aOldComputedStyle) override;
+
  protected:
   nsHTMLButtonControlFrame(ComputedStyle* aStyle, nsPresContext* aPresContext,
                            nsIFrame::ClassID aID);
@@ -81,6 +87,7 @@ class nsHTMLButtonControlFrame : public nsContainerFrame {
       mozilla::WritingMode aWM,
       BaselineSharingGroup aBaselineGroup) const override;
 
+  nsButtonFrameRenderer mRenderer;
 };
 
 #endif

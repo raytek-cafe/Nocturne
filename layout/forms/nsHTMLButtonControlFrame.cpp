@@ -37,6 +37,21 @@ nsHTMLButtonControlFrame::nsHTMLButtonControlFrame(ComputedStyle* aStyle,
 
 nsHTMLButtonControlFrame::~nsHTMLButtonControlFrame() = default;
 
+void nsHTMLButtonControlFrame::Init(nsIContent* aContent,
+                                    nsContainerFrame* aParent,
+                                    nsIFrame* aPrevInFlow) {
+  nsContainerFrame::Init(aContent, aParent, aPrevInFlow);
+  mRenderer.SetFrame(this, PresContext());
+}
+
+void nsHTMLButtonControlFrame::DidSetComputedStyle(
+    ComputedStyle* aOldComputedStyle) {
+  nsContainerFrame::DidSetComputedStyle(aOldComputedStyle);
+  if (aOldComputedStyle) {
+    mRenderer.ReResolveStyles(PresContext());
+  }
+}
+
 NS_QUERYFRAME_HEAD(nsHTMLButtonControlFrame)
   NS_QUERYFRAME_ENTRY(nsHTMLButtonControlFrame)
 NS_QUERYFRAME_TAIL_INHERITING(nsContainerFrame)
@@ -64,6 +79,7 @@ bool nsHTMLButtonControlFrame::ShouldClipPaintingToBorderBox() const {
 
 void nsHTMLButtonControlFrame::BuildDisplayList(
     nsDisplayListBuilder* aBuilder, const nsDisplayListSet& aLists) {
+  nsDisplayList onTop(aBuilder);
   if (IsVisibleForPainting()) {
     Maybe<DisplayListClipState::AutoSaveRestore> eventClipState;
     if (aBuilder->IsForEventDelivery()) {
@@ -75,8 +91,10 @@ void nsHTMLButtonControlFrame::BuildDisplayList(
           rect, hasRadii ? &radii : nullptr);
     }
 
-    DisplayBorderBackgroundOutline(aBuilder, aLists);
+    mRenderer.DisplayButton(aBuilder, aLists.BorderBackground(), &onTop);
   }
+
+  nsDisplayListCollection set(aBuilder);
 
   {
     DisplayListClipState::AutoSaveRestore clipState(aBuilder);
@@ -91,9 +109,14 @@ void nsHTMLButtonControlFrame::BuildDisplayList(
                                                hasRadii ? &radii : nullptr);
     }
 
-    BuildDisplayListForChild(aBuilder, mFrames.FirstChild(), aLists,
+    BuildDisplayListForChild(aBuilder, mFrames.FirstChild(), set,
                              DisplayChildFlag::ForcePseudoStackingContext);
   }
+
+  set.Content()->AppendToTop(&onTop);
+  set.MoveTo(aLists);
+
+  DisplayOutline(aBuilder, aLists);
 
   DisplaySelectionOverlay(aBuilder, aLists.Content());
 }
