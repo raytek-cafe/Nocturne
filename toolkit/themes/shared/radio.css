@@ -65,8 +65,14 @@ radio {
   }
 }
 
-.radio-icon[src] {
-  margin-inline-end: 2px;
+@media (-moz-platform: windows) or (-moz-platform: linux) {
+  radiogroup:focus-visible > radio[focused="true"] > .radio-label-box {
+    outline: var(--focus-outline);
+  }
+
+  .radio-icon[src] {
+    margin-inline-end: 2px;
+  }
 }
 
 @media (-moz-platform: windows) {
