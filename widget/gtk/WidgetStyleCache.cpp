@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <dlfcn.h>
+#include "mozilla/StaticPrefs_widget.h"
 #include <gtk/gtk.h>
 #include "WidgetStyleCache.h"
 #include "gtkdrawing.h"
@@ -39,7 +40,10 @@ static GtkStyleContext* GetCssNodeStyleInternal(WidgetNodeType aNodeType);
 static GtkWidget* CreateWindowWidget() {
   GtkWidget* widget = gtk_window_new(GTK_WINDOW_POPUP);
   MOZ_RELEASE_ASSERT(widget, "We're missing GtkWindow widget!");
-  gtk_widget_set_name(widget, "MozillaGtkWidget");
+  gtk_widget_set_name(widget,
+                      StaticPrefs::widget_native_controls_use_mozilla_widget_name()
+                          ? "MozillaGtkWidget"
+                          : "MarbleGtkWidget");
   return widget;
 }
 

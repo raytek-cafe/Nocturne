@@ -20280,6 +20280,15 @@
   value: 0
   mirror: always
 
+# GTK themes sometimes ship rules keyed on Firefox's style-cache widget name
+# ("#MozillaGtkWidget"). Breeze uses one to zero the scrollbar slider margins,
+# which makes the scrollbar 10px wider than in every other GTK app. Set this to
+# use the Firefox name and pick those rules up again.
+- name: widget.native-controls.use-mozilla-widget-name
+  type: RelaxedAtomicBool
+  value: false
+  mirror: always
+
 # How native GTK widgets are used for web content:
 #   0 = never    - always use the non-native theme in content
 #   1 = match    - native only when the page's colour scheme matches the GTK
@@ -20300,7 +20309,7 @@
 # Global user preference for disabling native theme in content processes.
 #
 # NOTE(emilio): When changing this make sure to update the non_native_theme
-# entry in python/mozbuild/mozbuild/mozinfo.py and test_fission_autostart.py
+# entry in python/mozbuild/mozinfo.py and test_fission_autostart.py
 # erm no LOLOLOLOLOLO -eriz
 - name: widget.non-native-theme.enabled
   type: RelaxedAtomicBool
