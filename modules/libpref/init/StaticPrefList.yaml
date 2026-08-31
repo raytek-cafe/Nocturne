@@ -20292,9 +20292,10 @@
 # How native GTK widgets are used for web content:
 #   0 = never    - always use the non-native theme in content
 #   1 = match    - native only when the page's colour scheme matches the GTK
-#                  theme, otherwise fall back
-#   2 = always   - native regardless of scheme; a dark GTK theme draws dark
-#                  widgets on light pages
+#                  theme, otherwise fall back (GTK cannot draw a light widget
+#                  with a dark theme loaded, or vice versa)
+#   2 = always   - native regardless of scheme; pre-Firefox-97 behaviour, and
+#                  means a dark GTK theme draws dark widgets on light pages
 # Chrome is unaffected and always uses the native theme.
 - name: widget.native-controls.content-style
   type: int32_t
