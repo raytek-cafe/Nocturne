@@ -17,6 +17,8 @@
 #include "mozilla/StaticPrefs_widget.h"
 #include "nsLayoutUtils.h"
 #include "mozilla/WidgetUtilsGtk.h"
+#include "ScrollbarDrawingGTK.h"
+#include "Theme.h"
 
 #ifdef MOZ_X11
 #  ifdef CAIRO_HAS_XLIB_SURFACE
@@ -506,14 +508,17 @@ bool nsNativeThemeGTK::GetWidgetOverflow(nsDeviceContext* aContext,
 auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
                                          StyleAppearance aAppearance)
     -> NonNative {
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (aAppearance == StyleAppearance::FocusOutline) {
     return NonNative::Always;
   }
 
   if (IsWidgetScrollbarPart(aAppearance)) {
-    ComputedStyle* style = nsLayoutUtils::StyleForScrollbar(aFrame);
-    if (style->StyleUI()->HasCustomScrollbars() ||
-        style->StyleUIReset()->ScrollbarWidth() == StyleScrollbarWidth::Thin) {
+    // GTK native scrollbar rendering cannot handle custom scrollbar colors
+    // (set via scrollbar-color CSS property) or thin scrollbar widths.
+    // In those cases, always use the non-native Theme drawing path.
+    const ComputedStyle* cs = nsLayoutUtils::StyleForScrollbar(aFrame);
+    if (cs->StyleUI()->HasCustomScrollbars() ||
+        ScrollbarDrawing::IsScrollbarWidthThin(aFrame)) {
       return NonNative::Always;
     }
     switch (StaticPrefs::widget_native_controls_scrollbar_style()) {
@@ -522,12 +527,21 @@ auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
       case 1:
         return NonNative::Always;
       default:
-        break;
+        // Photon behaviour: native on light, non-native on dark or custom.
+        return GetCustomScrollbarStyle(aFrame) ? NonNative::Always
+                                               : NonNative::No;
     }
   }
 
+  if (aAppearance == StyleAppearance::Tooltip &&
+      StaticPrefs::widget_native_controls_tooltip_style() == 0) {
+    return NonNative::No;
+  }
+
+  // If the current GTK theme color scheme matches our color-scheme, then we
+  // can draw a native widget.
   if (LookAndFeel::ColorSchemeForFrame(aFrame) ==
-      PreferenceSheet::ColorSchemeForChrome()) {
+      LookAndFeel::SystemColorScheme()) {
     return NonNative::No;
   }
 
