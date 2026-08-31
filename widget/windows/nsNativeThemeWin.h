@@ -79,6 +79,7 @@ class nsNativeThemeWin : public Theme {
   bool WidgetIsContainer(StyleAppearance aAppearance);
 
   bool ThemeDrawsFocusForWidget(nsIFrame*, StyleAppearance) override;
+  bool ThemeWantsButtonInnerFocusRing() override { return true; }
 
   bool WidgetAppearanceDependsOnWindowFocus(StyleAppearance) override;
 

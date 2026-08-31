@@ -27,6 +27,7 @@ class nsDisplayListBuilder;
 class nsDisplayBorder;
 class nsDisplayButtonBorder;
 class nsDisplayOutline;
+class nsDisplayButtonForeground;
 
 enum class StyleBorderStyle : uint8_t;
 enum class StyleBorderImageRepeatKeyword : uint8_t;
@@ -87,6 +88,7 @@ class nsCSSBorderRenderer final {
 
   friend class mozilla::nsDisplayOutline;
   friend class mozilla::nsDisplayButtonBorder;
+  friend class mozilla::nsDisplayButtonForeground;
 
  public:
   nsCSSBorderRenderer(nsPresContext* aPresContext, DrawTarget* aDrawTarget,
