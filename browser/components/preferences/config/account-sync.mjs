@@ -303,6 +303,8 @@ Preferences.addSetting({
 // Account settings are unavailable
 Preferences.addSetting({
   id: "fxaAccountDisabled",
+  deps: ["uiStateUpdate"],
+  visible: () => SyncHelpers.isSyncEnabled,
 });
 
 // Logged out of Mozilla account

@@ -252,6 +252,7 @@ add_task(async function testAccountsDisabled() {
   await runSyncPaneTest(
     {
       status: UIState.STATUS_NOT_CONFIGURED,
+      syncEnabled: false,
     },
     async doc => {
       let accountGroup = doc.querySelector('setting-group[groupid="account"]');
@@ -270,8 +271,8 @@ add_task(async function testAccountsDisabled() {
         'setting-group[groupid="accountDisabled"]'
       );
       ok(
-        BrowserTestUtils.isVisible(accountDisabledGroup),
-        "Account disabled section is visible when Firefox Accounts is disabled."
+        BrowserTestUtils.isHidden(accountDisabledGroup),
+        "Account disabled section is hidden when Firefox Sync is disabled."
       );
 
       // Category nav button should still be visible
