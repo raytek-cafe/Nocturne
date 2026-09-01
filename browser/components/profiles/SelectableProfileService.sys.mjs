@@ -1421,6 +1421,7 @@ class SelectableProfileServiceClass extends EventEmitter {
       sharedPrefs
         .filter(
           pref =>
+            pref.value !== null &&
             !SelectableProfileServiceClass.ignoredSharedPrefs.includes(
               pref.name
             )
