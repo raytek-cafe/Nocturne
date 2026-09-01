@@ -624,7 +624,7 @@ pref("nocturne.backgrounds.enabled", true);
 // Black or white caption text.
 pref("nocturne.caption.text.color", 0);
 // Force (kinda) transparency.
-pref("nocturne.force.transparency", false);
+pref("browser.ui.forcetransparency", false);
 // Disable transparent menubar by default
 pref("nocturne.transparent.menubar", false);
 // Enable menubar text glow by default

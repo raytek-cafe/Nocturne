@@ -246,6 +246,14 @@
       appearance: auto;
       -moz-default-appearance: -moz-win-borderless-glass;
     }
+    @media -moz-pref("browser.ui.forcetransparency") {
+      @media not -moz-pref("sidebar.verticalTabs") {
+        :root[lwtheme],
+        :root[lwtheme]:-moz-window-inactive {
+          background-color: transparent;
+        }
+      }
+    }
 
     :root[sizemode="maximized"] .titlebar-buttonbox {
       margin-inline-end: 3px;
