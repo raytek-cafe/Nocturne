@@ -7,6 +7,7 @@
 
 #include "ButtonControlFrame.h"
 #include "mozilla/Attributes.h"
+#include "nsIFormControlFrame.h"
 
 namespace mozilla {
 class PresShell;
@@ -16,7 +17,8 @@ class HTMLSelectElement;
 }
 }  // namespace mozilla
 
-class nsComboboxControlFrame final : public mozilla::ButtonControlFrame {
+class nsComboboxControlFrame final : public mozilla::ButtonControlFrame,
+                                     public nsIFormControlFrame {
   using Element = mozilla::dom::Element;
 
  public:
@@ -66,6 +68,11 @@ class nsComboboxControlFrame final : public mozilla::ButtonControlFrame {
 
   mozilla::dom::HTMLSelectElement& Select() const;
   void GetOptionText(uint32_t aIndex, nsAString& aText) const;
+
+  nsresult SetFormProperty(nsAtom* aName, const nsAString& aValue) final {
+    return NS_OK;
+  }
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY void SetFocus(bool aOn, bool aRepaint) final {}
 
   // The inline size of our display area. Used by that frame's reflow to size to
   // the full inline size except the drop-marker.

@@ -16,6 +16,7 @@
 #include "nsPresContext.h"
 #include "mozilla/dom/Document.h"
 #include "nsISelectionController.h"
+#include "nsITextControlFrame.h"
 #include "nsIFrame.h"
 #include "nsReadableUtils.h"
 #include "nsIContentInlines.h"
@@ -326,7 +327,8 @@ already_AddRefed<Selection> nsWebBrowserFind::UpdateSelection(
       if (!f) {
         return nullptr;
       }
-      if (f->IsTextInputFrame()) {
+      nsITextControlFrame* textControlFrame = do_QueryFrame(f);
+      if (textControlFrame) {
         tcFrame = f;
       }
       break;

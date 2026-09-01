@@ -18,6 +18,7 @@
 #include "nsFocusManager.h"
 #include "nsFrameSelection.h"
 #include "nsIFormControl.h"
+#include "nsIFormControlFrame.h"
 #include "nsTextControlFrame.h"
 #include "nsTextNode.h"
 
@@ -449,6 +450,11 @@ void TextControlElement::WillBlur(const WidgetEvent& aBlurEvent) {
 }
 
 void TextControlElement::SelectAll() {
+  if (nsIFormControlFrame* formControlFrame = GetFormControlFrame(true)) {
+    formControlFrame->SetFormProperty(nsGkAtoms::select, u""_ns);
+    return;
+  }
+
   if (auto* state = GetTextControlState()) {
     state->SetSelectionRange(0, UINT32_MAX, Optional<nsAString>(),
                              IgnoreErrors(),

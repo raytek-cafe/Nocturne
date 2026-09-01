@@ -12,6 +12,7 @@
 #include "mozilla/ReflowInput.h"
 #include "mozilla/dom/Text.h"  // for inline nsINode::AsText() definition
 #include "nsComboboxControlFrame.h"
+#include "nsIFormControlFrame.h"
 #include "nsListControlFrame.h"
 #include "nsTextControlFrame.h"
 #include "nsTextFrameUtils.h"
@@ -235,7 +236,7 @@ void nsFontInflationData::UpdateISize(const ReflowInput& aReflowInput) {
   // FIXME: Should probably only scan the text that's actually going to
   // be inflated!
 
-  if (aFrame->IsTextInputFrame()) {
+  if (static_cast<nsIFormControlFrame*>(do_QueryFrame(aFrame))) {
     return aFrame;
   }
 

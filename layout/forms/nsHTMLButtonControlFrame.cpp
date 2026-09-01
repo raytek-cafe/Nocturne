@@ -54,7 +54,18 @@ void nsHTMLButtonControlFrame::DidSetComputedStyle(
 
 NS_QUERYFRAME_HEAD(nsHTMLButtonControlFrame)
   NS_QUERYFRAME_ENTRY(nsHTMLButtonControlFrame)
+  NS_QUERYFRAME_ENTRY(nsIFormControlFrame)
 NS_QUERYFRAME_TAIL_INHERITING(nsContainerFrame)
+void nsHTMLButtonControlFrame::SetFocus(bool aOn, bool aRepaint) {}
+
+nsresult nsHTMLButtonControlFrame::SetFormProperty(nsAtom* aName,
+                                                   const nsAString& aValue) {
+  if (nsGkAtoms::value == aName) {
+    return mContent->AsElement()->SetAttr(kNameSpaceID_None, nsGkAtoms::value,
+                                          aValue, true);
+  }
+  return NS_OK;
+}
 
 #ifdef ACCESSIBILITY
 a11y::AccType nsHTMLButtonControlFrame::AccessibleType() {

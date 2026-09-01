@@ -7,7 +7,10 @@ with Files("**"):
 
 MOCHITEST_MANIFESTS += ["test/mochitest.toml"]
 MOCHITEST_CHROME_MANIFESTS += ["test/chrome.toml"]
-
+EXPORTS += [
+    "nsIFormControlFrame.h",
+    "nsITextControlFrame.h",
+]
 UNIFIED_SOURCES += [
     "ButtonControlFrame.cpp",
     "InputButtonControlFrame.cpp",

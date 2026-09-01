@@ -455,7 +455,6 @@
 #include "nsStyleStruct.h"
 #include "nsStyleUtil.h"
 #include "nsSubDocumentFrame.h"
-#include "nsTextControlFrame.h"
 #include "nsTextNode.h"
 #include "nsURLHelper.h"
 #include "nsUnicharUtils.h"
