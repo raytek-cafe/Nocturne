@@ -7356,6 +7356,39 @@ mozilla::ipc::IPCResult ContentParent::RecvWindowPostMessage(
     return IPC_OK();
   }
 
+  if (!aData.source().IsNull()) {
+    RefPtr<CanonicalBrowsingContext> bc = aData.source().get_canonical();
+    if (!bc || !bc->IsOwnedByProcess(ChildID())) {
+      return IPC_FAIL(this, "RecvWindowPostMessage: unowned source");
+    }
+  }
+
+  if (!ValidatePrincipal(aData.callerPrincipal(),
+                         {ValidatePrincipalOptions::AlwaysAllowSystem,
+                          ValidatePrincipalOptions::AllowExpanded})) {
+    return PrincipalValidationIpcFail(aData.callerPrincipal(), this, __func__);
+  }
+
+  if (!ValidatePrincipal(aData.subjectPrincipal(),
+                         {ValidatePrincipalOptions::AlwaysAllowSystem,
+                          ValidatePrincipalOptions::AllowExpanded})) {
+    return PrincipalValidationIpcFail(aData.subjectPrincipal(), this, __func__);
+  }
+
+  if (aData.callerPrincipal()->IsSystemPrincipal()) {
+    // In practice all SystemPrincipals in a content process should result in an
+    // empty origin.
+    if (!aData.origin().IsEmpty()) {
+      return IPC_FAIL(this, "RecvWindowPostMessage: system origin mismatch");
+    }
+  } else {
+    nsAutoCString callerOrigin;
+    aData.callerPrincipal()->GetWebExposedOriginSerialization(callerOrigin);
+    if (aData.origin() != NS_ConvertUTF8toUTF16(callerOrigin)) {
+      return IPC_FAIL(this, "RecvWindowPostMessage: origin mismatch");
+    }
+  }
+
   RefPtr<ContentParent> cp = context->GetContentParent();
   if (!cp) {
     MOZ_LOG(BrowsingContext::GetLog(), LogLevel::Debug,
