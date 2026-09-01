@@ -9,16 +9,19 @@
 #include "ErrorList.h"
 #include "PseudoStyleType.h"
 #include "gfxContext.h"
+#include "mozilla/ErrorResult.h"
 #include "mozilla/EventStateManager.h"
 #include "mozilla/IMEContentObserver.h"
 #include "mozilla/IMEStateManager.h"
 #include "mozilla/PresShell.h"
 #include "mozilla/ReflowInput.h"
 #include "mozilla/StaticPrefs_layout.h"
+#include "mozilla/TextControlState.h"
 #include "mozilla/TextEditor.h"
 #include "mozilla/dom/HTMLInputElement.h"
 #include "mozilla/dom/HTMLTextAreaElement.h"
 #include "mozilla/dom/Selection.h"
+#include "nsCOMPtr.h"
 #include "nsCaret.h"
 #include "nsContentUtils.h"
 #include "nsDisplayList.h"
@@ -29,6 +32,7 @@
 #include "nsIContent.h"
 #include "nsIEditor.h"
 #include "nsINode.h"
+#include "nsISelectionController.h"
 #include "nsLayoutUtils.h"
 #include "nsPresContext.h"
 
@@ -45,6 +49,8 @@ NS_IMPL_FRAMEARENA_HELPERS(nsTextControlFrame)
 
 NS_QUERYFRAME_HEAD(nsTextControlFrame)
   NS_QUERYFRAME_ENTRY(nsTextControlFrame)
+  NS_QUERYFRAME_ENTRY(nsIFormControlFrame)
+  NS_QUERYFRAME_ENTRY(nsITextControlFrame)
 NS_QUERYFRAME_TAIL_INHERITING(ScrollContainerFrame)
 
 #ifdef ACCESSIBILITY
@@ -298,6 +304,91 @@ void nsTextControlFrame::ElementStateChanged(dom::ElementState aStates) {
     HandleReadonlyOrDisabledChange();
   }
   return ScrollContainerFrame::ElementStateChanged(aStates);
+}
+
+void nsTextControlFrame::SetFocus(bool aOn, bool aRepaint) {
+  if (!aOn) {
+    return;
+  }
+
+  nsISelectionController* selectionController =
+      ControlElement()->GetSelectionController();
+  if (!selectionController) {
+    return;
+  }
+
+  RefPtr<Selection> controlSelection = selectionController->GetSelection(
+      nsISelectionController::SELECTION_NORMAL);
+  if (!controlSelection) {
+    return;
+  }
+
+  mozilla::PresShell* presShell = PresShell();
+  if (!presShell) {
+    return;
+  }
+
+  RefPtr<nsCaret> caret = presShell->GetOriginalCaret();
+  if (!caret) {
+    return;
+  }
+  caret->SetSelection(controlSelection);
+
+  RefPtr<Selection> documentSelection =
+      presShell->GetSelection(nsISelectionController::SELECTION_NORMAL);
+  if (documentSelection && !documentSelection->IsCollapsed()) {
+    documentSelection->RemoveAllRanges(IgnoreErrors());
+  }
+
+  if (RefPtr<nsFrameSelection> frameSelection = presShell->FrameSelection()) {
+    frameSelection->SetDragState(false);
+  }
+}
+
+nsresult nsTextControlFrame::SetFormProperty(nsAtom* aName,
+                                             const nsAString& aValue) {
+  if (aName != nsGkAtoms::select) {
+    return NS_OK;
+  }
+
+  if (TextControlState* state = ControlElement()->GetTextControlState()) {
+    ErrorResult rv;
+    state->SetSelectionRange(0, UINT32_MAX, SelectionDirection::None, rv,
+                             TextControlState::ScrollAfterSelection::No);
+    rv.SuppressException();
+  }
+  return NS_OK;
+}
+
+already_AddRefed<TextEditor> nsTextControlFrame::GetTextEditor() {
+  return do_AddRef(ControlElement()->GetTextEditor());
+}
+
+NS_IMETHODIMP
+nsTextControlFrame::SetSelectionRange(uint32_t aSelectionStart,
+                                      uint32_t aSelectionEnd,
+                                      SelectionDirection aDirection) {
+  TextControlState* state = ControlElement()->GetTextControlState();
+  if (!state) {
+    return NS_ERROR_NOT_INITIALIZED;
+  }
+
+  ErrorResult rv;
+  state->SetSelectionRange(aSelectionStart, aSelectionEnd, aDirection, rv);
+  return rv.StealNSResult();
+}
+
+NS_IMETHODIMP
+nsTextControlFrame::GetOwnedSelectionController(
+    nsISelectionController** aSelCon) {
+  NS_ENSURE_ARG_POINTER(aSelCon);
+  NS_IF_ADDREF(*aSelCon = ControlElement()->GetSelectionController());
+  return NS_OK;
+}
+
+nsresult nsTextControlFrame::EnsureEditorInitialized() {
+  TextControlState* state = ControlElement()->GetTextControlState();
+  return state ? state->PrepareEditor() : NS_ERROR_NOT_INITIALIZED;
 }
 
 nsresult nsTextControlFrame::PeekOffset(PeekOffsetStruct* aPos) {

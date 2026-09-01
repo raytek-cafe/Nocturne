@@ -10,10 +10,12 @@
 #include "nsButtonFrameRenderer.h"
 #include "nsCSSRenderingBorders.h"
 #include "nsContainerFrame.h"
+#include "nsIFormControlFrame.h"
 
 class nsPresContext;
 
-class nsHTMLButtonControlFrame : public nsContainerFrame {
+class nsHTMLButtonControlFrame : public nsContainerFrame,
+                                 public nsIFormControlFrame {
  public:
   explicit nsHTMLButtonControlFrame(ComputedStyle* aStyle,
                                     nsPresContext* aPresContext)
@@ -59,6 +61,10 @@ class nsHTMLButtonControlFrame : public nsContainerFrame {
     return MakeFrameName(u"HTMLButtonControl"_ns, aResult);
   }
 #endif
+
+  // nsIFormControlFrame
+  void SetFocus(bool aOn, bool aRepaint) override;
+  nsresult SetFormProperty(nsAtom* aName, const nsAString& aValue) override;
 
   nsContainerFrame* GetContentInsertionFrame() override {
     return PrincipalChildList().FirstChild()->GetContentInsertionFrame();

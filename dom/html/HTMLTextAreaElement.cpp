@@ -22,6 +22,7 @@
 #include "nsIConstraintValidation.h"
 #include "nsIControllers.h"
 #include "nsIFormControl.h"
+#include "nsIFormControlFrame.h"
 #include "nsIFrame.h"
 #include "nsIMutationObserver.h"
 #include "nsLayoutUtils.h"
@@ -30,7 +31,6 @@
 #include "nsPresContext.h"
 #include "nsReadableUtils.h"
 #include "nsStyleConsts.h"
-#include "nsTextControlFrame.h"
 #include "nsThreadUtils.h"
 #include "nsXULControllers.h"
 
@@ -114,8 +114,7 @@ void HTMLTextAreaElement::Select() {
     }
   }
 
-  // FIXME: The <input> equivalent has ScrollAfterSelection::No
-  SetSelectionRange(0, UINT32_MAX, Optional<nsAString>(), IgnoreErrors());
+  TextControlElement::SelectAll();
 }
 
 enum class Wrap {
@@ -374,7 +373,9 @@ nsMapRuleToAttributesFunc HTMLTextAreaElement::GetAttributeMappingFunction()
 }
 
 bool HTMLTextAreaElement::IsDisabledForEvents(WidgetEvent* aEvent) {
-  return IsElementDisabledForEvents(aEvent, GetPrimaryFrame());
+  nsIFormControlFrame* formControlFrame = GetFormControlFrame(false);
+  nsIFrame* formFrame = do_QueryFrame(formControlFrame);
+  return IsElementDisabledForEvents(aEvent, formFrame);
 }
 
 MOZ_CAN_RUN_SCRIPT_BOUNDARY

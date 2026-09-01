@@ -8,6 +8,7 @@
 #include "mozilla/Attributes.h"
 #include "mozilla/ScrollContainerFrame.h"
 #include "mozilla/TextControlElement.h"
+#include "nsITextControlFrame.h"
 
 namespace mozilla {
 enum class PseudoStyleType : uint8_t;
@@ -16,7 +17,8 @@ class Element;
 }  // namespace dom
 }  // namespace mozilla
 
-class nsTextControlFrame final : public mozilla::ScrollContainerFrame {
+class nsTextControlFrame final : public mozilla::ScrollContainerFrame,
+                                 public nsITextControlFrame {
   using Element = mozilla::dom::Element;
 
  public:
@@ -82,13 +84,27 @@ class nsTextControlFrame final : public mozilla::ScrollContainerFrame {
   }
 #endif
 
-  nsFrameSelection* GetOwnedFrameSelection() {
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY
+  already_AddRefed<mozilla::TextEditor> GetTextEditor() override;
+  MOZ_CAN_RUN_SCRIPT
+  NS_IMETHOD SetSelectionRange(uint32_t, uint32_t,
+                               mozilla::SelectionDirection) override;
+  NS_IMETHOD GetOwnedSelectionController(
+      nsISelectionController** aSelCon) override;
+  nsFrameSelection* GetOwnedFrameSelection() override {
     return ControlElement()->GetIndependentFrameSelection();
   }
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY
+  nsresult EnsureEditorInitialized() override;
 
   void InitPrimaryFrame() override;
 
   void ElementStateChanged(mozilla::dom::ElementState aStates) override;
+  // nsIFormControlFrame
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY
+  void SetFocus(bool aOn = true, bool aRepaint = false) override;
+  MOZ_CAN_RUN_SCRIPT_BOUNDARY
+  nsresult SetFormProperty(nsAtom* aName, const nsAString& aValue) override;
 
   nsresult PeekOffset(mozilla::PeekOffsetStruct* aPos) override;
 
