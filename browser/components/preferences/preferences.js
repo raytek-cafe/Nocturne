@@ -228,8 +228,14 @@ const CONFIG_PANES = Object.freeze({
     iconSrc: "chrome://browser/skin/sidebar/firefox.svg",
     groupIds: ["updates", "support"],
     module: "chrome://browser/content/preferences/config/about-firefox.mjs",
-    visible: () => srdSectionPrefs.all,
+    visible: () =>
+      srdSectionPrefs.all &&
+      !Services.prefs.getBoolPref(
+        "browser.preferences.aboutFirefox.hidden",
+        false
+      ),
   },
+
   accessibility: {
     l10nId: "preferences-accessibility-header",
     groupIds: [
