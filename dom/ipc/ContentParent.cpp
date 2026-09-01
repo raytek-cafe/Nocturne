@@ -7386,13 +7386,13 @@ mozilla::ipc::IPCResult ContentParent::RecvWindowPostMessage(
   }
 
   if (!ValidatePrincipal(aData.callerPrincipal(),
-                         {ValidatePrincipalOptions::AlwaysAllowSystem,
+                         {ValidatePrincipalOptions::AllowSystem,
                           ValidatePrincipalOptions::AllowExpanded})) {
     return PrincipalValidationIpcFail(aData.callerPrincipal(), this, __func__);
   }
 
   if (!ValidatePrincipal(aData.subjectPrincipal(),
-                         {ValidatePrincipalOptions::AlwaysAllowSystem,
+                         {ValidatePrincipalOptions::AllowSystem,
                           ValidatePrincipalOptions::AllowExpanded})) {
     return PrincipalValidationIpcFail(aData.subjectPrincipal(), this, __func__);
   }
