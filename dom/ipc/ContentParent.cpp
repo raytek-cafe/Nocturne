@@ -7356,10 +7356,32 @@ mozilla::ipc::IPCResult ContentParent::RecvWindowPostMessage(
     return IPC_OK();
   }
 
+  bool clearSource = false;
   if (!aData.source().IsNull()) {
-    RefPtr<CanonicalBrowsingContext> bc = aData.source().get_canonical();
-    if (!bc || !bc->IsOwnedByProcess(ChildID())) {
-      return IPC_FAIL(this, "RecvWindowPostMessage: unowned source");
+    // If we have a source BrowsingContext, we must also have a valid source
+    // innerWindowId. If this is gone, we need to clear out our source, similar
+    // to what will be done in PostMessageEvent::Run.
+    RefPtr<WindowGlobalParent> wgp =
+        WindowGlobalParent::GetByInnerWindowId(aData.innerWindowId());
+    if (!wgp || wgp->IsDiscarded() || !wgp->IsCurrent()) {
+      clearSource = true;
+    }
+
+    // Do some validation on the provided innerWindowId, if we have it around.
+    if (wgp) {
+      RefPtr<CanonicalBrowsingContext> bc = aData.source().get_canonical();
+      if (wgp->GetBrowsingContext() != bc) {
+        return IPC_FAIL(this, "RecvWindowPostMessage: invalid innerWindowId");
+      }
+      if (wgp->GetContentParent() != this) {
+        return IPC_FAIL(this,
+                        "RecvWindowPostMessage: source is not this process");
+      }
+      if (!wgp->DocumentPrincipal()->Equals(aData.callerPrincipal())) {
+        return IPC_FAIL(
+            this,
+            "RecvWindowPostMessage: callerPrincipal doesn't match source");
+      }
     }
   }
 
@@ -7396,7 +7418,11 @@ mozilla::ipc::IPCResult ContentParent::RecvWindowPostMessage(
     return IPC_OK();
   }
 
-  (void)cp->SendWindowPostMessage(context, aMessage, aData);
+  PostMessageData data(aData);
+  if (clearSource) {
+    data.source() = nullptr;
+  }
+  (void)cp->SendWindowPostMessage(context, aMessage, data);
   return IPC_OK();
 }
 
