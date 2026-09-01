@@ -32,6 +32,7 @@
 
 using namespace mozilla;
 using namespace mozilla::dom;
+nsListControlFrame* nsListControlFrame::mFocused = nullptr;
 
 //---------------------------------------------------------
 nsListControlFrame* NS_NewListControlFrame(PresShell* aPresShell,
@@ -51,7 +52,11 @@ nsListControlFrame::nsListControlFrame(ComputedStyle* aStyle,
       mMightNeedSecondPass(false),
       mReflowWasInterrupted(false) {}
 
-nsListControlFrame::~nsListControlFrame() = default;
+nsListControlFrame::~nsListControlFrame() {
+  if (mFocused == this) {
+    mFocused = nullptr;
+  }
+}
 
 Maybe<nscoord> nsListControlFrame::GetNaturalBaselineBOffset(
     WritingMode aWM, BaselineSharingGroup aBaselineGroup,
@@ -67,15 +72,20 @@ HTMLOptionElement* nsListControlFrame::GetCurrentOption() const {
   return Select().GetCurrentOption();
 }
 
-bool nsListControlFrame::IsFocused() const {
-  return Select().State().HasState(ElementState::FOCUS);
-}
 
 void nsListControlFrame::InvalidateFocus() { InvalidateFrame(); }
 
 NS_QUERYFRAME_HEAD(nsListControlFrame)
   NS_QUERYFRAME_ENTRY(nsListControlFrame)
+  NS_QUERYFRAME_ENTRY(nsIFormControlFrame)
 NS_QUERYFRAME_TAIL_INHERITING(ScrollContainerFrame)
+nsresult nsListControlFrame::SetFormProperty(nsAtom* aName,
+                                             const nsAString& aValue) {
+  if (nsGkAtoms::selected == aName || nsGkAtoms::selectedindex == aName) {
+    return NS_ERROR_INVALID_ARG;
+  }
+  return NS_OK;
+}
 
 #ifdef ACCESSIBILITY
 a11y::AccType nsListControlFrame::AccessibleType() {
@@ -594,6 +604,17 @@ void nsListControlFrame::ElementStateChanged(ElementState aStates) {
     InvalidateFocus();
   }
 }
+void nsListControlFrame::SetFocus(bool aOn, bool aRepaint) {
+  InvalidateFocus();
+
+  if (aOn) {
+    mFocused = this;
+  } else if (mFocused == this) {
+    mFocused = nullptr;
+  }
+
+  InvalidateFocus();
+}
 
 void nsListControlFrame::GetOptionText(uint32_t aIndex, nsAString& aStr) {
   aStr.Truncate();
@@ -813,7 +834,7 @@ nscoord nsListControlFrame::CalcIntrinsicBSize(nscoord aBSizeOfARow,
 
 #ifdef ACCESSIBILITY
 void nsListControlFrame::FireMenuItemActiveEvent(nsIContent* aPreviousOption) {
-  if (!IsFocused()) {
+  if (mFocused != this) {
     return;
   }
 

@@ -80,6 +80,7 @@
 #include "nsHTMLDocument.h"
 #include "nsHTMLParts.h"
 #include "nsIFormControl.h"
+#include "nsIFormControlFrame.h"
 #include "nsIFrameInlines.h"
 #include "nsILayoutHistoryState.h"
 #include "nsIPrincipal.h"
@@ -1232,6 +1233,26 @@ bool nsGenericHTMLElement::IsAttributeMapped(const nsAtom* aAttribute) const {
 nsMapRuleToAttributesFunc nsGenericHTMLElement::GetAttributeMappingFunction()
     const {
   return &MapCommonAttributesInto;
+}
+nsIFormControlFrame* nsGenericHTMLElement::GetFormControlFrame(
+    bool aFlushFrames) {
+  auto flushType = aFlushFrames ? FlushType::Frames : FlushType::None;
+  nsIFrame* frame = GetPrimaryFrame(flushType);
+  if (!frame) {
+    return nullptr;
+  }
+
+  if (nsIFormControlFrame* formControlFrame = do_QueryFrame(frame)) {
+    return formControlFrame;
+  }
+
+  for (nsIFrame* kid : frame->PrincipalChildList()) {
+    if (nsIFormControlFrame* formControlFrame = do_QueryFrame(kid)) {
+      return formControlFrame;
+    }
+  }
+
+  return nullptr;
 }
 
 // Represents a possible value for the "align" attribute. Different
@@ -2855,6 +2876,40 @@ bool nsGenericHTMLFormControlElement::IsHTMLFocusable(IsFocusableFlags aFlags,
 
   *aIsFocusable = *aIsFocusable && IsFormControlDefaultFocusable(aFlags);
   return false;
+}
+void nsGenericHTMLFormControlElement::GetEventTargetParent(
+    EventChainPreVisitor& aVisitor) {
+  if (aVisitor.mEvent->IsTrusted() && (aVisitor.mEvent->mMessage == eFocus ||
+                                       aVisitor.mEvent->mMessage == eBlur)) {
+    aVisitor.mWantsPreHandleEvent = true;
+  }
+  nsGenericHTMLFormElement::GetEventTargetParent(aVisitor);
+}
+
+nsresult nsGenericHTMLFormControlElement::PreHandleEvent(
+    EventChainVisitor& aVisitor) {
+  if (aVisitor.mEvent->IsTrusted()) {
+    switch (aVisitor.mEvent->mMessage) {
+      case eFocus: {
+        nsIFormControlFrame* formControlFrame = GetFormControlFrame(true);
+        if (formControlFrame &&
+            aVisitor.mEvent->mOriginalTarget == static_cast<nsINode*>(this)) {
+          formControlFrame->SetFocus(true, true);
+        }
+        break;
+      }
+      case eBlur: {
+        nsIFormControlFrame* formControlFrame = GetFormControlFrame(true);
+        if (formControlFrame) {
+          formControlFrame->SetFocus(false, false);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  return nsGenericHTMLFormElement::PreHandleEvent(aVisitor);
 }
 
 HTMLFieldSetElement* nsGenericHTMLFormControlElement::GetFieldSet() {

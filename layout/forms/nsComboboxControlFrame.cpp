@@ -14,6 +14,7 @@
 #include "mozilla/dom/Document.h"
 #include "mozilla/dom/HTMLSelectElement.h"
 #include "nsContentUtils.h"
+#include "nsIFormControlFrame.h"
 #include "nsITheme.h"
 #include "nsLayoutUtils.h"
 #include "nsStyleConsts.h"
@@ -51,6 +52,7 @@ nsComboboxControlFrame::~nsComboboxControlFrame() = default;
 
 NS_QUERYFRAME_HEAD(nsComboboxControlFrame)
   NS_QUERYFRAME_ENTRY(nsComboboxControlFrame)
+  NS_QUERYFRAME_ENTRY(nsIFormControlFrame)
 NS_QUERYFRAME_TAIL_INHERITING(ButtonControlFrame)
 
 #ifdef ACCESSIBILITY

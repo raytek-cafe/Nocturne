@@ -61,17 +61,18 @@
 #include "nsCRTGlue.h"
 #include "nsColorControlFrame.h"
 #include "nsError.h"
-#include "nsFileControlFrame.h"
 #include "nsFocusManager.h"
 #include "nsGkAtoms.h"
 #include "nsIEditor.h"
 #include "nsIFilePicker.h"
 #include "nsIFormControl.h"
+#include "nsIFormControlFrame.h"
 #include "nsIFormFillController.h"
 #include "nsIFrame.h"
 #include "nsIMutationObserver.h"
 #include "nsIPromptCollection.h"
 #include "nsIStringBundle.h"
+#include "nsITextControlFrame.h"
 #include "nsLayoutUtils.h"
 #include "nsLinebreakConverter.h"  //to strip out carriage returns
 #include "nsNetUtil.h"
@@ -82,7 +83,6 @@
 #include "nsReadableUtils.h"
 #include "nsRepeatService.h"
 #include "nsStyleConsts.h"
-#include "nsTextControlFrame.h"
 #include "nsUnicharUtils.h"
 #include "nsVariant.h"
 
@@ -2750,8 +2750,11 @@ void HTMLInputElement::AfterSetFilesOrDirectories(bool aSetValueChanged) {
   // No need to flush here, if there's no frame at this point we
   // don't need to force creation of one just to tell it about this
   // new value.  We just want the display to update as needed.
-  if (nsFileControlFrame* f = do_QueryFrame(GetPrimaryFrame())) {
-    f->SelectedFilesUpdated();
+  nsIFormControlFrame* formControlFrame = GetFormControlFrame(false);
+  if (formControlFrame) {
+    nsAutoString readableValue;
+    GetDisplayFileName(readableValue);
+    formControlFrame->SetFormProperty(nsGkAtoms::value, readableValue);
   }
 
   // Grab the full path here for any chrome callers who access our .value via a
@@ -3294,7 +3297,9 @@ bool HTMLInputElement::NeedToInitializeEditorForEvent(
 }
 
 bool HTMLInputElement::IsDisabledForEvents(WidgetEvent* aEvent) {
-  return IsElementDisabledForEvents(aEvent, GetPrimaryFrame());
+  nsIFormControlFrame* formControlFrame = GetFormControlFrame(false);
+  nsIFrame* formFrame = do_QueryFrame(formControlFrame);
+  return IsElementDisabledForEvents(aEvent, formFrame);
 }
 
 bool HTMLInputElement::CheckActivationBehaviorPreconditions(
@@ -3344,10 +3349,9 @@ void HTMLInputElement::GetEventTargetParent(EventChainPreVisitor& aVisitor) {
 
   // Initialize the editor if needed.
   if (NeedToInitializeEditorForEvent(aVisitor)) {
-    if (auto* state = GetTextControlState()) {
-      // FIXME(bug 2020902): This is rather evil. Remove
-      // CAN_RUN_SCRIPT_BOUNDARY when removing this.
-      state->EnsureEditorInitialized();
+    if (nsITextControlFrame* textControlFrame =
+            do_QueryFrame(GetFormControlFrame(false))) {
+      textControlFrame->EnsureEditorInitialized();
     }
   }
 

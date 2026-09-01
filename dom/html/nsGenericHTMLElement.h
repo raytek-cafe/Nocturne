@@ -23,6 +23,7 @@
 
 class nsDOMTokenList;
 class nsIFrame;
+class nsIFormControlFrame;
 class nsILayoutHistoryState;
 class nsIURI;
 struct nsSize;
@@ -423,6 +424,14 @@ class nsGenericHTMLElement : public nsGenericHTMLElementBase {
 
   NS_IMETHOD_(bool) IsAttributeMapped(const nsAtom* aAttribute) const override;
   nsMapRuleToAttributesFunc GetAttributeMappingFunction() const override;
+
+  /**
+   * Get the primary form control frame for this element.
+   *
+   * @param aFlushFrames whether to flush out frames so that they're up to date.
+   * @return the primary frame as nsIFormControlFrame
+   */
+  nsIFormControlFrame* GetFormControlFrame(bool aFlushFrames);
 
   /**
    * Get the base target for any links within this piece
@@ -1235,6 +1244,9 @@ class nsGenericHTMLFormControlElement : public nsGenericHTMLFormElement,
   bool IsHTMLFocusable(mozilla::IsFocusableFlags, bool* aIsFocusable,
                        int32_t* aTabIndex) override;
 
+  // EventTarget
+  void GetEventTargetParent(mozilla::EventChainPreVisitor& aVisitor) override;
+  nsresult PreHandleEvent(mozilla::EventChainVisitor& aVisitor) override;
   // nsIFormControl
   mozilla::dom::HTMLFieldSetElement* GetFieldSet() override;
   mozilla::dom::Element* GetFormForBindings() const override;

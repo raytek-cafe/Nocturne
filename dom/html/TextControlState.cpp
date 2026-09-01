@@ -49,7 +49,6 @@
 #include "nsIWidget.h"
 #include "nsPIDOMWindow.h"
 #include "nsServiceManagerUtils.h"
-#include "nsTextControlFrame.h"
 #include "nsTextNode.h"
 
 namespace mozilla {
