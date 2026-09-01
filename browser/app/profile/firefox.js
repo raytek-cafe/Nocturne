@@ -1418,6 +1418,9 @@ pref("accessibility.typeaheadfind.flashBar", 1);
 pref("browser.preferences.experimental.hidden", false);
 // Whether we show the "More from Mozilla" section.
 pref("browser.preferences.moreFromMozilla", false);
+// Whether to hide the "About Firefox" pane.
+pref("browser.preferences.aboutFirefox.hidden", true);
+
 // Whether we show the "AI Controls" pane.
 pref("browser.preferences.aiControls", true);
 pref("browser.ai.control.default", "blocked");

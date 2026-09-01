@@ -29,6 +29,46 @@ const NOCTURNE_LEGACY_OPTION_COUNTS = {
 };
 
 const PROMPT_TAB_MODAL_PREF = "prompts.tab_modal.enabled";
+const ABOUT_FIREFOX_HIDDEN_PREF = "browser.preferences.aboutFirefox.hidden";
+
+add_task(async function test_about_firefox_category_visibility() {
+  is(
+    Services.prefs.getBoolPref(ABOUT_FIREFOX_HIDDEN_PREF, false),
+    true,
+    "About Firefox category is hidden by default"
+  );
+
+  let tab = await openPrefsTab();
+  let doc = tab.linkedBrowser.contentDocument;
+  await BrowserTestUtils.waitForCondition(
+    () => !doc.getElementById("category-about-firefox"),
+    "Wait for the About Firefox category to be hidden"
+  );
+  await BrowserTestUtils.removeTab(tab);
+
+  await SpecialPowers.pushPrefEnv({
+    set: [[ABOUT_FIREFOX_HIDDEN_PREF, false]],
+  });
+
+  tab = await openPrefsTab();
+  doc = tab.linkedBrowser.contentDocument;
+  if (SRD_PREF_VALUE) {
+    await BrowserTestUtils.waitForCondition(
+      () => doc.getElementById("category-about-firefox")?.hidden === false,
+      "Wait for the About Firefox category to be shown"
+    );
+    is_element_visible(
+      doc.getElementById("category-about-firefox"),
+      "About Firefox category is visible when the preference is disabled"
+    );
+  } else {
+    ok(
+      !doc.getElementById("category-about-firefox"),
+      "About Firefox category remains hidden when settings redesign is disabled"
+    );
+  }
+  await BrowserTestUtils.removeTab(tab);
+});
 
 add_task(async function test_nocturne_preferences_have_localized_controls() {
   let tab = await openPrefsTab("nocturne");
