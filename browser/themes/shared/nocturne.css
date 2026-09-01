@@ -287,6 +287,16 @@
   }
 }
 
+@media -moz-pref("browser.nova.enabled") {
+  @media -moz-pref("browser.ui.forcetransparency") {
+    @media not -moz-pref("sidebar.verticalTabs") {
+      body:-moz-window-inactive {
+        background-color: transparent !important;
+      }
+    }
+  }
+}
+
 @media -moz-pref("nocturne.translucent.navbar") {
   @media -moz-pref("nocturne.aero.fog", 1) {
     @media (-moz-windows-compositor) {
