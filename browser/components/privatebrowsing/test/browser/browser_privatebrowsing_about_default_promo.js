@@ -185,7 +185,7 @@ add_task(async function test_default_content_deferred_message_load() {
     const infoContainer = content.document.querySelector(".info");
     ok(infoContainer && !infoContainer.hidden, "Info container is shown");
     const infoTitle = content.document.getElementById("info-title");
-    ok(infoTitle && !infoTitle.hidden, "Info title is shown");
+    ok(infoTitle && infoTitle.hidden, "Info title is hidden in Nova");
     is(
       infoTitle.getAttribute("data-l10n-id"),
       "about-private-browsing-felt-privacy-v1-info-header",

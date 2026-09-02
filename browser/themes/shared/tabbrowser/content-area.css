@@ -11,9 +11,6 @@
   @media (-moz-content-prefers-color-scheme: dark) {
     --tabpanel-background-color: #2b2a33;
   }
-  &[privatebrowsingmode="temporary"] {
-    --tabpanel-background-color: linear-gradient(45deg, #722291 0%, #45278d 50%, #393473 100%) !important;
-  }
 }
 
 @media -moz-pref("browser.nova.enabled") {
