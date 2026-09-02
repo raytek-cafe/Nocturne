@@ -21,6 +21,19 @@
 #include "mozilla/Span.h"
 
 /*** type definitions ***/
+
+/**
+ * How GTK draws an overlay scrollbar. GTK spells this as classes on the
+ * scrollbar node: "overlay-indicator", plus "hovering" or "dragging". Themes
+ * use them to drop the trough and slim the slider down while it is idle.
+ */
+enum class ScrollbarOverlayState : guint8 {
+  None,
+  Indicator,
+  Hovering,
+  Dragging,
+};
+
 typedef struct {
   guint8 active;
   guint8 focused;
@@ -36,6 +49,7 @@ typedef struct {
   gint32 curpos; /* curpos and maxpos are used for scrollbars */
   gint32 maxpos;
   gint32 image_scale; /* image scale */
+  ScrollbarOverlayState overlayState;
 } GtkWidgetState;
 
 /**
@@ -479,7 +493,8 @@ gint moz_gtk_get_scalethumb_metrics(GtkOrientation orient, gint* thumb_length,
  * Get the metrics in GTK pixels for a scrollbar.
  * aOrientation:     [IN] the scrollbar orientation
  */
-const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation);
+const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation,
+                                               bool aOverlay = false);
 
 /**
  * Get the metrics in GTK pixels for a scrollbar which is active
@@ -487,7 +502,7 @@ const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation);
  * aOrientation:     [IN] the scrollbar orientation
  */
 const ScrollbarGTKMetrics* GetActiveScrollbarMetrics(
-    GtkOrientation aOrientation);
+    GtkOrientation aOrientation, bool aOverlay = false);
 
 /**
  * Get the desired size of a scroll arrow widget
