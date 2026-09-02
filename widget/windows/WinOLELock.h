@@ -9,6 +9,7 @@
 #include <minwindef.h>
 #include <winbase.h>
 #include "mozilla/Assertions.h"
+#include "mozilla/CheckedInt.h"
 
 namespace details {
 // implementation of `is_complete_type_v` borrowed from Raymond Chen:
@@ -169,9 +170,9 @@ class ScopedOLEMemory<U[]> {
   static_assert(std::is_pod_v<U>, "type must be POD");
 
  public:
-  explicit ScopedOLEMemory(size_t n)
-      : mHandle(::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, sizeof(U) * n)),
-        mExtent(n) {}
+  // Fail the allocation rather than under-allocating if the size computation
+  // would overflow; `lock()` hands out all `n` elements either way.
+  explicit ScopedOLEMemory(size_t n) : mHandle(AllocFor(n)), mExtent(n) {}
   ~ScopedOLEMemory() { ::GlobalFree(mHandle); }
 
   ScopedOLELock<U[]> lock() const { return ScopedOLELock<U[]>(mHandle); }
@@ -185,6 +186,14 @@ class ScopedOLEMemory<U[]> {
   }
 
  private:
+  static HGLOBAL AllocFor(size_t n) {
+    mozilla::CheckedInt<size_t> const bytes =
+        mozilla::CheckedInt<size_t>(n) * sizeof(U);
+    return bytes.isValid()
+               ? ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, bytes.value())
+               : nullptr;
+  }
+
   HGLOBAL mHandle;
   size_t mExtent;
 };

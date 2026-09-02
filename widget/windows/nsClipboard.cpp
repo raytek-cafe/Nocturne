@@ -787,7 +787,7 @@ nsresult nsClipboard::GetNativeDataOffClipboard(IDataObject* aDataObject,
   UINT const format = aFormat;
 
   FORMATETC fe;
-  STGMEDIUM stm;
+  STGMEDIUM stm{};
   HRESULT hres = FillSTGMedium(aDataObject, format, &fe, &stm, TYMED_HGLOBAL);
 
   // If the format is CF_HDROP and we haven't found any files we can try looking
