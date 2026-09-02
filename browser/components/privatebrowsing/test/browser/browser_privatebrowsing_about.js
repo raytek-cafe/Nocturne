@@ -98,13 +98,46 @@ function urlBarHasNormalFocus(win) {
 }
 
 /**
- * Tests that we have the correct icon displayed.
+ * Tests the non-Nova private page colors and search engine icon.
  */
-add_task(async function test_search_icon_legacy() {
+add_task(async function test_search_icon_non_nova() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["browser.nova.enabled", false],
+      ["browser.privatebrowsing.felt-privacy-v1", false],
+      ["layout.css.prefers-color-scheme.content-override", 1],
+    ],
+  });
   let { win, tab } = await openAboutPrivateBrowsing();
 
   await SpecialPowers.spawn(tab, [expectedIconURL], async function (iconURL) {
     let computedStyle = content.window.getComputedStyle(content.document.body);
+    let handoffUI = content.document.querySelector(
+      "content-search-handoff-ui"
+    );
+    await handoffUI.updateComplete;
+    let button = handoffUI.shadowRoot.querySelector(".search-handoff-button");
+    await ContentTaskUtils.waitForCondition(
+      () =>
+        content.window
+          .getComputedStyle(button)
+          .backgroundImage.startsWith("url("),
+      "Search handoff icon should be set."
+    );
+    let pageStyle = content.window.getComputedStyle(
+      content.document.documentElement
+    );
+    let buttonStyle = content.window.getComputedStyle(button);
+    is(
+      pageStyle.backgroundColor,
+      "rgb(37, 0, 62)",
+      "Non-Nova private browsing page uses the purple background"
+    );
+    is(
+      buttonStyle.backgroundColor,
+      "rgb(255, 255, 255)",
+      "Non-Nova search field uses the white background"
+    );
     await ContentTaskUtils.waitForCondition(
       () =>
         computedStyle
@@ -132,29 +165,48 @@ add_task(async function test_search_icon_legacy() {
   });
 
   await BrowserTestUtils.closeWindow(win);
+  await SpecialPowers.popPrefEnv();
 });
 
-/**
- * Tests that we have the correct icon (the searchglass icon) displayed in
- * about:privatebrowsing.
- */
-add_task(async function test_search_icon() {
+add_task(async function test_felt_privacy_legacy_style() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["browser.privatebrowsing.felt-privacy-v1", true]],
+  });
+
   let { win, tab } = await openAboutPrivateBrowsing();
 
   await SpecialPowers.spawn(tab, [], async function () {
-    let handoffUI = content.document.querySelector("content-search-handoff-ui");
-    let btn = handoffUI.shadowRoot.querySelector(".search-handoff-button");
-    await handoffUI.updateComplete;
+    ok(
+      !content.document.getElementById("info-title").hidden,
+      "Legacy style keeps the info heading"
+    );
 
-    let computedStyle = content.window.getComputedStyle(btn);
+    const handoffUI = content.document.querySelector(
+      "content-search-handoff-ui"
+    );
+    await handoffUI.updateComplete;
+    const button = handoffUI.shadowRoot.querySelector(".search-handoff-button");
+    await ContentTaskUtils.waitForCondition(
+      () =>
+        content.window
+          .getComputedStyle(button)
+          .backgroundImage.startsWith("url("),
+      "Legacy search handoff icon should be set."
+    );
     is(
-      computedStyle.backgroundImage,
+      content.window.getComputedStyle(button).backgroundColor,
+      "rgb(255, 255, 255)",
+      "Legacy style uses the Proton search field"
+    );
+    isnot(
+      content.window.getComputedStyle(button).backgroundImage,
       `url("chrome://global/skin/icons/search-glass.svg")`,
-      "Got the searchglass icon"
+      "Legacy style uses the current engine icon"
     );
   });
 
   await BrowserTestUtils.closeWindow(win);
+  await SpecialPowers.popPrefEnv();
 });
 
 /**

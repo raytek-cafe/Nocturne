@@ -5,18 +5,18 @@
 @import url("chrome://global/skin/in-content/info-pages.css");
 
 @media not (prefers-contrast) {
-html.private {
-  --in-content-page-color: white;
-  --in-content-text-color: white;
-  --in-content-page-background: #25003e;
-  --link-color: white;
-  --link-color-hover: white;
-  --link-color-active: white;
-  --in-content-banner-background: #f9f9fe;
-  --in-content-banner-text-color: #0c0c0d;
-  --in-content-button-background-hover: rgba(12,12,13,.1);
-  --in-content-button-background-active: rgba(12,12,13,.15);
-}
+  html.private {
+    --background-color-canvas: light-dark(var(--color-gray-0), var(--color-gray-90));
+    --link-color: var(--color-accent-primary);
+    --link-color-hover: var(--color-accent-primary-hover);
+    --link-color-active: var(--color-accent-primary-active);
+    --in-content-banner-background: #f9f9fe;
+    --in-content-banner-text-color: #0c0c0d;
+    --button-background-color-hover: rgba(12, 12, 13, 0.1);
+    --button-background-color-active: rgba(12, 12, 13, 0.15);
+
+    color-scheme: dark;
+  }
 }
 
 /**
@@ -63,15 +63,15 @@ p {
 }
 
 .logo {
-  background: image-set(url("chrome://branding/content/about-logo-private.png"), url('chrome://branding/content/about-logo-private@2x.png') 2x) no-repeat center center;
-  background-size: 96px;
+  background: image-set(url("chrome://branding/content/about-logo-private.png"), url("chrome://branding/content/about-logo-private@2x.png") 2x) no-repeat center center;
+  background-size: var(--size-image-xxlarge);
   display: inline-block;
-  height: 96px;
-  width: 96px;
+  height: var(--size-image-xxlarge);
+  width: var(--size-image-xxlarge);
 }
 
 .wordmark {
-  display: inline-block;
+  display: none;
   background: url("chrome://branding/content/firefox-wordmark.svg") no-repeat center center;
   background-size: 172px;
   margin-inline-start: 15px;
@@ -83,16 +83,89 @@ p {
 
 .search-inner-wrapper {
   display: flex;
-  height: 48px;
-  padding: 0 22px;
+  height: 52px;
+  padding: 0;
   min-width: 70vw;
 }
 
 /* stylelint-disable-next-line media-query-no-invalid */
-@media -moz-pref("browser.privatebrowsing.felt-privacy-v1") {
+@media -moz-pref("browser.nova.enabled") {
+  content-search-handoff-ui {
+    --content-search-handoff-ui-background-color: var(
+      --color-violet-desaturated-70,
+      var(--color-violet-70)
+    );
+    --content-search-handoff-ui-color: #fbfbfe;
+    --content-search-handoff-ui-fill: rgb(251, 251, 254);
+    --content-search-handoff-ui-caret-color: #fbfbfe;
+    --content-search-handoff-ui-border-width: var(--border-width);
+    --content-search-handoff-ui-unfocused-border-color: var(
+      --color-violet-desaturated-50,
+      var(--color-violet-50)
+    );
+    --content-search-handoff-ui-fakefocus-border-color: var(--color-accent-primary);
+    --content-search-handoff-ui-fakefocus-box-shadow-inner: var(--color-accent-primary);
+    --content-search-handoff-ui-fakefocus-box-shadow-outer: color-mix(in srgb, var(--color-accent-primary) 30%, transparent);
+    --content-search-handoff-ui-engine-icon: var(
+      --newtab-search-icon,
+      url("chrome://global/skin/icons/search-glass.svg")
+    );
+
+    @media (forced-colors) {
+      --content-search-handoff-ui-background-color: ButtonFace;
+      --content-search-handoff-ui-color: ButtonText;
+      --content-search-handoff-ui-fill: ButtonText;
+      --content-search-handoff-ui-caret-color: ButtonText;
+      --content-search-handoff-ui-fakefocus-border-color: ButtonText;
+    }
+  }
+}
+
+/* stylelint-disable-next-line media-query-no-invalid */
+@media not -moz-pref("browser.nova.enabled") {
   .search-inner-wrapper {
-    height: 52px;
-    padding: 0;
+    height: 48px;
+    padding-inline: 22px;
+  }
+
+  content-search-handoff-ui {
+    --content-search-handoff-ui-engine-icon: var(
+      --newtab-search-icon,
+      url("chrome://global/skin/icons/search-glass.svg")
+    );
+  }
+
+  @media not (forced-colors) {
+    @media not (prefers-contrast) {
+      html.private {
+        color-scheme: light dark;
+      }
+
+      @media (prefers-color-scheme: light) {
+        html.private {
+          --background-color-canvas: #25003e;
+          --link-color: white;
+          --link-color-hover: white;
+          --link-color-active: white;
+          background: #25003e;
+          color: var(--color-white);
+        }
+
+        content-search-handoff-ui {
+          --box-shadow-level-3: 0 1px 4px 0 rgba(12, 12, 13, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.15);
+          --content-search-handoff-ui-background-color: #fff;
+          --content-search-handoff-ui-color: rgb(12, 12, 13);
+          --content-search-handoff-ui-fill: rgba(12, 12, 13, 0.4);
+          --content-search-handoff-ui-caret-color: rgb(12, 12, 13);
+          --content-search-handoff-ui-border-width: 1px;
+          --content-search-handoff-ui-border-radius: 3px;
+          --content-search-handoff-ui-unfocused-border-color: rgba(249, 249, 250, 0.2);
+          --content-search-handoff-ui-fakefocus-border-color: #0060df;
+          --content-search-handoff-ui-fakefocus-box-shadow-inner: #0060df;
+          --content-search-handoff-ui-fakefocus-box-shadow-outer: rgba(0, 96, 223, 0.3);
+        }
+      }
+    }
   }
 }
 
@@ -106,12 +179,12 @@ p {
 }
 
 .promo.top {
-  background: rgba(255, 255, 255, .2);
+  background: rgba(255, 255, 255, 0.2);
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, .3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .promo.top .promo-image-large {
@@ -158,161 +231,6 @@ p {
   }
 }
 
-.search-handoff-button,
-.search-handoff-button:active,
-.search-handoff-button:enabled:hover:active {
-  background: #fff var(--newtab-search-icon) 12px center no-repeat;
-  background-size: 24px;
-  border: solid 1px rgba(249, 249, 250, 0.2);
-  border-radius: 3px;
-  box-shadow: 0 1px 4px 0 rgba(12, 12, 13, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.15);
-  cursor: text;
-  font-size: 15px;
-  font-weight: normal;
-  margin: 0;
-  padding-block: 0;
-  padding-inline: 46px 48px;
-  position: relative;
-  opacity: 1;
-  width: 100%;
-  -moz-context-properties: fill;
-  fill: rgba(12, 12, 13, 0.4);
-}
-
-.search-handoff-button.focused:not(.disabled) {
-  border: solid 1px #0060df;
-  box-shadow: 0 0 0 1px #0060df, 0 0 0 4px rgba(0, 96, 223, 0.3);
-}
-
-.search-handoff-button.disabled {
-  opacity: 0.5;
-  box-shadow: none;
-}
-
-.search-handoff-button:dir(rtl),
-.search-handoff-button:active:dir(rtl),
-.search-handoff-button:enabled:hover:active:dir(rtl) {
-  background-position-x: right 12px;
-}
-
-.search-inner-wrapper .search-handoff-button:hover,
-.search-inner-wrapper .search-handoff-button:hover:active {
-  background-color: #fff;
-  color: inherit;
-}
-
-.search-handoff-button.focused:not(.disabled) .fake-caret {
-  display: block;
-}
-
-.fake-editable:focus {
-  outline: none;
-  caret-color: transparent;
-}
-
-.fake-editable {
-  border: 0;
-  height: 100%;
-  top: 0;
-  inset-inline-start: 0;
-  opacity: 0;
-  padding: 0;
-  position: absolute;
-  width: 100%;
-}
-
-.fake-textbox {
-  color: rgb(12, 12, 13);
-  opacity: 0.54;
-  text-align: start;
-}
-
-@keyframes caret-animation {
-  to {
-    visibility: hidden;
-  }
-}
-
-.fake-caret {
-  animation: caret-animation 1.3s steps(5, start) infinite;
-  background-color: rgb(12, 12, 13);
-  display: none;
-  inset-inline-start: 47px;
-  height: 17px;
-  position: absolute;
-  top: 16px;
-  width: 1px;
-}
-
-@media (prefers-contrast) {
-  .fake-caret {
-    background-color: ButtonText;
-  }
-}
-
-/* stylelint-disable-next-line media-query-no-invalid */
-@media -moz-pref("browser.privatebrowsing.felt-privacy-v1") {
-  .search-handoff-button,
-  .search-handoff-button:hover:not(.focused),
-  .search-handoff-button:active,
-  .search-handoff-button:enabled:hover:active {
-    border: 3px solid ButtonText;
-    border-radius: 6px;
-    box-shadow: none;
-
-    @media not (prefers-contrast) {
-      border-color: #952bb9;
-    }
-  }
-
-  .search-handoff-button,
-  .search-handoff-button:hover:not(.focused),
-  .search-handoff-button:active,
-  .search-handoff-button:enabled:hover:active,
-  .search-inner-wrapper .search-handoff-button:hover,
-  .search-inner-wrapper .search-handoff-button:hover:active {
-    background-color: ButtonFace;
-    background-image: url(chrome://global/skin/icons/search-glass.svg);
-    background-repeat: no-repeat;
-    background-size: 16px;
-    fill: ButtonText;
-
-    @media (prefers-contrast) {
-      border-color: ButtonText;
-      color: ButtonText;
-    }
-
-    @media not (prefers-contrast) {
-      background-color: #321c64;
-      fill: rgb(251, 251, 254);
-    }
-  }
-
-  .search-handoff-button.focused:not(.disabled) {
-    border-width: 3px;
-
-    @media (prefers-contrast) {
-      outline: 2px solid SelectedItem;
-    }
-  }
-
-  .fake-textbox {
-    color: ButtonText;
-    font-size: 0.87em;
-    opacity: 1;
-
-    @media not (prefers-contrast) {
-      color: #fbfbfe;
-    }
-  }
-
-  @media not (prefers-contrast) {
-    .fake-caret {
-      background-color: #fbfbfe;
-    }
-  }
-}
-
 .search-banner {
   width: 100%;
   background-color: var(--in-content-banner-background);
@@ -326,7 +244,7 @@ p {
   background-position: left 0 top 50px;
   background-repeat: no-repeat;
   background-size: 32px;
-  letter-spacing: -.2px;
+  letter-spacing: -0.2px;
   padding: 50px 0;
   padding-inline-start: 44px;
 }
@@ -349,24 +267,6 @@ p {
   margin: 4px 0;
 }
 
-.info {
-  margin-top: 64px;
-  background-color: rgba(0, 0, 0, 0.2);
-  background-image: url("chrome://global/skin/icons/indicator-private-browsing.svg");
-  background-position: left 32px top 20px;
-  background-repeat: no-repeat;
-  background-size: 32px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  letter-spacing: -0.2px;
-  padding: 20px;
-  padding-inline-start: 76px;
-}
-
-.info:dir(rtl) {
-  background-position-x: right 32px;
-}
-
 .info h1,
 .promo h1 {
   font-size: 18px;
@@ -379,45 +279,41 @@ p {
   line-height: 1.67;
 }
 
-.info #info-title:not([hidden]) + p {
-  margin-top: 15px;
+.info-border {
+  border-radius: var(--border-radius-medium);
+  margin-top: 64px;
+  padding: 17px;
+
+  @media not (prefers-contrast) {
+    box-shadow: 0 2px 6px 0 rgba(58, 57, 68, 0.2);
+    background: rgba(149, 43, 185, 0.5);
+  }
 }
 
-/* stylelint-disable-next-line media-query-no-invalid */
-@media -moz-pref("browser.privatebrowsing.felt-privacy-v1") {
-  .info-border {
-    border-radius: 8px;
-    margin-top: 64px;
-    padding: 17px;
+.info {
+  /* stylelint-disable-next-line stylelint-plugin-mozilla/use-design-tokens */
+  background-color: var(--color-black-alpha-20);
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-small);
+  font-size: 0.93em;
+  margin: 0;
+  padding: 20px;
+  padding-block-end: 25px;
 
-    @media not (prefers-contrast) {
-      box-shadow: 0 2px 6px 0 rgba(58, 57, 68, 0.20);
-      background: rgba(149, 43, 185, 0.5);
-    }
+  @media not (prefers-contrast) {
+    background-color: #321c64;
+    box-shadow: 0 2px 6px 0 rgba(58, 57, 68, 0.2);
   }
+}
 
-  .info {
-    background-image: none;
-    border-radius: 6px;
-    font-size: 0.93em;
-    margin: 0;
-    padding-inline-start: 20px;
-    padding-block-end: 25px;
+#info-title:not([hidden]) + #info-body {
+  margin-block: 0;
+}
 
-    @media not (prefers-contrast) {
-      background-color: #321c64;
-      box-shadow: 0 2px 6px 0 rgba(58, 57, 68, 0.20);
-    }
-  }
-
-  #info-title:not([hidden]) + #info-body {
-    margin-block: 0;
-  }
-
-  #info-title {
-    font-size: 1em;
-    margin-block: 0;
-  }
+#info-title {
+  font-size: 1em;
+  margin-block: 0;
 }
 
 .search-banner-close-button {
@@ -501,22 +397,22 @@ p {
   margin: 8px 0;
   font-weight: 600;
   cursor: pointer;
-  background-color: rgb(0,221,255);
-  color: rgb(43,42,51);
+  background-color: rgb(0, 221, 255);
+  color: rgb(43, 42, 51);
 }
 
 .promo-cta .primary:focus-visible {
-  outline-color: rgb(0,221,255);
+  outline-color: rgb(0, 221, 255);
 }
 
 .promo-cta .primary:hover {
-  background-color: rgb(128,235,255) !important;
-  color: rgb(43,42,51) !important;
+  background-color: rgb(128, 235, 255) !important;
+  color: rgb(43, 42, 51) !important;
 }
 
 .promo-cta .primary:hover:active {
-  background-color: rgb(170,242,255) !important;
-  color: rgb(43,42,51) !important;
+  background-color: rgb(170, 242, 255) !important;
+  color: rgb(43, 42, 51) !important;
 }
 
 @media (prefers-contrast) {
@@ -604,19 +500,211 @@ p {
   margin: 0;
 }
 
+.promo.below-search.promo-visible {
+  margin-block: 0 25px;
+
+  @media not (prefers-contrast) {
+    background-color: #321c64;
+  }
+}
+
+@media not (prefers-contrast) {
+  html.private {
+    background: var(--background-color-canvas);
+    color: var(--color-white);
+  }
+
+  html.private body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: url("chrome://browser/skin/privatebrowsing/fox-tail.svg") no-repeat bottom right / cover;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  html.private:dir(rtl) body::before {
+    transform: scaleX(-1);
+  }
+}
+
+html.private .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}
+
+html.private .logo-and-wordmark {
+  margin-block: clamp(32px, 10vh, 120px) var(--space-medium);
+}
+
+html.private .logo {
+  background-size: var(--size-image-xxlarge);
+  height: var(--size-image-xxlarge);
+  width: var(--size-image-xxlarge);
+}
+
+.nova-tagline {
+  display: block;
+  margin-block: 0 var(--space-small);
+  text-align: center;
+}
+
+html.private .info-border {
+  margin-block-start: auto;
+  margin-block-end: 0;
+  padding-block: var(--space-xxlarge) 0;
+  padding-inline: 0;
+
+  @media not (prefers-contrast) {
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+html.private .info {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: center;
+
+  @media not (prefers-contrast) {
+    background-color: transparent;
+    box-shadow: none;
+    color: var(--text-color-deemphasized);
+  }
+
+  #info-body {
+    margin-block-end: 0;
+  }
+
+  #private-browsing-myths {
+    display: inline-block;
+    margin-block-start: var(--space-medium);
+  }
+}
+
+#private-browsing-myths:link {
+  @media not (prefers-contrast) {
+    color: var(--link-color);
+
+    &:hover {
+      color: var(--link-color-hover);
+    }
+
+    &:active {
+      color: var(--link-color-active);
+    }
+  }
+}
+
 /* stylelint-disable-next-line media-query-no-invalid */
 @media -moz-pref("browser.privatebrowsing.felt-privacy-v1") {
-  .promo.below-search.promo-visible {
-    margin-block: 0 25px;
+  @media not (prefers-contrast) {
+    html.private {
+      --background-color-canvas: #25003e;
+      --link-color: white;
+      --link-color-hover: white;
+      --link-color-active: white;
+      background: #25003e;
+      color: var(--color-white);
+    }
+  }
+  html.private body::before {
+    display: none;
+  }
 
-    @media not (prefers-contrast) {
-      background-color: #321c64;
+  html.private .container {
+    display: block;
+    flex: none;
+    width: auto;
+  }
+
+  html.private .logo-and-wordmark {
+    margin-block: 0 50px;
+  }
+
+  .nova-tagline {
+    display: none;
+  }
+
+  .logo-and-wordmark .wordmark {
+    display: inline-block;
+  }
+
+  html.private .logo {
+    background: image-set(url("chrome://branding/content/about-logo-private.png"), url("chrome://branding/content/about-logo-private@2x.png") 2x) no-repeat center
+      center;
+    background-size: 96px;
+    height: 96px;
+    width: 96px;
+  }
+
+  .search-inner-wrapper {
+    height: 48px;
+    padding-inline: 22px;
+  }
+
+  content-search-handoff-ui {
+    --box-shadow-level-3: 0 1px 4px 0 rgba(12, 12, 13, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.15);
+    --content-search-handoff-ui-background-color: #fff;
+    --content-search-handoff-ui-color: rgb(12, 12, 13);
+    --content-search-handoff-ui-fill: rgba(12, 12, 13, 0.4);
+    --content-search-handoff-ui-caret-color: rgb(12, 12, 13);
+    --content-search-handoff-ui-border-width: 1px;
+    --content-search-handoff-ui-border-radius: 3px;
+    --content-search-handoff-ui-unfocused-border-color: rgba(249, 249, 250, 0.2);
+    --content-search-handoff-ui-fakefocus-border-color: #0060df;
+    --content-search-handoff-ui-fakefocus-box-shadow-inner: #0060df;
+    --content-search-handoff-ui-fakefocus-box-shadow-outer: rgba(0, 96, 223, 0.3);
+    --content-search-handoff-ui-engine-icon: var(
+      --newtab-search-icon,
+      url("chrome://global/skin/icons/search-glass.svg")
+    );
+  }
+
+  html.private .info-border {
+    border-radius: 0;
+    margin-block-start: 64px;
+    margin-block-end: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  html.private .info {
+    background-color: rgba(0, 0, 0, 0.2);
+    background-image: url("chrome://global/skin/icons/indicator-private-browsing.svg");
+    background-position: left 32px top 20px;
+    background-repeat: no-repeat;
+    background-size: 32px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: inherit;
+    font-size: 0.93em;
+    padding: 20px;
+    padding-block-end: 25px;
+    padding-inline-start: 76px;
+    text-align: start;
+    box-shadow: none;
+
+    #info-title {
+      font-size: 18px;
+    }
+
+    #info-title:not([hidden]) + #info-body {
+      margin-block-start: 15px;
+    }
+
+    #private-browsing-myths {
+      display: inline;
+      margin-block-start: 0;
     }
   }
 
-  @media not (prefers-contrast) {
-    html.private {
-      background: linear-gradient(45deg, #722291 0%, #45278D 50%, #393473 100%);
-    }
+  html.private .info:dir(rtl) {
+    background-position-x: right 32px;
   }
 }
