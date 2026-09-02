@@ -38,7 +38,7 @@ RemoteLookAndFeel::RemoteLookAndFeel(FullLookAndFeel&& aData)
     // parent chose for content.
     nsLookAndFeel::ConfigureTheme(aData.theme());
   }
-  mContentThemeIsDark = aData.theme().preferDarkTheme();
+  mContentThemeIsDark = aData.theme().isDark();
 #endif
 }
 
@@ -56,7 +56,7 @@ void RemoteLookAndFeel::SetDataImpl(FullLookAndFeel&& aData) {
     // parent chose for content.
     nsLookAndFeel::ConfigureTheme(aData.theme());
   }
-  mContentThemeIsDark = aData.theme().preferDarkTheme();
+  mContentThemeIsDark = aData.theme().isDark();
 #endif
 }
 
