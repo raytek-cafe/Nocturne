@@ -50,6 +50,7 @@ struct LookAndFeelTheme {
 #ifdef MOZ_WIDGET_GTK
     nsCString themeName;
     bool preferDarkTheme;
+    bool isDark;
 #endif
 };
 

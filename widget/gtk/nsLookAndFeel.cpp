@@ -1404,6 +1404,7 @@ void nsLookAndFeel::ConfigureTheme(const LookAndFeelTheme& aTheme) {
   g_object_set(settings, "gtk-theme-name", aTheme.themeName().get(),
                "gtk-application-prefer-dark-theme",
                aTheme.preferDarkTheme() ? TRUE : FALSE, nullptr);
+  moz_gtk_refresh();
 }
 
 void nsLookAndFeel::RestoreSystemTheme() {
@@ -2128,10 +2129,10 @@ void nsLookAndFeel::GetGtkContentTheme(LookAndFeelTheme& aTheme) {
                     : LightTheme();
   aTheme.preferDarkTheme() = theme.mPreferDarkTheme;
   aTheme.themeName() = theme.mName;
+  aTheme.isDark() = theme.mIsDark;
 
-  if (theme.mPreferDarkTheme &&
-      !StringEndsWith(aTheme.themeName(), "-Dark"_ns,
-                      nsCaseInsensitiveCStringComparator)) {
+  if (theme.mIsDark && !StringEndsWith(aTheme.themeName(), "-Dark"_ns,
+                                       nsCaseInsensitiveCStringComparator)) {
     nsAutoCString dark(aTheme.themeName());
     dark.AppendLiteral("-Dark");
     if (GtkThemeExists(dark)) {
