@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <dlfcn.h>
+#include <cstring>
 #include "mozilla/StaticPrefs_widget.h"
 #include <gtk/gtk.h>
 #include "WidgetStyleCache.h"
@@ -40,10 +41,10 @@ static GtkStyleContext* GetCssNodeStyleInternal(WidgetNodeType aNodeType);
 static GtkWidget* CreateWindowWidget() {
   GtkWidget* widget = gtk_window_new(GTK_WINDOW_POPUP);
   MOZ_RELEASE_ASSERT(widget, "We're missing GtkWindow widget!");
-  gtk_widget_set_name(widget,
-                      StaticPrefs::widget_native_controls_use_mozilla_widget_name()
-                          ? "MozillaGtkWidget"
-                          : "MarbleGtkWidget");
+  gtk_widget_set_name(
+      widget, StaticPrefs::widget_native_controls_use_mozilla_widget_name()
+                  ? "MozillaGtkWidget"
+                  : "MarbleGtkWidget");
   return widget;
 }
 
@@ -1363,10 +1364,24 @@ GtkStyleContext* GetStyleContext(WidgetNodeType aNodeType, int aScale,
   return style;
 }
 
-GtkStyleContext* CreateStyleContextWithStates(WidgetNodeType aNodeType,
-                                              int aScale,
-                                              GtkTextDirection aDirection,
-                                              GtkStateFlags aStateFlags) {
+static void AddOverlayClassesToScrollbarNode(
+    GtkWidgetPath* aPath, int aPos, ScrollbarOverlayState aOverlayState) {
+  gtk_widget_path_iter_add_class(aPath, aPos, "overlay-indicator");
+  switch (aOverlayState) {
+    case ScrollbarOverlayState::Hovering:
+      gtk_widget_path_iter_add_class(aPath, aPos, "hovering");
+      break;
+    case ScrollbarOverlayState::Dragging:
+      gtk_widget_path_iter_add_class(aPath, aPos, "dragging");
+      break;
+    default:
+      break;
+  }
+}
+
+GtkStyleContext* CreateStyleContextWithStates(
+    WidgetNodeType aNodeType, int aScale, GtkTextDirection aDirection,
+    GtkStateFlags aStateFlags, ScrollbarOverlayState aOverlayState) {
   GtkStyleContext* style =
       GetStyleContext(aNodeType, aScale, aDirection, aStateFlags);
   GtkWidgetPath* path = gtk_widget_path_copy(gtk_style_context_get_path(style));
@@ -1378,10 +1393,24 @@ GtkStyleContext* CreateStyleContextWithStates(WidgetNodeType aNodeType,
       (void (*)(GtkWidgetPath*, gint, GtkStateFlags))dlsym(
           RTLD_DEFAULT, "gtk_widget_path_iter_set_state");
 
+  static auto sGtkWidgetPathIterGetObjectName =
+      (const char* (*)(const GtkWidgetPath*, gint))dlsym(
+          RTLD_DEFAULT, "gtk_widget_path_iter_get_object_name");
+
   int pathLength = gtk_widget_path_length(path);
   for (int i = 0; i < pathLength; i++) {
     unsigned state = aStateFlags | sGtkWidgetPathIterGetState(path, i);
     sGtkWidgetPathIterSetState(path, i, GtkStateFlags(state));
+    // Themes select the overlay states off the scrollbar node
+    // ("scrollbar.overlay-indicator slider"), so they have to land there and
+    // not on the trough or slider this context is for.
+    if (aOverlayState != ScrollbarOverlayState::None &&
+        sGtkWidgetPathIterGetObjectName) {
+      const char* name = sGtkWidgetPathIterGetObjectName(path, i);
+      if (name && !strcmp(name, "scrollbar")) {
+        AddOverlayClassesToScrollbarNode(path, i, aOverlayState);
+      }
+    }
   }
 
   style = gtk_style_context_new();

@@ -596,6 +596,36 @@ static bool GetColorFromImagePattern(const GValue* aValue, nscolor* aColor) {
   return false;
 }
 
+// Sets |aLightColor| and |aDarkColor| to colors from |aContext|.  Returns
+// true if |aContext| uses these colors to render a visible border.
+// If returning false, then the colors returned are a fallback from the
+// border-color value even though |aContext| does not use these colors to
+// render a border.
+static Maybe<nscolor> GetBorderColor(GtkStyleContext* aContext) {
+  // Determine whether the border on this style context is visible.
+  GtkStateFlags state = gtk_style_context_get_state(aContext);
+  GtkBorderStyle borderStyle = GTK_BORDER_STYLE_NONE;
+  gtk_style_context_get(aContext, state, GTK_STYLE_PROPERTY_BORDER_STYLE,
+                        &borderStyle, nullptr);
+  if (borderStyle == GTK_BORDER_STYLE_NONE ||
+      borderStyle == GTK_BORDER_STYLE_HIDDEN) {
+    return {};
+  }
+  // GTK has an initial value of zero for border-widths, and so themes
+  // need to explicitly set border-widths to make borders visible.
+  GtkBorder border;
+  gtk_style_context_get_border(aContext, state, &border);
+  if (!border.top && !border.right && !border.bottom && !border.left) {
+    return {};
+  }
+
+  // The initial value for the border-color is the foreground color, and so
+  // this will usually return a color distinct from the background even if
+  // there is no visible border detected.
+  GdkRGBA color{};
+  gtk_style_context_get_border_color(aContext, state, &color);
+  return Some(GDK_RGBA_TO_NS_RGBA(color));
+}
 // Finds ideal cell highlight colors used for unfocused+selected cells distinct
 // from both Highlight, used as focused+selected background, and the listbox
 // background which is assumed to be similar to -moz-field
@@ -964,6 +994,13 @@ static int32_t ConvertGTKStepperStyleToMozillaScrollArrowStyle(
                           mozilla::LookAndFeel::eScrollArrow_StartForward);
 }
 
+static bool GetGtkOverlayScrolling() {
+  GtkSettings* settings = gtk_settings_get_default();
+  gboolean overlayScrolling = TRUE;
+  g_object_get(settings, "gtk-overlay-scrolling", &overlayScrolling, nullptr);
+  return overlayScrolling == TRUE;
+}
+
 nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
   nsresult res = NS_OK;
 
@@ -1192,7 +1229,8 @@ nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
       }();
       break;
     case IntID::UseOverlayScrollbars: {
-      aResult = StaticPrefs::widget_gtk_overlay_scrollbars_enabled();
+      aResult = StaticPrefs::widget_gtk_overlay_scrollbars_enabled() &&
+                GetGtkOverlayScrolling();
       break;
     }
     case IntID::HideCursorWhileTyping: {
@@ -1623,8 +1661,10 @@ void nsLookAndFeel::MaybeApplyColorOverrides() {
 
       // We use the sidebar colors for the headerbar in light mode background
       // because it creates much better contrast. GTK headerbar colors are
-      // white, and meant to "blend" with the contents otherwise, but that
-      // doesn't work fine for Firefox's toolbars.
+      // white, and meant to "blend" with the contents otherwise. #2f2f2f is
+      // rgba(0,0,0,.8) over #ebebeb.
+      light.ApplyColorOverride(&light.mSidebar, {NS_RGB(0xeb, 0xeb, 0xeb),
+                                                 NS_RGB(0x2f, 0x2f, 0x2f)});
       light.ApplyColorOverride(&light.mHeaderBar, light.mSidebar);
       light.ApplyColorOverride(&light.mTitlebar, light.mSidebar);
       light.ApplyColorOverride(&light.mHeaderBarInactive, light.mSidebar);
@@ -2100,8 +2140,9 @@ static bool GtkThemeExists(const nsACString& aName) {
   }
 
   if (const char* dataDirs = PR_GetEnv("XDG_DATA_DIRS")) {
-    for (const nsACString& dir : nsCCharSeparatedTokenizer(
-             nsDependentCString(dataDirs), ':').ToRange()) {
+    for (const nsACString& dir :
+         nsCCharSeparatedTokenizer(nsDependentCString(dataDirs), ':')
+             .ToRange()) {
       if (hasTheme(PromiseFlatCString(dir).get())) {
         return true;
       }

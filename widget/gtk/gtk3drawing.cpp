@@ -31,8 +31,8 @@ static gboolean notebook_has_tab_gap;
 static ToggleGTKMetrics sCheckboxMetrics;
 static ToggleGTKMetrics sRadioMetrics;
 static ToolbarGTKMetrics sToolbarMetrics;
-static ScrollbarGTKMetrics sScrollbarMetrics[2];
-static ScrollbarGTKMetrics sActiveScrollbarMetrics[2];
+static ScrollbarGTKMetrics sScrollbarMetrics[2][2];
+static ScrollbarGTKMetrics sActiveScrollbarMetrics[2][2];
 static CSDWindowDecorationSize sToplevelWindowDecorationSize;
 static CSDWindowDecorationSize sPopupWindowDecorationSize;
 
@@ -217,6 +217,14 @@ void moz_gtk_refresh() {
     notebook_has_tab_gap = true;
   }
 
+  for (auto& perOverlay : sScrollbarMetrics) {
+    perOverlay[GTK_ORIENTATION_HORIZONTAL].initialized = false;
+    perOverlay[GTK_ORIENTATION_VERTICAL].initialized = false;
+  }
+  for (auto& perOverlay : sActiveScrollbarMetrics) {
+    perOverlay[GTK_ORIENTATION_HORIZONTAL].initialized = false;
+    perOverlay[GTK_ORIENTATION_VERTICAL].initialized = false;
+  }
   sCheckboxMetrics.initialized = false;
   sRadioMetrics.initialized = false;
   sToolbarMetrics.initialized = false;
@@ -2102,7 +2110,6 @@ static MozGtkSize SizeFromLengthAndBreadth(GtkOrientation aOrientation,
              : MozGtkSize({aBreadth, aLength});
 }
 
-
 static gint moz_gtk_scrollbar_button_paint(cairo_t* cr,
                                            const GdkRectangle* aRect,
                                            GtkWidgetState* state,
@@ -2226,7 +2233,7 @@ static gint moz_gtk_scrollbar_trough_paint(WidgetNodeType widget, cairo_t* cr,
                                : MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL;
     MozGtkSize thumbSize = GetMinMarginBox(GetStyleContext(thumb));
     style = CreateStyleContextWithStates(widget, state->image_scale, direction,
-                                        state_flags);
+                                         state_flags, state->overlayState);
     ownsStyle = true;
     MozGtkSize trackSize = GetMinContentBox(style);
     trackSize.Include(thumbSize);
@@ -2258,18 +2265,33 @@ static gint moz_gtk_scrollbar_paint(WidgetNodeType widget, cairo_t* cr,
                                     GtkWidgetState* state,
                                     GtkTextDirection direction) {
   GtkStateFlags state_flags = GetStateFlagsFromGtkWidgetState(state);
+  const bool overlay = state->overlayState != ScrollbarOverlayState::None;
+
   GtkStyleContext* style =
-      GetStyleContext(widget, state->image_scale, direction, state_flags);
+      overlay
+          ? CreateStyleContextWithStates(widget, state->image_scale, direction,
+                                         state_flags, state->overlayState)
+          : GetStyleContext(widget, state->image_scale, direction, state_flags);
 
   moz_gtk_update_scrollbar_style(style, widget, direction);
 
   moz_gtk_draw_styled_frame(style, cr, rect, state->focused);
+  if (overlay) {
+    g_object_unref(style);
+  }
 
-  style = GetStyleContext((widget == MOZ_GTK_SCROLLBAR_HORIZONTAL)
-                              ? MOZ_GTK_SCROLLBAR_CONTENTS_HORIZONTAL
-                              : MOZ_GTK_SCROLLBAR_CONTENTS_VERTICAL,
-                          state->image_scale, direction, state_flags);
+  WidgetNodeType contents = (widget == MOZ_GTK_SCROLLBAR_HORIZONTAL)
+                                ? MOZ_GTK_SCROLLBAR_CONTENTS_HORIZONTAL
+                                : MOZ_GTK_SCROLLBAR_CONTENTS_VERTICAL;
+  style = overlay ? CreateStyleContextWithStates(contents, state->image_scale,
+                                                 direction, state_flags,
+                                                 state->overlayState)
+                  : GetStyleContext(contents, state->image_scale, direction,
+                                    state_flags);
   moz_gtk_draw_styled_frame(style, cr, rect, state->focused);
+  if (overlay) {
+    g_object_unref(style);
+  }
 
   return MOZ_GTK_SUCCESS;
 }
@@ -2283,7 +2305,7 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
   // ("scrollbar:hover trough slider"), so the state has to be applied to every
   // node in the path, not just the last one.
   GtkStyleContext* style = CreateStyleContextWithStates(
-      widget, state->image_scale, direction, state_flags);
+      widget, state->image_scale, direction, state_flags, state->overlayState);
 
   GtkOrientation orientation = (widget == MOZ_GTK_SCROLLBAR_THUMB_HORIZONTAL)
                                    ? GTK_ORIENTATION_HORIZONTAL
@@ -2291,10 +2313,13 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
 
   GdkRectangle rect = *aRect;
 
+  const bool overlay = state->overlayState != ScrollbarOverlayState::None;
+  const bool expanded =
+      overlay ? state->overlayState != ScrollbarOverlayState::Indicator
+              : (state->depressed || state->active || state->inHover);
   const ScrollbarGTKMetrics* metrics =
-      (state->depressed || state->active || state->inHover)
-          ? GetActiveScrollbarMetrics(orientation)
-          : GetScrollbarMetrics(orientation);
+      expanded ? GetActiveScrollbarMetrics(orientation, overlay)
+               : GetScrollbarMetrics(orientation, overlay);
   // Only ever shrink: layout already sized the thumb frame, so a negative
   // margin (Breeze uses -9px/-6px with a transparent border) must not push the
   // slider outside it. The transparent border plus background-clip:padding-box
@@ -2312,7 +2337,6 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
 
   return MOZ_GTK_SUCCESS;
 }
-
 
 gint moz_gtk_get_scalethumb_metrics(GtkOrientation orient, gint* thumb_length,
                                     gint* thumb_height) {
@@ -2410,7 +2434,8 @@ const ToggleGTKMetrics* GetToggleMetrics(WidgetNodeType aWidgetType) {
 
 static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
                                  GtkOrientation aOrientation,
-                                 GtkStateFlags aStateFlags) {
+                                 GtkStateFlags aStateFlags,
+                                 ScrollbarOverlayState aOverlayState) {
   WidgetNodeType scrollbar = aOrientation == GTK_ORIENTATION_HORIZONTAL
                                  ? MOZ_GTK_SCROLLBAR_HORIZONTAL
                                  : MOZ_GTK_SCROLLBAR_VERTICAL;
@@ -2497,16 +2522,16 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
    */
 
   // thumb
-  style =
-      CreateStyleContextWithStates(thumb, 1, GTK_TEXT_DIR_NONE, aStateFlags);
+  style = CreateStyleContextWithStates(thumb, 1, GTK_TEXT_DIR_NONE, aStateFlags,
+                                       aOverlayState);
   aMetrics->size.thumb = GetMinMarginBox(style);
   gtk_style_context_get_margin(style, gtk_style_context_get_state(style),
                                &aMetrics->margin.thumb);
   g_object_unref(style);
 
   // track
-  style =
-      CreateStyleContextWithStates(track, 1, GTK_TEXT_DIR_NONE, aStateFlags);
+  style = CreateStyleContextWithStates(track, 1, GTK_TEXT_DIR_NONE, aStateFlags,
+                                       aOverlayState);
   aMetrics->border.track = GetMarginBorderPadding(style);
   MozGtkSize trackMinSize = GetMinContentBox(style) + aMetrics->border.track;
   MozGtkSize trackSizeForThumb = aMetrics->size.thumb + aMetrics->border.track;
@@ -2515,7 +2540,8 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
   // button
   if (hasButtons) {
     style = CreateStyleContextWithStates(MOZ_GTK_SCROLLBAR_BUTTON, 1,
-                                         GTK_TEXT_DIR_NONE, aStateFlags);
+                                         GTK_TEXT_DIR_NONE, aStateFlags,
+                                         aOverlayState);
     aMetrics->size.button = GetMinMarginBox(style);
     g_object_unref(style);
   } else {
@@ -2549,8 +2575,8 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
     }
   }
 
-  style =
-      CreateStyleContextWithStates(contents, 1, GTK_TEXT_DIR_NONE, aStateFlags);
+  style = CreateStyleContextWithStates(contents, 1, GTK_TEXT_DIR_NONE,
+                                       aStateFlags, aOverlayState);
   GtkBorder contentsBorder = GetMarginBorderPadding(style);
   g_object_unref(style);
 
@@ -2558,10 +2584,13 @@ static void InitScrollbarMetrics(ScrollbarGTKMetrics* aMetrics,
       trackSizeForThumb + contentsBorder + aMetrics->border.scrollbar;
 }
 
-const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation) {
-  auto metrics = &sScrollbarMetrics[aOrientation];
+const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation,
+                                               bool aOverlay) {
+  auto metrics = &sScrollbarMetrics[aOverlay][aOrientation];
   if (!metrics->initialized) {
-    InitScrollbarMetrics(metrics, aOrientation, GTK_STATE_FLAG_NORMAL);
+    InitScrollbarMetrics(metrics, aOrientation, GTK_STATE_FLAG_NORMAL,
+                         aOverlay ? ScrollbarOverlayState::Indicator
+                                  : ScrollbarOverlayState::None);
 
     // We calculate thumb margin here because it's composited from
     // thumb class margin + difference margin between active and inactive
@@ -2569,7 +2598,7 @@ const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation) {
     // overlay scrollbars for some Gtk+ themes (Ubuntu/Ambiance),
     // when an inactive scrollbar thumb is smaller than the active one.
     const ScrollbarGTKMetrics* metricsActive =
-        GetActiveScrollbarMetrics(aOrientation);
+        GetActiveScrollbarMetrics(aOrientation, aOverlay);
 
     if (metrics->size.thumb < metricsActive->size.thumb) {
       metrics->margin.thumb +=
@@ -2583,15 +2612,16 @@ const ScrollbarGTKMetrics* GetScrollbarMetrics(GtkOrientation aOrientation) {
 }
 
 const ScrollbarGTKMetrics* GetActiveScrollbarMetrics(
-    GtkOrientation aOrientation) {
-  auto metrics = &sActiveScrollbarMetrics[aOrientation];
+    GtkOrientation aOrientation, bool aOverlay) {
+  auto metrics = &sActiveScrollbarMetrics[aOverlay][aOrientation];
   if (!metrics->initialized) {
-    InitScrollbarMetrics(metrics, aOrientation, GTK_STATE_FLAG_PRELIGHT);
+    InitScrollbarMetrics(metrics, aOrientation, GTK_STATE_FLAG_PRELIGHT,
+                         aOverlay ? ScrollbarOverlayState::Hovering
+                                  : ScrollbarOverlayState::None);
     metrics->initialized = true;
   }
   return metrics;
 }
-
 
 /*
  * get_shadow_width() from gtkwindow.c is not public so we need
