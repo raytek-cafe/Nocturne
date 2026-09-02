@@ -153,6 +153,24 @@ gint nsNativeThemeGTK::GetTabMarginPixels(nsIFrame* aFrame) {
 
 static bool GtkCanDrawWidget(StyleAppearance aAppearance);
 
+static ScrollbarOverlayState GetScrollbarOverlayState(nsIFrame* aFrame) {
+  if (!nsLayoutUtils::UseOverlayScrollbars(aFrame)) {
+    return ScrollbarOverlayState::None;
+  }
+  nsIFrame* scrollbar = ScrollbarDrawing::GetParentScrollbarFrame(aFrame);
+  if (!scrollbar) {
+    return ScrollbarOverlayState::Indicator;
+  }
+  auto state = scrollbar->GetContent()->AsElement()->State();
+  if (state.HasState(mozilla::dom::ElementState::ACTIVE)) {
+    return ScrollbarOverlayState::Dragging;
+  }
+  if (state.HasState(mozilla::dom::ElementState::HOVER)) {
+    return ScrollbarOverlayState::Hovering;
+  }
+  return ScrollbarOverlayState::Indicator;
+}
+
 static bool ShouldScrollbarButtonBeDisabled(int32_t aCurpos, int32_t aMaxpos,
                                             StyleAppearance aAppearance) {
   return (aCurpos == 0 &&
@@ -223,6 +241,10 @@ bool nsNativeThemeGTK::GetGtkWidgetAndState(StyleAppearance aAppearance,
         // In XUL, checkboxes and radios shouldn't have focus rings, their
         // labels do
         aState->focused = FALSE;
+      }
+
+      if (IsWidgetScrollbarPart(aAppearance)) {
+        aState->overlayState = GetScrollbarOverlayState(aFrame);
       }
 
       if (aAppearance == StyleAppearance::ScrollbarthumbVertical ||
@@ -1041,8 +1063,8 @@ LayoutDeviceIntMargin nsNativeThemeGTK::GetWidgetBorder(
           aAppearance == StyleAppearance::ScrollbarHorizontal
               ? GTK_ORIENTATION_HORIZONTAL
               : GTK_ORIENTATION_VERTICAL;
-      const ScrollbarGTKMetrics* metrics =
-          GetActiveScrollbarMetrics(orientation);
+      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
+          orientation, nsLayoutUtils::UseOverlayScrollbars(aFrame));
 
       const GtkBorder& border = metrics->border.scrollbar;
       result.top = border.top;
@@ -1056,8 +1078,8 @@ LayoutDeviceIntMargin nsNativeThemeGTK::GetWidgetBorder(
           aAppearance == StyleAppearance::ScrollbartrackHorizontal
               ? GTK_ORIENTATION_HORIZONTAL
               : GTK_ORIENTATION_VERTICAL;
-      const ScrollbarGTKMetrics* metrics =
-          GetActiveScrollbarMetrics(orientation);
+      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
+          orientation, nsLayoutUtils::UseOverlayScrollbars(aFrame));
 
       const GtkBorder& border = metrics->border.track;
       result.top = border.top;
@@ -1247,16 +1269,18 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
     } break;
     case StyleAppearance::ScrollbarbuttonUp:
     case StyleAppearance::ScrollbarbuttonDown: {
-      const ScrollbarGTKMetrics* metrics =
-          GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL);
+      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
+          GTK_ORIENTATION_VERTICAL,
+          nsLayoutUtils::UseOverlayScrollbars(aFrame));
 
       result.width = metrics->size.button.width;
       result.height = metrics->size.button.height;
     } break;
     case StyleAppearance::ScrollbarbuttonLeft:
     case StyleAppearance::ScrollbarbuttonRight: {
-      const ScrollbarGTKMetrics* metrics =
-          GetActiveScrollbarMetrics(GTK_ORIENTATION_HORIZONTAL);
+      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
+          GTK_ORIENTATION_HORIZONTAL,
+          nsLayoutUtils::UseOverlayScrollbars(aFrame));
 
       result.width = metrics->size.button.width;
       result.height = metrics->size.button.height;
@@ -1272,8 +1296,8 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
           aAppearance == StyleAppearance::ScrollbarHorizontal
               ? GTK_ORIENTATION_HORIZONTAL
               : GTK_ORIENTATION_VERTICAL;
-      const ScrollbarGTKMetrics* metrics =
-          GetActiveScrollbarMetrics(orientation);
+      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
+          orientation, nsLayoutUtils::UseOverlayScrollbars(aFrame));
 
       result.width = metrics->size.scrollbar.width;
       result.height = metrics->size.scrollbar.height;
@@ -1284,8 +1308,8 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
           aAppearance == StyleAppearance::ScrollbarthumbHorizontal
               ? GTK_ORIENTATION_HORIZONTAL
               : GTK_ORIENTATION_VERTICAL;
-      const ScrollbarGTKMetrics* metrics =
-          GetActiveScrollbarMetrics(orientation);
+      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
+          orientation, nsLayoutUtils::UseOverlayScrollbars(aFrame));
 
       result.width = metrics->size.thumb.width;
       result.height = metrics->size.thumb.height;

@@ -130,6 +130,7 @@ bool ScrollbarDrawingGTK::ShouldDrawScrollbarButtons() {
 
 void ScrollbarDrawingGTK::RecomputeScrollbarParams() {
   uint32_t defaultSize = 12;
+  uint32_t overlaySize = 0;
   uint32_t overrideSize =
       StaticPrefs::widget_non_native_theme_scrollbar_size_override();
   if (overrideSize > 0) {
@@ -145,7 +146,18 @@ void ScrollbarDrawingGTK::RecomputeScrollbarParams() {
     if (metrics->size.scrollbar.width > 0) {
       defaultSize = metrics->size.scrollbar.width;
     }
+    const ScrollbarGTKMetrics* overlayMetrics =
+        GetActiveScrollbarMetrics(GTK_ORIENTATION_VERTICAL, true);
+    if (overlayMetrics->size.scrollbar.width > 0) {
+      overlaySize = overlayMetrics->size.scrollbar.width;
+    }
   }
 #endif
   ConfigureScrollbarSize(defaultSize);
+  if (overlaySize > 0) {
+    ConfigureScrollbarSize(StyleScrollbarWidth::Auto, Overlay::Yes,
+                           overlaySize);
+    ConfigureScrollbarSize(StyleScrollbarWidth::Thin, Overlay::Yes,
+                           overlaySize / 2);
+  }
 }
