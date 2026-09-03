@@ -2320,15 +2320,19 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
   const ScrollbarGTKMetrics* metrics =
       expanded ? GetActiveScrollbarMetrics(orientation, overlay)
                : GetScrollbarMetrics(orientation, overlay);
-  // Only ever shrink: layout already sized the thumb frame, so a negative
-  // margin (Breeze uses -9px/-6px with a transparent border) must not push the
-  // slider outside it. The transparent border plus background-clip:padding-box
-  // is what produces the narrow pill.
+  // Breeze expands the slider past its allocation with a negative margin and
+  // narrows the fill back with a transparent border. Along the scrollbar that
+  // expansion is what lets the thumb span the whole trough, so it has to be
+  // kept; across it our render path does not apply the border, so honouring it
+  // there would draw a thumb wider than the scrollbar.
   GtkBorder thumbMargin = metrics->margin.thumb;
-  thumbMargin.top = std::max<gint16>(0, thumbMargin.top);
-  thumbMargin.right = std::max<gint16>(0, thumbMargin.right);
-  thumbMargin.bottom = std::max<gint16>(0, thumbMargin.bottom);
-  thumbMargin.left = std::max<gint16>(0, thumbMargin.left);
+  if (orientation == GTK_ORIENTATION_VERTICAL) {
+    thumbMargin.left = std::max<gint16>(0, thumbMargin.left);
+    thumbMargin.right = std::max<gint16>(0, thumbMargin.right);
+  } else {
+    thumbMargin.top = std::max<gint16>(0, thumbMargin.top);
+    thumbMargin.bottom = std::max<gint16>(0, thumbMargin.bottom);
+  }
   Inset(&rect, thumbMargin);
 
   gtk_render_slider(style, cr, rect.x, rect.y, rect.width, rect.height,
