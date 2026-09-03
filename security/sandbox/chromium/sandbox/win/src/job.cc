@@ -24,12 +24,12 @@ DWORD Job::Init(JobLevel security_level,
                 const wchar_t* job_name,
                 DWORD ui_exceptions,
                 size_t memory_limit) {
-  if (job_handle_.IsValid())
+  if (job_handle_.is_valid())
     return ERROR_ALREADY_INITIALIZED;
 
   job_handle_.Set(::CreateJobObject(nullptr,  // No security attribute
                                     job_name));
-  if (!job_handle_.IsValid())
+  if (!job_handle_.is_valid())
     return ::GetLastError();
 
   JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
@@ -92,7 +92,7 @@ DWORD Job::Init(JobLevel security_level,
 }
 
 bool Job::IsValid() {
-  return job_handle_.IsValid();
+  return job_handle_.is_valid();
 }
 
 HANDLE Job::GetHandle() {
@@ -100,7 +100,7 @@ HANDLE Job::GetHandle() {
 }
 
 DWORD Job::UserHandleGrantAccess(HANDLE handle) {
-  if (!job_handle_.IsValid())
+  if (!job_handle_.is_valid())
     return ERROR_NO_DATA;
 
   if (!::UserHandleGrantAccess(handle, job_handle_.Get(),
@@ -112,7 +112,7 @@ DWORD Job::UserHandleGrantAccess(HANDLE handle) {
 }
 
 DWORD Job::AssignProcessToJob(HANDLE process_handle) {
-  if (!job_handle_.IsValid())
+  if (!job_handle_.is_valid())
     return ERROR_NO_DATA;
 
   if (!::AssignProcessToJobObject(job_handle_.Get(), process_handle))
@@ -124,7 +124,7 @@ DWORD Job::AssignProcessToJob(HANDLE process_handle) {
 DWORD Job::SetActiveProcessLimit(DWORD processes) {
   JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = {};
 
-  if (!job_handle_.IsValid())
+  if (!job_handle_.is_valid())
     return ERROR_NO_DATA;
 
   if (!::QueryInformationJobObject(job_handle_.Get(),
