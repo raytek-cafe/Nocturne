@@ -1392,6 +1392,16 @@ ColorScheme LookAndFeel::ColorSchemeForStyle(
   // Otherwise default content to light.
   return ColorScheme::Light;
 }
+Maybe<ColorScheme> LookAndFeel::ForcedNativeWidgetColorScheme() {
+#ifdef MOZ_WIDGET_GTK
+  if (!StaticPrefs::widget_non_native_theme_enabled() &&
+      StaticPrefs::widget_native_controls_content_style() == 2) {
+    return Some(SystemColorScheme());
+  }
+#endif
+  return Nothing();
+}
+
 
 LookAndFeel::ColorScheme LookAndFeel::ColorSchemeForFrame(
     const nsIFrame* aFrame, ColorSchemeMode aMode) {
