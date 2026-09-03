@@ -473,6 +473,9 @@ bool nsNativeThemeGTK::GetGtkWidgetAndState(StyleAppearance aAppearance,
       break;
     case StyleAppearance::MenulistText:
       return false;  // nothing to do, but prevents the bg from being drawn
+    case StyleAppearance::MozMenulistArrowButton:
+      aGtkWidgetType = MOZ_GTK_DROPDOWN_ARROW;
+      break;
     case StyleAppearance::ToolbarbuttonDropdown:
     case StyleAppearance::ButtonArrowDown:
     case StyleAppearance::ButtonArrowUp:
@@ -1303,6 +1306,9 @@ LayoutDeviceIntSize nsNativeThemeGTK::GetMinimumWidgetSize(
     case StyleAppearance::TabScrollArrowForward: {
       moz_gtk_get_tab_scroll_arrow_size(&result.width, &result.height);
     } break;
+    case StyleAppearance::MozMenulistArrowButton: {
+      moz_gtk_get_combo_box_entry_button_size(&result.width, &result.height);
+    } break;
     case StyleAppearance::Checkbox:
     case StyleAppearance::Radio: {
       const ToggleGTKMetrics* metrics = GetToggleMetrics(
@@ -1456,6 +1462,7 @@ static bool GtkCanDrawWidget(StyleAppearance aAppearance) {
     case StyleAppearance::Menulist:
     case StyleAppearance::MenulistButton:
     case StyleAppearance::MenulistText:
+    case StyleAppearance::MozMenulistArrowButton:
     case StyleAppearance::Button:
     case StyleAppearance::Radio:
     case StyleAppearance::Checkbox:
@@ -1579,7 +1586,7 @@ bool nsNativeThemeGTK::ThemeDrawsFocusForWidget(nsIFrame* aFrame,
   }
 }
 
-bool nsNativeThemeGTK::ThemeNeedsComboboxDropmarker() { return false; }
+bool nsNativeThemeGTK::ThemeNeedsComboboxDropmarker() { return true; }
 
 nsITheme::Transparency nsNativeThemeGTK::GetWidgetTransparency(
     nsIFrame* aFrame, StyleAppearance aAppearance) {

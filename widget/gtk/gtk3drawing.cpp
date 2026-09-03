@@ -1083,12 +1083,30 @@ static gint moz_gtk_treeview_expander_paint(cairo_t* cr, GdkRectangle* rect,
   return MOZ_GTK_SUCCESS;
 }
 
+static gint moz_gtk_dropdown_arrow_paint(cairo_t* cr, GdkRectangle* rect,
+                                         GtkWidgetState* state,
+                                         GtkTextDirection direction) {
+  GtkWidget* arrow = GetWidget(MOZ_GTK_COMBOBOX_ARROW);
+  if (!arrow) {
+    return MOZ_GTK_UNKNOWN_WIDGET;
+  }
+
+  GdkRectangle arrow_rect;
+  calculate_arrow_rect(arrow, rect, &arrow_rect, direction);
+
+  GtkStyleContext* style =
+      GetStyleContext(MOZ_GTK_COMBOBOX_ARROW, state->image_scale);
+  gtk_render_arrow(style, cr, ARROW_DOWN, arrow_rect.x, arrow_rect.y,
+                   arrow_rect.width);
+  return MOZ_GTK_SUCCESS;
+}
+
 /* See gtk_separator_draw() for reference.
  */
 static gint moz_gtk_combo_box_paint(cairo_t* cr, const GdkRectangle* aRect,
                                     GtkWidgetState* state,
                                     GtkTextDirection direction) {
-  GdkRectangle arrow_rect, real_arrow_rect;
+  GdkRectangle arrow_rect;
   gint separator_width;
   gboolean wide_separators;
   GtkStyleContext* style;
@@ -1114,12 +1132,6 @@ static gint moz_gtk_combo_box_paint(cairo_t* cr, const GdkRectangle* aRect,
   if (direction == GTK_TEXT_DIR_LTR)
     arrow_rect.x += arrow_rect.width - arrow_req.width;
   arrow_rect.width = arrow_req.width;
-
-  calculate_arrow_rect(comboBoxArrow, &arrow_rect, &real_arrow_rect, direction);
-
-  style = GetStyleContext(MOZ_GTK_COMBOBOX_ARROW, state->image_scale);
-  gtk_render_arrow(style, cr, ARROW_DOWN, real_arrow_rect.x, real_arrow_rect.y,
-                   real_arrow_rect.width);
 
   /* If there is no separator in the theme, there's nothing left to do. */
   GtkWidget* widget = GetWidget(MOZ_GTK_COMBOBOX_SEPARATOR);
@@ -1779,13 +1791,12 @@ gint moz_gtk_get_widget_border(WidgetNodeType widget, gint* left, gint* top,
     case MOZ_GTK_TREE_HEADER_SORTARROW:
       w = GetWidget(MOZ_GTK_TREE_HEADER_SORTARROW);
       break;
+    case MOZ_GTK_DROPDOWN_ARROW:
+      w = GetWidget(MOZ_GTK_COMBOBOX_ENTRY_BUTTON);
+      break;
     case MOZ_GTK_DROPDOWN: {
-      /* We need to account for the arrow on the dropdown, so text
-       * doesn't come too close to the arrow, or in some cases spill
-       * into the arrow. */
       gboolean wide_separators;
       gint separator_width;
-      GtkRequisition arrow_req;
       GtkBorder border;
 
       *left = *top = *right = *bottom = gtk_container_get_border_width(
@@ -1808,14 +1819,10 @@ gint moz_gtk_get_widget_border(WidgetNodeType widget, gint* left, gint* top,
         }
       }
 
-      gtk_widget_get_preferred_size(GetWidget(MOZ_GTK_COMBOBOX_ARROW), NULL,
-                                    &arrow_req);
-      moz_gtk_sanity_preferred_size(&arrow_req);
-
       if (direction == GTK_TEXT_DIR_RTL)
-        *left += separator_width + arrow_req.width;
+        *left += separator_width;
       else
-        *right += separator_width + arrow_req.width;
+        *right += separator_width;
 
       return MOZ_GTK_SUCCESS;
     }
@@ -2339,6 +2346,24 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
   return MOZ_GTK_SUCCESS;
 }
 
+gint moz_gtk_get_combo_box_entry_button_size(gint* width, gint* height) {
+  /*
+   * We get the requisition of the drop down button, which includes
+   * all padding, border and focus line widths the button uses,
+   * as well as the minimum arrow size and its padding
+   * */
+  GtkRequisition requisition;
+
+  gtk_widget_get_preferred_size(GetWidget(MOZ_GTK_COMBOBOX_ENTRY_BUTTON), NULL,
+                                &requisition);
+  moz_gtk_sanity_preferred_size(&requisition);
+
+  *width = requisition.width;
+  *height = requisition.height;
+
+  return MOZ_GTK_SUCCESS;
+}
+
 gint moz_gtk_get_scalethumb_metrics(GtkOrientation orient, gint* thumb_length,
                                     gint* thumb_height) {
   if (gtk_check_version(3, 20, 0) != nullptr) {
@@ -2799,6 +2824,8 @@ gint moz_gtk_widget_paint(WidgetNodeType widget, cairo_t* cr,
       return moz_gtk_text_view_paint(cr, rect, state, direction);
     case MOZ_GTK_DROPDOWN:
       return moz_gtk_combo_box_paint(cr, rect, state, direction);
+    case MOZ_GTK_DROPDOWN_ARROW:
+      return moz_gtk_dropdown_arrow_paint(cr, rect, state, direction);
     case MOZ_GTK_CHECKBUTTON_CONTAINER:
     case MOZ_GTK_RADIOBUTTON_CONTAINER:
       return moz_gtk_container_paint(cr, rect, state, widget, direction);
