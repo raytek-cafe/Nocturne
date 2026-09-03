@@ -1402,7 +1402,6 @@ Maybe<ColorScheme> LookAndFeel::ForcedNativeWidgetColorScheme() {
   return Nothing();
 }
 
-
 LookAndFeel::ColorScheme LookAndFeel::ColorSchemeForFrame(
     const nsIFrame* aFrame, ColorSchemeMode aMode) {
   return ColorSchemeForStyle(*aFrame->PresContext()->Document(),
