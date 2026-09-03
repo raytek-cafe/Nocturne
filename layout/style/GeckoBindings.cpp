@@ -726,6 +726,13 @@ nscolor Gecko_ComputeSystemColor(StyleSystemColor aColor, const Document* aDoc,
       break;
   }
 
+  if (!prefs.mIsChrome && !prefs.mMustUseLightColorSet &&
+      !prefs.mMustUseLightSystemColors) {
+    if (auto forced = LookAndFeel::ForcedNativeWidgetColorScheme()) {
+      colorScheme = *forced;
+    }
+  }
+
   auto useStandins = LookAndFeel::ShouldUseStandins(*aDoc, aColor);
 
   MutexAutoLock guard(*sServoFFILock);

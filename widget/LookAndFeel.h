@@ -464,6 +464,11 @@ class LookAndFeel {
       ColorSchemeMode = ColorSchemeMode::Used);
   static ColorScheme ColorSchemeForFrame(
       const nsIFrame*, ColorSchemeMode = ColorSchemeMode::Used);
+  // The color scheme that native widget colors have to be taken from when
+  // content is painted with native widgets whatever the frame's color-scheme
+  // says, or Nothing when the frame's own scheme applies.
+  static Maybe<ColorScheme> ForcedNativeWidgetColorScheme();
+
 
   // Whether standins for native colors should be used (that is, colors faked,
   // taken from win7, mostly). This forces light appearance, effectively.
