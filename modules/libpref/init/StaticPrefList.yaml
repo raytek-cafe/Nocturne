@@ -20270,6 +20270,7 @@
   type: int32_t
   value: 0
   mirror: always
+
 - name: widget.native-controls.scrollbar-style
   type: int32_t
   value: 2
