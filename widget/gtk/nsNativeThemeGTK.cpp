@@ -832,6 +832,12 @@ CSSIntMargin nsNativeThemeGTK::GetExtraSizeForWidget(
   // GTK2 themes (Ximian Industrial, Bluecurve, Misty, at least);
   // We modify the frame's overflow area.  See bug 297508.
   switch (aAppearance) {
+    case StyleAppearance::ScrollbarthumbVertical:
+      extra.top = extra.bottom = 1;
+      break;
+    case StyleAppearance::ScrollbarthumbHorizontal:
+      extra.left = extra.right = 1;
+      break;
     case StyleAppearance::Button: {
       if (IsDefaultButton(aFrame)) {
         // Some themes draw a default indicator outside the widget,
@@ -1071,6 +1077,18 @@ LayoutDeviceIntMargin nsNativeThemeGTK::GetWidgetBorder(
       result.right = border.right;
       result.bottom = border.bottom;
       result.left = border.left;
+      // The theme expects the slider to cover this padding via its negative
+      // margin. Gecko clips the thumb to its own frame, so give the track the
+      // room instead of painting outside it.
+      const GtkBorder& thumbMargin = metrics->margin.thumb;
+      if (orientation == GTK_ORIENTATION_VERTICAL) {
+        result.top = std::max(0, int(border.top) + int(thumbMargin.top));
+        result.bottom =
+            std::max(0, int(border.bottom) + int(thumbMargin.bottom));
+      } else {
+        result.left = std::max(0, int(border.left) + int(thumbMargin.left));
+        result.right = std::max(0, int(border.right) + int(thumbMargin.right));
+      }
     } break;
     case StyleAppearance::ScrollbartrackHorizontal:
     case StyleAppearance::ScrollbartrackVertical: {
