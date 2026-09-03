@@ -441,7 +441,8 @@ static void CollectOrphans(
       const auto* fc = nsIFormControl::FromNode(node);
       MOZ_ASSERT(fc);
       HTMLFormElement* form = fc->GetFormInternal();
-      NS_ASSERTION(form == aThisForm, "How did that happen?");
+      // form may be null if this is called during CC after node is unlinked.
+      NS_ASSERTION(!form || form == aThisForm, "How did that happen?");
     }
 #endif /* DEBUG */
   }
@@ -480,7 +481,8 @@ static void CollectOrphans(nsINode* aRemovalRoot,
 #ifdef DEBUG
     if (!removed) {
       HTMLFormElement* form = node->GetFormInternal();
-      NS_ASSERTION(form == aThisForm, "How did that happen?");
+      // form may be null if this is called during CC after node is unlinked.
+      NS_ASSERTION(!form || form == aThisForm, "How did that happen?");
     }
 #endif /* DEBUG */
   }
