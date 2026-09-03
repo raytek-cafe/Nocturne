@@ -2326,13 +2326,10 @@ static gint moz_gtk_scrollbar_thumb_paint(WidgetNodeType widget, cairo_t* cr,
   // kept; across it our render path does not apply the border, so honouring it
   // there would draw a thumb wider than the scrollbar.
   GtkBorder thumbMargin = metrics->margin.thumb;
-  if (orientation == GTK_ORIENTATION_VERTICAL) {
-    thumbMargin.left = std::max<gint16>(0, thumbMargin.left);
-    thumbMargin.right = std::max<gint16>(0, thumbMargin.right);
-  } else {
-    thumbMargin.top = std::max<gint16>(0, thumbMargin.top);
-    thumbMargin.bottom = std::max<gint16>(0, thumbMargin.bottom);
-  }
+  thumbMargin.top = std::max<gint16>(0, thumbMargin.top);
+  thumbMargin.right = std::max<gint16>(0, thumbMargin.right);
+  thumbMargin.bottom = std::max<gint16>(0, thumbMargin.bottom);
+  thumbMargin.left = std::max<gint16>(0, thumbMargin.left);
   Inset(&rect, thumbMargin);
 
   gtk_render_slider(style, cr, rect.x, rect.y, rect.width, rect.height,
