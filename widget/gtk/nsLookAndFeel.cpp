@@ -1230,8 +1230,7 @@ nsresult nsLookAndFeel::NativeGetInt(IntID aID, int32_t& aResult) {
       break;
     case IntID::UseOverlayScrollbars: {
       aResult = StaticPrefs::widget_gtk_overlay_scrollbars_enabled() &&
-                GetGtkOverlayScrolling() &&
-                StaticPrefs::widget_native_controls_scrollbar_style() == 1;
+                GetGtkOverlayScrolling();
       break;
     }
     case IntID::HideCursorWhileTyping: {
