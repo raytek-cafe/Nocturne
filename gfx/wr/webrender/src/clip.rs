@@ -1426,7 +1426,7 @@ impl ClipStore {
         prim_spatial_node_index: SpatialNodeIndex,
         pic_spatial_node_index: SpatialNodeIndex,
         visibility_spatial_node_index: SpatialNodeIndex,
-        snapper: &mut SpaceSnapper,
+        mut snapper: &mut SpaceSnapper,
         clip_leaf_id: ClipLeafId,
         spatial_tree: &SpatialTree,
         clip_data_store: &ClipDataStore,
@@ -1445,8 +1445,6 @@ impl ClipStore {
         let mut local_clip_rect = clip_leaf.snapped_local_clip_rect;
         let mut current = clip_leaf.node_id;
 
-        let root = spatial_tree.root_reference_frame_index();
-        let mut snapper = SpaceSnapper::new(root, RasterPixelScale::new(1.0));
 
         while current != clip_root && current != ClipNodeId::NONE {
             let node = clip_tree.get_node(current);
@@ -1454,7 +1452,7 @@ impl ClipStore {
             if !add_clip_node_to_current_chain(
                 node.handle,
                 node.spatial_node_index,
-                node.snapped_clip_rect(snapper, spatial_tree),
+                node.snapped_clip_rect(&mut snapper, spatial_tree),
                 prim_spatial_node_index,
                 pic_spatial_node_index,
                 visibility_spatial_node_index,
