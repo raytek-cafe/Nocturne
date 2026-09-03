@@ -917,6 +917,9 @@ bool nsXMLContentSink::SetDocElement(int32_t aNameSpaceID, nsAtom* aTagName,
     }
     if (MOZ_UNLIKELY(child->GetParentNode())) {
       child->Remove();
+      if (MOZ_UNLIKELY(child->GetParentNode())) {
+        return false;
+      }
     }
     mDocument->AppendChildTo(child, false, IgnoreErrors());
     if (linkStyle) {
@@ -1033,6 +1036,9 @@ nsresult nsXMLContentSink::HandleStartElement(
 
       if (MOZ_UNLIKELY(content->GetParentNode())) {
         content->Remove();
+        if (MOZ_UNLIKELY(content->GetParentNode())) {
+          return NS_ERROR_UNEXPECTED;
+        }
       }
       parent->AppendChildTo(content, false, IgnoreErrors());
     }
