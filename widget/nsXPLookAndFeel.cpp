@@ -417,13 +417,12 @@ void nsXPLookAndFeel::Shutdown() {
   }
 
   sShutdown = true;
+  widget::Theme::Shutdown();
   delete sInstance;
   sInstance = nullptr;
 
   // This keeps strings alive, so need to clear to make leak checking happy.
   sFontCache.Clear();
-
-  widget::Theme::Shutdown();
 }
 
 static void IntPrefChanged(const nsACString& aPref) {
