@@ -1063,48 +1063,6 @@ LayoutDeviceIntMargin nsNativeThemeGTK::GetWidgetBorder(
   CSSIntMargin result;
   GtkTextDirection direction = GetTextDirection(aFrame);
   switch (aAppearance) {
-    case StyleAppearance::ScrollbarHorizontal:
-    case StyleAppearance::ScrollbarVertical: {
-      GtkOrientation orientation =
-          aAppearance == StyleAppearance::ScrollbarHorizontal
-              ? GTK_ORIENTATION_HORIZONTAL
-              : GTK_ORIENTATION_VERTICAL;
-      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
-          orientation, nsLayoutUtils::UseOverlayScrollbars(aFrame));
-
-      const GtkBorder& border = metrics->border.scrollbar;
-      result.top = border.top;
-      result.right = border.right;
-      result.bottom = border.bottom;
-      result.left = border.left;
-      // The theme expects the slider to cover this padding via its negative
-      // margin. Gecko clips the thumb to its own frame, so give the track the
-      // room instead of painting outside it.
-      const GtkBorder& thumbMargin = metrics->margin.thumb;
-      if (orientation == GTK_ORIENTATION_VERTICAL) {
-        result.top = std::max(0, int(border.top) + int(thumbMargin.top));
-        result.bottom =
-            std::max(0, int(border.bottom) + int(thumbMargin.bottom));
-      } else {
-        result.left = std::max(0, int(border.left) + int(thumbMargin.left));
-        result.right = std::max(0, int(border.right) + int(thumbMargin.right));
-      }
-    } break;
-    case StyleAppearance::ScrollbartrackHorizontal:
-    case StyleAppearance::ScrollbartrackVertical: {
-      GtkOrientation orientation =
-          aAppearance == StyleAppearance::ScrollbartrackHorizontal
-              ? GTK_ORIENTATION_HORIZONTAL
-              : GTK_ORIENTATION_VERTICAL;
-      const ScrollbarGTKMetrics* metrics = GetActiveScrollbarMetrics(
-          orientation, nsLayoutUtils::UseOverlayScrollbars(aFrame));
-
-      const GtkBorder& border = metrics->border.track;
-      result.top = border.top;
-      result.right = border.right;
-      result.bottom = border.bottom;
-      result.left = border.left;
-    } break;
     case StyleAppearance::Toolbox:
       // gtk has no toolbox equivalent.  So, although we map toolbox to
       // gtk's 'toolbar' for purposes of painting the widget background,
