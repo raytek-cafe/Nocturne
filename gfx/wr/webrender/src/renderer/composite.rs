@@ -831,44 +831,50 @@ impl Renderer {
 
             // Caluclate actual visible tile's rects
 
-            match tile.kind {
-                TileKind::Opaque | TileKind::Alpha => {
-                    let is_opaque = tile.kind != TileKind::Alpha;
+            let is_opaque = tile.kind == TileKind::Opaque;
 
-                    match tile.clip_index {
-                        Some(clip_index) => {
-                            let clip = composite_state.get_compositor_clip(clip_index);
+            match tile.clip_index {
+                Some(clip_index) => {
+                    let clip = composite_state.get_compositor_clip(clip_index);
 
-                            // TODO(gw): Make segment builder generic on unit to avoid casts below.
-                            segment_builder.initialize(
-                                rect.cast_unit(),
-                                None,
-                                rect.cast_unit(),
-                            );
-                            segment_builder.push_clip_rect(
-                                clip.rect.cast_unit(),
-                                Some(clip.radius),
-                                ClipMode::Clip,
-                            );
-                            segment_builder.build(|segment| {
-                                let key = OcclusionItemKey { tile_index: idx, needs_mask: segment.has_mask };
+                    // TODO(gw): Make segment builder generic on unit to avoid casts below.
+                    segment_builder.initialize(
+                        rect.cast_unit(),
+                        None,
+                        rect.cast_unit(),
+                    );
+                    segment_builder.push_clip_rect(
+                        clip.rect.cast_unit(),
+                        Some(clip.radius),
+                        ClipMode::Clip,
+                    );
+                    segment_builder.build(|segment| {
+                        let key = OcclusionItemKey { tile_index: idx, needs_mask: segment.has_mask };
 
-                                full_render_occlusion.add(
-                                    &segment.rect.cast_unit(),
-                                    is_opaque && !segment.has_mask,
-                                    key,
-                                );
+                        full_render_occlusion.add(
+                            &segment.rect.cast_unit(),
+                            is_opaque && !segment.has_mask,
+                            key,
+                        );
+                    });
+                }
+                None => {
+                    full_render_occlusion.add(&rect, is_opaque, OcclusionItemKey {
+                        tile_index: idx,
+                        needs_mask: false,
+                    });
+
+                    if tile.kind == TileKind::Clear {
+                        swapchain_layers
+                            .last_mut()
+                            .unwrap()
+                            .clear_tiles
+                            .push(occlusion::Item {
+                                rectangle: rect,
+                                key: OcclusionItemKey { tile_index: idx, needs_mask: false },
                             });
-                        }
-                        None => {
-                            full_render_occlusion.add(&rect, is_opaque, OcclusionItemKey {
-                                tile_index: idx,
-                                needs_mask: false,
-                            });
-                        }
                     }
                 }
-                TileKind::Clear => {}
             }
         }
 
