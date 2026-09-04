@@ -223,6 +223,7 @@ class WaylandMonitor {
 
   wp_color_management_output_v1* mOutput = nullptr;
   wp_image_description_v1* mDescription = nullptr;
+  wp_image_description_info_v1* mInfo = nullptr;
 
   bool mIsHDR = false;
   float mSDRContentBrightness = 80.0f;
@@ -257,10 +258,9 @@ class ScreenGetterGtk final {
 void image_description_info_done(
     void* data,
     struct wp_image_description_info_v1* wp_image_description_info_v1) {
-  // Done is the latest event, unref WaylandMonitor
-  RefPtr monitor = dont_AddRef(static_cast<WaylandMonitor*>(data));
+  RefPtr monitor = static_cast<WaylandMonitor*>(data);
   LOG_SCREEN("WaylandMonitor() [%p] image_description_info_done monitor %d",
-             (void*)monitor, monitor->GetMonitor());
+             monitor.get(), monitor->GetMonitor());
   monitor->ImageDescriptionDone();
 }
 
@@ -363,12 +363,10 @@ void image_description_info_luminances(
     void* data,
     struct wp_image_description_info_v1* wp_image_description_info_v1,
     uint32_t min_lum, uint32_t max_lum, uint32_t reference_lum) {
-  // Although WaylandMonitor is RefPtr here we don't want to unref it
-  // we'll do that at image_description_info_done.
-  auto* monitor = static_cast<WaylandMonitor*>(data);
+  RefPtr monitor = static_cast<WaylandMonitor*>(data);
   LOG_SCREEN(
       "WaylandMonitor() [%p] num [%d] Luminance min %d max %d reference %d",
-      monitor, monitor->GetMonitor(), min_lum, max_lum, reference_lum);
+      monitor.get(), monitor->GetMonitor(), min_lum, max_lum, reference_lum);
   monitor->SetHDR(max_lum > reference_lum, static_cast<float>(reference_lum),
                   static_cast<float>(max_lum));
 }
@@ -486,27 +484,24 @@ void WaylandMonitor::ImageDescriptionReady() {
   LOG_SCREEN("WaylandMonitor() [%p] ImageDescriptionReady monitor %d", this,
              GetMonitor());
 
-  // Ref WaylandMonitor to stay here until image_description_info_done
-  // callback.
-  AddRef();
+  mInfo = wp_image_description_v1_get_information(mDescription);
   wp_image_description_info_v1_add_listener(
-      wp_image_description_v1_get_information(mDescription),
-      &image_description_info_listener, this);
+      mInfo, &image_description_info_listener, this);
 }
 
 void image_description_failed(void* aData,
                               struct wp_image_description_v1* aImageDescription,
                               uint32_t aCause, const char* aMsg) {
   LOG_SCREEN("imageDescriptionFailed [%p]", aData);
-  RefPtr waylandMonitor = dont_AddRef(static_cast<WaylandMonitor*>(aData));
-  waylandMonitor->ImageDescriptionDone();
+  RefPtr monitor = static_cast<WaylandMonitor*>(aData);
+  monitor->ImageDescriptionDone();
 }
 
 void image_description_ready(void* aData,
                              struct wp_image_description_v1* aImageDescription,
                              uint32_t aIdentity) {
-  RefPtr waylandMonitor = dont_AddRef(static_cast<WaylandMonitor*>(aData));
-  waylandMonitor->ImageDescriptionReady();
+  RefPtr monitor = static_cast<WaylandMonitor*>(aData);
+  monitor->ImageDescriptionReady();
 }
 
 WaylandMonitor::WaylandMonitor(ScreenGetterGtk* aScreenGetter,
@@ -531,8 +526,6 @@ WaylandMonitor::WaylandMonitor(ScreenGetterGtk* aScreenGetter,
       }};
   wp_color_management_output_v1_add_listener(mOutput, &listener, this);
 
-  // AddRef this to keep it live until callback
-  AddRef();
   mDescription = wp_color_management_output_v1_get_image_description(mOutput);
 
   static const struct wp_image_description_v1_listener
@@ -545,19 +538,13 @@ WaylandMonitor::WaylandMonitor(ScreenGetterGtk* aScreenGetter,
 void WaylandMonitor::Finish() {
   LOG_SCREEN("WaylandMonitor::Finish() [%p]", this);
 
+  // Retire every listener that holds this monitor. None of them owns a
+  // reference, so once these are gone nothing can call back into us and
+  // ScreenGetterGtk is free to drop the last one.
   MozClearPointer(mOutput, wp_color_management_output_v1_destroy);
   MozClearPointer(mDescription, wp_image_description_v1_destroy);
+  MozClearPointer(mInfo, wp_image_description_info_v1_destroy);
 
-  // We need to wait with WaylandMonitor release until mOutput/mDescription
-  // are deleted.
-  AddRef();
-  static const struct wl_callback_listener listener{
-      [](void* aData, struct wl_callback* callback, uint32_t time) {
-        RefPtr monitor = dont_AddRef(static_cast<WaylandMonitor*>(aData));
-        LOG_SCREEN("WaylandMonitor::FinishCallback() [%p] ", aData);
-      }};
-  wl_callback_add_listener(wl_display_sync(WaylandDisplayGetWLDisplay()),
-                           &listener, this);
   mScreenGetter = nullptr;
 }
 
@@ -567,6 +554,7 @@ WaylandMonitor::~WaylandMonitor() {
   MOZ_DIAGNOSTIC_ASSERT(!mScreenGetter);
   MOZ_DIAGNOSTIC_ASSERT(!mDescription);
   MOZ_DIAGNOSTIC_ASSERT(!mOutput);
+  MOZ_DIAGNOSTIC_ASSERT(!mInfo);
 }
 
 bool ScreenGetterGtk::AddScreenHDRAsync(unsigned int aMonitor) {
