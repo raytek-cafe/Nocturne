@@ -3661,6 +3661,8 @@ pref("distribution.mozillaonline.ignore", true);
 #endif
 
 // Icon larp stuff
+// Use the ICO asset for built-in page tab icons.
+pref("browser.favicon.ico.enabled", true);
 pref("nocturne.legacyiconbehavior.enabled", true);
 pref("nocturne.platformspecificicons.enabled", false);
 pref("nocturne.smalliconbehavior.enabled", true);

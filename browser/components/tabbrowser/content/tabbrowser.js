@@ -9,9 +9,9 @@
    * start loading them faster than FaviconLoader would normally find them.
    */
   const FAVICON_DEFAULTS = {
-    "about:newtab": "chrome://branding/content/favicon.ico",
-    "about:home": "chrome://branding/content/favicon.ico",
-    "about:welcome": "chrome://branding/content/favicon.ico",
+    "about:newtab": gPageIcons["about:newtab"],
+    "about:home": gPageIcons["about:home"],
+    "about:welcome": gPageIcons["about:welcome"],
     "about:privatebrowsing":
       "chrome://browser/skin/privatebrowsing/favicon.svg",
     "chrome://browser/content/aiwindow/aiWindow.html":
