@@ -710,13 +710,23 @@ async function gLazyFindCommand(cmd, ...args) {
   }
 }
 
-var gPageIcons = {
-  "about:home": "chrome://branding/content/icon32.png",
-  "about:newtab": "chrome://branding/content/icon32.png",
-  "about:opentabs": "chrome://branding/content/icon32.png",
-  "about:welcome": "chrome://branding/content/icon32.png",
-  "about:privatebrowsing": "chrome://browser/skin/privatebrowsing/favicon.svg",
-};
+var gPageIcons = (() => {
+  const defaultPageIcon = Services.prefs.getBoolPref(
+    "browser.favicon.ico.enabled",
+    true
+  )
+    ? "chrome://branding/content/favicon.ico"
+    : "chrome://branding/content/icon32.png";
+
+  return {
+    "about:home": defaultPageIcon,
+    "about:newtab": defaultPageIcon,
+    "about:opentabs": "chrome://branding/content/icon32.png",
+    "about:welcome": defaultPageIcon,
+    "about:privatebrowsing":
+      "chrome://browser/skin/privatebrowsing/favicon.svg",
+  };
+})();
 
 var gInitialPages = [
   "about:blank",
