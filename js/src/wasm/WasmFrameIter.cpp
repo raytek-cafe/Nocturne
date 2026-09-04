@@ -113,8 +113,6 @@ WasmFrameIter::WasmFrameIter(JitActivation* activation, wasm::Frame* fp)
     const TrapData& trapData = activation->wasmTrapData();
     void* unwoundPC = trapData.unwoundPC;
 
-    code_ = &instance_->code();
-
     const wasm::CodeRange* unwoundCodeRange = nullptr;
     const wasm::Code* unwoundCode = LookupCode(unwoundPC, &unwoundCodeRange);
     MOZ_RELEASE_ASSERT(unwoundCode);
@@ -145,6 +143,7 @@ WasmFrameIter::WasmFrameIter(JitActivation* activation, wasm::Frame* fp)
 
     // For a Function code range the unwound PC is in the trapping function,
     // which runs with instance_, so its code must match.
+    code_ = &instance_->code();
     MOZ_RELEASE_ASSERT(unwoundCode == code_);
     lineOrBytecode_ = trapData.trapSite.bytecodeOffset.offset();
     funcIndex_ =
