@@ -523,8 +523,12 @@ void TextureClient::Destroy() {
     actor = nullptr;
   }
 
-  TextureData* data = mData;
-  mData = nullptr;
+  TextureData* data;
+  {
+    MutexAutoLock lock(mMutex);
+    data = mData;
+    mData = nullptr;
+  }
 
   if (data || actor || readLock) {
     TextureDeallocParams params;
@@ -1009,8 +1013,7 @@ bool TextureClient::BorrowMappedYCbCrData(MappedYCbCrTextureData& aMap) {
 }
 
 bool TextureClient::ToSurfaceDescriptor(SurfaceDescriptor& aOutDescriptor) {
-  MOZ_ASSERT(IsValid());
-
+  MutexAutoLock lock(mMutex);
   return mData ? mData->Serialize(aOutDescriptor) : false;
 }
 
