@@ -30,6 +30,7 @@ const NOCTURNE_LEGACY_OPTION_COUNTS = {
 
 const PROMPT_TAB_MODAL_PREF = "prompts.tab_modal.enabled";
 const ABOUT_FIREFOX_HIDDEN_PREF = "browser.preferences.aboutFirefox.hidden";
+const OLD_AUTOFILL_PREF = "nocturne.ui.oldautofill";
 
 add_task(async function test_about_firefox_category_visibility() {
   is(
@@ -84,7 +85,7 @@ add_task(async function test_nocturne_preferences_have_localized_controls() {
         'setting-group[groupid^="nocturne"] setting-control'
       );
       return (
-        controls.length === 47 &&
+        controls.length === 48 &&
         [...controls].every(control =>
           control
             .querySelector("moz-checkbox, moz-select, moz-input-number")
@@ -231,4 +232,36 @@ add_task(async function test_nocturne_prompt_tab_modal_matches_pref() {
   );
 
   await BrowserTestUtils.removeTab(tab);
+});
+
+add_task(async function test_nocturne_old_autofill_matches_pref() {
+  await SpecialPowers.pushPrefEnv({
+    set: [[OLD_AUTOFILL_PREF, false]],
+  });
+
+  let tab = await openPrefsTab("nocturne");
+  let win = tab.linkedBrowser.contentWindow;
+  let checkbox;
+
+  if (SRD_PREF_VALUE) {
+    let control = await settingControlRenders(OLD_AUTOFILL_PREF, win);
+    checkbox = control.controlEl;
+  } else {
+    checkbox = win.document.getElementById("nocturneOldAutofill");
+    await BrowserTestUtils.waitForCondition(
+      () => checkbox,
+      "Wait for the old autofill checkbox"
+    );
+  }
+
+  is(checkbox.checked, false, "Old autofill checkbox is unchecked by default");
+
+  checkbox.click();
+  await BrowserTestUtils.waitForCondition(
+    () => Services.prefs.getBoolPref(OLD_AUTOFILL_PREF) && checkbox.checked,
+    "Wait for the old autofill preference to be enabled"
+  );
+
+  await BrowserTestUtils.removeTab(tab);
+  await SpecialPowers.popPrefEnv();
 });

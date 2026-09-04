@@ -96,6 +96,7 @@ for (let id of [
   "nocturne.platformspecificicons.enabled",
   "nocturne.smalliconbehavior.enabled",
   "nocturne.ui.oldurlbar",
+  "nocturne.ui.oldautofill",
 ]) {
   addSetting(id);
 }
@@ -197,6 +198,11 @@ SettingGroupManager.registerGroups({
       checkbox("nocturne.transparent.menubar", "nocturne-menubar"),
       checkbox("nocturne.translucent.navbar", "nocturne-navbar"),
       checkbox("browser.ui.menu.squaredcorners", "nocturne-squared-corners"),
+      checkbox(
+        "nocturne.ui.oldautofill",
+        "nocturne-old-autofill",
+        "nocturne-old-autofill-desc"
+      ),
       select("nocturne.aero.fog", "nocturne-fog-type", [
         [0, "nocturne-option-fog-disabled"],
         [1, "nocturne-option-fog-nocturne"],
