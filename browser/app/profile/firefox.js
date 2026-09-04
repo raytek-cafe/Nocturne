@@ -3375,6 +3375,8 @@ pref("browser.contextual-services.contextId.rust-component.enabled", false);
 pref("distribution.mozillaonline.ignore", true);
 
 // Icon larp stuff
+// Use the ICO asset for built-in page tab icons.
+pref("browser.favicon.ico.enabled", true);
 pref("nocturne.legacyiconbehavior.enabled", true);
 pref("nocturne.smalliconbehavior.enabled", true);
 
