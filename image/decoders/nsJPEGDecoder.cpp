@@ -471,13 +471,17 @@ LexerTransition<nsJPEGDecoder::State> nsJPEGDecoder::ReadJPEGData(
       if (mState == JPEG_DECOMPRESS_PROGRESSIVE) {
         LOG_SCOPE((mozilla::LogModule*)sJPEGLog,
                   "nsJPEGDecoder::Write -- JPEG_DECOMPRESS_PROGRESSIVE case");
-        auto AllComponentsSeen = [](jpeg_decompress_struct& info) {
+        auto AllComponentsSeen = [](jpeg_decompress_struct& info) -> bool {
+          // Without coefficient state (lossless, non-interleaved sequential)
+          // we can't prove per-component completion, so require the whole
+          // input before displaying.
+          if (!info.coef_bits) {
+            return jpeg_input_complete(&info);
+          }
           bool all_components_seen = true;
-          if (info.coef_bits) {
-            for (int c = 0; c < info.num_components; ++c) {
-              bool current_component_seen = info.coef_bits[c][0] != -1;
-              all_components_seen &= current_component_seen;
-            }
+          for (int c = 0; c < info.num_components; ++c) {
+            bool current_component_seen = info.coef_bits[c][0] != -1;
+            all_components_seen &= current_component_seen;
           }
           return all_components_seen;
         };
