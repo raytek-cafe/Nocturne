@@ -392,6 +392,11 @@ nocturne-old-urlbar =
 
 nocturne-old-urlbar-desc = Reverts the URLBar to the pre-133 implementation. This may fix visual issues with the URLBar on old Firefox 115/128 themes. Requires browser restart. Do not enable this if the url bar looks correct already on your custom theme.
 
+nocturne-old-autofill =
+    .label = Use Firefox 140 autofill design
+
+nocturne-old-autofill-desc = Use the autofill dropdown design from Firefox 140.
+
 nocturne-hsts =
     .label = Disable HTTP Strict Transport Security (HSTS)
 

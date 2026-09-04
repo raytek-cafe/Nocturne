@@ -331,3 +331,162 @@
     }
   }
 }
+/* stylelint-disable-next-line media-query-no-invalid */
+@media -moz-pref("nocturne.ui.oldautofill", true) {
+  #PopupAutoComplete {
+    --arrowpanel-dimmed: light-dark(color-mix(in srgb, currentColor 12%, transparent), color-mix(in srgb, currentColor 17%, transparent));
+    --arrowpanel-dimmed-further: light-dark(color-mix(in srgb, currentColor 20%, transparent), color-mix(in srgb, currentColor 14%, transparent));
+  }
+
+  #PopupAutoComplete > richlistbox {
+    padding: 0;
+  }
+
+  #PopupAutoComplete:is([resultstyles~="autofill"])::part(content) {
+    min-width: initial;
+  }
+
+  #PopupAutoComplete:is(
+      [resultstyles~="loginsFooter"],
+      [resultstyles~="insecureWarning"],
+      [resultstyles~="importableLogins"],
+      [resultstyles~="generatedPassword"]
+    )::part(content) {
+    min-width: 22em;
+  }
+
+  #PopupAutoComplete > richlistbox > richlistitem {
+    min-height: 20px;
+    border-radius: 0;
+    padding: 0 1px;
+    gap: initial;
+
+    &:not(:last-child) {
+      margin-block-end: 0;
+    }
+
+    > .ac-site-icon {
+      width: 16px !important;
+      height: 16px !important;
+      min-width: 16px !important;
+      min-height: 16px !important;
+      max-width: 16px !important;
+      max-height: 16px !important;
+      margin-inline: 4px 0;
+    }
+
+    > .ac-login-item {
+      align-items: center;
+
+      > .ac-secondary-action {
+        margin-block: 0;
+        margin-inline: 8px;
+      }
+    }
+
+    &[originaltype="loginsFooter"] {
+      min-height: 2.6666em;
+
+      &:is(:hover, [selected]),
+      &[selected]:active {
+        background-color: hsla(0, 0%, 80%, 0.5);
+      }
+    }
+
+    &[originaltype="loginsFooter"]:not(:first-child) {
+      border-top: 0;
+    }
+
+    &[originaltype="loginsFooter"]::before {
+      border-top: 1px solid var(--panel-separator-color);
+    }
+
+    &[originaltype="login"] > .ac-site-icon,
+    &[originaltype="possible-username"] > .ac-site-icon,
+    > .two-line-wrapper > .ac-site-icon {
+      margin-inline: 4px;
+    }
+
+    > .two-line-wrapper {
+      gap: 8px;
+      padding: 4px;
+      padding-inline-start: 6px;
+
+      > .ac-site-icon {
+        width: 16px !important;
+        height: 16px !important;
+        min-width: 16px !important;
+        min-height: 16px !important;
+        max-width: 16px !important;
+        max-height: 16px !important;
+        margin-left: 6px;
+      }
+    }
+
+    &[originaltype="generatedPassword"][selected] > .two-line-wrapper > .ac-site-icon,
+    &[originaltype="importableLogins"][selected] > .two-line-wrapper > .ac-site-icon,
+    &[originaltype="loginWithOrigin"][selected] > .two-line-wrapper > .ac-site-icon,
+    &[originaltype="login"] > .ac-site-icon[selected] {
+      fill: SelectedItemText;
+    }
+
+    &[originaltype="action"]:last-child {
+      text-align: center;
+    }
+
+    &[originaltype="autofill"][ac-image]:not([ac-image=""]) > .two-line-wrapper {
+      grid-template-columns: 32px 1fr;
+
+      > .ac-site-icon {
+        height: 16px;
+        max-width: 32px;
+        max-height: 16px;
+        min-width: 16px;
+      }
+    }
+
+    &[originaltype="insecureWarning"] {
+      background-color: var(--arrowpanel-dimmed);
+      padding-block: 4px;
+
+      &[selected],
+      &[selected]:active {
+        background-color: var(--arrowpanel-dimmed-further);
+      }
+
+      > .ac-title .ac-emphasize-text-title {
+        font-weight: 600;
+      }
+    }
+  }
+
+  #PopupAutoComplete .autocomplete-richlistitem:not([disabled]):not([selected]):hover {
+    background-color: var(--arrowpanel-dimmed) !important;
+    color: inherit !important;
+  }
+
+  #PopupAutoComplete .autocomplete-richlistitem[selected],
+  #PopupAutoComplete .autocomplete-richlistitem[selected]:active {
+    background-color: SelectedItem !important;
+    color: SelectedItemText !important;
+  }
+
+  #PopupAutoComplete .autocomplete-richlistitem[originaltype="loginsFooter"]:hover,
+  #PopupAutoComplete .autocomplete-richlistitem[originaltype="loginsFooter"][selected] {
+    background: hsla(0, 0%, 80%, 0.5) !important;
+    color: currentColor !important;
+  }
+
+  @media (forced-colors) {
+    #PopupAutoComplete .autocomplete-richlistitem:not([disabled]):not([selected]):hover {
+      background-color: ButtonText;
+      color: ButtonFace;
+    }
+
+    #PopupAutoComplete .autocomplete-richlistitem[selected]:not(:active) {
+      box-shadow: inset 0 0 0 3px CanvasText;
+      color: ButtonText;
+      background-color: ButtonFace;
+    }
+  }
+}

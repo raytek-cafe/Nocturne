@@ -272,6 +272,13 @@
         aInput.popup.hidden = false;
 
         this.mInput = aInput;
+        if (Services.prefs.getBoolPref("nocturne.ui.oldautofill", false)) {
+          const width = aElement.getBoundingClientRect().width;
+          this.style.setProperty("--panel-width", Math.max(width, 100) + "px");
+        } else {
+          this.style.removeProperty("--panel-width");
+        }
+
         // clear any previous selection, see bugs 400671 and 488357
         this.selectedIndex = -1;
 
