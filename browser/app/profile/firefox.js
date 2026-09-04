@@ -3671,3 +3671,4 @@ pref("nocturne.smalliconbehavior.enabled", true);
 
 pref("nocturne.tabs.oldWarnOnClose", true);
 pref("nocturne.ui.ff68downloadicons", false);
+pref("nocturne.ui.oldautofill", false);
