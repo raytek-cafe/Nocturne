@@ -2287,6 +2287,17 @@ spec = "None (Nonstandard internal property)"
 enabled_in = "chrome"
 affects = "overflow"
 
+[-moz-window-transform-origin]
+type = "TransformOrigin"
+initial = "computed::TransformOrigin::initial_value()"
+struct = "xul"
+engine = "gecko"
+gecko_ffi_name = "mWindowTransformOrigin"
+boxed = true
+spec = "None (Nonstandard internal property)"
+enabled_in = "chrome"
+affects = "overflow"
+
 [animation-composition]
 type = "AnimationComposition"
 initial = "computed::AnimationComposition::Replace"
