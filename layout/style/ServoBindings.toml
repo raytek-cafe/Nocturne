@@ -499,6 +499,7 @@ cbindgen-types = [
     { gecko = "StyleTransformStyle", servo = "crate::values::computed::TransformStyle" },
     { gecko = "StyleGenericBorderRadius", servo = "crate::values::generics::border::BorderRadius" },
     { gecko = "StyleGenericCornerShapeRect", servo = "crate::values::generics::border::CornerShapeRect" },
+    { gecko = "StyleGenericMozBorderColors", servo = "crate::values::generics::border::GenericMozBorderColors" },
     { gecko = "StyleCornerShape", servo = "crate::values::computed::CornerShape" },
     { gecko = "StyleLetterSpacing", servo = "crate::values::computed::text::LetterSpacing" },
     { gecko = "StyleGenericLineHeight", servo = "crate::values::generics::font::LineHeight" },

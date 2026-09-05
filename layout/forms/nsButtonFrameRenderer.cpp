@@ -365,6 +365,9 @@ bool nsDisplayButtonBorder::CreateWebRenderCommands(
   if (!br) {
     return borderIsEmpty;
   }
+  if (!br->CanCreateWebRenderCommands()) {
+    return false;
+  }
 
   br->CreateWebRenderCommands(this, aBuilder, aResources, aSc);
   return true;
@@ -434,6 +437,9 @@ bool nsDisplayButtonForeground::CreateWebRenderCommands(
 
   if (!br) {
     return borderIsEmpty;
+  }
+  if (!br->CanCreateWebRenderCommands()) {
+    return false;
   }
 
   br->CreateWebRenderCommands(this, aBuilder, aResources, aSc);

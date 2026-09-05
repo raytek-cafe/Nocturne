@@ -17,7 +17,42 @@
 #include "nsIFrame.h"
 #include "nsImageRenderer.h"
 
-struct nsBorderColors;
+// The stripe colors from the -moz-border-*-colors properties, already resolved
+// against the element's computed style, one list per side. An empty list means
+// the side has no stripe colors and uses the plain border color instead.
+struct nsBorderColors {
+  nsTArray<nscolor> mColors[4];
+
+  nsBorderColors() = default;
+  nsBorderColors(nsBorderColors&&) = default;
+  nsBorderColors& operator=(nsBorderColors&&) = default;
+
+  // nsTArray's copy constructor is explicit, so the implicit ones cannot be
+  // generated for an array of them.
+  nsBorderColors(const nsBorderColors& aOther) { *this = aOther; }
+
+  nsBorderColors& operator=(const nsBorderColors& aOther) {
+    for (const auto side : mozilla::AllPhysicalSides()) {
+      mColors[side] = aOther.mColors[side].Clone();
+    }
+    return *this;
+  }
+
+  const nsTArray<nscolor>& operator[](mozilla::Side aSide) const {
+    return mColors[aSide];
+  }
+
+  nsTArray<nscolor>& operator[](mozilla::Side aSide) { return mColors[aSide]; }
+
+  bool IsEmpty() const {
+    for (const auto side : mozilla::AllPhysicalSides()) {
+      if (!mColors[side].IsEmpty()) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
 
 namespace mozilla {
 class nsDisplayItem;
@@ -57,6 +92,7 @@ class StackingContextHelper;
  * borderRadii -- a RectCornerRadii struct describing the w/h for each rounded
  * corner. If the corner doesn't have a border radius, 0,0 should be given for
  * it. borderColors -- one nscolor per side
+ * compositeColors -- the -moz-border-*-colors stripe colors, or nullptr if none
  *
  * skipSides -- a bit mask specifying which sides, if any, to skip
  * backgroundColor -- the background color of the element.
@@ -96,11 +132,17 @@ class nsCSSBorderRenderer final {
                       const mozilla::StyleBorderStyle* aBorderStyles,
                       const Margin& aBorderWidths,
                       RectCornerRadii& aBorderRadii,
-                      const nscolor* aBorderColors, bool aBackfaceIsVisible,
+                      const nscolor* aBorderColors,
+                      const nsBorderColors* aCompositeColors,
+                      bool aBackfaceIsVisible,
                       const mozilla::Maybe<Rect>& aClipRect);
 
   // draw the entire border
   void DrawBorders();
+
+  // -moz-border-*-colors stripes cannot be expressed as a WebRender border, so
+  // the display item has to fall back to painting the border itself.
+  bool CanCreateWebRenderCommands() const;
 
   void CreateWebRenderCommands(
       mozilla::nsDisplayItem* aItem, mozilla::wr::DisplayListBuilder& aBuilder,
@@ -142,6 +184,13 @@ class nsCSSBorderRenderer final {
 
   // the colors for 'border-top-color' et. al.
   nscolor mBorderColors[4];
+
+  // the stripe colors for '-moz-border-top-colors' et. al.
+  nsBorderColors mCompositeColors;
+
+  bool HasCompositeColors(mozilla::Side aSide) const {
+    return !mCompositeColors[aSide].IsEmpty();
+  }
 
   // calculated values
   bool mAllBordersSameStyle;
@@ -221,6 +270,10 @@ class nsCSSBorderRenderer final {
   // present in the bitmask
   void DrawBorderSides(mozilla::SideBits aSides);
 
+  // function used by the above to handle -moz-border-*-colors
+  void DrawBorderSidesCompositeColors(
+      mozilla::SideBits aSides, const nsTArray<nscolor>& aCompositeColors);
+
   // Setup the stroke options for the given dashed/dotted side
   void SetupDashedOptions(StrokeOptions* aStrokeOptions, Float aDash[2],
                           mozilla::Side aSide, Float aBorderLength,
@@ -255,8 +308,13 @@ class nsCSSBorderRenderer final {
   // Draw a solid color border that is uniformly the same width.
   void DrawSingleWidthSolidBorder();
 
-  // Draw any border which is solid on all sides.
+  // Draw any border which is solid on all sides and does not use
+  // CompositeColors.
   void DrawSolidBorder();
+
+  // Draw a solid border that has no border radius (i.e. is rectangular) and
+  // uses CompositeColors.
+  void DrawRectangularCompositeColors();
 };
 
 class nsCSSBorderImageRenderer final {
