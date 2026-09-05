@@ -2287,6 +2287,10 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleXUL {
   mozilla::StyleBoxDirection mBoxDirection;
   mozilla::StyleBoxOrient mBoxOrient;
   mozilla::StyleBoxPack mBoxPack;
+
+  // Origin of -moz-window-transform, which lives in nsStyleUIReset. It is kept
+  // here because nsStyleUIReset has no room left under kStyleStructSizeLimit.
+  mozilla::StyleTransformOrigin mWindowTransformOrigin;
 };
 
 struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleColumn {

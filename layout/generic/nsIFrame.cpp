@@ -12099,10 +12099,17 @@ gfx::Matrix nsIFrame::ComputeWidgetTransform() const {
 
   TransformReferenceBox refBox(nullptr, nsRect(nsPoint(), GetSize()));
 
-  int32_t appUnitsPerDevPixel = PresContext()->AppUnitsPerDevPixel();
+  nsPresContext* presContext = PresContext();
+  int32_t appUnitsPerDevPixel = presContext->AppUnitsPerDevPixel();
   gfx::Matrix4x4 matrix = nsStyleTransformMatrix::ReadTransforms(
       uiReset->mMozWindowTransform, refBox, float(appUnitsPerDevPixel),
       mComputedStyle->EffectiveZoom());
+
+  // Apply the -moz-window-transform-origin translation to the matrix.
+  const StyleTransformOrigin& origin = StyleXUL()->mWindowTransformOrigin;
+  Point transformOrigin = nsStyleTransformMatrix::Convert2DPosition(
+      origin.horizontal, origin.vertical, refBox, appUnitsPerDevPixel);
+  matrix.ChangeBasis(Point3D(transformOrigin.x, transformOrigin.y, 0));
 
   gfx::Matrix result2d;
   if (!matrix.CanDraw2D(&result2d)) {
