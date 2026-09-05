@@ -13862,6 +13862,106 @@ if (false) {
     ],
   };
 
+  gCSSProperties["-moz-border-top-colors"] = {
+    // domProp: "MozBorderTopColors",
+    inherited: false,
+    type: CSS_TYPE_LONGHAND,
+    applies_to_first_letter: true,
+    initial_values: ["none"],
+    other_values: [
+      "red green",
+      "red #fc3",
+      "#ff00cc",
+      "currentColor",
+      "blue currentColor orange currentColor",
+    ],
+    invalid_values: [
+      "red none",
+      "red inherit",
+      "red, green",
+      "none red",
+      "inherit red",
+      "ff00cc",
+      "red unset",
+      "unset red",
+    ],
+  };
+
+  gCSSProperties["-moz-border-right-colors"] = {
+    // domProp: "MozBorderRightColors",
+    inherited: false,
+    type: CSS_TYPE_LONGHAND,
+    applies_to_first_letter: true,
+    initial_values: ["none"],
+    other_values: [
+      "red green",
+      "red #fc3",
+      "#ff00cc",
+      "currentColor",
+      "blue currentColor orange currentColor",
+    ],
+    invalid_values: [
+      "red none",
+      "red inherit",
+      "red, green",
+      "none red",
+      "inherit red",
+      "ff00cc",
+      "red unset",
+      "unset red",
+    ],
+  };
+
+  gCSSProperties["-moz-border-bottom-colors"] = {
+    // domProp: "MozBorderBottomColors",
+    inherited: false,
+    type: CSS_TYPE_LONGHAND,
+    applies_to_first_letter: true,
+    initial_values: ["none"],
+    other_values: [
+      "red green",
+      "red #fc3",
+      "#ff00cc",
+      "currentColor",
+      "blue currentColor orange currentColor",
+    ],
+    invalid_values: [
+      "red none",
+      "red inherit",
+      "red, green",
+      "none red",
+      "inherit red",
+      "ff00cc",
+      "red unset",
+      "unset red",
+    ],
+  };
+
+  gCSSProperties["-moz-border-left-colors"] = {
+    // domProp: "MozBorderLeftColors",
+    inherited: false,
+    type: CSS_TYPE_LONGHAND,
+    applies_to_first_letter: true,
+    initial_values: ["none"],
+    other_values: [
+      "red green",
+      "red #fc3",
+      "#ff00cc",
+      "currentColor",
+      "blue currentColor orange currentColor",
+    ],
+    invalid_values: [
+      "red none",
+      "red inherit",
+      "red, green",
+      "none red",
+      "inherit red",
+      "ff00cc",
+      "red unset",
+      "unset red",
+    ],
+  };
+
   gCSSProperties["-moz-context-properties"] = {
     //domProp: "MozContextProperties",
     inherited: true,

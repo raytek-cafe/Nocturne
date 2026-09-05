@@ -116,6 +116,7 @@ include = [
   "BorderSideWidth",
   "BorderStyle",
   "BorderSpacing",
+  "MozBorderColors",
   "BoolInteger",
   "OutlineStyle",
   "CaptionSide",

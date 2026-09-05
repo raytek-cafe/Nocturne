@@ -213,7 +213,9 @@ struct nsCSSRendering {
       mozilla::layers::RenderRootStateManager* aManager,
       mozilla::nsDisplayListBuilder* aDisplayListBuilder);
 
-  static void CreateWebRenderCommandsForNullBorder(
+  // Returns false if the border cannot be expressed as a WebRender border, in
+  // which case the caller has to fall back to painting it.
+  [[nodiscard]] static bool CreateWebRenderCommandsForNullBorder(
       mozilla::nsDisplayItem* aItem, nsIFrame* aForFrame,
       const nsRect& aBorderArea, mozilla::wr::DisplayListBuilder& aBuilder,
       mozilla::wr::IpcResourceUpdateQueue& aResources,

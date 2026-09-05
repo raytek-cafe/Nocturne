@@ -645,7 +645,7 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleBorder {
 
  public:
   // the colors to use for a simple border.
-  // not used for -moz-border-colors
+  // not used for -moz-border-*-colors
   mozilla::StyleColor mBorderTopColor;
   mozilla::StyleColor mBorderRightColor;
   mozilla::StyleColor mBorderBottomColor;
@@ -679,6 +679,38 @@ struct MOZ_NEEDS_MEMMOVABLE_MEMBERS nsStyleBorder {
     }
     MOZ_ASSERT_UNREACHABLE("Unknown side");
     return mBorderTopColor;
+  }
+
+  // the stripe colors for '-moz-border-top-colors' et. al. An empty list
+  // means the property is `none` and the simple border color is used.
+  mozilla::StyleMozBorderColors mBorderTopColors;
+  mozilla::StyleMozBorderColors mBorderRightColors;
+  mozilla::StyleMozBorderColors mBorderBottomColors;
+  mozilla::StyleMozBorderColors mBorderLeftColors;
+
+  const mozilla::StyleMozBorderColors& BorderColorsFor(
+      mozilla::Side aSide) const {
+    switch (aSide) {
+      case mozilla::eSideTop:
+        return mBorderTopColors;
+      case mozilla::eSideRight:
+        return mBorderRightColors;
+      case mozilla::eSideBottom:
+        return mBorderBottomColors;
+      case mozilla::eSideLeft:
+        return mBorderLeftColors;
+    }
+    MOZ_ASSERT_UNREACHABLE("Unknown side");
+    return mBorderTopColors;
+  }
+
+  bool HasBorderColors() const {
+    for (auto side : mozilla::AllPhysicalSides()) {
+      if (!BorderColorsFor(side)._0.IsEmpty()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static mozilla::StyleColor nsStyleBorder::* BorderColorFieldFor(
