@@ -197,8 +197,14 @@ export const AboutNewTab = {
     // the addon has finished registering its resources, and that the
     // trainhopConfig value computed in PrefsFeed is ready to be read.
 
+    // Nimbus only becomes ready once ExperimentAPI.init() has run, and the only
+    // thing that drives that at startup is Normandy, which we do not build.
+    // Awaiting it unconditionally leaves this function pending forever, so
+    // activityStream is never constructed and about:newtab renders nothing.
     const nimbusFeature = lazy.NimbusFeatures[TRAINHOP_NIMBUS_FEATURE];
-    const trainhopFeatureReady = nimbusFeature.ready();
+    const trainhopFeatureReady = AppConstants.MOZ_NORMANDY
+      ? nimbusFeature.ready()
+      : Promise.resolve();
 
     let redirector = Cc[
       "@mozilla.org/network/protocol/about;1?what=newtab"
