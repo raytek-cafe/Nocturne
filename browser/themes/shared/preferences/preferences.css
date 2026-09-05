@@ -1427,6 +1427,11 @@ setting-group[groupid="home"] {
   setting-group[groupid^="nocturne"] {
     --select-max-width: 22rem;
     --input-text-max-width: var(--select-max-width);
+
+    > moz-fieldset::part(inputs),
+    > moz-card > moz-fieldset::part(inputs) {
+      gap: var(--space-medium);
+    }
   }
 }
 /** SRD rows control for Nocturne END **/

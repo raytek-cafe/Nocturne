@@ -104,9 +104,10 @@ settings-pane-labs-header =
     .heading = { -firefoxlabs-brand-name }
 pane-experimental-description4 = Give our experimental features a try! They’re in development and evolving, which could impact how { -brand-short-name } works. We only receive data about your use of these features if you have <a data-l10n-name="data-collection">technical and interaction data</a> turned on.
 
-pane-nocturne-title = nocturne configurations
+pane-nocturne-title = { -brand-short-name } configurations
+    .title = { pane-nocturne-title }
 category-nocturne =
-    .tooltiptext = { pane-privacy-title }
+    .tooltiptext = { pane-nocturne-title }
 
 pane-experimental-reset =
   .label = Restore Defaults
@@ -186,11 +187,13 @@ search-results-help-link = Need help? Visit <a data-l10n-name="url">Mozilla Supp
 
 ## General Section - nocturne
 
-nocturne-title = nocturne specific options
-    .heading = nocturne specific options
+nocturne-title =
+    .heading = { -brand-short-name } configurations
+nocturne-legacy-title = { -brand-short-name } configurations
 
 nocturne-visual-header =
     .label = Visual configurations
+nocturne-legacy-visual-header = Visual configurations
 
 nocturne-native-checkbox =
     .label = Use native styles
@@ -199,27 +202,41 @@ nocturne-native-checkbox-desc = This controls whether the scrollbar, checkboxes,
 
 nocturne-native-menulist =
     .label = Menulist type
+nocturne-legacy-native-menulist =
+    .value = Menulist type
 
 nocturne-native-scroll =
     .label = Scrollbar type
+nocturne-legacy-native-scroll =
+    .value = Scrollbar type
 
 nocturne-fake-scroll-type =
     .label = Non-native scrollbar theme
+nocturne-legacy-fake-scroll-type =
+    .value = Non-native scrollbar theme
 
 nocturne-win-theme-type =
     .label = Windows version theme override (requires restart)
+nocturne-legacy-win-theme-type =
+    .value = Windows version theme override (requires restart)
 
 nocturne-colors =
-    .label = nocturne color schemes
+    .label = { -brand-short-name } color schemes
+nocturne-legacy-colors =
+    .value = { -brand-short-name } color schemes
 
 nocturne-fog-type =
     .label = Caption bar/Aero fog style
+nocturne-legacy-fog-type =
+    .value = Caption bar/Aero fog style
 
 nocturne-caption-text =
     .label = Override caption/window text color
+nocturne-legacy-caption-text =
+    .value = Override caption/window text color
 
 nocturne-drag =
-    .label = Enable drag space on nocturne theme styles
+    .label = Enable drag space on { -brand-short-name } theme styles
 
 nocturne-backgrounds =
     .label = Backgrounds for tabs and other toolbar items
@@ -232,6 +249,7 @@ nocturne-navbar =
 
 nocturne-functional-header =
     .label = Functionality configurations
+nocturne-legacy-functional-header = Functionality configurations
 
 nocturne-one-offs =
     .label = Instant one off searches
@@ -304,27 +322,42 @@ nocturne-ff68-download-icons-desc = When enabled, downloads will use the custom 
 
 nocturne-advanced-header =
     .label = Advanced configurations
+nocturne-legacy-advanced-header = Advanced configurations
 
-nocturne-accessibility = Accessibility services
+nocturne-accessibility =
     .label = Accessibility services
+nocturne-legacy-accessibility =
+    .value = Accessibility services
 
 nocturne-accessibility-desc = Recommended to disable if you do not need them for enhanced security and performance.
-nocturne-cookiebanners = Cookie banner handling mode in normal browsing
+nocturne-cookiebanners =
+    .label = Cookie banner handling mode in normal browsing
+nocturne-legacy-cookiebanners =
+    .value = Cookie banner handling mode in normal browsing
 
 nocturne-cookiebanners-desc = Recommended to leave enabled for a less annoying browsing experience. Currently this will set cookies even when set to block all cookies.
 
-nocturne-cookiebanners-private = Cookie banner handling mode in private browsing
+nocturne-cookiebanners-private =
+    .label = Cookie banner handling mode in private browsing
+nocturne-legacy-cookiebanners-private =
+    .value = Cookie banner handling mode in private browsing
 
 nocturne-caption-width =
     .label = Custom caption button Aero fog mask width
+nocturne-legacy-caption-width =
+    .value = Custom caption button Aero fog mask width
 
 nocturne-caption-desc = For themes that use custom sized caption buttons that differ from the stock OS. Browser restart is required for changes to take effect.
 
 nocturne-caption-height =
     .label = Custom caption button Aero fog mask height
+nocturne-legacy-caption-height =
+    .value = Custom caption button Aero fog mask height
 
 nocturne-sandbox-level =
     .label = Security Sandbox Content Level
+nocturne-legacy-sandbox-level =
+    .value = Security Sandbox Content Level
 
 nocturne-webaudio =
     .label = Disable Web Audio API
@@ -375,6 +408,117 @@ nocturne-e10s =
     .label = Disable content multiprocess (e10s) (BETA)
 
 nocturne-e10s-desc = Disables e10s/electrolysis content multiprocess. There are still multiple processes from other browser components with this enabled. Not recommended unless you do not know what you are doing.
+
+nocturne-option-native-menulists-always =
+    .label = Native menulists always
+
+nocturne-option-custom-menulists-always =
+    .label = Custom menulists always
+
+nocturne-option-native-menulists-unless-win10 =
+    .label = Native menulists unless Windows 10 (Modern) theme is used (Default)
+
+nocturne-option-native-scrollbars-always =
+    .label = Native scrollbars always
+
+nocturne-option-custom-scrollbars-always =
+    .label = Custom scrollbars always
+
+nocturne-option-native-scrollbars-unless-dark =
+    .label = Native scrollbars unless the website has a dark color scheme (Default)
+
+nocturne-option-scrollbar-platform =
+    .label = Default platform scrollbar style (Default)
+
+nocturne-option-scrollbar-macos =
+    .label = macOS scrollbar (small)
+
+nocturne-option-scrollbar-gtk =
+    .label = GTK scrollbar (smaller)
+
+nocturne-option-scrollbar-android =
+    .label = Android scrollbar (smallest)
+
+nocturne-option-scrollbar-win10 =
+    .label = Windows 10 scrollbar (normal)
+
+nocturne-option-scrollbar-win11 =
+    .label = Windows 11 scrollbar (smaller)
+
+nocturne-option-win-current =
+    .label = Current OS version (Default)
+
+nocturne-option-win-xp =
+    .label = Windows XP
+
+nocturne-option-win-vista =
+    .label = Windows Vista
+
+nocturne-option-win-7 =
+    .label = Windows 7
+
+nocturne-option-win-8 =
+    .label = Windows 8
+
+nocturne-option-win10-modern =
+    .label = Windows 10 (Modern)
+
+nocturne-option-color-disabled =
+    .label = Disabled (Stock Firefox Blue)
+
+nocturne-option-color-red =
+    .label = Red
+
+nocturne-option-color-orange =
+    .label = Orange
+
+nocturne-option-color-pink =
+    .label = Pink
+
+nocturne-option-color-dark-purple =
+    .label = Dark Theme Purple
+
+nocturne-option-fog-disabled =
+    .label = Disabled (Default with backgrounds enabled)
+
+nocturne-option-fog-nocturne =
+    .label = { -brand-short-name } style (covers menubar)
+
+nocturne-option-fog-stock =
+    .label = Stock Firefox style
+
+nocturne-option-caption-default =
+    .label = Default platform style (Default)
+
+nocturne-option-caption-white =
+    .label = White
+
+nocturne-option-caption-black =
+    .label = Black
+
+nocturne-option-accessibility-always-disabled =
+    .label = Always disabled (1)
+
+nocturne-option-accessibility-default =
+    .label = Default (0)
+
+nocturne-option-accessibility-always-enabled =
+    .label = Always enabled (-1)
+
+nocturne-option-cookiebanners-reject =
+    .label = Auto reject all cookies where possible
+
+nocturne-option-cookiebanners-disabled =
+    .label = Disable all cookie banner handling
+
+nocturne-option-sandbox-increased =
+    .label = Increased (20)
+
+nocturne-option-sandbox-default =
+    .label = Default (9)
+
+nocturne-option-sandbox-lower =
+    .label = Lower (7)
 
 ## General Section - Startup
 
