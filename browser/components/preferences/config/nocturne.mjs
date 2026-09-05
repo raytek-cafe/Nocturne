@@ -44,10 +44,10 @@ function checkbox(id, l10nId, description) {
 }
 
 function select(id, l10nId, values, description) {
-  let options = values.map(([value, label]) => ({
+  let options = values.map(([value, optionL10nId]) => ({
     key: `${id}-${value}`,
     value: String(value),
-    controlAttrs: { label },
+    l10nId: optionL10nId,
   }));
   if (description) {
     options.push(descriptionOption(description));
@@ -88,10 +88,31 @@ for (let id of [
   "prompts.tab_modal.sound.enabled",
   "browser.tabs.hoverPreview.enabled",
   "browser.tabs.groups.enabled",
+  "browser.translations.enable",
+  "nocturne.ui.ff68downloadicons",
+  "nocturne.legacyiconbehavior.enabled",
+  "nocturne.smalliconbehavior.enabled",
+  "nocturne.ui.oldurlbar",
 ]) {
   addSetting(id);
 }
-
+for (let id of [
+  "nocturne.colors",
+  "browser.display.windows.non_native_menus",
+  "widget.native-controls.scrollbar-style",
+  "widget.non-native-theme.scrollbar.style",
+  "widget.native-controls.override-win-version",
+  "nocturne.aero.fog",
+  "nocturne.caption.text.color",
+  "accessibility.force_disabled",
+  "cookiebanners.service.mode",
+  "cookiebanners.service.mode.privateBrowsing",
+  "security.sandbox.content.level",
+  "widget.native-controls.override-aero-caption-buttons-mask-width",
+  "widget.native-controls.override-aero-caption-buttons-mask-height",
+]) {
+  addIntegerSetting(id);
+}
 for (let id of [
   "widget.non-native-theme.enabled",
   "browser.menu.navigationIcons",
@@ -110,22 +131,6 @@ for (let id of [
   addSetting(id, true);
 }
 
-for (let id of [
-  "nocturne.colors",
-  "browser.display.windows.non_native_menus",
-  "widget.native-controls.scrollbar-style",
-  "widget.non-native-theme.scrollbar.style",
-  "widget.native-controls.override-win-version",
-  "nocturne.aero.fog",
-  "nocturne.caption.text.color",
-  "accessibility.force_disabled",
-  "security.sandbox.content.level",
-  "widget.native-controls.override-aero-caption-buttons-mask-width",
-  "widget.native-controls.override-aero-caption-buttons-mask-height",
-]) {
-  addIntegerSetting(id);
-}
-
 SettingGroupManager.registerGroups({
   nocturneVisual: {
     l10nId: "nocturne-visual-header",
@@ -140,66 +145,64 @@ SettingGroupManager.registerGroups({
         "browser.display.windows.non_native_menus",
         "nocturne-native-menulist",
         [
-          [0, "Native menulists always"],
-          [1, "Custom menulists always"],
-          [
-            2,
-            "Native menulists unless Windows 10 (Modern) theme is used (Default)",
-          ],
+          [0, "nocturne-option-native-menulists-always"],
+          [1, "nocturne-option-custom-menulists-always"],
+          [2, "nocturne-option-native-menulists-unless-win10"],
         ]
       ),
-      select("widget.native-controls.scrollbar-style", "nocturne-native-scroll", [
-        [0, "Native scrollbars always"],
-        [1, "Custom scrollbars always"],
+      select(
+        "widget.native-controls.scrollbar-style",
+        "nocturne-native-scroll",
         [
-          2,
-          "Native scrollbars unless the website has a dark color scheme (Default)",
-        ],
-      ]),
+          [0, "nocturne-option-native-scrollbars-always"],
+          [1, "nocturne-option-custom-scrollbars-always"],
+          [2, "nocturne-option-native-scrollbars-unless-dark"],
+        ]
+      ),
       select(
         "widget.non-native-theme.scrollbar.style",
         "nocturne-fake-scroll-type",
         [
-          [0, "Default platform scrollbar style (Default)"],
-          [1, "macOS scrollbar (small)"],
-          [2, "GTK scrollbar (smaller)"],
-          [3, "Android scrollbar (smallest)"],
-          [4, "Windows 10 scrollbar (normal)"],
-          [5, "Windows 11 scrollbar (smaller)"],
+          [0, "nocturne-option-scrollbar-platform"],
+          [1, "nocturne-option-scrollbar-macos"],
+          [2, "nocturne-option-scrollbar-gtk"],
+          [3, "nocturne-option-scrollbar-android"],
+          [4, "nocturne-option-scrollbar-win10"],
+          [5, "nocturne-option-scrollbar-win11"],
         ]
       ),
       select(
         "widget.native-controls.override-win-version",
         "nocturne-win-theme-type",
         [
-          [0, "Current OS version (Default)"],
-          [5, "Windows XP"],
-          [6, "Windows Vista"],
-          [7, "Windows 7"],
-          [8, "Windows 8"],
-          [10, "Windows 10 (Modern)"],
+          [0, "nocturne-option-win-current"],
+          [5, "nocturne-option-win-xp"],
+          [6, "nocturne-option-win-vista"],
+          [7, "nocturne-option-win-7"],
+          [8, "nocturne-option-win-8"],
+          [10, "nocturne-option-win10-modern"],
         ]
       ),
       select("nocturne.colors", "nocturne-colors", [
-        [0, "Disabled (Stock Firefox Blue)"],
-        [1, "Red"],
-        [2, "Orange"],
-        [3, "Pink"],
-        [4, "Dark Theme Purple"],
+        [0, "nocturne-option-color-disabled"],
+        [1, "nocturne-option-color-red"],
+        [2, "nocturne-option-color-orange"],
+        [3, "nocturne-option-color-pink"],
+        [4, "nocturne-option-color-dark-purple"],
       ]),
       checkbox("nocturne.drag-space.enabled", "nocturne-drag"),
       checkbox("nocturne.backgrounds.enabled", "nocturne-backgrounds"),
       checkbox("nocturne.transparent.menubar", "nocturne-menubar"),
       checkbox("nocturne.translucent.navbar", "nocturne-navbar"),
       select("nocturne.aero.fog", "nocturne-fog-type", [
-        [0, "Disabled (Default with backgrounds enabled)"],
-        [1, "nocturne style (covers menubar)"],
-        [2, "Stock Firefox style"],
+        [0, "nocturne-option-fog-disabled"],
+        [1, "nocturne-option-fog-nocturne"],
+        [2, "nocturne-option-fog-stock"],
       ]),
       select("nocturne.caption.text.color", "nocturne-caption-text", [
-        [0, "Default platform style (Default)"],
-        [1, "White"],
-        [2, "Black"],
+        [0, "nocturne-option-caption-default"],
+        [1, "nocturne-option-caption-white"],
+        [2, "nocturne-option-caption-black"],
       ]),
     ],
   },
@@ -210,8 +213,12 @@ SettingGroupManager.registerGroups({
       checkbox("browser.urlbar.oneOffsInstant", "nocturne-one-offs"),
       checkbox("browser.menu.viewImage", "nocturne-view-image"),
       checkbox("browser.menu.navigationIcons", "nocturne-nav-text"),
-      checkbox("browser.urlbar.formatting.enabled", "nocturne-urlbar-formatting"),
+      checkbox(
+        "browser.urlbar.formatting.enabled",
+        "nocturne-urlbar-formatting"
+      ),
       checkbox("browser.tabs.groups.enabled", "nocturne-tab-groups"),
+      checkbox("browser.translations.enable", "nocturne-translations-enable"),
       checkbox(
         "screenshots.browser.component.enabled",
         "nocturne-screenshot-component"
@@ -221,6 +228,11 @@ SettingGroupManager.registerGroups({
       checkbox("browser.taskbarTabs.enabled", "nocturne-taskbar-tabs"),
       checkbox("browser.ui.oldaboutconfig", "nocturne-old-aboutconfig"),
       checkbox("geo.enabled", "nocturne-geo"),
+      checkbox(
+        "nocturne.ui.ff68downloadicons",
+        "nocturne-ff68-download-icons",
+        "nocturne-ff68-download-icons-desc"
+      ),
       checkbox(
         "browser.urlbar.secondaryActions.switchToTab",
         "nocturne-switch-to-tab",
@@ -233,6 +245,21 @@ SettingGroupManager.registerGroups({
       ),
       checkbox("prompts.headerAppIcon.enabled", "nocturne-prompt-header-icon"),
       checkbox("prompts.tab_modal.sound.enabled", "nocturne-prompt-sound"),
+      checkbox(
+        "nocturne.legacyiconbehavior.enabled",
+        "nocturne-legacy-icon",
+        "nocturne-legacy-icon-desc"
+      ),
+      checkbox(
+        "nocturne.smalliconbehavior.enabled",
+        "nocturne-small-icon",
+        "nocturne-small-icon-desc"
+      ),
+      checkbox(
+        "nocturne.ui.oldurlbar",
+        "nocturne-old-urlbar",
+        "nocturne-old-urlbar-desc"
+      ),
     ],
   },
   nocturneAdvanced: {
@@ -243,16 +270,34 @@ SettingGroupManager.registerGroups({
         "accessibility.force_disabled",
         "nocturne-accessibility",
         [
-          [1, "Always disabled (1)"],
-          [0, "Default (0)"],
-          [-1, "Always enabled (-1)"],
+          [1, "nocturne-option-accessibility-always-disabled"],
+          [0, "nocturne-option-accessibility-default"],
+          [-1, "nocturne-option-accessibility-always-enabled"],
         ],
         "nocturne-accessibility-desc"
       ),
+      select(
+        "cookiebanners.service.mode",
+        "nocturne-cookiebanners",
+        [
+          [1, "nocturne-option-cookiebanners-reject"],
+          [0, "nocturne-option-cookiebanners-disabled"],
+        ],
+        "nocturne-cookiebanners-desc"
+      ),
+      select(
+        "cookiebanners.service.mode.privateBrowsing",
+        "nocturne-cookiebanners-private",
+        [
+          [1, "nocturne-option-cookiebanners-reject"],
+          [0, "nocturne-option-cookiebanners-disabled"],
+        ],
+        "nocturne-cookiebanners-desc"
+      ),
       select("security.sandbox.content.level", "nocturne-sandbox-level", [
-        [20, "Increased (20)"],
-        [9, "Default (9)"],
-        [7, "Lower (7)"],
+        [20, "nocturne-option-sandbox-increased"],
+        [9, "nocturne-option-sandbox-default"],
+        [7, "nocturne-option-sandbox-lower"],
       ]),
       numberInput(
         "widget.native-controls.override-aero-caption-buttons-mask-width",

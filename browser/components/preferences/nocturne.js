@@ -22,6 +22,7 @@ for (let preference of [
   { id: "nocturne.aero.fog", type: "int" },
   { id: "nocturne.caption.text.color", type: "int" },
   { id: "browser.urlbar.oneOffsInstant", type: "bool" },
+  { id: "browser.menu.viewImage", type: "bool" },
   { id: "browser.menu.navigationIcons", type: "bool", inverted: true },
   { id: "browser.tabs.groups.enabled", type: "bool" },
   { id: "browser.tabs.hoverPreview.enabled", type: "bool" },
@@ -57,7 +58,7 @@ for (let preference of [
   { id: "nocturne.smalliconbehavior.enabled", type: "bool" },
   { id: "nocturne.ui.ff68downloadicons", type: "bool" },
   { id: "nocturne.ui.oldurlbar", type: "bool" },
-  /* { id: "browser.translations.enable", type: "bool" },*/
+  { id: "browser.translations.enable", type: "bool" },
 ]) {
   if (!Preferences.get(preference.id)) {
     Preferences.add(preference);

@@ -227,7 +227,12 @@ export class SettingControl extends SettingElement {
     }
 
     // Set the value based on the control's API.
-    if ("checked" in control) {
+    if (
+      "checked" in control &&
+      (control.localName != "input" ||
+        control.type == "checkbox" ||
+        control.type == "radio")
+    ) {
       control.checked = this.value;
     } else if ("pressed" in control) {
       control.pressed = this.value;

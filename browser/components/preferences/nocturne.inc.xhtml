@@ -12,14 +12,14 @@
       class="subcategory"
       hidden="true"
       data-category="paneNocturne">
-  <html:h1 data-l10n-id="nocturne-title"/>
+  <html:h1 data-l10n-id="nocturne-legacy-title"/>
 </hbox>
 
 <!-- Nocturne visual -->
 <groupbox id="nocturneVisualGroup"
           data-category="paneNocturne"
           hidden="true">
-  <label><html:h2 data-l10n-id="nocturne-visual-header"/></label>
+  <label><html:h2 data-l10n-id="nocturne-legacy-visual-header"/></label>
 
   <hbox align="center">
     <checkbox id="nocturneUseNativeStyles"
@@ -33,9 +33,9 @@
     <label id="nocturneNativeMenulist" data-l10n-id="nocturne-legacy-native-menulist" data-l10n-attrs="value" control="nocturneNativeMenulistType" flex="1"/>
     <menulist id="nocturneNativeMenulistType" preference="browser.display.windows.non_native_menus">
       <menupopup>
-        <menuitem label="Native menulists always" value="0"/>
-        <menuitem label="Custom menulists always" value="1"/>
-        <menuitem label="Native menulists unless Windows 10 (Modern) theme is used (Default)" value="2"/>
+        <menuitem data-l10n-id="nocturne-option-native-menulists-always" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-custom-menulists-always" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-native-menulists-unless-win10" value="2"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -44,9 +44,9 @@
     <label id="nocturneNativeScroll" data-l10n-id="nocturne-legacy-native-scroll" data-l10n-attrs="value" control="nocturneNativeScrollType" flex="1"/>
     <menulist id="nocturneNativeScrollType" preference="widget.native-controls.scrollbar-style">
       <menupopup>
-        <menuitem label="Native scrollbars always" value="0"/>
-        <menuitem label="Custom scrollbars always" value="1"/>
-        <menuitem label="Native scrollbars unless the website has a dark color scheme (Default)" value="2"/>
+        <menuitem data-l10n-id="nocturne-option-native-scrollbars-always" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-custom-scrollbars-always" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-native-scrollbars-unless-dark" value="2"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -55,12 +55,12 @@
     <label id="nocturneFakeScroll" data-l10n-id="nocturne-legacy-fake-scroll-type" data-l10n-attrs="value" control="nocturneFakeScrollType" flex="1"/>
     <menulist id="nocturneFakeScrollType" preference="widget.non-native-theme.scrollbar.style">
       <menupopup>
-        <menuitem label="Default platform scrollbar style (Default)" value="0"/>
-        <menuitem label="macOS scrollbar (small)" value="1"/>
-        <menuitem label="GTK scrollbar (smaller)" value="2"/>
-        <menuitem label="Android scrollbar (smallest)" value="3"/>
-        <menuitem label="Windows 10 scrollbar (normal)" value="4"/>
-        <menuitem label="Windows 11 scrollbar (smaller)" value="5"/>
+        <menuitem data-l10n-id="nocturne-option-scrollbar-platform" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-scrollbar-macos" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-scrollbar-gtk" value="2"/>
+        <menuitem data-l10n-id="nocturne-option-scrollbar-android" value="3"/>
+        <menuitem data-l10n-id="nocturne-option-scrollbar-win10" value="4"/>
+        <menuitem data-l10n-id="nocturne-option-scrollbar-win11" value="5"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -69,12 +69,12 @@
     <label id="nocturneWinTheme" data-l10n-id="nocturne-legacy-win-theme-type" data-l10n-attrs="value" control="nocturneWinThemeType" flex="1"/>
     <menulist id="nocturneWinThemeType" preference="widget.native-controls.override-win-version">
       <menupopup>
-        <menuitem label="Current OS version (Default)" value="0"/>
-        <menuitem label="Windows XP" value="5"/>
-        <menuitem label="Windows Vista" value="6"/>
-        <menuitem label="Windows 7" value="7"/>
-        <menuitem label="Windows 8" value="8"/>
-        <menuitem label="Windows 10 (Modern)" value="10"/>
+        <menuitem data-l10n-id="nocturne-option-win-current" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-win-xp" value="5"/>
+        <menuitem data-l10n-id="nocturne-option-win-vista" value="6"/>
+        <menuitem data-l10n-id="nocturne-option-win-7" value="7"/>
+        <menuitem data-l10n-id="nocturne-option-win-8" value="8"/>
+        <menuitem data-l10n-id="nocturne-option-win10-modern" value="10"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -83,11 +83,11 @@
     <label id="nocturneColors" data-l10n-id="nocturne-legacy-colors" data-l10n-attrs="value" control="nocturneColorsType" flex="1"/>
     <menulist id="nocturneColorsType" preference="nocturne.colors">
       <menupopup>
-        <menuitem label="Disabled (Stock Firefox Blue)" value="0"/>
-        <menuitem label="Red" value="1"/>
-        <menuitem label="Orange" value="2"/>
-        <menuitem label="Pink" value="3"/>
-        <menuitem label="Dark Theme Purple" value="4"/>
+        <menuitem data-l10n-id="nocturne-option-color-disabled" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-color-red" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-color-orange" value="2"/>
+        <menuitem data-l10n-id="nocturne-option-color-pink" value="3"/>
+        <menuitem data-l10n-id="nocturne-option-color-dark-purple" value="4"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -138,9 +138,9 @@
     <label id="nocturneFog" data-l10n-id="nocturne-legacy-fog-type" data-l10n-attrs="value" control="nocturneFogType" flex="1"/>
     <menulist id="nocturneFogType" preference="nocturne.aero.fog">
       <menupopup>
-        <menuitem label="Disabled (Default with backgrounds enabled)" value="0"/>
-        <menuitem label="Nocturne style (covers menubar)" value="1"/>
-        <menuitem label="Stock Firefox style" value="2"/>
+        <menuitem data-l10n-id="nocturne-option-fog-disabled" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-fog-nocturne" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-fog-stock" value="2"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -149,9 +149,9 @@
     <label id="nocturneCaptionText" data-l10n-id="nocturne-legacy-caption-text" data-l10n-attrs="value" control="nocturneCaptionTextType" flex="1"/>
     <menulist id="nocturneCaptionTextType" preference="nocturne.caption.text.color">
       <menupopup>
-        <menuitem label="Default platform style (Default)" value="0"/>
-        <menuitem label="White" value="1"/>
-        <menuitem label="Black" value="2"/>
+        <menuitem data-l10n-id="nocturne-option-caption-default" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-caption-white" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-caption-black" value="2"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -161,7 +161,7 @@
 <groupbox id="nocturneFunctionalGroup"
           data-category="paneNocturne"
           hidden="true">
-  <label><html:h2 data-l10n-id="nocturne-functional-header"/></label>
+  <label><html:h2 data-l10n-id="nocturne-legacy-functional-header"/></label>
 
   <hbox align="center">
     <checkbox id="nocturneoneoffs"
@@ -319,15 +319,15 @@
 <groupbox id="nocturneAdvancedGroup"
           data-category="paneNocturne"
           hidden="true">
-  <label><html:h2 data-l10n-id="nocturne-advanced-header"/></label>
+  <label><html:h2 data-l10n-id="nocturne-legacy-advanced-header"/></label>
 
   <hbox align="center">
     <label id="nocturneAccessibility" data-l10n-id="nocturne-legacy-accessibility" data-l10n-attrs="value" control="nocturneAccessibilityType" flex="1"/>
     <menulist id="nocturneAccessibilityType" preference="accessibility.force_disabled">
       <menupopup>
-        <menuitem label="Always disabled (1)" value="1"/>
-        <menuitem label="Default (0)" value="0"/>
-        <menuitem label="Always enabled (-1)" value="-1"/>
+        <menuitem data-l10n-id="nocturne-option-accessibility-always-disabled" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-accessibility-default" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-accessibility-always-enabled" value="-1"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -337,8 +337,8 @@
     <label id="nocturneCookieBanners" data-l10n-id="nocturne-legacy-cookiebanners" data-l10n-attrs="value" control="nocturneCookieBannersType" flex="1"/>
     <menulist id="nocturneCookieBannersType" preference="cookiebanners.service.mode">
       <menupopup>
-        <menuitem label="Auto reject all cookies where possible" value="1"/>
-        <menuitem label="Disable all cookie banner handling" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-cookiebanners-reject" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-cookiebanners-disabled" value="0"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -348,8 +348,8 @@
     <label id="nocturneCookieBannersPrivate" data-l10n-id="nocturne-legacy-cookiebanners-private" data-l10n-attrs="value" control="nocturneCookieBannersPrivateType" flex="1"/>
     <menulist id="nocturneCookieBannersPrivateType" preference="cookiebanners.service.mode.privateBrowsing">
       <menupopup>
-        <menuitem label="Auto reject all cookies where possible" value="1"/>
-        <menuitem label="Disable all cookie banner handling" value="0"/>
+        <menuitem data-l10n-id="nocturne-option-cookiebanners-reject" value="1"/>
+        <menuitem data-l10n-id="nocturne-option-cookiebanners-disabled" value="0"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -359,9 +359,9 @@
     <label id="nocturneSandboxLevel" data-l10n-id="nocturne-legacy-sandbox-level" data-l10n-attrs="value" control="nocturneSandboxLevelType" flex="1"/>
     <menulist id="nocturneSandboxLevelType" preference="security.sandbox.content.level">
       <menupopup>
-        <menuitem label="Increased (20)" value="20"/>
-        <menuitem label="Default (8)" value="8"/>
-        <menuitem label="Lower (7)" value="7"/>
+        <menuitem data-l10n-id="nocturne-option-sandbox-increased" value="20"/>
+        <menuitem data-l10n-id="nocturne-option-sandbox-default" value="9"/>
+        <menuitem data-l10n-id="nocturne-option-sandbox-lower" value="7"/>
       </menupopup>
     </menulist>
   </hbox>

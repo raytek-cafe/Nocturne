@@ -40,6 +40,8 @@ tags = "os_integration"
 
 ["browser_fluent.js"]
 
+["browser_nocturne_preferences.js"]
+
 ["browser_legacy_pane_mappings.js"]
 
 ["browser_no_id_collision_between_categories_and_mainPane.js"]
