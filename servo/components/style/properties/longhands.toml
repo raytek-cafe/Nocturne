@@ -1495,6 +1495,42 @@ spec = "https://drafts.csswg.org/css-ui/#propdef-outline-color"
 servo_restyle_damage = "repaint"
 affects = "paint"
 
+[-moz-outline-radius-topleft]
+type = "BorderCornerRadius"
+initial = "computed::BorderCornerRadius::zero()"
+struct = "outline"
+engine = "gecko"
+boxed = true
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-outline-radius)"
+affects = "paint"
+
+[-moz-outline-radius-topright]
+type = "BorderCornerRadius"
+initial = "computed::BorderCornerRadius::zero()"
+struct = "outline"
+engine = "gecko"
+boxed = true
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-outline-radius)"
+affects = "paint"
+
+[-moz-outline-radius-bottomright]
+type = "BorderCornerRadius"
+initial = "computed::BorderCornerRadius::zero()"
+struct = "outline"
+engine = "gecko"
+boxed = true
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-outline-radius)"
+affects = "paint"
+
+[-moz-outline-radius-bottomleft]
+type = "BorderCornerRadius"
+initial = "computed::BorderCornerRadius::zero()"
+struct = "outline"
+engine = "gecko"
+boxed = true
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-outline-radius)"
+affects = "paint"
+
 [outline-offset]
 type = "BorderSideOffset"
 initial = "app_units::Au(0)"
