@@ -21,6 +21,7 @@ class ScrollbarDrawing {
  protected:
   using DPIRatio = mozilla::CSSToLayoutDeviceScale;
   using ElementState = dom::ElementState;
+  using DocumentState = dom::DocumentState;
   using DrawTarget = mozilla::gfx::DrawTarget;
   using sRGBColor = mozilla::gfx::sRGBColor;
   using Colors = ThemeColors;

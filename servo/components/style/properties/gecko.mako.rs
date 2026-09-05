@@ -492,6 +492,7 @@ def set_gecko_property(ffi_name, expr):
     pub fn clone_${ident}(&self) -> longhands::${ident}::computed_value::T {
         self.${gecko_ffi_name}.${corner}.clone()
     }
+    ${impl_simple_eq(ident, gecko_ffi_name + "." + corner)}
 </%def>
 
 <%def name="impl_style_struct(style_struct)">
