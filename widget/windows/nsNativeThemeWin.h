@@ -77,7 +77,6 @@ class nsNativeThemeWin : public Theme {
   bool WidgetIsContainer(StyleAppearance aAppearance);
 
   bool ThemeDrawsFocusForWidget(nsIFrame*, StyleAppearance) override;
-  bool ThemeNeedsComboboxDropmarker() override;
 
   bool WidgetAppearanceDependsOnWindowFocus(StyleAppearance) override;
 

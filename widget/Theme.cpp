@@ -1194,7 +1194,6 @@ bool Theme::DoDrawWidgetBackground(PaintBackendData& aPaintData,
       PaintListbox(aPaintData, devPxRect, elementState, colors, dpiRatio);
       break;
     case StyleAppearance::Menulist:
-    case StyleAppearance::MenulistButton:
       PaintMenulist(aPaintData, devPxRect, elementState, colors, dpiRatio);
       break;
     case StyleAppearance::Tab:
@@ -1458,7 +1457,6 @@ LayoutDeviceIntMargin Theme::GetWidgetBorder(nsDeviceContext* aContext,
     case StyleAppearance::PasswordInput:
     case StyleAppearance::Listbox:
     case StyleAppearance::Menulist:
-    case StyleAppearance::MenulistButton:
     case StyleAppearance::Tab:
     case StyleAppearance::Tabpanel:
     case StyleAppearance::Tabpanels:
@@ -1522,7 +1520,6 @@ bool Theme::GetWidgetOverflow(nsDeviceContext* aContext, nsIFrame* aFrame,
       outlineOffset = -kTextFieldBorderWidth;
       break;
     case StyleAppearance::Menulist:
-    case StyleAppearance::MenulistButton:
     case StyleAppearance::Tab:
     case StyleAppearance::Button:
       outlineOffset = -kButtonBorderWidth;
@@ -1664,7 +1661,6 @@ bool Theme::ThemeSupportsWidget(nsPresContext* aPresContext, nsIFrame* aFrame,
     case StyleAppearance::Button:
     case StyleAppearance::Listbox:
     case StyleAppearance::Menulist:
-    case StyleAppearance::MenulistButton:
     case StyleAppearance::NumberInput:
     case StyleAppearance::PasswordInput:
     case StyleAppearance::MozMenulistArrowButton:
