@@ -40,7 +40,7 @@ use crate::profiler::TransactionProfile;
 use crate::renderer::GpuBufferBuilderF;
 use crate::resource_cache::{ResourceCache, ImageRequest};
 use crate::scene_building::SliceFlags;
-use crate::space::SpaceMapper;
+use crate::space::{SpaceMapper, SpaceSnapper};
 use crate::spatial_tree::{SpatialNodeIndex, SpatialTree};
 use crate::surface::{SubpixelMode, SurfaceInfo};
 use crate::util::{ScaleOffset, MatrixHelpers, MaxRect};
@@ -1093,10 +1093,13 @@ impl TileCacheInstance {
                 pic_rect,
             );
 
+            let mut clip_snapper = SpaceSnapper::new(surface, frame_context.spatial_tree);
+
             frame_state.clip_store.set_active_clips(
                 self.spatial_node_index,
                 map_local_to_picture.ref_spatial_node_index,
                 surface.visibility_spatial_node_index,
+                &mut clip_snapper,
                 shared_clip_leaf_id,
                 frame_context.spatial_tree,
                 &mut frame_state.data_stores.clip,
@@ -3034,7 +3037,7 @@ impl TileCacheInstance {
             surface.used_this_frame
         });
 
-        if !self.underlays.is_empty() && (!self.deferred_dirty_tests.is_empty() || !self.mix_blend_pic_rects.is_empty()) {
+        if !self.underlays.is_empty() && !self.deferred_dirty_tests.is_empty() {
             let is_yuv_8bit = |desc: &ExternalSurfaceDescriptor| {
                 matches!(
                     desc.dependency,
@@ -3051,20 +3054,13 @@ impl TileCacheInstance {
                     .any(|dirty_test| dirty_test.prim_rect.intersects(&desc.local_rect))
             };
 
-            let intersects_with_mix_blend = |desc: &ExternalSurfaceDescriptor| {
-                self.mix_blend_pic_rects
-                    .iter()
-                    .any(|rect| rect.intersects(&desc.local_rect))
-            };
-
-            // Cancel underlay if underlay intersects with backdrop filter or mix-blend-mode and bit depth is 8 bits
+            // Cancel underlay if underlay intersects with backdrop filter and bit depth is 8 bits
             // XXX WebRender does not support full HDR yet. HDR requires external composite to show correct colors.
             let (underlays, cancel_underlays): (Vec<_>, Vec<_>) =
                 self.underlays
                     .iter()
                     .partition(|desc| {
-                        !is_yuv_8bit(desc) ||
-                        (!intersects_with_dirty_tests(desc) && !intersects_with_mix_blend(desc))
+                        !is_yuv_8bit(desc) || !intersects_with_dirty_tests(desc)
                     });
 
             if !cancel_underlays.is_empty() {

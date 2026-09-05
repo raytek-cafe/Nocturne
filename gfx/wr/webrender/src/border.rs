@@ -1586,4 +1586,3 @@ pub fn compute_border_repetition_1d(
 
     *out_stretch_size = stretch_size;
 }
-
