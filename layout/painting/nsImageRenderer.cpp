@@ -162,7 +162,7 @@ bool nsImageRenderer::PrepareImage() {
 
       bool canDrawPartial =
           (mFlags & nsImageRenderer::FLAG_DRAW_PARTIAL_FRAMES) &&
-          isImageRequest && mImage->IsSizeAvailable();
+          isImageRequest && mImage->IsSizeAvailable() && !mImage->IsRect();
 
       // If we are drawing a partial frame then we want to make sure there are
       // some pixels to draw, otherwise we waste effort pushing through to draw
@@ -201,7 +201,24 @@ bool nsImageRenderer::PrepareImage() {
       srcImage = nsLayoutUtils::OrientImage(srcImage, orientation);
     }
 
-    mImageContainer.swap(srcImage);
+    if (!mImage->IsRect()) {
+      mImageContainer.swap(srcImage);
+    } else {
+      auto croprect = mImage->ComputeActualCropRect();
+      if (!croprect || croprect->mRect.IsEmpty()) {
+        // The cropped image has zero size
+        mPrepareResult = ImgDrawResult::BAD_IMAGE;
+        return false;
+      }
+      if (croprect->mIsEntireImage) {
+        // The cropped image is identical to the source image
+        mImageContainer.swap(srcImage);
+      } else {
+        nsCOMPtr<imgIContainer> subImage =
+            ImageOps::Clip(srcImage, croprect->mRect, Nothing());
+        mImageContainer.swap(subImage);
+      }
+    }
     mPrepareResult = ImgDrawResult::SUCCESS;
   } else if (mImage->IsGradient()) {
     mGradientData = &*mImage->AsGradient();
@@ -263,6 +280,7 @@ CSSSizeOrRatio nsImageRenderer::ComputeIntrinsicSize() {
 
   CSSSizeOrRatio result;
   switch (mType) {
+    case StyleImage::Tag::Rect:
     case StyleImage::Tag::MozSymbolicIcon:
     case StyleImage::Tag::Url: {
       bool haveWidth, haveHeight;
@@ -556,6 +574,7 @@ ImgDrawResult nsImageRenderer::Draw(nsPresContext* aPresContext,
   }
 
   switch (mType) {
+    case StyleImage::Tag::Rect:
     case StyleImage::Tag::MozSymbolicIcon:
     case StyleImage::Tag::Url: {
       result = nsLayoutUtils::DrawBackgroundImage(
@@ -659,6 +678,7 @@ ImgDrawResult nsImageRenderer::BuildWebRenderDisplayItems(
                                           !aItem->BackfaceIsHidden(), aOpacity);
       break;
     }
+    case StyleImage::Tag::Rect:
     case StyleImage::Tag::MozSymbolicIcon:
     case StyleImage::Tag::Url: {
       ExtendMode extendMode = mExtendMode;

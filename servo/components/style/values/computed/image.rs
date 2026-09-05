@@ -12,6 +12,8 @@ use crate::typed_om::{ImageValue, KeywordValue, ToTyped, TypedValue};
 use crate::values::computed::percentage::Percentage;
 use crate::values::computed::position::Position;
 use crate::values::computed::url::ComputedUrl;
+#[cfg(feature = "gecko")]
+use crate::values::computed::NumberOrPercentage;
 use crate::values::computed::{Angle, Color, Context};
 use crate::values::computed::{
     AngleOrPercentage, Length, LengthPercentage, NonNegativeLength, NonNegativeLengthPercentage,
@@ -29,7 +31,16 @@ pub use specified::ImageRendering;
 
 /// Computed values for an image according to CSS-IMAGES.
 /// <https://drafts.csswg.org/css-images/#image-values>
-pub type Image = generic::GenericImage<Gradient, ComputedUrl, Color, Percentage, Resolution>;
+pub type Image =
+    generic::GenericImage<Gradient, MozImageRect, ComputedUrl, Color, Percentage, Resolution>;
+
+/// Computed values for `-moz-image-rect(...)`.
+#[cfg(feature = "gecko")]
+pub type MozImageRect = generic::GenericMozImageRect<NumberOrPercentage, ComputedUrl>;
+
+/// Empty enum on non-gecko
+#[cfg(not(feature = "gecko"))]
+pub type MozImageRect = specified::MozImageRect;
 
 impl ToTyped for Image {
     fn to_typed(&self, dest: &mut ThinVec<TypedValue>) -> Result<(), ()> {
@@ -233,6 +244,7 @@ impl ToComputedValue for specified::Image {
             Self::None => Image::None,
             Self::Url(u) => Image::Url(u.to_computed_value(context)),
             Self::Gradient(g) => Image::Gradient(g.to_computed_value(context)),
+            Self::Rect(r) => Image::Rect(r.to_computed_value(context)),
             #[cfg(feature = "gecko")]
             Self::Element(e) => Image::Element(e.to_computed_value(context)),
             #[cfg(feature = "gecko")]
@@ -256,6 +268,7 @@ impl ToComputedValue for specified::Image {
             Image::None => Self::None,
             Image::Url(u) => Self::Url(ToComputedValue::from_computed_value(u)),
             Image::Gradient(g) => Self::Gradient(ToComputedValue::from_computed_value(g)),
+            Image::Rect(r) => Self::Rect(ToComputedValue::from_computed_value(r)),
             #[cfg(feature = "gecko")]
             Image::Element(e) => Self::Element(ToComputedValue::from_computed_value(e)),
             #[cfg(feature = "gecko")]

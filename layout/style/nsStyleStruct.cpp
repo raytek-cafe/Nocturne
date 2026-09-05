@@ -1645,6 +1645,58 @@ bool StyleGradient::IsOpaque() const {
   return false;
 }
 
+static int32_t ConvertToPixelCoord(const StyleNumberOrPercentage& aCoord,
+                                   int32_t aPercentScale) {
+  double pixelValue;
+  if (aCoord.IsNumber()) {
+    pixelValue = aCoord.AsNumber();
+  } else {
+    MOZ_ASSERT(aCoord.IsPercentage());
+    pixelValue = aCoord.AsPercentage()._0 * aPercentScale;
+  }
+  MOZ_ASSERT(pixelValue >= 0, "we ensured non-negative while parsing");
+  pixelValue = std::min(pixelValue, double(INT32_MAX));  // avoid overflow
+  return NS_lround(pixelValue);
+}
+
+template <>
+Maybe<StyleImage::ActualCropRect> StyleImage::ComputeActualCropRect() const {
+  MOZ_ASSERT(IsRect(),
+             "This function is designed to be used only image-rect images");
+
+  imgRequestProxy* req = GetImageRequest();
+  if (!req) {
+    return Nothing();
+  }
+
+  nsCOMPtr<imgIContainer> imageContainer;
+  req->GetImage(getter_AddRefs(imageContainer));
+  if (!imageContainer) {
+    return Nothing();
+  }
+
+  nsIntSize imageSize;
+  imageContainer->GetWidth(&imageSize.width);
+  imageContainer->GetHeight(&imageSize.height);
+  if (imageSize.width <= 0 || imageSize.height <= 0) {
+    return Nothing();
+  }
+
+  const auto& rect = AsRect();
+
+  int32_t left = ConvertToPixelCoord(rect->left, imageSize.width);
+  int32_t top = ConvertToPixelCoord(rect->top, imageSize.height);
+  int32_t right = ConvertToPixelCoord(rect->right, imageSize.width);
+  int32_t bottom = ConvertToPixelCoord(rect->bottom, imageSize.height);
+
+  // IntersectRect() returns an empty rect if we get negative width or height
+  nsIntRect cropRect(left, top, right - left, bottom - top);
+  nsIntRect imageRect(nsIntPoint(0, 0), imageSize);
+  auto finalRect = imageRect.Intersect(cropRect);
+  bool isEntireImage = finalRect.IsEqualInterior(imageRect);
+  return Some(ActualCropRect{finalRect, isEntireImage});
+}
+
 template <>
 bool StyleImage::IsOpaque() const {
   switch (tag) {
@@ -1652,6 +1704,7 @@ bool StyleImage::IsOpaque() const {
       return FinalImage().IsOpaque();
     case Tag::Gradient:
       return AsGradient()->IsOpaque();
+    case Tag::Rect:
     case Tag::Url: {
       if (!IsComplete()) {
         return false;
@@ -1660,7 +1713,16 @@ bool StyleImage::IsOpaque() const {
       nsCOMPtr<imgIContainer> imageContainer;
       GetImageRequest()->GetImage(getter_AddRefs(imageContainer));
       MOZ_ASSERT(imageContainer, "IsComplete() said image container is ready");
-      return imageContainer->WillDrawOpaqueNow();
+      // Check if the crop region of the image is opaque.
+      if (!imageContainer->WillDrawOpaqueNow()) {
+        return false;
+      }
+      if (!IsRect()) {
+        return true;
+      }
+      // Must make sure the crop rect contains at least a pixel.
+      auto cropRect = ComputeActualCropRect();
+      return cropRect && !cropRect->mRect.IsEmpty();
     }
     case Tag::Image:
       return !AsImage()->MaybeTransparent();
@@ -1698,6 +1760,7 @@ bool StyleImage::IsComplete() const {
     case Tag::MozSymbolicIcon:
     case Tag::Image:
       return true;
+    case Tag::Rect:
     case Tag::Url: {
       if (!IsResolved()) {
         return false;
@@ -1734,6 +1797,7 @@ bool StyleImage::IsSizeAvailable() const {
     case Tag::Element:
     case Tag::MozSymbolicIcon:
       return true;
+    case Tag::Rect:
     case Tag::Url: {
       imgRequestProxy* req = GetImageRequest();
       if (!req) {

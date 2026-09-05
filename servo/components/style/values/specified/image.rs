@@ -43,7 +43,8 @@ fn gradient_color_interpolation_method_enabled() -> bool {
 
 /// Specified values for an image according to CSS-IMAGES.
 /// <https://drafts.csswg.org/css-images/#image-values>
-pub type Image = generic::Image<Gradient, SpecifiedUrl, Color, Percentage, Resolution>;
+pub type Image =
+    generic::Image<Gradient, MozImageRect, SpecifiedUrl, Color, Percentage, Resolution>;
 
 impl ToTyped for Image {
     fn to_typed(&self, dest: &mut ThinVec<TypedValue>) -> Result<(), ()> {
@@ -205,6 +206,26 @@ pub enum LineDirection {
 /// A specified ending shape.
 pub type EndingShape = generic::EndingShape<NonNegativeLength, NonNegativeLengthPercentage>;
 
+/// Specified values for `moz-image-rect`
+/// -moz-image-rect(<uri>, top, right, bottom, left);
+#[cfg(all(feature = "gecko", not(feature = "cbindgen")))]
+pub type MozImageRect = generic::GenericMozImageRect<NumberOrPercentage, SpecifiedUrl>;
+
+#[cfg(not(feature = "gecko"))]
+#[derive(
+    Clone,
+    Debug,
+    MallocSizeOf,
+    PartialEq,
+    SpecifiedValueInfo,
+    ToComputedValue,
+    ToCss,
+    ToResolvedValue,
+    ToShmem,
+)]
+/// Empty enum on non-Gecko
+pub enum MozImageRect {}
+
 bitflags! {
     #[derive(Clone, Copy)]
     struct ParseImageFlags: u8 {
@@ -268,6 +289,8 @@ impl Image {
                 // `none` in `light-dark()` has a special meaning.
                 Self::parse_with_cors_mode(context, input, cors_mode, flags & !ParseImageFlags::FORBID_NONE)
             })?)),
+            #[cfg(feature = "gecko")]
+            "-moz-image-rect" => Self::Rect(Box::new(MozImageRect::parse_args(context, input, cors_mode)?)),
             #[cfg(feature = "gecko")]
             "-moz-element" => Self::Element(Self::parse_element(input)?),
             #[cfg(feature = "gecko")]
@@ -1353,6 +1376,37 @@ impl PaintWorklet {
             })
             .unwrap_or_default();
         Ok(Self { name, arguments })
+    }
+}
+
+impl MozImageRect {
+    #[cfg(feature = "gecko")]
+    fn parse_args<'i>(
+        context: &ParserContext,
+        input: &mut Parser<'i, '_>,
+        cors_mode: CorsMode,
+    ) -> Result<Self, ParseError<'i>> {
+        let start = input.position().byte_index();
+        let location = input.current_source_location();
+        let string = input.expect_url_or_string()?.as_ref().to_owned();
+        let end = input.position().byte_index();
+        let url =
+            SpecifiedUrl::parse_from_string(string, start, end, context, cors_mode, location)?;
+        input.expect_comma()?;
+        let top = NumberOrPercentage::parse_non_negative(context, input)?;
+        input.expect_comma()?;
+        let right = NumberOrPercentage::parse_non_negative(context, input)?;
+        input.expect_comma()?;
+        let bottom = NumberOrPercentage::parse_non_negative(context, input)?;
+        input.expect_comma()?;
+        let left = NumberOrPercentage::parse_non_negative(context, input)?;
+        Ok(MozImageRect {
+            url,
+            top,
+            right,
+            bottom,
+            left,
+        })
     }
 }
 
