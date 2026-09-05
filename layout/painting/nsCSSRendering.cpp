@@ -1892,6 +1892,10 @@ bool nsCSSRendering::CanBuildWebRenderDisplayItemsForStyleImageLayer(
   const auto& styleImage =
       aBackgroundStyle->mImage.mLayers[aLayer].mImage.FinalImage();
   if (styleImage.IsImageRequestType()) {
+    if (styleImage.IsRect()) {
+      return false;
+    }
+
     imgRequestProxy* requestProxy = styleImage.GetImageRequest();
     if (!requestProxy) {
       return false;

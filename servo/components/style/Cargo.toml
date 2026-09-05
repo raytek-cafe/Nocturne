@@ -18,6 +18,9 @@ path = "lib.rs"
 doctest = false
 
 [features]
+# Never enabled by cargo; only set when cbindgen parses the crate, so that
+# gecko-only type aliases it cannot resolve stay hidden from it.
+cbindgen = []
 gecko = [
     "bindgen",
     "malloc_size_of/gecko",
