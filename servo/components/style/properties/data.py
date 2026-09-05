@@ -1152,6 +1152,11 @@ class PropertyRestrictions:
                 "line-height",
                 # Kinda like css-backgrounds?
                 "background-blend-mode",
+                # Nonstandard, but the rest of the border properties apply.
+                "-moz-border-top-colors",
+                "-moz-border-right-colors",
+                "-moz-border-bottom-colors",
+                "-moz-border-left-colors",
             ]
             + PropertyRestrictions.shorthand(data, "padding")
             + PropertyRestrictions.shorthand(data, "margin")

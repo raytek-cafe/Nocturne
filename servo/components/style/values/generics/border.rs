@@ -301,3 +301,41 @@ impl<S: Clone> CornerShapeRect<S> {
         }
     }
 }
+
+/// A generic value for the `-moz-border-*-colors` properties.
+///
+/// An empty list serializes as `none`, which is the only way the empty list is
+/// representable in the grammar (`none | <color>+`).
+#[derive(
+    Clone,
+    Debug,
+    Default,
+    MallocSizeOf,
+    PartialEq,
+    SpecifiedValueInfo,
+    ToComputedValue,
+    ToCss,
+    ToResolvedValue,
+    ToShmem,
+    ToTyped,
+)]
+#[repr(C)]
+pub struct GenericMozBorderColors<C>(
+    #[css(if_empty = "none", iterable)] pub crate::OwnedSlice<C>,
+);
+
+pub use self::GenericMozBorderColors as MozBorderColors;
+
+impl<C> MozBorderColors<C> {
+    /// Returns the `none` value.
+    #[inline]
+    pub fn none() -> Self {
+        Self(Default::default())
+    }
+
+    /// Returns whether this is the `none` value.
+    #[inline]
+    pub fn is_none(&self) -> bool {
+        self.0.is_empty()
+    }
+}

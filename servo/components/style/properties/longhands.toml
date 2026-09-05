@@ -2934,6 +2934,54 @@ logical_group = "border-color"
 ignored_when_colors_disabled = true
 affects = "paint"
 
+[-moz-border-top-colors]
+type = "MozBorderColors"
+initial = "computed::MozBorderColors::none()"
+struct = "border"
+engine = "gecko"
+gecko_ffi_name = "mBorderTopColors"
+animation_type = "discrete"
+enabled_in = "chrome"
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-border-top-colors)"
+ignored_when_colors_disabled = true
+affects = "paint"
+
+[-moz-border-right-colors]
+type = "MozBorderColors"
+initial = "computed::MozBorderColors::none()"
+struct = "border"
+engine = "gecko"
+gecko_ffi_name = "mBorderRightColors"
+animation_type = "discrete"
+enabled_in = "chrome"
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-border-right-colors)"
+ignored_when_colors_disabled = true
+affects = "paint"
+
+[-moz-border-bottom-colors]
+type = "MozBorderColors"
+initial = "computed::MozBorderColors::none()"
+struct = "border"
+engine = "gecko"
+gecko_ffi_name = "mBorderBottomColors"
+animation_type = "discrete"
+enabled_in = "chrome"
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-border-bottom-colors)"
+ignored_when_colors_disabled = true
+affects = "paint"
+
+[-moz-border-left-colors]
+type = "MozBorderColors"
+initial = "computed::MozBorderColors::none()"
+struct = "border"
+engine = "gecko"
+gecko_ffi_name = "mBorderLeftColors"
+animation_type = "discrete"
+enabled_in = "chrome"
+spec = "Nonstandard (https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-border-left-colors)"
+ignored_when_colors_disabled = true
+affects = "paint"
+
 [border-top-style]
 type = "BorderStyle"
 initial = "specified::BorderStyle::None"

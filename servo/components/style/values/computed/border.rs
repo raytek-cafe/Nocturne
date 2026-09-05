@@ -14,7 +14,7 @@ use crate::values::computed::length::{
 use crate::values::computed::{NonNegativeNumber, NonNegativeNumberOrPercentage};
 use crate::values::generics::border::{
     GenericBorderCornerRadius, GenericBorderImageSideWidth, GenericBorderImageSlice,
-    GenericBorderRadius, GenericBorderSpacing,
+    GenericBorderRadius, GenericBorderSpacing, GenericMozBorderColors,
 };
 use crate::values::generics::rect::Rect;
 use crate::values::generics::size::Size2D;
@@ -161,3 +161,6 @@ impl BorderSpacing {
         Au::from(*self.0.height())
     }
 }
+
+/// A computed value for the `-moz-border-*-colors` properties.
+pub type MozBorderColors = GenericMozBorderColors<crate::values::computed::Color>;

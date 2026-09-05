@@ -11,17 +11,19 @@ use crate::values::computed::border::BorderSideWidth as ComputedBorderSideWidth;
 use crate::values::computed::{Context, ToComputedValue};
 use crate::values::generics::border::{
     GenericBorderCornerRadius, GenericBorderImageSideWidth, GenericBorderImageSlice,
-    GenericBorderRadius, GenericBorderSpacing,
+    GenericBorderRadius, GenericBorderSpacing, GenericMozBorderColors,
 };
 use crate::values::generics::rect::Rect;
 use crate::values::generics::size::Size2D;
 use crate::values::specified::length::{Length, NonNegativeLength, NonNegativeLengthPercentage};
-use crate::values::specified::{AllowQuirks, NonNegativeNumber, NonNegativeNumberOrPercentage};
+use crate::values::specified::{
+    AllowQuirks, Color, NonNegativeNumber, NonNegativeNumberOrPercentage,
+};
 use crate::Zero;
 use app_units::Au;
 use cssparser::Parser;
 use std::fmt::{self, Write};
-use style_traits::{CssWriter, ParseError, ToCss};
+use style_traits::{CssWriter, ParseError, StyleParseErrorKind, ToCss};
 use thin_vec::ThinVec;
 
 /// A specified value for a single side of a `border-style` property.
@@ -445,5 +447,33 @@ impl Parse for BorderImageRepeat {
             horizontal,
             vertical.unwrap_or(horizontal),
         ))
+    }
+}
+
+/// A specified value for the `-moz-border-*-colors` properties.
+pub type MozBorderColors = GenericMozBorderColors<Color>;
+
+impl Parse for MozBorderColors {
+    fn parse<'i, 't>(
+        context: &ParserContext,
+        input: &mut Parser<'i, 't>,
+    ) -> Result<Self, ParseError<'i>> {
+        if input
+            .try_parse(|i| i.expect_ident_matching("none"))
+            .is_ok()
+        {
+            return Ok(Self::none());
+        }
+
+        let mut colors = Vec::new();
+        while let Ok(color) = input.try_parse(|i| Color::parse(context, i)) {
+            colors.push(color);
+        }
+
+        if colors.is_empty() {
+            return Err(input.new_custom_error(StyleParseErrorKind::UnspecifiedError));
+        }
+
+        Ok(GenericMozBorderColors(colors.into()))
     }
 }

@@ -515,7 +515,11 @@ nsStyleBorder::nsStyleBorder(const nsStyleBorder& aSrc)
       mBorderTopColor(aSrc.mBorderTopColor),
       mBorderRightColor(aSrc.mBorderRightColor),
       mBorderBottomColor(aSrc.mBorderBottomColor),
-      mBorderLeftColor(aSrc.mBorderLeftColor) {
+      mBorderLeftColor(aSrc.mBorderLeftColor),
+      mBorderTopColors(aSrc.mBorderTopColors),
+      mBorderRightColors(aSrc.mBorderRightColors),
+      mBorderBottomColors(aSrc.mBorderBottomColors),
+      mBorderLeftColors(aSrc.mBorderLeftColors) {
   MOZ_COUNT_CTOR(nsStyleBorder);
 }
 
@@ -565,7 +569,8 @@ nsChangeHint nsStyleBorder::CalcDifference(
 
   for (const auto ix : mozilla::AllPhysicalSides()) {
     if (mBorderStyle.Get(ix) != aNewData.mBorderStyle.Get(ix) ||
-        BorderColorFor(ix) != aNewData.BorderColorFor(ix)) {
+        BorderColorFor(ix) != aNewData.BorderColorFor(ix) ||
+        BorderColorsFor(ix) != aNewData.BorderColorsFor(ix)) {
       return nsChangeHint_RepaintFrame;
     }
   }

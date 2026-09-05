@@ -657,7 +657,7 @@ ImgDrawResult nsCSSRendering::CreateWebRenderCommandsForBorder(
       aDisplayListBuilder, visitedBorder.refOr(*style->StyleBorder()));
 }
 
-void nsCSSRendering::CreateWebRenderCommandsForNullBorder(
+bool nsCSSRendering::CreateWebRenderCommandsForNullBorder(
     nsDisplayItem* aItem, nsIFrame* aForFrame, const nsRect& aBorderArea,
     mozilla::wr::DisplayListBuilder& aBuilder,
     mozilla::wr::IpcResourceUpdateQueue& aResources,
@@ -669,9 +669,14 @@ void nsCSSRendering::CreateWebRenderCommandsForNullBorder(
           aForFrame->PresContext(), nullptr, aForFrame, nsRect(), aBorderArea,
           aStyleBorder, aForFrame->Style(), &borderIsEmpty,
           aForFrame->GetSkipSides());
-  if (!borderIsEmpty && br) {
-    br->CreateWebRenderCommands(aItem, aBuilder, aResources, aSc);
+  if (borderIsEmpty || !br) {
+    return true;
   }
+  if (!br->CanCreateWebRenderCommands()) {
+    return false;
+  }
+  br->CreateWebRenderCommands(aItem, aBuilder, aResources, aSc);
+  return true;
 }
 
 ImgDrawResult nsCSSRendering::CreateWebRenderCommandsForBorderWithStyleBorder(
@@ -685,8 +690,11 @@ ImgDrawResult nsCSSRendering::CreateWebRenderCommandsForBorderWithStyleBorder(
   auto& borderImage = aStyleBorder.mBorderImageSource;
   // First try to create commands for simple borders.
   if (borderImage.IsNone()) {
-    CreateWebRenderCommandsForNullBorder(
-        aItem, aForFrame, aBorderArea, aBuilder, aResources, aSc, aStyleBorder);
+    if (!CreateWebRenderCommandsForNullBorder(aItem, aForFrame, aBorderArea,
+                                              aBuilder, aResources, aSc,
+                                              aStyleBorder)) {
+      return ImgDrawResult::NOT_SUPPORTED;
+    }
     return ImgDrawResult::SUCCESS;
   }
 
@@ -722,8 +730,11 @@ ImgDrawResult nsCSSRendering::CreateWebRenderCommandsForBorderWithStyleBorder(
   if (!bir) {
     // We aren't ready. Try to fallback to the null border image if present but
     // return the draw result for the border image renderer.
-    CreateWebRenderCommandsForNullBorder(
-        aItem, aForFrame, aBorderArea, aBuilder, aResources, aSc, aStyleBorder);
+    if (!CreateWebRenderCommandsForNullBorder(aItem, aForFrame, aBorderArea,
+                                              aBuilder, aResources, aSc,
+                                              aStyleBorder)) {
+      return ImgDrawResult::NOT_SUPPORTED;
+    }
     return result;
   }
 
@@ -790,6 +801,18 @@ static nsCSSBorderRenderer ConstructBorderRenderer(
     borderColors[i] = aStyleBorder.BorderColorFor(i).CalcColor(*aStyle);
   }
 
+  nsBorderColors compositeColors;
+  const bool hasCompositeColors = aStyleBorder.HasBorderColors();
+  if (hasCompositeColors) {
+    for (const auto i : mozilla::AllPhysicalSides()) {
+      const auto& colors = aStyleBorder.BorderColorsFor(i)._0;
+      compositeColors[i].SetCapacity(colors.Length());
+      for (const auto& color : colors.AsSpan()) {
+        compositeColors[i].AppendElement(color.CalcColor(*aStyle));
+      }
+    }
+  }
+
   PrintAsFormatString(
       " borderStyles: %d %d %d %d\n", static_cast<int>(borderStyles[0]),
       static_cast<int>(borderStyles[1]), static_cast<int>(borderStyles[2]),
@@ -797,7 +820,9 @@ static nsCSSBorderRenderer ConstructBorderRenderer(
 
   return nsCSSBorderRenderer(
       aPresContext, aDrawTarget, dirtyRect, joinedBorderAreaPx, borderStyles,
-      borderWidths, bgRadii, borderColors, !aForFrame->BackfaceIsHidden(),
+      borderWidths, bgRadii, borderColors,
+      hasCompositeColors ? &compositeColors : nullptr,
+      !aForFrame->BackfaceIsHidden(),
       *aNeedsClip ? Some(NSRectToRect(aBorderArea, oneDevPixel)) : Nothing());
 }
 
@@ -1013,9 +1038,10 @@ nsCSSRendering::CreateBorderRendererForNonThemedOutline(
 
   Rect dirtyRect = NSRectToRect(aDirtyRect, oneDevPixel);
 
-  return Some(nsCSSBorderRenderer(
-      aPresContext, aDrawTarget, dirtyRect, oRect, outlineStyles, outlineWidths,
-      outlineRadii, outlineColors, !aForFrame->BackfaceIsHidden(), Nothing()));
+  return Some(nsCSSBorderRenderer(aPresContext, aDrawTarget, dirtyRect, oRect,
+                                  outlineStyles, outlineWidths, outlineRadii,
+                                  outlineColors, nullptr,
+                                  !aForFrame->BackfaceIsHidden(), Nothing()));
 }
 
 void nsCSSRendering::PaintNonThemedOutline(nsPresContext* aPresContext,
@@ -1063,7 +1089,7 @@ nsCSSBorderRenderer nsCSSRendering::GetBorderRendererForFocus(
   // to a ComputedStyle and can use the same logic that PaintBorder
   // and PaintOutline do.)
   return nsCSSBorderRenderer(pc, aDrawTarget, focusRect, focusRect, focusStyles,
-                             focusWidths, focusRadii, focusColors,
+                             focusWidths, focusRadii, focusColors, nullptr,
                              !aForFrame->BackfaceIsHidden(), Nothing());
 }
 
@@ -1956,6 +1982,9 @@ static bool IsOpaqueBorderEdge(const nsStyleBorder& aBorder,
  */
 static bool IsOpaqueBorder(const nsStyleBorder& aBorder,
                            const nsIFrame* aForFrame) {
+  if (aBorder.HasBorderColors()) {
+    return false;
+  }
   for (const auto i : mozilla::AllPhysicalSides()) {
     if (!IsOpaqueBorderEdge(aBorder, i, aForFrame)) {
       return false;
