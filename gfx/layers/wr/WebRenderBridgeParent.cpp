@@ -1437,16 +1437,29 @@ mozilla::ipc::IPCResult WebRenderBridgeParent::RecvSetDisplayList(
     aPayloads.AppendElement(
         CompositionPayload{CompositionPayloadType::eContentPaint, aFwdTime});
   }
+  // A child bridge whose root never receives a display list cannot produce a
+  // real composite acknowledgement. Send a synthetic acknowledgement so the
+  // content process does not remain waiting for paint indefinitely.
+  const bool ackSynthetically =
+      validTransaction && !IsRootWebRenderBridgeParent() && !aRenderOffscreen &&
+      [this] {
+        RefPtr<WebRenderBridgeParent> root = GetRootWebRenderBridgeParent();
+        return root && !root->HasReceivedDisplayList();
+      }();
+
+  nsTArray<CompositionPayload> heldPayloads =
+      ackSynthetically ? nsTArray<CompositionPayload>{} : std::move(aPayloads);
 
   HoldPendingTransactionId(wrEpoch, aTransactionId, aContainsSVGGroup, aVsyncId,
                            aVsyncStartTime, aRefreshStartTime, aTxnStartTime,
                            aTxnURL, aFwdTime, mIsFirstPaint,
-                           std::move(aPayloads));
+                           std::move(heldPayloads),
+                           /* aUseForTelemetry */ !ackSynthetically);
   mIsFirstPaint = false;
 
-  if (!validTransaction) {
-    // Pretend we composited since someone is wating for this event,
-    // though DisplayList was not pushed to webrender.
+  if (!validTransaction || ackSynthetically) {
+    // No real composite includes this transaction, but a consumer is waiting
+    // for the acknowledgement.
     if (CompositorBridgeParent* cbp = GetRootCompositorBridgeParent()) {
       TimeStamp now = TimeStamp::Now();
       cbp->NotifyPipelineRendered(mPipelineId, wrEpoch, VsyncId(), now, now,
@@ -1570,6 +1583,13 @@ mozilla::ipc::IPCResult WebRenderBridgeParent::RecvEmptyTransaction(
     scheduleAnyComposite = scheduleAnyComposite || scheduleComposite;
     renderReasons |= wr::RenderReasons::RESOURCE_UPDATE;
   }
+  // A child bridge whose root never receives a display list cannot produce a
+  // real composite acknowledgement. Send a synthetic acknowledgement so the
+  // content process does not remain waiting for paint indefinitely.
+  const bool ackSynthetically = !IsRootWebRenderBridgeParent() && [this] {
+    RefPtr<WebRenderBridgeParent> root = GetRootWebRenderBridgeParent();
+    return root && !root->HasReceivedDisplayList();
+  }();
 
   // If we are going to kick off a new composite as a result of this
   // transaction, or if there are already composite-triggering pending
@@ -1579,17 +1599,22 @@ mozilla::ipc::IPCResult WebRenderBridgeParent::RecvEmptyTransaction(
   // composite, then we leave sendDidComposite as true so we just send
   // the DidComposite notification now.
   bool sendDidComposite =
-      !scheduleAnyComposite && mPendingTransactionIds.empty();
+      ackSynthetically ||
+      (!scheduleAnyComposite && mPendingTransactionIds.empty());
 
   // Only register a value for CONTENT_FRAME_TIME telemetry if we actually drew
   // something. It is for consistency with disabling WebRender.
+  nsTArray<CompositionPayload> heldPayloads =
+      ackSynthetically ? nsTArray<CompositionPayload>{} : std::move(aPayloads);
   HoldPendingTransactionId(mWrEpoch, aTransactionId, false, aVsyncId,
                            aVsyncStartTime, aRefreshStartTime, aTxnStartTime,
                            aTxnURL, aFwdTime,
-                           /* aIsFirstPaint */ false, std::move(aPayloads),
-                           /* aUseForTelemetry */ scheduleAnyComposite);
+                           /* aIsFirstPaint */ false,
+                           std::move(heldPayloads),
+                           /* aUseForTelemetry */
+                           scheduleAnyComposite && !ackSynthetically);
 
-  if (scheduleAnyComposite) {
+  if (scheduleAnyComposite && !ackSynthetically) {
     ScheduleGenerateFrame(renderReasons);
   } else if (sendDidComposite) {
     // The only thing in the pending transaction id queue should be the entry

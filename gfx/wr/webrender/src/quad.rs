@@ -445,7 +445,9 @@ pub fn prepare_repeatable_quad(
         // rely on the local clip rect bounding the primitive: some primitives
         // (radial gradients, see `optimize_radial_gradient`) shrink their local
         // rect without shrinking the clip rect.
-        let clip_rect =  local_clip_rect.intersection_unchecked(&tile_rect)
+        let clip_rect = clip_chain
+            .local_clip_rect
+            .intersection_unchecked(&tile_rect)
             .intersection_unchecked(&local_rect);
         if clip_rect.is_empty() {
             continue;

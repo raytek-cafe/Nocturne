@@ -85,7 +85,6 @@ use crate::render_backend::SceneView;
 use crate::resource_cache::ImageRequest;
 use crate::scene::{BuiltScene, Scene, ScenePipeline, SceneStats, StackingContextHelpers};
 use crate::scene_builder_thread::Interners;
-use crate::space::SpaceSnapper;
 use crate::spatial_node::{
     ReferenceFrameInfo, StickyFrameInfo, ScrollFrameKind, SpatialNodeType
 };
@@ -1141,20 +1140,11 @@ impl<'a> SceneBuilder<'a> {
             },
         };
 
-        let snap_origin = match info.reference_frame.kind {
-            ReferenceFrameKind::Transform { should_snap, .. } => should_snap,
-            ReferenceFrameKind::Perspective { .. } => false,
-        };
-
-        let origin = if snap_origin {
-            // Snap in device space (via the parent's accumulated transform),
-            // not by rounding the local-space origin. With a fractional
-            // ancestor transform (e.g. `transform: translate(0.4px)`) a
-            // plain `round()` snaps to the wrong integer device pixel.
-            self.snap_point_to_device(info.origin, parent_space)
-        } else {
-            info.origin
-        };
+        // The reference-frame origin is snapped to the device pixel grid at
+        // frame time (`SpatialNode::update`, gated on `should_snap`), where the
+        // accumulated ancestor transform is known. A local-space round here
+        // can't account for a fractional ancestor transform; see bug 1580534.
+        let origin = info.origin;
 
         self.push_reference_frame(
             info.reference_frame.id,
@@ -1222,19 +1212,13 @@ impl<'a> SceneBuilder<'a> {
 
         let bounds = info.bounds;
 
-        // Snap the iframe's reference-frame origin to integer device
-        // pixels. `build_reference_frame` does the equivalent for
-        // DisplayItem::PushReferenceFrame via the `should_snap` flag;
-        // this code path skips build_reference_frame and goes directly
-        // to `push_reference_frame`, so we apply the same snap here.
-        // The snap must be done in device space (via the parent's
-        // accumulated transform), not by rounding the local-space
-        // `bounds.min` -- with a fractional ancestor transform (e.g.
-        // `transform: translate(0.4px)`) the local round picks the wrong
-        // integer and the iframe lands a sub-pixel away from where the
-        // pre-snap-pass scene-build snapper would have placed it (bug
-        // 1580534).
-        let snapped_origin = self.snap_point_to_device(bounds.min, spatial_node_index);
+        // The iframe's reference-frame origin is snapped to the device pixel
+        // grid at frame time (`SpatialNode::update`, gated on `should_snap`),
+        // where the accumulated ancestor transform is known. Rounding the
+        // local-space `bounds.min` here picks the wrong integer under a
+        // fractional ancestor transform (e.g. `transform: translate(0.4px)`);
+        // see bug 1580534.
+        let origin = bounds.min;
         let iframe_size = bounds.size();
 
         let spatial_node_index = self.push_reference_frame(
@@ -1248,7 +1232,7 @@ impl<'a> SceneBuilder<'a> {
                 should_snap: true,
                 paired_with_perspective: false,
             },
-            snapped_origin.to_vector(),
+            origin.to_vector(),
             true,
         );
 
@@ -1313,7 +1297,8 @@ impl<'a> SceneBuilder<'a> {
         // If no bounds rect is given, default to clip rect. The external
         // scroll offset embedded in the DL coordinates by Gecko has already
         // been removed by the display-list builder. Snap is not applied here;
-        // it happens at frame time (see `frame_snap::snap_frame_rects`).
+        // it happens at frame time in the in-frame picture-graph passes (see
+        // `SpaceSnapper`).
         let clip_rect = common.clip_rect;
         let prim_rect = bounds.unwrap_or(clip_rect);
         let unsnapped_rect = prim_rect;
@@ -1349,29 +1334,7 @@ impl<'a> SceneBuilder<'a> {
         )
     }
 
-    /// Snap a point in `target_spatial_node`'s local space to integer
-    /// device pixels. Equivalent to `point.round()` when the target's
-    /// accumulated transform is integer-aligned, but rounds in device
-    /// space when an ancestor introduces a fractional offset (e.g.
-    /// `transform: translate(0.4px)`). Replaces the scene-build snap
-    /// path that was removed when frame-time snapping landed — used
-    /// for reference-frame origins, which are spatial-tree-shape
-    /// inputs and so must still be snapped at scene build (the
-    /// frame-time snap pass only touches prim / clip rects).
-    fn snap_point_to_device(
-        &self,
-        point: LayoutPoint,
-        target_spatial_node: SpatialNodeIndex,
-    ) -> LayoutPoint {
-        let root = self.spatial_tree.root_reference_frame_index();
-        let mut snapper = SpaceSnapper::new(root, RasterPixelScale::new(1.0));
-        snapper.set_target_spatial_node(target_spatial_node, self.spatial_tree);
-        snapper.snap_point(&point)
-    }
 
-    /// `namespace` is the id namespace this display list is allowed to reference
-    /// resources from; items referencing anything else are dropped. See
-    /// `validate_resource_namespace`.
     fn build_item<'b>(
         &'b mut self,
         item: DisplayItemRef,
@@ -3561,34 +3524,23 @@ impl<'a> SceneBuilder<'a> {
                 flags,
             );
 
-            // The display-list builder has already removed the external scroll
-            // offset from both the glyph positions and the prim rect (bug 2044856,
-            // which landed after the patch being reverted here), so the prim rect
-            // origin is already the space the glyph positions are relative to and
-            // needs no further adjustment.
-            let dl_prim_origin = prim_info.rect.min.to_vector();
-
-            // Anchor the run on the first glyph's pen position. `run_origin` is the
-            // offset from the prim origin to the run pen origin -- invariant under
-            // pre-scroll because both terms are normalized the same way. Per-glyph
-            // positions are stored relative to the first glyph, also invariant.
+            // Store glyph pen positions relative to the prim rect origin. The
+            // display-list builder has already removed the external scroll
+            // offset from both the glyph positions and the prim rect, so the
+            // difference is scroll-invariant and the intern key stays stable
+            // across pre-scroll offset changes.
             //
             // TODO(gw): It'd be nice not to have to allocate here for creating
             //           the primitive key, when the common case is that the
             //           hash will match and we won't end up creating a new
             //           primitive template.
-            let first_glyph_origin = glyph_range
-                .iter()
-                .next()
-                .map(|g| g.point.to_vector())
-                .unwrap_or_else(LayoutVector2D::zero);
-            let run_origin = first_glyph_origin - dl_prim_origin;
+            let prim_origin = prim_info.rect.min.to_vector();
             let glyphs = glyph_range
                 .iter()
                 .map(|glyph| {
                     GlyphInstance {
                         index: glyph.index,
-                        point: glyph.point - first_glyph_origin,
+                        point: glyph.point - prim_origin,
                     }
                 })
                 .collect();
@@ -3603,7 +3555,6 @@ impl<'a> SceneBuilder<'a> {
             TextRun {
                 glyphs,
                 font,
-                run_origin,
                 shadow: false,
                 requested_raster_space,
             }
