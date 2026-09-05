@@ -2069,10 +2069,9 @@ nsresult nsGenericHTMLFormElement::BindToTree(BindContext& aContext,
     if (HasAttr(nsGkAtoms::form) ? IsInComposedDoc() : aParent.IsContent()) {
       UpdateFormOwner(true, nullptr);
     }
+    // Set parent fieldset which should be used for the disabled state.
+    UpdateFieldSet(false);
   }
-
-  // Set parent fieldset which should be used for the disabled state.
-  UpdateFieldSet(false);
   return NS_OK;
 }
 
@@ -2080,7 +2079,8 @@ void nsGenericHTMLFormElement::UnbindFromTree(UnbindContext& aContext) {
   // Save state before doing anything else.
   SaveState();
 
-  if (IsFormAssociatedElement()) {
+  const bool formAssociated = IsFormAssociatedElement();
+  if (formAssociated) {
     if (HTMLFormElement* form = GetFormInternal()) {
       // Might need to unset form
       if (aContext.IsUnbindRoot(this)) {
@@ -2106,8 +2106,10 @@ void nsGenericHTMLFormElement::UnbindFromTree(UnbindContext& aContext) {
 
   nsGenericHTMLElement::UnbindFromTree(aContext);
 
-  // The element might not have a fieldset anymore.
-  UpdateFieldSet(false);
+  if (formAssociated) {
+    // The element might not have a fieldset anymore.
+    UpdateFieldSet(false);
+  }
 }
 
 void nsGenericHTMLFormElement::BeforeSetAttr(int32_t aNameSpaceID,
@@ -2383,43 +2385,47 @@ void nsGenericHTMLFormElement::UpdateFormOwner(bool aBindToTree,
 }
 
 void nsGenericHTMLFormElement::UpdateFieldSet(bool aNotify) {
-  if (IsInNativeAnonymousSubtree() || !IsFormAssociatedElement()) {
-    MOZ_ASSERT_IF(IsFormAssociatedElement(), !GetFieldSetInternal());
+  MOZ_ASSERT(IsFormAssociatedElement());
+  if (IsInNativeAnonymousSubtree()) {
+    MOZ_ASSERT(!GetFieldSetInternal());
     return;
   }
+  if (IsFormAssociatedCustomElement() &&
+      GetCustomElementData()->mState != CustomElementData::State::eCustom) {
+    MOZ_ASSERT(!GetFieldSetInternal());
+    return;
+  }
+  auto* oldFieldSet = GetFieldSetInternal();
+  auto* newFieldSet = FirstAncestorOfType<HTMLFieldSetElement>();
+  if (newFieldSet == oldFieldSet) {
+    // We already have the right fieldset;
+    return;
+  }
+  if (oldFieldSet) {
+    oldFieldSet->RemoveElement(this);
+  }
+  SetFieldSetInternal(newFieldSet);
+  if (newFieldSet) {
+    newFieldSet->AddElement(this);
+  }
+  // The disabled state may have changed
+  FieldSetDisabledChanged(aNotify);
+}
 
-  nsIContent* parent = nullptr;
-  nsIContent* prev = nullptr;
-  HTMLFieldSetElement* fieldset = GetFieldSetInternal();
-
-  for (parent = GetParent(); parent;
-       prev = parent, parent = parent->GetParent()) {
-    HTMLFieldSetElement* parentFieldset = HTMLFieldSetElement::FromNode(parent);
-    if (parentFieldset && (!prev || parentFieldset->GetFirstLegend() != prev)) {
-      if (fieldset == parentFieldset) {
-        // We already have the right fieldset;
-        return;
-      }
-
-      if (fieldset) {
-        fieldset->RemoveElement(this);
-      }
-      SetFieldSetInternal(parentFieldset);
-      parentFieldset->AddElement(this);
-
-      // The disabled state may have changed
-      FieldSetDisabledChanged(aNotify);
-      return;
+// https://html.spec.whatwg.org/#concept-fe-disabled
+bool nsGenericHTMLFormElement::IsDisabledByAncestorFieldSet() const {
+  for (auto* fieldset = GetFieldSetInternal(); fieldset;
+       fieldset = fieldset->GetFieldSet()) {
+    if (!fieldset->IsDisabled()) {
+      continue;
     }
+    const nsIContent* legend = fieldset->GetFirstLegend();
+    if (legend && IsInclusiveDescendantOf(legend)) {
+      continue;
+    }
+    return true;
   }
-
-  // No fieldset found.
-  if (fieldset) {
-    fieldset->RemoveElement(this);
-    SetFieldSetInternal(nullptr);
-    // The disabled state may have changed
-    FieldSetDisabledChanged(aNotify);
-  }
+  return false;
 }
 
 void nsGenericHTMLFormElement::UpdateDisabledState(bool aNotify) {
@@ -2427,9 +2433,8 @@ void nsGenericHTMLFormElement::UpdateDisabledState(bool aNotify) {
     return;
   }
 
-  HTMLFieldSetElement* fieldset = GetFieldSetInternal();
   const bool isDisabled =
-      HasAttr(nsGkAtoms::disabled) || (fieldset && fieldset->IsDisabled());
+      HasAttr(nsGkAtoms::disabled) || IsDisabledByAncestorFieldSet();
 
   const ElementState disabledStates =
       isDisabled ? ElementState::DISABLED : ElementState::ENABLED;
