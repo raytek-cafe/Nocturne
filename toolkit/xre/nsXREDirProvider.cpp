@@ -363,23 +363,23 @@ static nsresult GetSystemParentDirectory(nsIFile** aFile,
 }
 #endif
 
-nsresult nsXREDirProvider::Portable(uint32_t* aResult) {
+nsresult
+nsXREDirProvider::Portable(uint32_t *aResult)
+{
   bool portable;
   nsCOMPtr<nsIFile> portmodemark;
   GetAppDir()->Clone(getter_AddRefs(portmodemark));
   portmodemark->AppendNative("pmprt.mod"_ns);
   portmodemark->Exists(&portable);
   if (portable) {
-    *aResult = 1;
-    return NS_OK;
-  }
+     *aResult = 1;
+     return NS_OK;
+     }
   GetAppDir()->Clone(getter_AddRefs(portmodemark));
   portmodemark->AppendNative("pmundprt.mod"_ns);
   portmodemark->Exists(&portable);
-  if (portable)
-    *aResult = 2;
-  else
-    *aResult = 0;
+  if (portable) *aResult = 2;
+  else *aResult = 0;
   return NS_OK;
 }
 
@@ -436,10 +436,8 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
 #endif  // !defined(MOZ_WIDGET_ANDROID)
   } else if (!strcmp(aProperty, NS_APP_APPLICATION_REGISTRY_DIR) ||
              !strcmp(aProperty, XRE_USER_APP_DATA_DIR)) {
-    if (mProfileDir && portable > 0)
-      rv = mProfileDir->Clone(getter_AddRefs(file));
-    else
-      rv = GetUserAppDataDirectory(getter_AddRefs(file));
+    if (mProfileDir && portable > 0) rv = mProfileDir->Clone(getter_AddRefs(file));
+      else rv = GetUserAppDataDirectory(getter_AddRefs(file));
   }
 #if defined(XP_UNIX) || defined(XP_MACOSX)
   else if (!strcmp(aProperty, XRE_SYS_NATIVE_MANIFESTS)) {
@@ -447,7 +445,7 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
   } else if (!strcmp(aProperty, XRE_MOZ_SYS_NATIVE_MANIFESTS)) {
     rv = ::GetSystemParentDirectory(getter_AddRefs(file), "Mozilla"_ns);
   } else if (!strcmp(aProperty, XRE_USER_NATIVE_MANIFESTS)) {
-    // Keep both native manifest namespaces on their legacy paths.
+    // Keep forcing the legacy path for compatibility
     rv = GetUserDataDirectoryHome(getter_AddRefs(file), /* aLocal */ false,
                                   /* aForceLegacy */ true);
     NS_ENSURE_SUCCESS(rv, rv);
@@ -492,8 +490,7 @@ nsXREDirProvider::GetFile(const char* aProperty, bool* aPersistent,
   else if (!strcmp(aProperty, XRE_SYS_SHARE_EXTENSION_PARENT_DIR)) {
 #  ifdef ENABLE_SYSTEM_EXTENSION_DIRS
 #    if defined(__OpenBSD__) || defined(__FreeBSD__)
-    static const char* const sysLExtDir =
-        "/usr/local/share/nocturne/extensions";
+    static const char* const sysLExtDir = "/usr/local/share/nocturne/extensions";
 #    else
     static const char* const sysLExtDir = "/usr/share/nocturne/extensions";
 #    endif
@@ -1553,7 +1550,7 @@ nsresult nsXREDirProvider::GetLegacyOrXDGHomePath(const char* aHomeDir,
 
   // The profile root directory needs to exists at that point.
   MOZ_TRY(EnsureDirectoryExists(localDir));
-  
+
   // If required return the parent directory that matches the profile root
   // directory.
   if (aFile) {
