@@ -95,7 +95,8 @@ use style::properties::{
     parse_one_declaration_into, parse_style_attribute, CSSWideKeyword, ComputedValues,
     CountedUnknownProperty, Importance, LonghandId, NonCustomPropertyId,
     OwnedPropertyDeclarationId, PropertyDeclarationBlock, PropertyDeclarationId,
-    PropertyDeclarationIdSet, PropertyId, ShorthandId, SourcePropertyDeclaration, StyleBuilder,
+    PropertyDeclarationIdSet, PropertyFlags, PropertyId, ShorthandId, SourcePropertyDeclaration,
+    StyleBuilder,
 };
 use style::properties_and_values::registry::PropertyRegistration;
 use style::rule_cache::RuleCacheConditions;
@@ -7413,7 +7414,7 @@ pub extern "C" fn Servo_GetComputedKeyframeValues(
         &mut tree_counting_caches,
     );
 
-    let restriction = pseudo.and_then(|p| p.property_restriction());
+    let restriction = pseudo.map_or(PropertyFlags::empty(), |p| p.property_restriction());
 
     let global_style_data = &*GLOBAL_STYLE_DATA;
     let guard = global_style_data.shared_lock.read();
@@ -7482,7 +7483,7 @@ pub extern "C" fn Servo_GetComputedKeyframeValues(
                     }
 
                     // Skip restricted properties
-                    if restriction.map_or(false, |r| !property.flags().contains(r)) {
+                    if !restriction.is_empty() && !property.flags().contains(restriction) {
                         return;
                     }
 
