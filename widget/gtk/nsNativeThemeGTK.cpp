@@ -1152,6 +1152,10 @@ bool nsNativeThemeGTK::GetWidgetOverflow(nsDeviceContext* aContext,
 auto nsNativeThemeGTK::IsWidgetNonNative(nsIFrame* aFrame,
                                          StyleAppearance aAppearance)
     -> NonNative {
+  if (IsNonNativeByStyle(aFrame)) {
+    return NonNative::Always;
+  }
+
   if (aAppearance == StyleAppearance::FocusOutline) {
     return NonNative::Always;
   }

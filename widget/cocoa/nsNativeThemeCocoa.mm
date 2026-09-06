@@ -1329,7 +1329,8 @@ void nsNativeThemeCocoa::DrawWidgetBackground(
     const nsRect& aRect, const nsRect& aDirtyRect, DrawOverflow aDrawOverflow) {
   NS_OBJC_BEGIN_TRY_IGNORE_BLOCK;
 
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return ThemeCocoa::DrawWidgetBackground(aContext, aFrame, aAppearance,
                                             aRect, aDirtyRect, aDrawOverflow);
   }
@@ -1454,7 +1455,8 @@ bool nsNativeThemeCocoa::CreateWebRenderCommandsForWidget(
     const mozilla::layers::StackingContextHelper& aSc,
     mozilla::layers::RenderRootStateManager* aManager, nsIFrame* aFrame,
     StyleAppearance aAppearance, const nsRect& aRect) {
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return ThemeCocoa::CreateWebRenderCommandsForWidget(
         aBuilder, aResources, aSc, aManager, aFrame, aAppearance, aRect);
   }
@@ -1506,7 +1508,8 @@ static constexpr LayoutDeviceIntMargin kAquaDropdownBorder(1, 22, 2, 5);
 
 LayoutDeviceIntMargin nsNativeThemeCocoa::GetWidgetBorder(
     nsDeviceContext* aContext, nsIFrame* aFrame, StyleAppearance aAppearance) {
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return Theme::GetWidgetBorder(aContext, aFrame, aAppearance);
   }
 
@@ -1568,7 +1571,8 @@ bool nsNativeThemeCocoa::GetWidgetPadding(nsDeviceContext* aContext,
                                           nsIFrame* aFrame,
                                           StyleAppearance aAppearance,
                                           LayoutDeviceIntMargin* aResult) {
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return Theme::GetWidgetPadding(aContext, aFrame, aAppearance, aResult);
   }
 
@@ -1593,7 +1597,8 @@ bool nsNativeThemeCocoa::GetWidgetOverflow(nsDeviceContext* aContext,
                                            nsIFrame* aFrame,
                                            StyleAppearance aAppearance,
                                            nsRect* aOverflowRect) {
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return ThemeCocoa::GetWidgetOverflow(aContext, aFrame, aAppearance,
                                          aOverflowRect);
   }
@@ -1645,7 +1650,8 @@ LayoutDeviceIntSize nsNativeThemeCocoa::GetMinimumWidgetSize(
     StyleAppearance aAppearance) {
   NS_OBJC_BEGIN_TRY_BLOCK_RETURN;
 
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return ThemeCocoa::GetMinimumWidgetSize(aPresContext, aFrame, aAppearance);
   }
 
@@ -1718,7 +1724,8 @@ LayoutDeviceIntSize nsNativeThemeCocoa::GetMinimumWidgetSize(
 bool nsNativeThemeCocoa::ThemeSupportsWidget(nsPresContext* aPresContext,
                                              nsIFrame* aFrame,
                                              StyleAppearance aAppearance) {
-  if (IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
+  if (IsNonNativeByStyle(aFrame) ||
+      IsWidgetAlwaysNonNative(aFrame, aAppearance)) {
     return ThemeCocoa::ThemeSupportsWidget(aPresContext, aFrame, aAppearance);
   }
   // if this is a dropdown button in a combobox the answer is always no

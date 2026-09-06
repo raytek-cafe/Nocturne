@@ -159,6 +159,9 @@ class nsNativeTheme : public nsITimerCallback, public nsINamed {
 
   static bool IsWidgetScrollbarPart(mozilla::StyleAppearance);
 
+  // Whether the frame asked not to be themed natively, via -moz-theme.
+  static bool IsNonNativeByStyle(nsIFrame*);
+
  private:
   uint32_t mAnimatedContentTimeout;
   nsCOMPtr<nsITimer> mAnimatedContentTimer;

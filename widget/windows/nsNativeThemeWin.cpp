@@ -79,6 +79,10 @@ nsNativeThemeWin::~nsNativeThemeWin() { nsUXThemeData::Invalidate(); }
 auto nsNativeThemeWin::IsWidgetNonNative(nsIFrame* aFrame,
                                          StyleAppearance aAppearance)
     -> NonNative {
+  if (IsNonNativeByStyle(aFrame)) {
+    return NonNative::Always;
+  }
+
   if (IsWidgetScrollbarPart(aAppearance)) {
     if (StaticPrefs::widget_native_controls_scrollbar_style() == 0) {
       return NonNative::No;
