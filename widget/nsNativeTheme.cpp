@@ -545,6 +545,12 @@ bool nsNativeTheme::IsDarkBackground(nsIFrame* aFrame) {
 }
 
 /*static*/
+bool nsNativeTheme::IsNonNativeByStyle(nsIFrame* aFrame) {
+  return aFrame &&
+         aFrame->StyleUI()->mMozTheme == mozilla::StyleMozTheme::NonNative;
+}
+
+/*static*/
 bool nsNativeTheme::IsWidgetScrollbarPart(StyleAppearance aAppearance) {
   switch (aAppearance) {
     case StyleAppearance::ScrollbarVertical:

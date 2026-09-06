@@ -588,6 +588,7 @@ class Longhand(Property):
                 "GridAutoFlow",
                 "ImageRendering",
                 "Inert",
+                "MozTheme",
                 "PositionArea",
                 "PositionAreaKeyword",
                 "PositionProperty",
