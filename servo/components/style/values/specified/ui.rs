@@ -302,6 +302,32 @@ pub enum Inert {
     Inert,
 }
 
+/// Whether an element should be rendered with the native theme, if the
+/// platform has one.
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    FromPrimitive,
+    MallocSizeOf,
+    Parse,
+    PartialEq,
+    SpecifiedValueInfo,
+    ToComputedValue,
+    ToCss,
+    ToResolvedValue,
+    ToShmem,
+    ToTyped,
+)]
+#[repr(u8)]
+pub enum MozTheme {
+    /// Choose the default (maybe native) rendering.
+    Auto,
+    /// Choose the non-native rendering.
+    NonNative,
+}
+
 /// Internal -moz-user-focus property.
 /// https://developer.mozilla.org/en-US/docs/Web/CSS/-moz-user-focus
 #[allow(missing_docs)]
