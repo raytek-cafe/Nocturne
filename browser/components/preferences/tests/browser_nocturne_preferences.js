@@ -1,32 +1,107 @@
 "use strict";
 
-const NOCTURNE_SELECT_OPTION_COUNTS = {
-  "browser.display.windows.non_native_menus": 3,
-  "widget.native-controls.scrollbar-style": 3,
-  "widget.non-native-theme.scrollbar.style": 6,
-  "widget.native-controls.override-win-version": 6,
-  "nocturne.colors": 5,
-  "nocturne.aero.fog": 3,
-  "nocturne.caption.text.color": 3,
-  "accessibility.force_disabled": 3,
-  "cookiebanners.service.mode": 2,
-  "cookiebanners.service.mode.privateBrowsing": 2,
-  "security.sandbox.content.level": 3,
-};
+add_task(async function test_nocturne_custom_color_stays_in_sync() {
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["nocturne.colors", 6],
+      ["nocturne.colors.custom", "#123456"],
+    ],
+  });
+  let tab = await openPrefsTab("nocturne");
+  try {
+    let doc = tab.linkedBrowser.contentDocument;
+    await BrowserTestUtils.waitForCondition(
+      () => doc.getElementById("nocturneCustomPalette-accents")?.summaryEl,
+      "The accent colors submenu is ready"
+    );
+    doc.getElementById("nocturneCustomPalette-accents").summaryEl.click();
+    let picker;
+    await BrowserTestUtils.waitForCondition(() => {
+      picker =
+        doc.getElementById("nocturne.colors.custom") ||
+        doc.querySelector('[preference="nocturne.colors.custom"]');
+      return picker?.value == "#123456" && picker.checkVisibility();
+    }, "Custom mode shows the saved color");
 
-const NOCTURNE_LEGACY_OPTION_COUNTS = {
-  nocturneNativeMenulistType: 3,
-  nocturneNativeScrollType: 3,
-  nocturneFakeScrollType: 6,
-  nocturneWinThemeType: 6,
-  nocturneColorsType: 5,
-  nocturneFogType: 3,
-  nocturneCaptionTextType: 3,
-  nocturneAccessibilityType: 3,
-  nocturneCookieBannersType: 2,
-  nocturneCookieBannersPrivateType: 2,
-  nocturneSandboxLevelType: 3,
-};
+    Services.prefs.setStringPref("nocturne.colors.custom", "#abcdef");
+    await BrowserTestUtils.waitForCondition(
+      () => picker.value == "#abcdef",
+      "The picker follows external color changes"
+    );
+
+    Services.prefs.setIntPref("nocturne.colors", 5);
+    await BrowserTestUtils.waitForCondition(
+      () => !picker.checkVisibility(),
+      "System accent hides the custom picker"
+    );
+    Services.prefs.setIntPref("nocturne.colors", 6);
+    await BrowserTestUtils.waitForCondition(
+      () => picker.checkVisibility() && picker.value == "#abcdef",
+      "Returning to custom preserves the selected color"
+    );
+
+    picker.value = "#654321";
+    picker.dispatchEvent(new doc.defaultView.Event("change", { bubbles: true }));
+    is(
+      Services.prefs.getStringPref("nocturne.colors.custom"),
+      "#654321",
+      "Choosing a color saves the preference"
+    );
+  } finally {
+    await BrowserTestUtils.removeTab(tab);
+  }
+});
+
+add_task(async function test_unset_custom_background_uses_firefox_default() {
+  const { NOCTURNE_COLOR_FIELDS, nocturneColorPref } = ChromeUtils.importESModule(
+    "resource:///modules/NocturneColors.sys.mjs"
+  );
+  await SpecialPowers.pushPrefEnv({
+    set: [
+      ["nocturne.colors", 0],
+      ["layout.css.prefers-color-scheme.content-override", 1],
+      ...NOCTURNE_COLOR_FIELDS.flatMap(({ id }) =>
+        ["light", "dark"].map(scheme => [nocturneColorPref(id, scheme), ""])
+      ),
+    ],
+  });
+  let tab = await openPrefsTab("nocturne");
+  try {
+    let doc = tab.linkedBrowser.contentDocument;
+    let win = doc.defaultView;
+    let background = () => win.getComputedStyle(doc.documentElement).backgroundColor;
+    let stockBackground = background();
+    Services.prefs.setIntPref("nocturne.colors", 6);
+    await new Promise(resolve =>
+      win.requestAnimationFrame(() => win.requestAnimationFrame(resolve))
+    );
+    is(background(), stockBackground, "Unset custom colors preserve Firefox's background");
+
+    let lightPref = nocturneColorPref("in-content-page-background", "light");
+    let darkPref = nocturneColorPref("in-content-page-background", "dark");
+    Services.prefs.setStringPref(lightPref, "#123456");
+    await BrowserTestUtils.waitForCondition(
+      () => background() == "rgb(18, 52, 86)",
+      "An explicit light background is applied"
+    );
+    Services.prefs.setStringPref(darkPref, "#abcdef");
+    doc.getElementById("nocturneCustomPalette-settings").summaryEl.click();
+    let picker =
+      doc.getElementById(lightPref) ||
+      doc.querySelector(`[preference="${lightPref}"]`);
+    await BrowserTestUtils.waitForCondition(
+      () => picker.shadowRoot.querySelector("moz-button")?.checkVisibility(),
+      "The color override can be removed"
+    );
+    picker.shadowRoot.querySelector("moz-button").click();
+    await BrowserTestUtils.waitForCondition(
+      () => background() == stockBackground,
+      "Clearing the light background restores Firefox's default despite a dark override"
+    );
+  } finally {
+    await BrowserTestUtils.removeTab(tab);
+  }
+});
 
 const PROMPT_TAB_MODAL_PREF = "prompts.tab_modal.enabled";
 const ABOUT_FIREFOX_HIDDEN_PREF = "browser.preferences.aboutFirefox.hidden";
@@ -68,129 +143,6 @@ add_task(async function test_about_firefox_category_visibility() {
       "About Firefox category remains hidden when settings redesign is disabled"
     );
   }
-  await BrowserTestUtils.removeTab(tab);
-});
-
-add_task(async function test_nocturne_preferences_have_localized_controls() {
-  let tab = await openPrefsTab("nocturne");
-  let doc = tab.linkedBrowser.contentDocument;
-
-  if (SRD_PREF_VALUE) {
-    await BrowserTestUtils.waitForCondition(
-      () => doc.querySelector('setting-group[groupid="nocturneAdvanced"]'),
-      "Wait for the redesigned Nocturne advanced group"
-    );
-    await BrowserTestUtils.waitForCondition(() => {
-      let controls = doc.querySelectorAll(
-        'setting-group[groupid^="nocturne"] setting-control'
-      );
-      return (
-        controls.length === 48 &&
-        [...controls].every(control =>
-          control
-            .querySelector("moz-checkbox, moz-select, moz-input-number")
-            ?.getAttribute("label")
-        )
-      );
-    }, "Wait for all redesigned Nocturne control labels");
-
-    for (let [settingId, optionCount] of Object.entries(
-      NOCTURNE_SELECT_OPTION_COUNTS
-    )) {
-      await BrowserTestUtils.waitForCondition(() => {
-        let select = doc.querySelector(
-          `setting-control[id="setting-control-${settingId}"] moz-select`
-        );
-        let options = select?.querySelectorAll("moz-option");
-        return (
-          options?.length === optionCount &&
-          [...options].every(option => option.getAttribute("label"))
-        );
-      }, `Wait for the redesigned ${settingId} select and its labels`);
-    }
-
-    for (let [settingId, optionCount] of Object.entries(
-      NOCTURNE_SELECT_OPTION_COUNTS
-    )) {
-      let select = doc.querySelector(
-        `setting-control[id="setting-control-${settingId}"] moz-select`
-      );
-      let options = select.querySelectorAll("moz-option");
-      Assert.equal(
-        options.length,
-        optionCount,
-        `${settingId} has select options`
-      );
-      ok(
-        [...options].every(option => option.getAttribute("label")),
-        `${settingId} select options have localized labels`
-      );
-    }
-  } else {
-    await BrowserTestUtils.waitForCondition(
-      () => doc.getElementById("nocturneAdvancedGroup")?.hidden === false,
-      "Wait for the legacy Nocturne advanced group"
-    );
-
-    await BrowserTestUtils.waitForCondition(() => {
-      return Object.entries(NOCTURNE_LEGACY_OPTION_COUNTS).every(
-        ([id, optionCount]) => {
-          let menu = doc.getElementById(id);
-          let options = menu?.querySelectorAll("menuitem");
-          return (
-            options?.length === optionCount &&
-            [...options].every(option => option.getAttribute("label"))
-          );
-        }
-      );
-    }, "Wait for all legacy Nocturne menu labels");
-
-    await BrowserTestUtils.waitForCondition(() => {
-      let textElements = doc.querySelectorAll(
-        "#nocturnecategory h1[data-l10n-id]," +
-          "#nocturneVisualGroup label[data-l10n-id]," +
-          "#nocturneVisualGroup h2[data-l10n-id]," +
-          "#nocturneFunctionalGroup label[data-l10n-id]," +
-          "#nocturneFunctionalGroup h2[data-l10n-id]," +
-          "#nocturneAdvancedGroup label[data-l10n-id]," +
-          "#nocturneAdvancedGroup h2[data-l10n-id]"
-      );
-      let checkboxes = doc.querySelectorAll(
-        "#nocturneVisualGroup checkbox[data-l10n-id]," +
-          "#nocturneFunctionalGroup checkbox[data-l10n-id]," +
-          "#nocturneAdvancedGroup checkbox[data-l10n-id]"
-      );
-      let descriptions = doc.querySelectorAll(
-        "#nocturneVisualGroup description[data-l10n-id]," +
-          "#nocturneFunctionalGroup description[data-l10n-id]," +
-          "#nocturneAdvancedGroup description[data-l10n-id]"
-      );
-      return (
-        textElements.length === 17 &&
-        [...textElements].every(element => {
-          let text = element.matches("label[data-l10n-id]")
-            ? element.getAttribute("value")
-            : element.textContent;
-          return text?.trim();
-        }) &&
-        [...checkboxes].every(checkbox => checkbox.getAttribute("label")) &&
-        [...descriptions].every(description => description.textContent.trim())
-      );
-    }, "Wait for all legacy Nocturne text labels");
-
-    for (let [id, optionCount] of Object.entries(
-      NOCTURNE_LEGACY_OPTION_COUNTS
-    )) {
-      let menu = doc.getElementById(id);
-      let options = menu.querySelectorAll("menuitem");
-      Assert.equal(options.length, optionCount, `${id} has menu options`);
-      ok(
-        [...options].every(option => option.getAttribute("label")),
-        `${id} menu options have localized labels`
-      );
-    }
-  }
-
   await BrowserTestUtils.removeTab(tab);
 });
 

@@ -5,6 +5,9 @@
 import { Preferences } from "chrome://global/content/preferences/Preferences.mjs";
 import { SettingGroupManager } from "chrome://browser/content/preferences/config/SettingGroupManager.mjs";
 
+const { NOCTURNE_COLOR_FIELDS, NOCTURNE_COLOR_GROUPS, nocturneColorPref } =
+  ChromeUtils.importESModule("resource:///modules/NocturneColors.sys.mjs");
+
 function addPreference(id, type, inverted = false) {
   if (!Preferences.get(id)) {
     Preferences.add({ id, type, inverted });
@@ -25,6 +28,109 @@ function addIntegerSetting(id) {
     set: value => Number.parseInt(value, 10) || 0,
   });
 }
+
+const CUSTOM_COLORS_PREF = "nocturne.colors";
+const SHARED_CUSTOM_COLORS_PREF = "nocturne.colors.custom.shared";
+
+addPreference(SHARED_CUSTOM_COLORS_PREF, "bool");
+Preferences.addSetting({
+  id: SHARED_CUSTOM_COLORS_PREF,
+  pref: SHARED_CUSTOM_COLORS_PREF,
+  deps: [CUSTOM_COLORS_PREF],
+  visible: ({ [CUSTOM_COLORS_PREF]: colors }, setting) =>
+    colors.value == "6" && !setting.locked,
+});
+Preferences.addSetting({
+  id: "nocturneCustomPalette",
+  deps: [CUSTOM_COLORS_PREF],
+  visible: ({ [CUSTOM_COLORS_PREF]: colors }) => colors.value == "6",
+});
+
+const customColorGroups = new Map(
+  NOCTURNE_COLOR_GROUPS.map(group => [
+    group,
+    { colorSettingIds: [], items: [] },
+  ])
+);
+for (const { id, group, opacity, backgrounds } of NOCTURNE_COLOR_FIELDS) {
+  const colorGroup = customColorGroups.get(group);
+  for (const scheme of ["light", "dark"]) {
+    const pref = nocturneColorPref(id, scheme);
+    const visibilityDeps = [
+      CUSTOM_COLORS_PREF,
+      ...(scheme == "dark" ? [SHARED_CUSTOM_COLORS_PREF] : []),
+      ...(backgrounds ? ["nocturne.backgrounds.enabled"] : []),
+    ];
+    addPreference(pref, "string");
+    Preferences.addSetting({
+      id: pref,
+      pref,
+      deps: visibilityDeps,
+      visible: (deps, setting) =>
+        deps[CUSTOM_COLORS_PREF].value == "6" &&
+        !setting.locked &&
+        (!backgrounds || deps["nocturne.backgrounds.enabled"].value) &&
+        (scheme == "light" || !deps[SHARED_CUSTOM_COLORS_PREF].value),
+    });
+    colorGroup.colorSettingIds.push(pref);
+    colorGroup.items.push({
+      id: pref,
+      l10nId: "nocturne-custom-color-control",
+      l10nArgs: { field: id, scheme },
+      control: "moz-input-color",
+      controlAttrs: { class: "indent", optional: true },
+    });
+
+    if (opacity !== undefined) {
+      const opacityPref = `${pref}.opacity`;
+      addPreference(opacityPref, "int");
+      Preferences.addSetting({
+        id: opacityPref,
+        pref: opacityPref,
+        deps: [...visibilityDeps, pref],
+        visible: (deps, setting) =>
+          deps[CUSTOM_COLORS_PREF].value == "6" &&
+          !setting.locked &&
+          !deps[pref].locked &&
+          (!backgrounds || deps["nocturne.backgrounds.enabled"].value) &&
+          /^#[0-9a-f]{6}$/i.test(deps[pref].value) &&
+          (scheme == "light" || !deps[SHARED_CUSTOM_COLORS_PREF].value),
+        get: value => String(value ?? 100),
+        set: value => Number.parseInt(value, 10) || 0,
+      });
+      colorGroup.items.push({
+        id: opacityPref,
+        l10nId: "nocturne-custom-opacity-control",
+        l10nArgs: { field: id, scheme },
+        control: "moz-input-number",
+        controlAttrs: {
+          class: "indent",
+          inputlayout: "inline-end",
+          min: "0",
+          max: "100",
+        },
+      });
+    }
+  }
+}
+
+const customColorGroupItems = NOCTURNE_COLOR_GROUPS.map(group => {
+  const { colorSettingIds, items } = customColorGroups.get(group);
+  const id = `nocturneCustomPalette-${group}`;
+  Preferences.addSetting({
+    id,
+    deps: colorSettingIds,
+    visible: deps => colorSettingIds.some(settingId => deps[settingId].visible),
+  });
+  return {
+    id,
+    l10nId: `nocturne-custom-group-${group}`,
+    control: "moz-card",
+    controlAttrs: { type: "accordion" },
+    lazyItems: true,
+    items,
+  };
+});
 
 function descriptionOption(l10nId) {
   return {
@@ -135,6 +241,24 @@ for (let id of [
 }
 
 SettingGroupManager.registerGroups({
+  nocturneTheme: {
+    l10nId: "nocturne-theme-header",
+    headingLevel: 2,
+    items: [
+      {
+        id: "nocturneCustomPalette",
+        control: "div",
+        items: [
+          checkbox(
+            SHARED_CUSTOM_COLORS_PREF,
+            "nocturne-colors-shared",
+            "nocturne-colors-shared-description"
+          ),
+          ...customColorGroupItems,
+        ],
+      },
+    ],
+  },
   nocturneVisual: {
     l10nId: "nocturne-visual-header",
     headingLevel: 2,
@@ -186,12 +310,14 @@ SettingGroupManager.registerGroups({
           [10, "nocturne-option-win10-modern"],
         ]
       ),
-      select("nocturne.colors", "nocturne-colors", [
+      select(CUSTOM_COLORS_PREF, "nocturne-colors", [
         [0, "nocturne-option-color-disabled"],
         [1, "nocturne-option-color-red"],
         [2, "nocturne-option-color-orange"],
         [3, "nocturne-option-color-pink"],
         [4, "nocturne-option-color-dark-purple"],
+        [5, "nocturne-option-color-system"],
+        [6, "nocturne-option-color-custom"],
       ]),
       checkbox("nocturne.drag-space.enabled", "nocturne-drag"),
       checkbox("nocturne.backgrounds.enabled", "nocturne-backgrounds"),

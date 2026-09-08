@@ -520,6 +520,10 @@ var gSearchResultsPane = {
    * so a stale call already running can add duplicate ranges.
    */
   async searchWithinNode(nodeObject, searchPhrase, forceSearch = false) {
+    const childrenReady = nodeObject.ensureChildrenRendered?.();
+    if (childrenReady) {
+      await childrenReady;
+    }
     let matchesFound = false;
     if (
       Element.isInstance(nodeObject) &&
