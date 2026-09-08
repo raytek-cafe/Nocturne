@@ -7,6 +7,15 @@
 :host {
   display: flex;
   align-items: center;
+  border: var(--border-width) solid var(--input-color-border-color);
+  border-radius: var(--input-color-border-radius);
+  background-color: var(--input-color-background-color);
+  color: var(--input-color-text-color);
+}
+
+:host([disabled]) {
+  opacity: var(--disabled-opacity);
+  pointer-events: none;
 }
 
 label {
@@ -18,32 +27,44 @@ label {
   padding-block: var(--input-color-space-padding-block);
   gap: var(--input-color-gap);
   cursor: pointer;
-  border: var(--border-width) solid var(--input-color-border-color);
-  border-radius: var(--input-color-border-radius);
-  background-color: var(--input-color-background-color);
-  color: var(--input-color-text-color);
 }
 
-label:hover {
+:host(:hover) {
   border-color: var(--input-color-border-color-hover);
   background-color: var(--input-color-background-color-hover);
   color: var(--input-color-text-color-hover);
 }
 
-label:hover:active {
+:host(:hover:active) {
   border-color: var(--input-color-border-color-active);
   background-color: var(--input-color-background-color-active);
   color: var(--input-color-text-color-active);
   outline: none;
 }
 
-label:focus-within {
+:host(:focus-within) {
   outline: var(--focus-outline);
   outline-offset: var(--focus-outline-offset);
 }
 
-label span {
+label .label {
   flex-grow: 1;
+}
+
+.swatch-container {
+  position: relative;
+  width: var(--input-color-swatch-size);
+  height: var(--input-color-swatch-size);
+  flex: none;
+}
+
+.default-swatch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: var(--border-width) dashed var(--input-color-swatch-border-color);
+  border-radius: var(--input-color-swatch-border-radius);
+  background-color: var(--input-color-background-color);
 }
 
 .swatch {
@@ -64,6 +85,16 @@ label span {
   border-radius: var(--input-color-swatch-border-radius);
   border: var(--border-width) solid var(--input-color-swatch-border-color);
   box-sizing: border-box;
+}
+
+:host([optional]) .swatch {
+  position: absolute;
+  inset: 0;
+}
+
+.remove-override {
+  flex: none;
+  margin-inline-end: var(--input-color-space-padding-inline);
 }
 
 .icon {

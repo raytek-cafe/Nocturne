@@ -1436,6 +1436,21 @@ setting-group[groupid="home"] {
 }
 /** SRD rows control for Nocturne END **/
 
+#nocturneCustomPalette [id="nocturne.colors.custom.shared"],
+#nocturneColorsSharedDescription {
+  margin-block-end: var(--space-medium);
+}
+
+#nocturneCustomPalette moz-input-color,
+#nocturneCustomPalette moz-input-number,
+#nocturneCustomPalette [id^="nocturneCustomPalette-"] {
+  margin-block-end: var(--space-small);
+}
+
+#nocturneCustomPalette > moz-card[hidden] {
+  display: none;
+}
+
 /** SRD History first item is label-less START **/
 /* bug 2001196: Workaround for using legend as label for the select. */
 setting-group[groupid="history"] > moz-fieldset::part(inputs),

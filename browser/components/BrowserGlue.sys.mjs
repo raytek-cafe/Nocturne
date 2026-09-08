@@ -119,6 +119,63 @@ styleSheetService.loadAndRegisterSheet(uri, styleSheetService.AGENT_SHEET);
 
 applyCustomCSS();
 
+const { NOCTURNE_COLOR_FIELDS } = ChromeUtils.importESModule(
+  "resource:///modules/NocturneColors.sys.mjs"
+);
+
+function registerNocturneCustomColors() {
+  let rules = [];
+  for (let field of NOCTURNE_COLOR_FIELDS) {
+    let variable = `--nocturne-custom-${field.id}`;
+    let guard = `[nocturne-custom-colors~="${field.id}"]`;
+    let declarations = (field.properties || []).map(
+      property => `${property}: var(${variable}) !important;`
+    );
+    declarations.push(
+      ...(field.textProperties || []).map(
+        property => `${property}: var(${variable}-text) !important;`
+      )
+    );
+    if (declarations.length) {
+      let rule = `:root:where(${guard}) { ${declarations.join("\n")} }`;
+      if (field.navbar) {
+        rule = `@media not -moz-pref("nocturne.translucent.navbar") { ${rule} }`;
+      }
+      rules.push(rule);
+    }
+    if (field.selector) {
+      let declarations = [`${field.cssProperty}: var(${variable}) !important;`];
+      if (field.text) {
+        declarations.push(`color: var(${variable}-text) !important;`);
+      }
+      let rule = `:where(:root${guard}) {
+        ${field.selector} { ${declarations.join("\n")} }
+      }`;
+      if (field.document) {
+        rule = `@-moz-document url("${field.document}") { ${rule} }`;
+      }
+      rules.push(rule);
+    }
+  }
+
+  let sheets = Cc["@mozilla.org/content/style-sheet-service;1"].getService(
+    Ci.nsIStyleSheetService
+  );
+  let uri = Services.io.newURI(
+    "data:text/css;charset=utf-8," +
+      encodeURIComponent(
+        `@-moz-document url-prefix("chrome://"), url-prefix("about:"), url-prefix("resource://") {
+          @media -moz-pref("nocturne.colors", 6) {
+            @media not (forced-colors) { ${rules.join("\n")} }
+          }
+        }`
+      )
+  );
+  sheets.loadAndRegisterSheet(uri, sheets.AGENT_SHEET);
+}
+
+registerNocturneCustomColors();
+
 ChromeUtils.defineLazyGetter(
   lazy,
   "WeaveService",

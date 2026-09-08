@@ -353,7 +353,12 @@ const CONFIG_PANES = Object.freeze({
   nocturne: {
     l10nId: "nocturne-title",
     iconSrc: "chrome://browser/skin/preferences/category-nocturne.svg",
-    groupIds: ["nocturneVisual", "nocturneFunctional", "nocturneAdvanced"],
+    groupIds: [
+      "nocturneVisual",
+      "nocturneTheme",
+      "nocturneFunctional",
+      "nocturneAdvanced",
+    ],
     module: "chrome://browser/content/preferences/config/nocturne.mjs",
     replaces: "nocturne",
     visible: () => srdSectionPrefs.all,

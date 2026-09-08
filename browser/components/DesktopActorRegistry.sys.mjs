@@ -619,6 +619,19 @@ let JSWINDOWACTORS = {
     enablePreference: "browser.ml.linkPreview.enabled",
   },
 
+  NocturneColors: {
+    child: {
+      esModuleURI: "resource:///actors/NocturneColorsChild.sys.mjs",
+      events: {
+        DOMDocElementInserted: { capture: true },
+      },
+      observers: ["chrome-document-global-created"],
+    },
+    includeChrome: true,
+    allFrames: true,
+    matches: ["about:*", "chrome://*/*", "resource://*/*"],
+  },
+
   PageAssist: {
     parent: {
       esModuleURI: "resource:///actors/PageAssistParent.sys.mjs",

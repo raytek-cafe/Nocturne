@@ -225,6 +225,7 @@ export class Preference extends EventEmitter {
       case "menulist":
       case "moz-toggle":
       case "moz-checkbox":
+      case "moz-input-color":
         return true;
     }
     return false;
