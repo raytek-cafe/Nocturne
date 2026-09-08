@@ -402,6 +402,10 @@ var gSearchResultsPane = {
    *    Returns true when found in at least one childNode, false otherwise
    */
   async searchWithinNode(nodeObject, searchPhrase) {
+    const childrenReady = nodeObject.ensureChildrenRendered?.();
+    if (childrenReady) {
+      await childrenReady;
+    }
     let matchesFound = false;
     if (
       nodeObject.childElementCount == 0 ||

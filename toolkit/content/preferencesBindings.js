@@ -507,6 +507,7 @@ const Preferences = (window.Preferences = (function () {
         case "menulist":
         case "moz-toggle":
         case "moz-checkbox":
+        case "moz-input-color":
           return true;
       }
       return false;

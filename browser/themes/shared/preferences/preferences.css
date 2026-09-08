@@ -239,6 +239,24 @@ radio {
   list-style-image: url("chrome://browser/skin/preferences/category-nocturne.svg");
 }
 
+#nocturneThemeGroup[data-hidden-by-setting-group] {
+  display: none;
+}
+
+#nocturneCustomPalette [id="nocturne.colors.custom.shared"],
+#nocturneColorsSharedDescription {
+  margin-block-end: var(--space-medium);
+}
+
+#nocturneCustomPalette moz-input-color,
+#nocturneCustomPalette [id^="nocturneCustomPalette-"] {
+  margin-block-end: var(--space-small);
+}
+
+#nocturneCustomPalette > moz-card[hidden] {
+  display: none;
+}
+
 /* All panes */
 
 .info-icon,

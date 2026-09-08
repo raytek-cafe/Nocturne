@@ -39,6 +39,7 @@ Nocturne is a fork of r3dfox that restores removed Firefox CSS customization opt
 Nocturne keeps the browser feeling familiar while adding Windows-focused polish and compatibility:
 
 - More native-like controls, scrollbars, checkboxes, radio buttons, and tooltips
+- System accent and custom color schemes in Settings > Nocturne. Custom color controls appear when Custom is selected.
 - Aero Glass support on Windows 8/10+
 - Full portable mode that doesn't touch AppData
 - Switchable classic about:config page via `nocturne.ui.oldaboutconfig`

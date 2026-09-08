@@ -666,6 +666,10 @@ pref("nocturne.transparent.menubar", false);
 pref("nocturne.glow.menubar", true);
 // Translucent navbar design
 pref("nocturne.translucent.navbar", false);
+// Use light custom colors in both color schemes.
+pref("nocturne.colors.custom.shared", false);
+// Default to blue color if branding doesn't override.
+pref("nocturne.colors", 0);
 // Disable other customizations by default
 pref("nocturne.view.image", false);
 // Old URL Bar

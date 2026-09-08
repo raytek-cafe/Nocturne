@@ -2,13 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
-
 :host {
   --moz-input-color-swatch-size: 24px;
 
   display: flex;
   align-items: center;
+  border: var(--border-width) solid var(--border-color-interactive);
+  border-radius: var(--border-radius-medium);
+  background-color: var(--button-background-color-ghost);
+}
+
+:host([disabled]) {
+  opacity: var(--disabled-opacity);
+  pointer-events: none;
 }
 
 label {
@@ -20,29 +26,40 @@ label {
   padding-block: var(--space-small);
   gap: var(--space-small);
   cursor: pointer;
-  border: var(--border-width) solid var(--border-color-interactive);
-  border-radius: var(--border-radius-medium);
-  background-color: var(--button-background-color-ghost);
 }
 
-
-label:hover {
+:host(:hover) {
   border-color: var(--border-color-interactive-hover);
   background-color: var(--button-background-color-ghost-hover);
 }
 
-label:hover:active {
+:host(:hover:active) {
   border-color: var(--border-color-interactive-active);
-  background-color: var(--button-background-color-ghost-active)
+  background-color: var(--button-background-color-ghost-active);
 }
 
-
-label:focus-within {
+:host(:focus-within) {
   outline: var(--focus-outline);
 }
 
-label span {
+label .label {
   flex-grow: 1;
+}
+
+.swatch-container {
+  position: relative;
+  width: var(--moz-input-color-swatch-size);
+  height: var(--moz-input-color-swatch-size);
+  flex: none;
+}
+
+.default-swatch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: var(--border-width) dashed var(--border-color-deemphasized);
+  border-radius: var(--border-radius-circle);
+  background-color: var(--button-background-color-ghost);
 }
 
 .swatch {
@@ -65,7 +82,17 @@ label span {
   box-sizing: border-box;
 }
 
+:host([optional]) .swatch {
+  position: absolute;
+  inset: 0;
+}
+
+.remove-override {
+  flex: none;
+  margin-inline-end: var(--space-medium);
+}
+
 .icon {
   -moz-context-properties: fill;
-   fill: var(--icon-color);
+  fill: var(--icon-color);
 }

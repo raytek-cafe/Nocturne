@@ -140,6 +140,36 @@ nocturne-title = Nocturne specific options
 
 nocturne-visual-header = Visual configurations
 
+nocturne-theme-header =
+    .label = Theme
+nocturne-legacy-theme-header = Theme
+
+nocturne-colors-shared =
+    .label = Use the same colors for light and dark mode
+nocturne-colors-shared-description = Apply the light theme colors and opacity to both modes. Your separate dark theme colors are saved for when you turn this off.
+
+nocturne-custom-group-accents =
+    .heading = Accents and links
+nocturne-custom-group-tabs =
+    .heading = Tabs
+nocturne-custom-group-toolbars =
+    .heading = Toolbars and bookmarks
+nocturne-custom-group-address-bar =
+    .heading = Address bar and search
+nocturne-custom-group-menus-panels =
+    .heading = Menus and panels
+nocturne-custom-group-sidebar =
+    .heading = Sidebar
+nocturne-custom-group-buttons-inputs =
+    .heading = Buttons and inputs
+nocturne-custom-group-settings =
+    .heading = Settings and dialogs
+nocturne-custom-group-newtab =
+    .heading = New Tab
+nocturne-custom-group-backgrounds =
+    .heading = Optional item backgrounds
+
+
 nocturne-native-checkbox =
     .label = Use native styles
 
@@ -154,6 +184,93 @@ nocturne-fake-scroll-type = Non-native scrollbar theme
 nocturne-win-theme-type = Windows version theme override (requires restart)
 
 nocturne-colors = Nocturne color schemes
+
+nocturne-option-color-system =
+    .label = System accent
+
+nocturne-option-color-custom =
+    .label = Custom
+
+nocturne-custom-color-role =
+    .value =
+        { $field ->
+            [color-accent-primary] Primary accent
+            [newtab-primary-action-background] New Tab primary action
+            [link-color] Link
+            [link-color-visited] Visited link
+            [button-primary-bgcolor] Primary button
+            [download-progress-fill-color] Download progress
+            [tabpanel-background-color] Tab panel background
+            [lwt-sidebar-background-color] Sidebar background
+            [arrowpanel-background] Panel background
+            [toolbar-field-focus-background-color] Focused address bar background
+            [in-content-page-background] Settings page background
+            [toolbar-bgcolor] Toolbar background
+            [toolbar-field-background-color] Address bar background
+            [selection-background] Selection background
+            [button-background] Button background
+            [button-text] Button text
+            [primary-button-text] Primary button text
+            [input-background] Text input background
+            [input-text] Text input text
+            [tab-selected-background] Selected tab background
+            [tab-inactive-background] Inactive tab background
+            [tabstrip-background] Tab strip background
+            [urlbar-result-selected-background] Selected address bar result background
+            [bookmarks-toolbar-background] Bookmarks toolbar background
+            [tab-selected-text-color] Selected tab text
+            [tab-inactive-text-color] Inactive tab text
+            [toolbar-text-color] Toolbar text
+            [toolbar-field-text-color] Address bar text
+            [toolbar-field-focus-text-color] Focused address bar text
+            [urlbar-results-text-color] Address bar result text
+            [urlbar-result-selected-text-color] Selected address bar result text
+            [bookmarks-toolbar-text-color] Bookmarks toolbar text
+            [sidebar-text-color] Sidebar text
+            [sidebar-selection-background] Bookmarks and history sidebar selection background
+            [sidebar-selection-text] Bookmarks and history sidebar selection text
+            [menu-background-color] Menu background
+            [menu-text-color] Menu text
+            [menuitem-hover-background] Highlighted menu item background
+            [menuitem-hover-text] Highlighted menu item text
+            [panel-text-color] Panel text
+            [newtab-background-color] New Tab background
+            [newtab-card-background] New Tab card background
+            [newtab-secondary-background] New Tab secondary background
+            [newtab-text-primary] New Tab text
+            [newtab-text-secondary] New Tab secondary text
+            [in-content-box-background] Settings card and dialog background
+            [in-content-page-color] Settings page text
+            [text-color-deemphasized] Secondary UI text
+            [item-backdrop] Tab toolbar item backdrop
+            [menubar-backdrop] Menubar backdrop
+           *[taskbar-item-backdrop] Taskbar tab toolbar and address bar backdrop
+        }
+
+nocturne-custom-color-control =
+    .label =
+        { nocturne-custom-color-role.value }, { $scheme ->
+            [light] light theme color
+           *[dark] dark theme color
+        }
+    .remove-label = Remove override
+
+nocturne-custom-opacity-control =
+    .label =
+        { nocturne-custom-color-role.value }, { $scheme ->
+            [light] light theme opacity
+           *[dark] dark theme opacity
+        } (%)
+
+nocturne-legacy-custom-color-light =
+    .value = Light theme color
+nocturne-legacy-custom-color-dark =
+    .value = Dark theme color
+nocturne-legacy-custom-opacity-light =
+    .value = Light opacity (%)
+nocturne-legacy-custom-opacity-dark =
+    .value = Dark opacity (%)
+
 
 nocturne-fog-type = Caption bar/Aero fog style
 

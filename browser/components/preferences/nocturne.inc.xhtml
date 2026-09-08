@@ -87,6 +87,8 @@
         <menuitem label="Orange" value="2"/>
         <menuitem label="Pink" value="3"/>
         <menuitem label="Dark Theme Purple" value="4"/>
+        <menuitem data-l10n-id="nocturne-option-color-system" value="5"/>
+        <menuitem data-l10n-id="nocturne-option-color-custom" value="6"/>
       </menupopup>
     </menulist>
   </hbox>
@@ -141,6 +143,25 @@
       </menupopup>
     </menulist>
   </hbox>
+</groupbox>
+
+<!-- Nocturne theme -->
+<groupbox id="nocturneThemeGroup"
+          data-category="paneNocturne"
+          hidden="true">
+  <label><html:h2 data-l10n-id="nocturne-legacy-theme-header"/></label>
+
+  <vbox id="nocturneCustomPalette">
+      <hbox id="nocturneColorsSharedRow" align="center">
+        <checkbox id="nocturneColorsShared"
+                  data-l10n-id="nocturne-colors-shared"
+                  flex="1"
+                  preference="nocturne.colors.custom.shared"/>
+      </hbox>
+      <description id="nocturneColorsSharedDescription"
+                   class="indent tip-caption"
+                   data-l10n-id="nocturne-colors-shared-description"/>
+  </vbox>
 </groupbox>
 
 <!-- Nocturne functional -->
