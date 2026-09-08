@@ -80,6 +80,12 @@
   </hbox>
 
   <hbox align="center">
+    <checkbox id="nocturnedrag"
+              data-l10n-id="nocturne-drag"
+              flex="1"
+              preference="nocturne.drag-space.enabled"/>
+  </hbox>
+  <hbox align="center">
     <label id="nocturneColors" data-l10n-id="nocturne-legacy-colors" data-l10n-attrs="value" control="nocturneColorsType" flex="1"/>
     <menulist id="nocturneColorsType" preference="nocturne.colors">
       <menupopup>
@@ -88,14 +94,10 @@
         <menuitem data-l10n-id="nocturne-option-color-orange" value="2"/>
         <menuitem data-l10n-id="nocturne-option-color-pink" value="3"/>
         <menuitem data-l10n-id="nocturne-option-color-dark-purple" value="4"/>
+        <menuitem data-l10n-id="nocturne-option-color-system" value="5"/>
+        <menuitem data-l10n-id="nocturne-option-color-custom" value="6"/>
       </menupopup>
     </menulist>
-  </hbox>
-  <hbox align="center">
-    <checkbox id="nocturnedrag"
-              data-l10n-id="nocturne-drag"
-              flex="1"
-              preference="nocturne.drag-space.enabled"/>
   </hbox>
 
   <hbox align="center">
@@ -155,6 +157,25 @@
       </menupopup>
     </menulist>
   </hbox>
+</groupbox>
+
+<!-- Nocturne theme -->
+<groupbox id="nocturneThemeGroup"
+          data-category="paneNocturne"
+          hidden="true">
+  <label><html:h2 data-l10n-id="nocturne-legacy-theme-header"/></label>
+
+  <vbox id="nocturneCustomPalette">
+      <hbox id="nocturneColorsSharedRow" align="center">
+        <checkbox id="nocturneColorsShared"
+                  data-l10n-id="nocturne-colors-shared"
+                  flex="1"
+                  preference="nocturne.colors.custom.shared"/>
+      </hbox>
+      <description id="nocturneColorsSharedDescription"
+                   class="indent tip-caption"
+                   data-l10n-id="nocturne-colors-shared-description"/>
+  </vbox>
 </groupbox>
 
 <!-- Nocturne functional -->

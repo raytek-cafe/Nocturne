@@ -207,6 +207,56 @@
   }
 }
 
+@media -moz-pref("nocturne.colors", 5) {
+  :root {
+    --nocturne-selected-accent: AccentColor;
+    --nocturne-selected-accent-text: AccentColorText;
+  }
+}
+
+@media -moz-pref("nocturne.colors", 5) {
+  @media not (forced-colors) {
+    :root {
+      --arrowpanel-border-color: var(--nocturne-selected-accent) !important;
+      --toolbar-field-focus-border-color: var(--nocturne-selected-accent) !important;
+      --sidebar-border-color: var(--nocturne-selected-accent) !important;
+      --lwt-toolbar-field-highlight: var(--nocturne-selected-accent) !important;
+      --lwt-toolbar-field-highlight-text: var(--nocturne-selected-accent-text) !important;
+      --newtab-primary-action-background: var(--nocturne-selected-accent) !important;
+      --newtab-primary-action-background-hover: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 12%) !important;
+      --newtab-primary-action-background-active: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 20%) !important;
+      --newtab-primary-element-text-color: var(--nocturne-selected-accent-text) !important;
+      --color-accent-primary: var(--nocturne-selected-accent) !important;
+      --color-accent-primary-hover: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 12%) !important;
+      --color-accent-primary-active: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 20%) !important;
+      --link-color: var(--nocturne-selected-accent) !important;
+      --link-color-hover: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 12%) !important;
+      --link-color-active: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 20%) !important;
+      --link-color-visited: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 20%) !important;
+      --button-primary-bgcolor: var(--nocturne-selected-accent) !important;
+      --button-primary-hover-bgcolor: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 12%) !important;
+      --button-primary-active-bgcolor: color-mix(in srgb, var(--nocturne-selected-accent), var(--nocturne-selected-accent-text) 20%) !important;
+      --button-text-color-primary: var(--nocturne-selected-accent-text) !important;
+      --button-text-color-primary-hover: var(--nocturne-selected-accent-text) !important;
+      --button-text-color-primary-active: var(--nocturne-selected-accent-text) !important;
+      --toolbarbutton-icon-fill-attention: var(--nocturne-selected-accent) !important;
+      --download-progress-fill-color: var(--nocturne-selected-accent) !important;
+      --lwt-tab-line-color: var(--nocturne-selected-accent) !important;
+
+      .urlbar-input::selection, .searchbar-textbox::selection {
+        background: var(--nocturne-selected-accent) !important;
+        color: var(--nocturne-selected-accent-text) !important;
+      }
+
+      .bookmark-item:is(toolbarbutton)[dragover="true"][open="true"] {
+        background: var(--nocturne-selected-accent) !important;
+        color: var(--nocturne-selected-accent-text) !important;
+      }
+    }
+  }
+}
+
+
 /* Aero fog and other settings */
 
 @media -moz-pref("nocturne.aero.fog", 1) {
@@ -324,7 +374,7 @@
         :is(#back-button, #forward-button, #reload-button, #stop-button, #unified-extensions-button, #PanelUI-menu-button)
         > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack),
       :root[taskbartab] #urlbar > .urlbar-background {
-        background-color: rgba(243, 242, 245, 0.72) !important;
+        background-color: var(--nocturne-taskbar-item-background, rgba(243, 242, 245, 0.72)) !important;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45) !important;
       }
 
@@ -332,13 +382,13 @@
         :is(#back-button, #forward-button, #reload-button, #stop-button, #unified-extensions-button, #PanelUI-menu-button):not([disabled]):hover
         > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack),
       :root[taskbartab] #urlbar:hover > .urlbar-background {
-        background-color: rgba(255, 255, 255, 0.84) !important;
+        background-color: var(--nocturne-taskbar-item-hover-background, rgba(255, 255, 255, 0.84)) !important;
       }
 
       :root[taskbartab]
         :is(#back-button, #forward-button, #reload-button, #stop-button, #unified-extensions-button, #PanelUI-menu-button):not([disabled]):active
         > :is(.toolbarbutton-icon, .toolbarbutton-badge-stack) {
-        background-color: rgba(255, 255, 255, 0.9) !important;
+        background-color: var(--nocturne-taskbar-item-active-background, rgba(255, 255, 255, 0.9)) !important;
       }
 
       :root[taskbartab] :is(#back-button, #forward-button, #reload-button, #stop-button)[disabled] {
@@ -374,7 +424,7 @@
 
     @media (not -moz-pref("nocturne.transparent.menubar")) {
       #main-window #main-menubar {
-        background-color: rgba(23, 21, 28, 0.33) !Important;
+        background-color: var(--nocturne-menubar-background, rgba(23, 21, 28, 0.33)) !Important;
       }
 
       #toolbar-menubar {
@@ -387,23 +437,23 @@
 
       #main-menubar > menu {
         &[_moz-menuactive] {
-          background-color: hsla(0,0%,100%,.22) !important;
+          background-color: var(--nocturne-menubar-hover-background, hsla(0,0%,100%,.22)) !important;
         }
       }
     }
 
     #TabsToolbar .toolbarbutton-1 {
       > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
-        background-color: rgba(23, 21, 28, 0.33);
+        background-color: var(--nocturne-toolbar-item-background, rgba(23, 21, 28, 0.33));
       }
       &:hover > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
-        background-color: rgba(23, 21, 28, 0.33);
-        box-shadow: inset 0 0 0 99999px hsla(60,15%,38%,.22);
+        background-color: var(--nocturne-toolbar-item-background, rgba(23, 21, 28, 0.33));
+        box-shadow: inset 0 0 0 99999px var(--nocturne-toolbar-item-hover-overlay, hsla(60,15%,38%,.22));
       }
     }
 
     #alltabs-button::after {
-      background-color: rgba(23, 21, 28, 0.33);
+      background-color: var(--nocturne-toolbar-item-background, rgba(23, 21, 28, 0.33));
     }
 
     .tabbrowser-tab { 
@@ -429,7 +479,7 @@
 
     @media (not -moz-pref("nocturne.transparent.menubar")) {
       #main-window #main-menubar {
-        background-color: rgba(243, 242, 245, 0.33) !Important;
+        background-color: var(--nocturne-menubar-background, rgba(243, 242, 245, 0.33)) !Important;
       }
 
       #toolbar-menubar {
@@ -442,23 +492,23 @@
 
       #main-menubar > menu {
         &[_moz-menuactive] {
-          background-color: hsla(0,0%,0%,.22) !important;
+          background-color: var(--nocturne-menubar-hover-background, hsla(0,0%,0%,.22)) !important;
         }
       }
     }
 
     #TabsToolbar .toolbarbutton-1 {
       > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
-        background-color: rgba(243, 242, 245, 0.33);
+        background-color: var(--nocturne-toolbar-item-background, rgba(243, 242, 245, 0.33));
       }
       &:hover > :is(.toolbarbutton-icon, .toolbarbutton-text, .toolbarbutton-badge-stack) {
-        background-color: rgba(243, 242, 245, 0.33);
-        box-shadow: inset 0 0 0 99999px hsla(60,60%,92%,.24);
+        background-color: var(--nocturne-toolbar-item-background, rgba(243, 242, 245, 0.33));
+        box-shadow: inset 0 0 0 99999px var(--nocturne-toolbar-item-hover-overlay, hsla(60,60%,92%,.24));
       }
     }
 
     #alltabs-button::after {
-      background-color: rgba(243, 242, 245, 0.33);
+      background-color: var(--nocturne-toolbar-item-background, rgba(243, 242, 245, 0.33));
     }
 
     .tabbrowser-tab { 

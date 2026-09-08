@@ -46,6 +46,8 @@ import MozInputFolder from "chrome://global/content/elements/moz-input-folder.mj
  * @property {string} [control] The element to render, default to "moz-checkbox".
  * @property {string} [controllingExtensionInfo]
  * ExtensionSettingStore id for checking if a setting is controlled by an extension.
+ * @property {boolean} [lazyItems]
+ * Defer rendering nested items until ensureChildrenRendered() is called.
  */
 
 /**
@@ -123,6 +125,8 @@ export class SettingControl extends SettingElement {
    * @type {Setting | undefined}
    */
   #lastSetting;
+  /** @type {Promise<void> | undefined} */
+  #childrenRenderPromise;
 
   constructor() {
     super();
@@ -410,6 +414,41 @@ export class SettingControl extends SettingElement {
     return this.setting.controllingExtensionInfo.l10nId;
   }
 
+  onToggle(event) {
+    if (event.newState == "open") {
+      this.ensureChildrenRendered();
+    }
+  }
+
+  /**
+   * Render deferred nested items and wait until their controls are searchable.
+   *
+   * @returns {Promise<void> | undefined}
+   */
+  ensureChildrenRendered() {
+    if (!this.config?.lazyItems) {
+      return this.#childrenRenderPromise;
+    }
+    if (!this.#childrenRenderPromise) {
+      this.#childrenRenderPromise = (async () => {
+        this.requestUpdate();
+        await this.updateComplete;
+
+        const control = this.controlEl;
+        const settingControls = control.querySelectorAll("setting-control");
+        await Promise.all(
+          Array.from(settingControls, element => element.updateComplete)
+        );
+        const descendants = control.querySelectorAll("*");
+        await document.l10n.translateFragment(control);
+        await Promise.all(
+          Array.from(descendants, element => element.updateComplete)
+        );
+      })();
+    }
+    return this.#childrenRenderPromise;
+  }
+
   /**
    * Prepare nested item config and settings.
    *
@@ -484,7 +523,7 @@ export class SettingControl extends SettingElement {
     let control = config.control || "moz-checkbox";
 
     let nestedSettings =
-      "items" in config
+      "items" in config && (!config.lazyItems || this.#childrenRenderPromise)
         ? this.itemsTemplate(config)
         : this.optionsTemplate(config);
 
@@ -543,6 +582,7 @@ export class SettingControl extends SettingElement {
     <${tag}
       ${spread(controlProps)}
       ${ref(this.controlRef)}
+      @toggle=${config.lazyItems ? this.onToggle : null}
       tabindex=${ifDefined(this.tabIndex)}
     >${nestedSettings}</${tag}>`;
   }
