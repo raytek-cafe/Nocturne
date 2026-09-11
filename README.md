@@ -64,6 +64,7 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 
 - [Travis](https://github.com/travy-patty), [NetworkNeighborhood](https://github.com/NetworkNeighborhood/) - The current logo used in the browser. Recolored from the original.
 - [Nareny](https://github.com/nt5point1/) - Modified the icon for Incognito, made the .pdf icon and helped with the new icon redesign.
+- [e3kskoy7wqk](https://github.com/e3kskoy7wqk/) - Firefox for Windows 7 patches to allow Nocturne to run on 8.x/7.
 - [Aubymori](https://github.com/aubymori/) & [Isabella Lulamoon](https://github.com/kawapure) - Classic about:config, disabled launcher process, and more from Nara browser
 - [Erizur](https://github.com/Erizur/) - Improved native titlebar, modern mode, and some miscellaneous fixes from Marble Browser
 - [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
