@@ -44,7 +44,7 @@ function getL10nIdMapping(id) {
 
 // Define views
 gViewController.defineView("list", async type => {
-  if (!AddonManager.hasAddonType(type)) {
+  if (type !== "xul-theme" && !AddonManager.hasAddonType(type)) {
     return null;
   }
 
@@ -52,23 +52,44 @@ gViewController.defineView("list", async type => {
   let list = document.createElement("addon-list");
   list.type = type;
 
-  let sections = [
-    {
-      headingId: type + "-enabled-heading",
-      sectionClass: `${type}-enabled-section`,
-      filterFn: addon =>
-        !addon.hidden && addon.isActive && !isPending(addon, "uninstall"),
-    },
-  ];
-
-  const disabledAddonsFilterFn = addon =>
-    !addon.hidden && !addon.isActive && !isPending(addon, "uninstall");
-
-  sections.push({
-    headingId: getL10nIdMapping(`${type}-disabled-heading`),
-    sectionClass: `${type}-disabled-section`,
-    filterFn: disabledAddonsFilterFn,
-  });
+  const isVisibleAddon = addon =>
+    !addon.hidden &&
+    (type === "xul-theme"
+      ? addon.isXULTheme
+      : !(type === "extension" && addon.isXULTheme)) &&
+    !isPending(addon, "uninstall");
+  const isSelectedForNextStart = addon =>
+    !addon.userDisabled && !addon.appDisabled;
+  let sections;
+  if (type === "xul-theme") {
+    sections = [
+      {
+        headingId: "xul-theme-selected-heading",
+        sectionClass: "xul-theme-enabled-section",
+        filterFn: addon =>
+          isVisibleAddon(addon) && isSelectedForNextStart(addon),
+      },
+      {
+        headingId: "xul-theme-available-heading",
+        sectionClass: "xul-theme-disabled-section",
+        filterFn: addon =>
+          isVisibleAddon(addon) && !isSelectedForNextStart(addon),
+      },
+    ];
+  } else {
+    sections = [
+      {
+        headingId: type + "-enabled-heading",
+        sectionClass: `${type}-enabled-section`,
+        filterFn: addon => isVisibleAddon(addon) && addon.isActive,
+      },
+      {
+        headingId: getL10nIdMapping(`${type}-disabled-heading`),
+        sectionClass: `${type}-disabled-section`,
+        filterFn: addon => isVisibleAddon(addon) && !addon.isActive,
+      },
+    ];
+  }
 
   // Show the colorway, forced-colors and smart window theme notices only
   // in themes list view.
@@ -131,6 +152,14 @@ gViewController.defineView("brightwork", async () => {
 gViewController.defineView("detail", async param => {
   let [id, selectedTab] = param.split("/");
   let addon = await AddonManager.getAddonByID(id);
+  if (!addon) {
+    const installs = await AddonManager.getAllInstalls();
+    addon = installs.find(
+      install =>
+        install.state === AddonManager.STATE_INSTALLED &&
+        install.addon?.id === id
+    )?.addon;
+  }
 
   if (!addon) {
     return null;
@@ -143,11 +172,12 @@ gViewController.defineView("detail", async param => {
   let card = document.createElement("addon-card");
 
   // Ensure the category for this add-on type is selected.
-  document.querySelector("categories-box").selectType(addon.type);
+  const listType = addon.isXULTheme ? "xul-theme" : addon.type;
+  document.querySelector("categories-box").selectType(listType);
 
   // Go back to the list view when the add-on is removed.
   card.addEventListener("remove", () =>
-    gViewController.loadView(`list/${addon.type}`)
+    gViewController.loadView(`list/${listType}`)
   );
 
   card.setAddon(addon);

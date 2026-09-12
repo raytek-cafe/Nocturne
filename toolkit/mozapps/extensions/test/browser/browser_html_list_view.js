@@ -860,6 +860,36 @@ add_task(async function testExtensionGenericIcon() {
   await closeView(win);
 });
 
+add_task(async function testXULThemeIconAndPreview() {
+  const id = "xul-theme-images@mochi.test";
+  const iconURL = "https://example.com/icon.png";
+  const previewURL = "https://example.com/preview.png";
+  const [addon] = mockProvider.createAddons([
+    {
+      id,
+      name: "XUL Theme with Images",
+      type: "extension",
+      isXULTheme: true,
+      iconURL,
+      screenshots: [{ url: previewURL, width: 680, height: 92 }],
+      userDisabled: true,
+    },
+  ]);
+
+  const win = await loadInitialView("xul-theme");
+  const card = getCardByAddonId(win.document, id);
+  const icon = card.querySelector(".addon-icon");
+  const preview = card.querySelector(".card-heading-image");
+
+  is(icon.hidden, false, "The XUL theme icon is visible");
+  is(icon.src, iconURL, "The XUL theme icon is set");
+  is(preview.hidden, false, "The XUL theme preview is visible");
+  is(preview.src, previewURL, "The XUL theme preview is set");
+
+  await closeView(win);
+  mockProvider.removeAddon(addon);
+});
+
 add_task(async function testSectionHeadingKeys() {
   mockProvider.createAddons([
     {

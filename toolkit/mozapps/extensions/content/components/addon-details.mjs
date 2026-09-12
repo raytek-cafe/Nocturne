@@ -367,7 +367,7 @@ export class AddonDetails extends AboutAddonsHTMLElement {
     let getButtonByName = name =>
       this.tabGroup.querySelector(`[name="${name}"]`);
     let permsBtn = getButtonByName("permissions");
-    permsBtn.hidden = addon.type != "extension";
+    permsBtn.hidden = addon.type != "extension" || addon.isXULTheme;
     let notesBtn = getButtonByName("release-notes");
     notesBtn.hidden = !this.releaseNotesUri;
     let prefsBtn = getButtonByName("preferences");
@@ -499,7 +499,7 @@ export class AddonDetails extends AboutAddonsHTMLElement {
       !hasPermission(addon, "upgrade") ||
       addon.isApplyBackgroundUpdatesControlledByPolicies;
 
-    if (addon.type != "extension") {
+    if (addon.type != "extension" || addon.isXULTheme) {
       // Don't show any private browsing related section for non-extension
       // addon types, because not relevant or they are either always allowed
       // (e.g. static themes).

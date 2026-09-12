@@ -141,7 +141,7 @@ const XPI_SIGNATURE_CHECKPOINT = 1;
 
 const XPI_SIGNATURE_CHECK_PERIOD = 24 * 60 * 60;
 
-const DB_SCHEMA = 38;
+const DB_SCHEMA = 39;
 
 XPCOMUtils.defineLazyPreferenceGetter(
   lazy,
@@ -4536,6 +4536,11 @@ export var XPIProvider = {
             logger.error("Failed to process extension changes at startup", e);
           }
         }
+
+        // Re-reading RDF manifests for this schema migration identifies legacy
+        // XUL themes. Repair old profiles before their active states are
+        // committed so at most one can start.
+        XPIExports.XPIDatabase.normalizeXULThemeSelection();
 
         // If the application crashed before completing any pending operations then
         // we should perform them now.
