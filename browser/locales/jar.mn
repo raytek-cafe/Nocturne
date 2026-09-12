@@ -33,6 +33,9 @@
     locale/browser/places/bookmarkProperties.properties (%chrome/browser/places/bookmarkProperties.properties)
     locale/browser/safebrowsing/safebrowsing.properties   (%chrome/browser/safebrowsing/safebrowsing.properties)
     locale/browser/feeds/subscribe.properties       (%chrome/browser/feeds/subscribe.properties)
+    locale/browser/browser.dtd                     (%chrome/browser/browser.dtd)
+    locale/browser/searchbar.dtd                   (%chrome/browser/searchbar.dtd)
+    locale/browser/baseMenuOverlay.dtd             (%chrome/browser/baseMenuOverlay.dtd)
 % locale browser-region @AB_CD@ %locale/browser-region/
 # the following files are browser-specific overrides
     locale/browser/appstrings.properties       (%chrome/overrides/appstrings.properties)
