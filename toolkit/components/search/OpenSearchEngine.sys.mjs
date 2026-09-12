@@ -301,6 +301,7 @@ export class OpenSearchEngine extends SearchEngine {
    *   A load path with reduced data.
    */
   static getAnonymizedLoadPath(sanitizedName, uri) {
-    return `[${uri.scheme}]${uri.host}/${sanitizedName}.xml`;
+    const host = uri.schemeIs("file") || uri.schemeIs("jar") ? "" : uri.host;
+    return `[${uri.scheme}]${host}/${sanitizedName}.xml`;
   }
 }

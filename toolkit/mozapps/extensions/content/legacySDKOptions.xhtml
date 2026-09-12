@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Add-on preferences</title>
+    <link rel="stylesheet" href="chrome://global/skin/in-content/common.css" />
+    <script type="module" src="chrome://mozapps/content/extensions/legacySDKOptions.mjs"></script>
+  </head>
+  <body>
+    <main>
+      <h1 id="addon-title">Add-on preferences</h1>
+      <p id="addon-description"></p>
+      <form id="preferences" aria-labelledby="addon-title"></form>
+      <p id="error" role="alert" hidden="hidden"></p>
+    </main>
+  </body>
+</html>

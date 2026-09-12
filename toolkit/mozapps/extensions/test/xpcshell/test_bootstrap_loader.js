@@ -21,6 +21,8 @@ const PERSISTENCE_CRASH_ID = "persistence-crash@tests.waterfox.net";
 const ACTUAL_CLASSIC_UPDATE_ID = "actual-classic-update@tests.waterfox.net";
 const RETAINED_SCOPE_ID = "retained-scope@tests.waterfox.net";
 const APP_SHUTDOWN_ID = "app-shutdown-classic@tests.waterfox.net";
+const COMPAT_BOOTSTRAP_ID = "compat-bootstrap@tests.waterfox.net";
+const UNDO_PERMISSION_ID = "undo-permission@tests.mozilla.org";
 const SIGNING_MATRIX_IDS = {
   unsigned: "legacy-unsigned@tests.waterfox.net",
   ordinary: "legacy-ordinary@tests.waterfox.net",
@@ -76,6 +78,12 @@ const { LegacyChromeManifest } = ChromeUtils.importESModule(
 );
 const { LegacyComponentRegistry } = ChromeUtils.importESModule(
   "resource://gre/modules/addons/LegacyComponentRegistry.sys.mjs"
+);
+const { ExtensionPermissions } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionPermissions.sys.mjs"
+);
+const { ExtensionSettingsStore } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionSettingsStore.sys.mjs"
 );
 AddonManager.addExternalExtensionLoader(BootstrapLoader);
 BootstrapMonitor.init();
@@ -335,6 +343,82 @@ pref("${DEFAULT_PREFS.float}", 3.5);
 
 function createLifecycleBootstrapXPI(version) {
   return AddonTestUtils.createTempXPIFile(createBootstrapFiles(version));
+}
+
+function createCompatBootstrapXPI() {
+  const cid = "{903245f5-df31-4d97-a0e5-9d17fae9c9de}";
+  const contractId = "@tests.waterfox.net/bootstrap-compat;1";
+  const resultPref = "test.bootstrap-loader.compat-result";
+  return {
+    cid: Components.ID(cid),
+    contractId,
+    resultPref,
+    xpi: AddonTestUtils.createTempXPIFile({
+      "install.rdf": createInstallRDF(`
+      <em:id>${COMPAT_BOOTSTRAP_ID}</em:id>
+      <em:type>2</em:type>
+      <em:name>Bootstrap compatibility regression</em:name>
+      <em:version>1.0</em:version>
+      <em:bootstrap>true</em:bootstrap>
+      <em:targetApplication>
+        <Description>
+          <em:id>${APP_ID}</em:id>
+          <em:minVersion>1</em:minVersion>
+          <em:maxVersion>*</em:maxVersion>
+        </Description>
+      </em:targetApplication>
+      `),
+      "module.jsm":
+        'var EXPORTED_SYMBOLS = ["legacyValue"]; let legacyValue = { count: 1 };',
+      "bootstrap.js": `
+const { utils: Cu } = Components;
+Cu.import("resource://gre/modules/Services.jsm");
+const { XPCOMUtils } = Cu.import(
+  "resource://gre/modules/XPCOMUtils.jsm",
+  {}
+);
+const moduleURI = __SCRIPT_URI_SPEC__.replace(/bootstrap\\.js$/, "module.jsm");
+const classID = Components.ID("${cid}");
+const contractID = "${contractId}";
+const registrar = Components.manager.QueryInterface(
+  Ci.nsIComponentRegistrar
+);
+const factory = {
+  createInstance(outer, iid) {
+    if (outer !== null) {
+      throw Cr.NS_ERROR_NO_AGGREGATION;
+    }
+    return {
+      QueryInterface: XPCOMUtils.generateQI(["nsIObserver"]),
+      observe(_subject, _topic, data) {
+        Services.prefs.setStringPref("${resultPref}", data);
+      },
+    }.QueryInterface(iid);
+  },
+  QueryInterface: XPCOMUtils.generateQI(["nsIFactory"]),
+};
+
+function install() {}
+function uninstall() {}
+function startup() {
+  const first = Cu.import(moduleURI, {});
+  first.legacyValue.count++;
+  const cachedCount = Cu.import(moduleURI, {}).legacyValue.count;
+  Cu.unload(moduleURI);
+  const reloadedCount = Cu.import(moduleURI, {}).legacyValue.count;
+  Services.prefs.setStringPref(
+    "${resultPref}",
+    cachedCount + "," + reloadedCount
+  );
+  registrar.registerFactory(classID, "Bootstrap compatibility", contractID, factory);
+}
+function shutdown() {
+  registrar.unregisterFactory(classID, factory);
+  Cu.unload(moduleURI);
+}
+`,
+    }),
+  };
 }
 
 function createHybridXPI(
@@ -1558,6 +1642,8 @@ registerCleanupFunction(async () => {
     CROSS_LOCATION_CRASH_ID,
     ACTUAL_CLASSIC_UPDATE_ID,
     RETAINED_SCOPE_ID,
+    COMPAT_BOOTSTRAP_ID,
+    UNDO_PERMISSION_ID,
     ...Object.values(SIGNING_MATRIX_IDS),
   ]) {
     const addon = await AddonManager.getAddonByID(id);
@@ -1593,12 +1679,6 @@ add_task(async function test_bootstrap_loader() {
 
   Assert.equal(addon.id, BOOTSTRAP_ID);
   Assert.equal(addon.name, "Bootstrap loader test");
-  const internalAddon = addon.__AddonInternal__;
-  Assert.equal(internalAddon.loader, "bootstrap");
-  Assert.deepEqual(internalAddon.startupData, {
-    legacyMode: "bootstrap",
-    legacyManifest: "rdf",
-  });
   Assert.ok(!addon.isWebExtension);
   Assert.ok(!addon.appDisabled);
   Assert.ok(addon.isActive);
@@ -1682,7 +1762,7 @@ add_task(async function test_bootstrap_loader() {
   const parsedManifest = await new LegacyChromeManifest(
     {
       id: addon.id,
-      rootURI: internalAddon.resolvedRootURI,
+      rootURI: addon.getResourceURI(),
     },
     console
   ).parse();
@@ -1810,13 +1890,152 @@ add_task(async function test_bootstrap_loader() {
   );
   const otherAddon = otherInstall.addon;
 
-  Assert.equal(otherAddon.__AddonInternal__.loader, "compat-test");
   Assert.ok(!otherAddon.isWebExtension);
   Assert.ok(otherAddon.appDisabled);
   Assert.ok(!otherAddon.isActive);
   Assert.notEqual(otherAddon.signedState, AddonManager.SIGNEDSTATE_PRIVILEGED);
   BootstrapMonitor.checkNotStarted(OTHER_LOADER_ID);
   await otherAddon.uninstall();
+});
+
+add_task(async function test_legacy_bootstrap_global_and_jsm_compatibility() {
+  const { cid, contractId, resultPref, xpi } = createCompatBootstrapXPI();
+  const registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+  let addon;
+
+  try {
+    addon = (await promiseInstallFile(xpi)).addon;
+    Assert.equal(
+      Services.prefs.getStringPref(resultPref),
+      "2,1",
+      "Package-local JSM imports are cached until explicitly unloaded"
+    );
+    Assert.ok(
+      registrar.isContractIDRegistered(contractId),
+      "The bootstrap scope registered its old-style XPCOM factory"
+    );
+
+    const instance = Cc[contractId].createInstance(Ci.nsIObserver);
+    instance.observe(null, "bootstrap-compat", "factory-created");
+    Assert.equal(
+      Services.prefs.getStringPref(resultPref),
+      "factory-created",
+      "The registered factory creates a usable XPCOM component"
+    );
+
+    await addon.uninstall();
+    addon = null;
+    Assert.ok(
+      !registrar.isContractIDRegistered(contractId),
+      "Uninstall unregisters the package's XPCOM factory"
+    );
+  } finally {
+    if (addon) {
+      await addon.uninstall();
+    }
+    if (registrar.isCIDRegistered(cid)) {
+      const factory = Components.manager.getClassObject(cid, Ci.nsIFactory);
+      registrar.unregisterFactory(cid, factory);
+    }
+    Services.prefs.clearUserPref(resultPref);
+  }
+});
+
+add_task(async function test_pending_webextension_uninstall_state_restart() {
+  const xpi = AddonTestUtils.createTempXPIFile({
+    "manifest.json": JSON.stringify({
+      manifest_version: 2,
+      name: "Pending uninstall state regression",
+      version: "1.0",
+      applications: { gecko: { id: UNDO_PERMISSION_ID } },
+      optional_permissions: ["idle"],
+    }),
+  });
+  let addon;
+  const settingType = "bootstrapLoader";
+  const settingKey = "pendingUninstall";
+  await ExtensionSettingsStore.initialize();
+
+  try {
+    addon = (await promiseInstallFile(xpi)).addon;
+    await ExtensionPermissions.add(UNDO_PERMISSION_ID, {
+      permissions: ["idle"],
+      origins: [],
+    });
+    Assert.deepEqual(
+      (await ExtensionPermissions.get(UNDO_PERMISSION_ID)).permissions,
+      ["idle"],
+      "The optional permission is granted through the persistent store"
+    );
+    await ExtensionSettingsStore.addSetting(
+      UNDO_PERMISSION_ID,
+      settingType,
+      settingKey,
+      "extension value",
+      () => "initial value"
+    );
+
+    await addon.uninstall(true);
+    addon = await AddonManager.getAddonByID(UNDO_PERMISSION_ID);
+    Assert.ok(
+      addon,
+      "The add-on remains available while uninstall can be undone"
+    );
+    Assert.ok(
+      addon.pendingOperations & AddonManager.PENDING_UNINSTALL,
+      "The uninstall remains pending"
+    );
+    Assert.deepEqual(
+      (await ExtensionPermissions.get(UNDO_PERMISSION_ID)).permissions,
+      ["idle"],
+      "A reversible uninstall retains the granted permission"
+    );
+    Assert.ok(
+      ExtensionSettingsStore.hasSetting(
+        UNDO_PERMISSION_ID,
+        settingType,
+        settingKey
+      ),
+      "A reversible uninstall retains the extension's setting"
+    );
+
+    await promiseRestartManager();
+    addon = await AddonManager.getAddonByID(UNDO_PERMISSION_ID);
+    Assert.equal(addon, null, "Restart commits the pending uninstall");
+    await TestUtils.waitForCondition(
+      () =>
+        !ExtensionSettingsStore.hasSetting(
+          UNDO_PERMISSION_ID,
+          settingType,
+          settingKey
+        ),
+      "Committing uninstall removes the extension's setting"
+    );
+    Assert.deepEqual(
+      (await ExtensionPermissions.get(UNDO_PERMISSION_ID)).permissions,
+      [],
+      "Committing uninstall removes the granted permission"
+    );
+  } finally {
+    addon = await AddonManager.getAddonByID(UNDO_PERMISSION_ID);
+    if (addon) {
+      await addon.uninstall();
+    }
+    await ExtensionPermissions.removeAll(UNDO_PERMISSION_ID);
+    if (
+      ExtensionSettingsStore.hasSetting(
+        UNDO_PERMISSION_ID,
+        settingType,
+        settingKey
+      )
+    ) {
+      ExtensionSettingsStore.removeSetting(
+        UNDO_PERMISSION_ID,
+        settingType,
+        settingKey
+      );
+    }
+  }
 });
 
 add_task(async function test_ordinary_signed_rdf_is_rejected() {
@@ -1909,10 +2128,6 @@ add_task(async function test_current_hybrid_grandfathering() {
     addon = await AddonManager.getAddonByID(GRANDFATHERED_HYBRID_ID);
     Assert.ok(addon?.isActive, "The installed hybrid remains active");
     Assert.equal(addon.signedState, AddonManager.SIGNEDSTATE_SIGNED);
-    Assert.deepEqual(addon.__AddonInternal__.startupData, {
-      legacyLoader: "bootstrap",
-      legacyMode: "bootstrap",
-    });
     await addon.uninstall();
   } finally {
     gUseRealCertChecks = previousRealCertChecks;
@@ -2329,20 +2544,12 @@ add_task(async function test_staged_lifecycle_journal_recovery() {
 });
 
 add_task(async function test_hybrid_manifest_json_precedence() {
-  let invalidInstall;
-  const { messages } = await promiseConsoleOutput(async () => {
-    invalidInstall = await AddonManager.getInstallForFile(
-      createHybridXPI(HYBRID_BOOTSTRAP_ID, "bootstrap")
-    );
-  });
+  const invalidInstall = await AddonManager.getInstallForFile(
+    createHybridXPI(HYBRID_BOOTSTRAP_ID, "bootstrap")
+  );
   Assert.equal(invalidInstall.state, AddonManager.STATE_DOWNLOAD_FAILED);
   Assert.equal(invalidInstall.error, AddonManager.ERROR_CORRUPT_FILE);
   Assert.equal(invalidInstall.addon, null);
-  Assert.ok(
-    messages.some(({ message }) =>
-      /Legacy bootstrap extension is missing bootstrap\.js/.test(message)
-    )
-  );
 
   let install = await promiseInstallFile(
     createHybridXPI(HYBRID_BOOTSTRAP_ID, "bootstrap", true, {
@@ -2351,18 +2558,11 @@ add_task(async function test_hybrid_manifest_json_precedence() {
     })
   );
   let addon = install.addon;
-  let internalAddon = addon.__AddonInternal__;
   Assert.equal(addon.id, HYBRID_BOOTSTRAP_ID);
   Assert.equal(addon.name, "JSON bootstrap hybrid");
   Assert.equal(addon.version, "2.0");
   Assert.ok(addon.isWebExtension);
   Assert.ok(addon.isActive);
-  Assert.equal(internalAddon.loader, null);
-  Assert.ok(internalAddon.bootstrap);
-  Assert.equal(internalAddon.optionsURL, "options.xhtml");
-  Assert.equal(internalAddon.optionsType, AddonManager.OPTIONS_TYPE_TAB);
-  Assert.equal(internalAddon.startupData.legacyLoader, "bootstrap");
-  Assert.equal(internalAddon.startupData.legacyMode, "bootstrap");
   Assert.equal(
     await AddonManager.getAddonByID(`rdf-${HYBRID_BOOTSTRAP_ID}`),
     null
@@ -2375,19 +2575,11 @@ add_task(async function test_hybrid_manifest_json_precedence() {
     })
   );
   addon = install.addon;
-  internalAddon = addon.__AddonInternal__;
   Assert.equal(addon.id, HYBRID_XUL_ID);
   Assert.equal(addon.name, "JSON xul hybrid");
   Assert.equal(addon.version, "2.0");
   Assert.ok(addon.isWebExtension);
   Assert.ok(!addon.isActive);
-  Assert.equal(internalAddon.loader, null);
-  Assert.ok(!internalAddon.bootstrap);
-  Assert.equal(internalAddon.optionsURL, "options.xhtml");
-  Assert.equal(internalAddon.optionsType, AddonManager.OPTIONS_TYPE_DIALOG);
-  Assert.equal(internalAddon.startupData.legacyLoader, "bootstrap");
-  Assert.equal(internalAddon.startupData.legacyMode, "xul");
-  Assert.ok(!internalAddon.unpack);
   Assert.ok(
     hasFlag(
       addon.operationsRequiringRestart,

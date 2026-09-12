@@ -8,6 +8,8 @@ import {
   LegacyResourceSubstitutions,
 } from "resource://gre/modules/addons/LegacyChromeManifest.sys.mjs";
 import { LegacyComponentRegistry } from "resource://gre/modules/addons/LegacyComponentRegistry.sys.mjs";
+import { registerLegacyChromeWindows } from "resource://gre/modules/addons/LegacyChromeWindow.sys.mjs";
+import { LegacyModuleLoader } from "resource://gre/modules/addons/LegacyModuleLoader.sys.mjs";
 import {
   LegacyStaticXULOverlayManager,
   LegacyXULOverlayManager,
@@ -127,6 +129,10 @@ export class LegacyAddonRuntime {
     this.componentRegistry = null;
     this.preferenceRegistration = null;
     this.overlayManager = null;
+    this.moduleLoader = null;
+    this._ownsModuleLoader = false;
+    this._unregisterModuleLoader = null;
+    this._unregisterChromeWindows = null;
     this.startupCacheInvalidated = false;
 
     this._legacyStateRegistered = false;
@@ -193,6 +199,14 @@ export class LegacyAddonRuntime {
       );
 
       if (this.manifest) {
+        if (!this.moduleLoader) {
+          this.moduleLoader = new LegacyModuleLoader(this.id);
+          this._ownsModuleLoader = true;
+        }
+        this._unregisterModuleLoader = this.moduleLoader.registerPackage(
+          this.manifest.package
+        );
+        this._unregisterChromeWindows = registerLegacyChromeWindows(this.manifest);
         this.componentRegistry = new LegacyComponentRegistry(
           getComponentManifest(this.manifest),
           this.logger
@@ -295,6 +309,16 @@ export class LegacyAddonRuntime {
         );
       }
       this.componentRegistry = null;
+    }
+
+    this._unregisterChromeWindows?.();
+    this._unregisterChromeWindows = null;
+    this._unregisterModuleLoader?.();
+    this._unregisterModuleLoader = null;
+    if (this._ownsModuleLoader) {
+      this.moduleLoader.destroy();
+      this.moduleLoader = null;
+      this._ownsModuleLoader = false;
     }
 
     if (this.preferenceRegistration) {

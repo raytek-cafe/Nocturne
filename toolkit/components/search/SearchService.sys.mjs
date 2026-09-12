@@ -822,6 +822,11 @@ export const SearchService = new (class SearchService {
       null,
       originAttributes
     );
+    return this.addOpenSearchEngineFromData(engineData, iconURL, originAttributes);
+  }
+
+  addOpenSearchEngineFromData(engineData, iconURL, originAttributes) {
+    this.#ensureInitialized();
     let engine = new lazy.OpenSearchEngine({
       engineData,
       faviconURL: iconURL,

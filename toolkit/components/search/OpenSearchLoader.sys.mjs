@@ -77,7 +77,7 @@ export async function loadAndParseOpenSearchEngine(
  * @returns {Promise<OpenSearchProperties>}
  *   The extracted engine properties.
  */
-async function parseXMLData(xmlData) {
+export async function parseXMLData(xmlData) {
   // In the xpcshell parse directly in the parent process.
   if (Cu.isInAutomation && Services.env.exists("XPCSHELL_TEST_PROFILE_DIR")) {
     let result = lazy.OpenSearchParser.parseXMLData(xmlData);

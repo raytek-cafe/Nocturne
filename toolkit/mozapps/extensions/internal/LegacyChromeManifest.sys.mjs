@@ -721,7 +721,7 @@ export class LegacyChromeManifest {
       location
     );
     if (
-      !["chrome", "file", "jar", "resource"].some(scheme =>
+      !["chrome", "data", "file", "jar", "resource"].some(scheme =>
         destination.schemeIs(scheme)
       )
     ) {
@@ -865,6 +865,9 @@ export class LegacyChromeManifest {
       const skinRoot = Services.io.newURI(`chrome://${packageName}/skin/`);
       for (const [relativePath, target] of await resolvePackage(packageName)) {
         const source = Services.io.newURI(relativePath, null, skinRoot).spec;
+        if (this.override.has(source)) {
+          continue;
+        }
         const entry = ["override", source, target];
         this.chromeEntries.push(entry);
         this.compatibilityChromeEntries.push(entry);
@@ -901,6 +904,10 @@ export class LegacyChromeManifest {
         `${kind} source must resolve inside the extension at ${location}`
       );
     }
-    addMapValue(map, target.spec, source.spec);
+    const documentTarget =
+      target.spec === "chrome://browser/content/browser.xul"
+        ? "chrome://browser/content/browser.xhtml"
+        : target.spec;
+    addMapValue(map, documentTarget, source.spec);
   }
 }
