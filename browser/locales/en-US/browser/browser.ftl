@@ -6,6 +6,9 @@
 # It gets updated based on loaded tabs or private browsing state.
 browser-main-window-default-title = { -brand-full-name }
 
+browser-main-window-legacy-title =
+    .title_normal = { -brand-full-name }
+
 # Note: only on macOS do we use a `-` separator between the brand name and the
 # "(Private Browsing)" suffix.
 browser-main-private-window-title = { PLATFORM() ->
