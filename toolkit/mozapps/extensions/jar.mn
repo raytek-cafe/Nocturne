@@ -15,6 +15,10 @@ toolkit.jar:
   content/mozapps/extensions/components                         (content/components/*.mjs)
   content/mozapps/extensions/shortcuts.css                      (content/shortcuts.css)
   content/mozapps/extensions/view-controller.mjs                (content/view-controller.mjs)
+  content/mozapps/extensions/legacySDKOptions.xhtml             (content/legacySDKOptions.xhtml)
+  content/mozapps/extensions/legacySDKOptions.mjs               (content/legacySDKOptions.mjs)
+  content/mozapps/extensions/legacyXULPreferences.mjs           (content/legacyXULPreferences.mjs)
+  content/mozapps/extensions/legacyXULPreferences.css           (content/legacyXULPreferences.css)
 
 % resource default-theme %content/mozapps/extensions/default-theme/
   content/mozapps/extensions/default-theme                      (default-theme/*.svg)

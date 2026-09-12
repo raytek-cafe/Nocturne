@@ -133,7 +133,7 @@ function isSupportedDocument(document) {
   }
 }
 
-function getOpenDocuments() {
+export function getOpenDocuments() {
   const documents = new Set();
   for (const window of Services.wm.getEnumerator(null)) {
     const docShell = window.docShell;

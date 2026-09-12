@@ -5,6 +5,17 @@
 import { AddonManagerPrivate } from "resource://gre/modules/AddonManager.sys.mjs";
 import { ExtensionSupport } from "resource://gre/modules/addons/ExtensionSupport.sys.mjs";
 import { LegacyAddonRuntime } from "resource://gre/modules/addons/LegacyAddonRuntime.sys.mjs";
+import {
+  cloneLegacyError,
+  LegacyModuleLoader,
+} from "resource://gre/modules/addons/LegacyModuleLoader.sys.mjs";
+import { LegacyProtocolRegistry } from "resource://gre/modules/addons/LegacyProtocolRegistry.sys.mjs";
+
+const lazy = {};
+ChromeUtils.defineESModuleGetters(lazy, {
+  LegacyEmbeddedExtension:
+    "resource://gre/modules/addons/LegacyEmbeddedExtension.sys.mjs",
+});
 
 const STARTUP_CACHE_INVALIDATE = "startupcache-invalidate";
 const retainedBootstrapUpdates = new Map();
@@ -133,6 +144,15 @@ export class LegacyBootstrapScriptScope {
       this.runtime.rootURI
     ).spec;
     this.sandbox = null;
+    this.protocolRegistry = new LegacyProtocolRegistry(
+      this.id,
+      this.runtime.rootURI
+    );
+    this.moduleLoader = new LegacyModuleLoader(this.id, this.protocolRegistry);
+    this.runtime.moduleLoader = this.moduleLoader;
+    this.embeddedExtension = addon.startupData?.hasEmbeddedWebExtension
+      ? new lazy.LegacyEmbeddedExtension()
+      : null;
     this.methods = null;
     this.started = false;
     this.destroyed = false;
@@ -148,16 +168,19 @@ export class LegacyBootstrapScriptScope {
         sandboxName: this.scriptURI,
         addonId: this.id,
         freshCompartment: true,
-        wantGlobalProperties: ["ChromeUtils"],
+        freezeBuiltins: false,
+        wantComponents: false,
         metadata: { addonID: this.id, URI: this.scriptURI },
       }
     );
     this.sandbox = sandbox;
 
-    Object.assign(sandbox, AddonManagerPrivate.BOOTSTRAP_REASONS, {
-      Services,
-      __SCRIPT_URI_SPEC__: this.scriptURI,
-    });
+    Object.assign(
+      sandbox,
+      AddonManagerPrivate.BOOTSTRAP_REASONS,
+      this.moduleLoader.createGlobals(sandbox),
+      { __SCRIPT_URI_SPEC__: this.scriptURI }
+    );
     ChromeUtils.defineLazyGetter(sandbox, "console", () =>
       console.createInstance({ prefix: `addon/${this.id}` })
     );
@@ -175,11 +198,12 @@ export class LegacyBootstrapScriptScope {
         ])
       );
     } catch (error) {
+      const retained = cloneLegacyError(error);
       this._destroySandbox();
-      this.logger.error(`Unable to load bootstrap.js for ${this.id}`, error);
+      this.logger.error(`Unable to load bootstrap.js for ${this.id}`, retained);
       throw new Error(
-        `Failed to load bootstrap script for ${this.id}: ${error.message}`,
-        { cause: error }
+        `Failed to load bootstrap script for ${this.id}: ${retained.message}`,
+        { cause: retained }
       );
     }
   }
@@ -201,6 +225,7 @@ export class LegacyBootstrapScriptScope {
 
     try {
       const result = await this._call("startup", data, reason);
+      await this.embeddedExtension?.startupComplete;
       this.started = true;
       ExtensionSupport.loadedBootstrapExtensions.add(this.id);
       return result;
@@ -236,6 +261,7 @@ export class LegacyBootstrapScriptScope {
       this.started = false;
       ExtensionSupport.loadedBootstrapExtensions.delete(this.id);
       await this._stopRuntime(reason);
+      this.embeddedExtension?.uninstall(data, reason);
       this._destroySandboxAndInvalidate();
     }
   }
@@ -253,10 +279,25 @@ export class LegacyBootstrapScriptScope {
       this.logger.warn(`Add-on ${this.id} is missing bootstrap method ${name}`);
       return undefined;
     }
-    return Reflect.apply(method, this.sandbox, [data, reason]);
+    if (this.embeddedExtension) {
+      const startupData = data;
+      data = {
+        ...data,
+        webExtension: {
+          startup: startupReason =>
+            this.embeddedExtension.startup(startupData, startupReason ?? reason),
+        },
+      };
+    }
+    try {
+      return await Reflect.apply(method, this.sandbox, [data, reason]);
+    } catch (error) {
+      throw cloneLegacyError(error);
+    }
   }
 
   async _stopRuntime(reason) {
+    await this.embeddedExtension?.shutdown(reason);
     await this.runtime.stop(reason);
     this._startupCacheInvalidated ||= this.runtime.startupCacheInvalidated;
   }
@@ -287,6 +328,10 @@ export class LegacyBootstrapScriptScope {
       return;
     }
     this.destroyed = true;
+    this.moduleLoader?.destroy();
+    this.moduleLoader = null;
+    this.protocolRegistry?.destroy();
+    this.protocolRegistry = null;
 
     if (this.sandbox && !Cu.isDeadWrapper(this.sandbox)) {
       try {

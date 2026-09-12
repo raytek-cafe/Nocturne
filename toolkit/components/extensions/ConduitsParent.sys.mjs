@@ -63,7 +63,10 @@
  * ```
  */
 
-import { BaseConduit } from "resource://gre/modules/ConduitsChild.sys.mjs";
+import {
+  BaseConduit,
+  PointConduit,
+} from "resource://gre/modules/ConduitsChild.sys.mjs";
 import { ExtensionUtils } from "resource://gre/modules/ExtensionUtils.sys.mjs";
 import { WebNavigationFrames } from "resource://gre/modules/WebNavigationFrames.sys.mjs";
 
@@ -196,6 +199,14 @@ const Hub = {
    */
   fillInAddress(address, actor) {
     address.actor = actor;
+    if (actor instanceof LocalConduitConnection) {
+      address.extensionId = actor.extensionId;
+      address.envType = "legacy_extension";
+      address.verified = true;
+      address.url = actor.url;
+      address.frameId = -1;
+      return;
+    }
     address.verified = this.verifyEnv(address);
     if (JSWindowActorParent.isInstance(actor)) {
       address.frameId = WebNavigationFrames.getFrameId(actor.browsingContext);
@@ -357,7 +368,7 @@ export class BroadcastConduit extends BaseConduit {
       // Target Messengers by extensionId, tabId (topBC) and frameId.
       tab: remote =>
         remote.extensionId === arg.extensionId &&
-        remote.actor.manager.browsingContext?.top.id === arg.topBC &&
+        remote.actor.manager?.browsingContext?.top.id === arg.topBC &&
         (arg.frameId == null || remote.frameId === arg.frameId) &&
         remote.recv.includes(method),
 
@@ -367,7 +378,7 @@ export class BroadcastConduit extends BaseConduit {
       // There is no filtering of innerWindowId at the Conduits layer.
       frame: remote =>
         remote.extensionId === arg.extensionId &&
-        remote.actor.manager.innerWindowId === arg.innerWindowId &&
+        remote.actor.manager?.innerWindowId === arg.innerWindowId &&
         remote.recv.includes(method),
 
       // Target Messengers by extensionId.
@@ -382,6 +393,65 @@ export class BroadcastConduit extends BaseConduit {
   async close() {
     this.open = false;
     Hub.closeConduit(this);
+  }
+}
+
+// A parent-process extension context uses the same message and port routing
+// without impersonating a child-process actor.
+export class LocalConduitConnection {
+  constructor(extensionId, url) {
+    this.extensionId = extensionId;
+    this.url = url;
+    this.conduits = new Map();
+    this.closed = false;
+  }
+
+  openConduit(subject, address) {
+    if (this.closed) {
+      throw new Error("The local extension connection has been closed");
+    }
+    const conduit = new PointConduit(subject, address, this);
+    this.conduits.set(conduit.id, conduit);
+    return conduit;
+  }
+
+  async sendQuery(name, data) {
+    // Actor dispatch lets callers authorize receivers before delivery.
+    await Promise.resolve();
+    if (this.closed) {
+      throw new Error("The local extension connection has been closed");
+    }
+    if (data.target !== undefined) {
+      const conduit = this.conduits.get(data.target);
+      if (!conduit) {
+        throw new Error(`Unknown local conduit ${data.target}`);
+      }
+      return conduit._recv(name, data.arg, {
+        query: data.query,
+        sender: data.sender,
+        actor: this,
+      });
+    }
+    return ConduitsParent.prototype.receiveMessage.call(this, { name, data });
+  }
+
+  sendAsyncMessage(name, data) {
+    this.sendQuery(name, data).catch(error => {
+      if (!this.closed) {
+        Cu.reportError(error);
+      }
+    });
+  }
+
+  close() {
+    if (this.closed) {
+      return;
+    }
+    this.closed = true;
+    for (const conduit of this.conduits.values()) {
+      conduit.close(true);
+    }
+    Hub.actorClosed(this);
   }
 }
 

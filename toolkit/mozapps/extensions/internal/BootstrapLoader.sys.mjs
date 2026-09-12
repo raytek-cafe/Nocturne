@@ -33,6 +33,7 @@ const METADATA_PROPERTIES = [
   "optionsURL",
   "aboutURL",
   "iconURL",
+  "icon64URL",
 ];
 const SINGLE_LOCALE_PROPERTIES = [
   "name",
@@ -50,6 +51,8 @@ const INSTALL_RDF_TYPES = new Map([
   [2, "extension"],
   ["2", "extension"],
   ["extension", "extension"],
+  [4, "extension"],
+  ["4", "extension"],
   [64, "dictionary"],
   ["64", "dictionary"],
   ["dictionary", "dictionary"],
@@ -118,8 +121,11 @@ function readTargetPlatform(value) {
   };
 }
 
-async function readIcons(pkg) {
+async function readIcons(pkg, manifest) {
   const icons = {};
+  if (manifest.icon64URL) {
+    icons[64] = manifest.icon64URL;
+  }
   if (await pkg.hasResource("icon.png")) {
     icons[32] = "icon.png";
     icons[48] = "icon.png";
@@ -224,7 +230,7 @@ export const BootstrapLoader = {
     ]);
     addon.applyBackgroundUpdates = AddonManagerAPI.AUTOUPDATE_DEFAULT;
     addon.userPermissions = null;
-    addon.icons = await readIcons(pkg);
+    addon.icons = await readIcons(pkg, manifest);
 
     if (addon.type === "extension") {
       addon.bootstrap = manifest.bootstrap === "true";
@@ -235,7 +241,44 @@ export const BootstrapLoader = {
       addon.startupData = {
         legacyMode: addon.bootstrap ? "bootstrap" : "xul",
         legacyManifest: "rdf",
+        legacyTheme:
+          Number(manifestType) === 4 ||
+          (!addon.bootstrap &&
+            typeof addon.internalName === "string" &&
+            !!addon.internalName.trim()),
       };
+      if (manifest.hasEmbeddedWebExtension === "true") {
+        if (
+          !addon.bootstrap ||
+          !(await pkg.hasResource("webextension/manifest.json"))
+        ) {
+          throw new Error(
+            "Embedded WebExtension is missing its manifest or bootstrap"
+          );
+        }
+        addon.startupData.hasEmbeddedWebExtension = true;
+      }
+      if (
+        addon.startupData.legacyTheme &&
+        (await pkg.hasResource("preview.png"))
+      ) {
+        addon.previewImage = "preview.png";
+      }
+      if (
+        addon.bootstrap &&
+        (await pkg.hasResource("package.json")) &&
+        (await pkg.readString("bootstrap.js")).includes(
+          "sdk/addon/bootstrap.js"
+        )
+      ) {
+        const metadata = JSON.parse(await pkg.readString("package.json"));
+        if (metadata.preferences?.length) {
+          addon.optionsURL =
+            "chrome://mozapps/content/extensions/legacySDKOptions.xhtml?id=" +
+            encodeURIComponent(addon.id);
+          addon.optionsType = AddonManagerAPI.OPTIONS_TYPE_TAB;
+        }
+      }
     } else {
       addon.loader = null;
       addon.optionsURL = null;

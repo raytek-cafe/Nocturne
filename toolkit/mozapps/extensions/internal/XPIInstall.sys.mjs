@@ -843,13 +843,9 @@ var loadManifest = async function (
     ({ addon, verifiedSignedState, hasLegacyManifest } =
       await loadManifestFromWebManifest(aPackage, aLocation));
   } else {
-    // TODO bug 1674799: Remove this unused branch.
     for (let loader of AddonManagerPrivate.externalExtensionLoaders.values()) {
       if (await aPackage.hasResource(loader.manifestFile)) {
         addon = await loader.loadManifest(aPackage);
-        hasLegacyManifest ||=
-          addon.startupData?.legacyManifest === "rdf" ||
-          Boolean(addon.startupData?.legacyMode);
         if (addon.loader !== null) {
           addon.loader = loader.name;
         }

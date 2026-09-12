@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  bindLegacyChromeEventHandler,
+  prepareLegacyChromeWindow,
+} from "resource://gre/modules/addons/LegacyChromeWindow.sys.mjs";
+
 const PLACEMENT_ATTRIBUTES = new Set([
   "insertafter",
   "insertbefore",
@@ -13,7 +18,9 @@ const OVERLAY_ATTRIBUTES = new Set([
   "removeelement",
 ]);
 const XMLNS_NAMESPACE = "http://www.w3.org/2000/xmlns/";
+const MISSING_ATTRIBUTE_TOKEN = "-moz-missing\n";
 const loadsByDocument = new WeakMap();
+const sheetsByDocument = new WeakMap();
 
 function registryValues(registry, key) {
   if (!registry || typeof registry.get !== "function") {
@@ -120,7 +127,12 @@ export class Overlays {
 
     this._decksToResolve = new Map();
     this._toolbarsToResolve = new Set();
-    this._loadedSheets = new Set();
+    let loadedSheets = sheetsByDocument.get(window.document);
+    if (!loadedSheets) {
+      loadedSheets = new Set();
+      sheetsByDocument.set(window.document, loadedSheets);
+    }
+    this._loadedSheets = loadedSheets;
     this._loadPromise = null;
     this._pendingFinish = null;
     this._loading = false;
@@ -146,6 +158,8 @@ export class Overlays {
       throw new Error("Cannot load overlays into an unloaded window");
     }
 
+    const document = this.document;
+    let blockingOnload = false;
     this._loading = true;
     this._ensureUnloadListener();
     try {
@@ -171,12 +185,13 @@ export class Overlays {
       for (const sheet of this._registryValues("style", this.location)) {
         sheets.add(this._resolveURI(sheet, documentBase));
       }
-      for (const sheet of this._collectStyles(this.document, documentBase)) {
-        sheets.add(sheet);
-      }
 
       if (!overlayQueue.length && !sheets.size) {
         return;
+      }
+      if (document.readyState !== "complete") {
+        document.blockUnblockOnload(true);
+        blockingOnload = true;
       }
       this._readPersistedIDs();
 
@@ -229,6 +244,10 @@ export class Overlays {
         this.loadCSS(sheet);
       }
 
+      if (this.document.l10n) {
+        await this.document.l10n.ready;
+      }
+
       for (const script of this.unloadedScripts) {
         if (this._destroyed) {
           return;
@@ -239,6 +258,9 @@ export class Overlays {
       this._scheduleFinish();
     } finally {
       this._loading = false;
+      if (blockingOnload) {
+        document.blockUnblockOnload(false);
+      }
       this._maybeRemoveUnloadListener();
     }
   }
@@ -462,6 +484,7 @@ export class Overlays {
         attribute.name,
         attribute.value
       );
+      bindLegacyChromeEventHandler(target, attribute, source.ownerDocument.documentURI);
     }
   }
 
@@ -478,6 +501,9 @@ export class Overlays {
     }
     if (!palette) {
       return false;
+    }
+    if (palette.ownerDocument !== this.document) {
+      this.document.adoptNode(palette);
     }
 
     if (target) {
@@ -511,6 +537,14 @@ export class Overlays {
   }
 
   _findElementById(id) {
+    if (
+      this.location === "chrome://browser/content/browser.xhtml" &&
+      id.startsWith("customization-")
+    ) {
+      // Materialize the native lazy markup before merging customization nodes.
+      void this.window.gCustomizeMode;
+    }
+
     const element = this.document.getElementById(id);
     if (element) {
       return element;
@@ -654,6 +688,14 @@ export class Overlays {
     }
   }
 
+  _setPersistedAttribute(element, name, value) {
+    if (value === MISSING_ATTRIBUTE_TOKEN) {
+      element.removeAttribute(name);
+    } else if (element.getAttribute(name) !== value) {
+      element.setAttribute(name, value);
+    }
+  }
+
   _restoreBeforeInsertion(node) {
     if (!this.xulStore) {
       return;
@@ -666,7 +708,8 @@ export class Overlays {
     menulists.push(...(node.querySelectorAll?.("menulist[id]") ?? []));
     for (const menulist of menulists) {
       if (menulist.id && this.persistedIDs.has(menulist.id)) {
-        menulist.setAttribute(
+        this._setPersistedAttribute(
+          menulist,
           "value",
           this.xulStore.getValue(this.location, menulist.id, "value")
         );
@@ -693,13 +736,10 @@ export class Overlays {
         if (name === "selectedIndex" && element.localName === "deck") {
           this._decksToResolve.set(element, value);
         } else if (
-          (element !== this.document.documentElement ||
-            !["height", "screenX", "screenY", "sizemode", "width"].includes(
-              name
-            )) &&
-          element.getAttribute(name) !== String(value)
+          element !== this.document.documentElement ||
+          !["height", "screenX", "screenY", "sizemode", "width"].includes(name)
         ) {
-          element.setAttribute(name, value);
+          this._setPersistedAttribute(element, name, value);
         }
       }
     }
@@ -712,16 +752,21 @@ export class Overlays {
     this._finished = true;
 
     for (const [deck, selectedIndex] of this._decksToResolve) {
-      deck.setAttribute("selectedIndex", selectedIndex);
+      this._setPersistedAttribute(deck, "selectedIndex", selectedIndex);
     }
 
     for (const toolbar of this._toolbarsToResolve) {
       if (!toolbar.id) {
         continue;
       }
-      const currentSet =
-        this.xulStore?.getValue(this.location, toolbar.id, "currentset") ||
-        toolbar.getAttribute("defaultset");
+      let currentSet = this.xulStore?.getValue(
+        this.location,
+        toolbar.id,
+        "currentset"
+      );
+      if (!currentSet || currentSet === MISSING_ATTRIBUTE_TOKEN) {
+        currentSet = toolbar.getAttribute("defaultset");
+      }
       if (!currentSet) {
         continue;
       }
@@ -935,22 +980,29 @@ export class Overlays {
     }
 
     try {
+      let url;
       if (node.hasAttribute("src")) {
         const source = node.getAttribute("src");
         if (!source) {
           throw new Error("Overlay script has an empty source");
         }
-        const url = this._assertAllowedSource(
+        url = this._assertAllowedSource(
           source,
           "script",
           node.baseURI || node.ownerDocument?.documentURI || this.location
         );
-        Services.scriptloader.loadSubScript(url, this.window, "UTF-8");
       } else if (node.textContent) {
-        const url = `data:application/javascript;charset=UTF-8,${encodeURIComponent(
+        url = `data:application/javascript;charset=UTF-8,${encodeURIComponent(
           node.textContent
         )}`;
-        Services.scriptloader.loadSubScript(url, this.window, "UTF-8");
+      }
+      if (url) {
+        prepareLegacyChromeWindow(this.window);
+        Services.scriptloader.loadSubScriptWithOptions(url, {
+          target: this.window,
+          charset: "UTF-8",
+          allowUnsafeURL: true,
+        });
       }
     } finally {
       if (patched) {
