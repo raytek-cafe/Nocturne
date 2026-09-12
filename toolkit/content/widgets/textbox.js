@@ -12,7 +12,7 @@
       return {
         ".textbox-input-box": "context,spellcheck",
         ".textbox-input":
-          "value,type,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,noinitialfocus,mozactionhint,spellcheck",
+          "value,type,min,max,step,maxlength,disabled,size,readonly,placeholder,tabindex,accesskey,noinitialfocus,mozactionhint,spellcheck,rows,cols,wrap",
       };
     }
 
@@ -22,6 +22,24 @@
           <html:input class="textbox-input" anonid="input" />
         </hbox>
       `;
+    }
+
+    static get multilineMarkup() {
+      return `
+        <hbox class="textbox-input-box" flex="1">
+          <html:textarea class="textbox-input textbox-textarea" anonid="input"></html:textarea>
+        </hbox>
+      `;
+    }
+
+    static get multilineFragment() {
+      if (!this.hasOwnProperty("_multilineFragment")) {
+        this._multilineFragment = MozXULElement.parseXULToFragment(
+          this.multilineMarkup,
+          this.entities
+        );
+      }
+      return document.importNode(this._multilineFragment, true);
     }
 
     constructor() {
@@ -38,8 +56,14 @@
       }
 
       this.textContent = "";
-      this.appendChild(this.constructor.fragment);
+      const fragment =
+        this.getAttribute("multiline") == "true"
+          ? this.constructor.multilineFragment
+          : this.constructor.fragment;
+      this.appendChild(fragment);
       this.initializeAttributeInheritance();
+      this._syncBooleanAttributes();
+      this._syncValueAttribute();
       this._initialized = true;
 
       this.addEventListener("focus", this._onFocus, true);
@@ -51,6 +75,32 @@
       if (this.hasAttribute("emptytext")) {
         this.placeholder = this.getAttribute("emptytext");
       }
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      super.attributeChangedCallback(name, oldValue, newValue);
+      if (!this._initialized || oldValue == newValue) {
+        return;
+      }
+      if (name == "disabled" || name == "readonly") {
+        this._syncBooleanAttribute(name);
+      } else if (name == "value") {
+        this._syncValueAttribute();
+      }
+    }
+
+    _syncBooleanAttributes() {
+      this._syncBooleanAttribute("disabled");
+      this._syncBooleanAttribute("readonly");
+    }
+
+    _syncBooleanAttribute(name) {
+      this.inputField[name == "readonly" ? "readOnly" : name] =
+        this.getAttribute(name) == "true";
+    }
+
+    _syncValueAttribute() {
+      this.inputField.value = this.getAttribute("value") ?? "";
     }
 
     get inputField() {
@@ -331,6 +381,9 @@
       this.setAttribute("timeout", value);
     }
 
+    get value() {
+      return super.value;
+    }
     set value(value) {
       this.inputField.value = value;
       if (this._timer) {
@@ -364,19 +417,7 @@
 
   class MozTextarea extends MozTextbox {
     static get markup() {
-      return `
-        <hbox class="textbox-input-box" flex="1">
-          <html:textarea class="textbox-textarea" anonid="input"></html:textarea>
-        </hbox>
-      `;
-    }
-
-    static get inheritedAttributes() {
-      return {
-        ".textbox-input-box": "context,spellcheck",
-        ".textbox-textarea":
-          "value,disabled,tabindex,rows,cols,readonly,wrap,placeholder,mozactionhint,spellcheck",
-      };
+      return this.multilineMarkup;
     }
   }
 

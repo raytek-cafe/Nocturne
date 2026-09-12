@@ -42,9 +42,13 @@
       }
     }
 
+
     set checked(val) {
-      val = !!val;
-      this.toggleAttribute("checked", val);
+      if (val) {
+        this.setAttribute("checked", "true");
+      } else {
+        this.removeAttribute("checked");
+      }
     }
 
     get checked() {

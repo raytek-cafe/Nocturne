@@ -4,7 +4,8 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-richlistbox {
+richlistbox,
+listbox {
   margin: 2px 4px;
   background-color: Field;
   color: FieldText;
@@ -15,16 +16,19 @@ richlistbox {
   }
 }
 
-richlistitem[selected="true"] {
+richlistitem[selected="true"],
+listitem[selected="true"] {
   background-color: -moz-cellhighlight;
   color: -moz-cellhighlighttext;
 }
 
-richlistbox:where(:focus) > richlistitem[selected="true"] {
+richlistbox:where(:focus) > richlistitem[selected="true"],
+listbox:where(:focus) > listitem[selected="true"] {
   background-color: SelectedItem;
   color: SelectedItemText;
 }
 
+listbox[seltype="multiple"]:focus > listitem[current="true"],
 richlistbox[seltype="multiple"]:focus > richlistitem[current="true"],
 richlistbox.theme-listbox:focus > richlistitem[current="true"] {
   outline: var(--default-focusring);
@@ -35,6 +39,10 @@ richlistbox.theme-listbox:focus > richlistitem[current="true"] {
 richlistbox[seltype="multiple"]:focus > richlistitem[current="true"][selected="true"],
 richlistbox.theme-listbox:focus > richlistitem[current="true"][selected="true"] {
   outline-color: #f3d982; /* TODO: find a suitable system color */
+}
+
+listbox[seltype="multiple"]:focus > listitem[current="true"][selected="true"] {
+  outline-color: SelectedItemText;
 }
 
 richlistbox.theme-listbox > richlistitem {
@@ -51,7 +59,8 @@ richlistbox.theme-listbox:focus > richlistitem[selected="true"] {
   color: SelectedItemText;
 }
 
-richlistbox.theme-listbox > richlistitem > label {
+richlistbox.theme-listbox > richlistitem > label,
+listbox > listitem > label {
   margin: 0;
   padding-block: 0 1px;
   padding-inline: 4px 0;

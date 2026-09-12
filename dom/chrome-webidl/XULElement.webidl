@@ -13,6 +13,20 @@ interface XULElement : Element {
   attribute boolean hidden;
   attribute boolean collapsed;
 
+  attribute EventHandler onbroadcast;
+  attribute EventHandler oncommandupdate;
+  attribute EventHandler ondialogaccept;
+  attribute EventHandler ondialogcancel;
+  attribute EventHandler ondialogdisclosure;
+  attribute EventHandler ondialogextra1;
+  attribute EventHandler ondialogextra2;
+  attribute EventHandler ondialoghelp;
+  attribute EventHandler onpopuphidden;
+  attribute EventHandler onpopuphiding;
+  attribute EventHandler onpopuppositioned;
+  attribute EventHandler onpopupshowing;
+  attribute EventHandler onpopupshown;
+
   // Property for hooking up to broadcasters
   [SetterThrows]
   attribute DOMString observes;
