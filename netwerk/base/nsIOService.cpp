@@ -2406,7 +2406,8 @@ nsIOService::RegisterProtocolHandler(const nsACString& aScheme,
 }
 
 NS_IMETHODIMP
-nsIOService::UnregisterProtocolHandler(const nsACString& aScheme) {
+nsIOService::UnregisterProtocolHandler(const nsACString& aScheme,
+                                       nsIProtocolHandler* aExpectedHandler) {
   if (mShutdown) {
     return NS_OK;
   }
@@ -2418,9 +2419,14 @@ nsIOService::UnregisterProtocolHandler(const nsACString& aScheme) {
   ToLowerCase(scheme);
 
   AutoWriteLock lock(mLock);
-  return mRuntimeProtocolHandlers.Remove(scheme)
-             ? NS_OK
-             : NS_ERROR_FACTORY_NOT_REGISTERED;
+  return mRuntimeProtocolHandlers.WithEntryHandle(scheme, [&](auto&& entry) {
+    if (!entry ||
+        (aExpectedHandler && entry.Data().mHandler.get() != aExpectedHandler)) {
+      return NS_ERROR_FACTORY_NOT_REGISTERED;
+    }
+    entry.Remove();
+    return NS_OK;
+  });
 }
 
 NS_IMETHODIMP

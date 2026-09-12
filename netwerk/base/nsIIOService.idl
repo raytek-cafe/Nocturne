@@ -349,8 +349,11 @@ interface nsIIOService : nsISupports
      * registerProtocolHandler.
      *
      * @param aScheme the scheme to unregister a handler for.
+     * @param aExpectedHandler if supplied, only remove this handler instance.
+     * @throws NS_ERROR_FACTORY_NOT_REGISTERED if absent or owned by another handler.
      */
-    void unregisterProtocolHandler(in ACString aScheme);
+    void unregisterProtocolHandler(in ACString aScheme,
+                                   [optional] in nsIProtocolHandler aExpectedHandler);
 
     /**
      * Updates the RemoteSettings-specified portion of the defaultURI bypass

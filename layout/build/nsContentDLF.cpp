@@ -34,7 +34,7 @@ using mozilla::dom::ForceMediaDocument;
 already_AddRefed<nsIDocumentViewer> NS_NewDocumentViewer();
 
 static const char* const gHTMLTypes[] = {TEXT_HTML, VIEWSOURCE_CONTENT_TYPE,
-                                         APPLICATION_XHTML_XML,
+                                         APPLICATION_XHTML_XML, APPLICATION_XUL_XML,
                                          APPLICATION_WAPXHTML_XML, nullptr};
 
 static const char* const gXMLTypes[] = {

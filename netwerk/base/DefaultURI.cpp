@@ -185,6 +185,14 @@ NS_IMETHODIMP DefaultURI::Resolve(const nsACString& aRelativePath,
   return NS_OK;
 }
 
+NS_IMETHODIMP DefaultURI::Clone(nsIURI** aURI) {
+  RefPtr<DefaultURI> clone = new DefaultURI();
+  auto mutator = mURL->Mutate();
+  mutator.Finalize(getter_AddRefs(clone->mURL));
+  clone.forget(aURI);
+  return NS_OK;
+}
+
 NS_IMETHODIMP DefaultURI::GetAsciiSpec(nsACString& aAsciiSpec) {
   return GetSpec(aAsciiSpec);
 }

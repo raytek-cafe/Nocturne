@@ -55,7 +55,6 @@ class nsMozIconURI final : public nsIMozIconURI,
   mozilla::Maybe<bool> mDark;
 
  private:
-  nsresult Clone(nsIURI** aURI);
   nsresult SetSpecInternal(const nsACString& input);
   nsresult SetScheme(const nsACString& input);
   nsresult SetUserPass(const nsACString& input);

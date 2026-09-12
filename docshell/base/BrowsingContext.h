@@ -317,6 +317,10 @@ struct EmbedderColorSchemes {
    * unless scripts are also allowed in the parent WindowContext. */           \
   FIELD(AllowJavascript, bool,                                                 \
         {.mCanSet = CanSet::ParentOnly, .mDefault = [] { return true; }})      \
+  /* The owning process can restrict scripts without changing the parent      \
+   * process's AllowJavascript flag. */                                        \
+  FIELD(AllowJavascriptInDocShell, bool,                                       \
+        {.mCanSet = CanSet::Custom, .mDefault = [] { return true; }})           \
   /* The count of request that are used to prevent the browsing context tree   \
    * from being suspended, which would ONLY be modified on the top level       \
    * context in the chrome process because that's a non-atomic counter */      \
@@ -1468,6 +1472,9 @@ class BrowsingContext : public nsILoadContext, public nsWrapperCache {
   void DidSet(FieldIndex<IDX_PageAwakeRequestCount>, uint32_t aOldValue);
 
   void DidSet(FieldIndex<IDX_AllowJavascript>, bool aOldValue);
+  CanSetResult CanSet(FieldIndex<IDX_AllowJavascriptInDocShell>, bool aValue,
+                      ContentParent* aSource);
+  void DidSet(FieldIndex<IDX_AllowJavascriptInDocShell>, bool aOldValue);
 
   // TODO(emilio): Maybe handle the flag being set dynamically without
   // navigating? The previous code didn't do it tho, and a reload is probably

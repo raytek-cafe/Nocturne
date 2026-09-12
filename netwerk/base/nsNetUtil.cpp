@@ -16,6 +16,7 @@
 #include "mozilla/LoadInfo.h"
 #include "mozilla/MathAlgorithms.h"
 #include "mozilla/Monitor.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_browser.h"
 #include "mozilla/StaticPrefs_dom.h"
 #include "mozilla/StaticPrefs_extensions.h"
@@ -52,12 +53,14 @@
 #include "nsIInputStreamPump.h"
 #include "nsIInterfaceRequestorUtils.h"
 #include "nsILoadContext.h"
+#include "nsIOService.h"
 #include "nsIMIMEHeaderParam.h"
 #include "nsINode.h"
 #include "nsIObjectLoadingContent.h"
 #include "nsPersistentProperties.h"
 #include "nsIPrivateBrowsingChannel.h"
 #include "nsIPropertyBag2.h"
+#include "nsIJARURI.h"
 #include "nsIProtocolProxyService.h"
 #include "mozilla/net/RedirectChannelRegistrar.h"
 #include "nsRequestObserverProxy.h"
@@ -101,6 +104,7 @@
 #include "nsStreamUtils.h"
 #include "nsSocketTransportService2.h"
 #include "nsViewSourceHandler.h"
+
 #include "nsJARURI.h"
 #ifndef XP_IOS
 #  include "nsIconURI.h"
@@ -116,6 +120,7 @@
 #include "mozilla/net/SFVService.h"
 #include "nsICookieService.h"
 #include "nsIXPConnect.h"
+#include "nsIXULRuntime.h"
 #include "nsParserConstants.h"
 #include "nsCRT.h"
 #include "nsServiceManagerUtils.h"
@@ -2408,6 +2413,132 @@ nsresult NS_GetFinalChannelURI(nsIChannel* channel, nsIURI** uri) {
     return NS_OK;
   }
   return channel->GetOriginalURI(uri);
+}
+
+bool NS_IsLegacyLocalUIChannel(nsIChannel* aChannel) {
+  if (!aChannel || !XRE_IsParentProcess() || !NS_IsMainThread()) {
+    return false;
+  }
+
+  nsCOMPtr<nsIPropertyBag2> properties = do_QueryInterface(aChannel);
+  if (!properties) {
+    return false;
+  }
+
+  nsCOMPtr<nsISupports> markedHandler =
+      do_GetProperty(properties, u"legacy-extension-protocol-handler"_ns);
+  nsCOMPtr<nsIURI> backingURI =
+      do_GetProperty(properties, u"legacy-extension-protocol-uri"_ns);
+  if (!markedHandler || !backingURI) {
+    return false;
+  }
+
+  nsCOMPtr<nsIURI> channelURI;
+  if (NS_FAILED(aChannel->GetURI(getter_AddRefs(channelURI))) || !channelURI) {
+    return false;
+  }
+  bool backingMatches = backingURI == channelURI;
+  if (!backingMatches &&
+      (NS_FAILED(backingURI->Equals(channelURI, &backingMatches)) ||
+       !backingMatches)) {
+    return false;
+  }
+  const bool insecureLegacyProtocols =
+      mozilla::Preferences::GetBool("extensions.legacy.insecure.enabled",
+                                    false) &&
+      !mozilla::BrowserTabsRemoteAutostart();
+
+  // Strict mode only permits native file channels and JAR channels whose
+  // archive is a local file. The explicit insecure mode also permits foreign
+  // and non-local system-owned backing resources.
+  if (!insecureLegacyProtocols) {
+    if (channelURI->SchemeIs("jar")) {
+      nsCOMPtr<nsIJARURI> jarURI = do_QueryInterface(channelURI);
+      nsCOMPtr<nsIURI> jarFile;
+      if (!jarURI || NS_FAILED(jarURI->GetJARFile(getter_AddRefs(jarFile))) ||
+          !jarFile || !jarFile->SchemeIs("file")) {
+        return false;
+      }
+    } else if (!channelURI->SchemeIs("file")) {
+      return false;
+    }
+  }
+
+  nsCOMPtr<nsILoadInfo> loadInfo = aChannel->LoadInfo();
+  if (!loadInfo) {
+    return false;
+  }
+
+  nsCOMPtr<nsIURI> finalURI;
+  nsCOMPtr<nsIURI> originalURI;
+  if (NS_FAILED(NS_GetFinalChannelURI(aChannel, getter_AddRefs(finalURI))) ||
+      NS_FAILED(aChannel->GetOriginalURI(getter_AddRefs(originalURI)))) {
+    return false;
+  }
+
+  auto matchesActiveRuntimeHandler = [&](nsIURI* aURI) {
+    if (!aURI) {
+      return false;
+    }
+    nsAutoCString scheme;
+    if (NS_FAILED(aURI->GetScheme(scheme))) {
+      return false;
+    }
+
+    // LookupProtocolHandler takes and releases the IO-service lock while
+    // copying the retained runtime registration. Only obtain and QI the
+    // potentially-JS handler after that lookup has completed.
+    RefPtr<mozilla::net::nsIOService> ioService =
+        mozilla::net::nsIOService::GetInstance();
+    if (!ioService) {
+      return false;
+    }
+    mozilla::net::ProtocolHandlerInfo info =
+        ioService->LookupProtocolHandler(scheme);
+    if (!info.IsRuntime() || (!insecureLegacyProtocols &&
+                              !(info.StaticProtocolFlags() &
+                                nsIProtocolHandler::URI_IS_LOCAL_RESOURCE))) {
+      return false;
+    }
+    mozilla::AssertIsOnMainThread();
+    nsCOMPtr<nsIProtocolHandler> handler = info.Handler();
+    nsCOMPtr<nsISupports> handlerIdentity = do_QueryInterface(handler);
+    return handlerIdentity && handlerIdentity == markedHandler;
+  };
+
+  if (!matchesActiveRuntimeHandler(finalURI) &&
+      (originalURI == finalURI || !matchesActiveRuntimeHandler(originalURI))) {
+    return false;
+  }
+
+  const ExtContentPolicy contentPolicyType =
+      loadInfo->GetExternalContentPolicyType();
+  if (insecureLegacyProtocols) {
+    if (contentPolicyType != ExtContentPolicy::TYPE_DOCUMENT &&
+        contentPolicyType != ExtContentPolicy::TYPE_SUBDOCUMENT) {
+      return false;
+    }
+  } else {
+    nsIPrincipal* triggeringPrincipal = loadInfo->TriggeringPrincipal();
+    if (contentPolicyType != ExtContentPolicy::TYPE_DOCUMENT ||
+        loadInfo->GetSandboxFlags() != 0 || !triggeringPrincipal ||
+        !triggeringPrincipal->IsSystemPrincipal()) {
+      return false;
+    }
+    nsIPrincipal* loadingPrincipal = loadInfo->GetLoadingPrincipal();
+    if (loadingPrincipal && !loadingPrincipal->IsSystemPrincipal()) {
+      return false;
+    }
+  }
+
+  nsCOMPtr<nsIPrincipal> resultPrincipal;
+  if (NS_FAILED(nsContentUtils::GetSecurityManager()->GetChannelResultPrincipal(
+          aChannel, getter_AddRefs(resultPrincipal))) ||
+      !resultPrincipal || !resultPrincipal->IsSystemPrincipal()) {
+    return false;
+  }
+
+  return true;
 }
 
 nsresult NS_URIChainHasFlags(nsIURI* uri, uint32_t flags, bool* result) {

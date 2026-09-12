@@ -48,7 +48,6 @@ class nsSimpleURI : public nsIURI,
   // enum used in a few places to specify how .ref attribute should be handled
   enum RefHandlingEnum { eIgnoreRef, eHonorRef, eReplaceRef };
 
-  virtual nsresult Clone(nsIURI** result);
   virtual nsresult SetSpecInternal(const nsACString& aSpec,
                                    bool aStripWhitespace = false);
   virtual nsresult SetScheme(const nsACString& input);

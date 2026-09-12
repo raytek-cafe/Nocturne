@@ -3176,6 +3176,11 @@ pref("xpinstall.signatures.required", false);
 pref("extensions.langpacks.signatures.required", false);
 pref("extensions.webExtensionsMinPlatformVersion", "42.0a1");
 pref("extensions.experiments.enabled", false);
+// WARNING: Relaxes legacy protocol trust checks and disables site isolation.
+// Enabling this preference requires a restart.
+pref("extensions.legacy.insecure.enabled", false);
+pref("general.skins.selectedSkin", "classic/1.0");
+pref("lightweightThemes.selectedThemeID", "");
 
 // Other webextensions prefs
 pref("extensions.webextensions.keepStorageOnUninstall", false);

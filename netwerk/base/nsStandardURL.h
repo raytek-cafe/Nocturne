@@ -221,7 +221,6 @@ class nsStandardURL : public nsIFileURL,
   // a file.  Must not write mFile: the URL may be in use on other threads.
   virtual nsresult ResolveFile(nsIFile** aResult);
 
-  virtual nsresult Clone(nsIURI** aURI);
   virtual nsresult SetSpecInternal(const nsACString& input);
   virtual nsresult SetScheme(const nsACString& input);
   virtual nsresult SetUserPass(const nsACString& input);

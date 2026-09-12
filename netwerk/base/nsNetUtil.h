@@ -856,6 +856,13 @@ inline nsresult NS_GetInnermostURIHost(nsIURI* aURI, nsACString& aHost) {
  */
 nsresult NS_GetFinalChannelURI(nsIChannel* channel, nsIURI** uri);
 
+/**
+ * Returns whether a channel is a verified UI document produced by the currently
+ * registered legacy protocol adapter. The opt-in insecure mode relaxes caller,
+ * local backing, and top-level document restrictions.
+ */
+bool NS_IsLegacyLocalUIChannel(nsIChannel* aChannel);
+
 bool NS_SecurityCompareURIs(nsIURI* aSourceURI, nsIURI* aTargetURI,
                             bool aStrictFileOriginPolicy);
 
