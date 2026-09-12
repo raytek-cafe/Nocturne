@@ -1567,6 +1567,51 @@ class AddonInstall {
     }
   }
 
+  async _selectXULTheme() {
+    const installs = [...XPIInstall.installs].filter(
+      install => install.state === AddonManager.STATE_INSTALLED
+    );
+    const candidates = installs.map(install => install.addon).filter(Boolean);
+    const previous = [
+      ...XPIExports.XPIDatabase.getAddons(),
+      ...candidates,
+    ].find(
+      addon =>
+        addon !== this.addon &&
+        addon.id !== this.addon.id &&
+        addon.isXULTheme &&
+        !addon.userDisabled
+    );
+    const previousInstall = installs.find(
+      install => install.addon === previous
+    );
+    this._previousSelectedXULThemes = previous
+      ? [previous, ...(previousInstall?._previousSelectedXULThemes ?? [])]
+      : [];
+    this.addon.userDisabled = false;
+    await XPIExports.XPIDatabase.selectXULTheme(this.addon);
+  }
+
+  async _restoreXULThemeSelection() {
+    const previousThemes = this._previousSelectedXULThemes ?? [];
+    this._previousSelectedXULThemes = [];
+    if (this.addon.userDisabled) {
+      return;
+    }
+
+    const pendingAddons = [...XPIInstall.installs]
+      .filter(install => install.state === AddonManager.STATE_INSTALLED)
+      .map(install => install.addon);
+    const previous = previousThemes.find(
+      addon => addon.inDatabase || pendingAddons.includes(addon)
+    );
+    if (!previous) {
+      return;
+    }
+
+    await previous.setUserDisabled(false);
+  }
+
   /**
    * Starts installation of this add-on from whatever state it is currently at
    * if possible.
@@ -1677,7 +1722,9 @@ class AddonInstall {
         if (stagedAddon.exists()) {
           flushJarCache(stagedAddon);
         }
-        return this.unstageInstall(stagingDir);
+        return this.unstageInstall(stagingDir).then(() =>
+          this._restoreXULThemeSelection()
+        );
       }
       case AddonManager.STATE_POSTPONED: {
         logger.debug(`Cancelling postponed install of ${this.addon.id}`);
@@ -2110,6 +2157,16 @@ class AddonInstall {
       return;
     }
 
+    if (
+      this.addon.isXULTheme &&
+      (!this.existingAddon ||
+        (this.existingAddon.location === this.location &&
+          this.existingAddon.version === this.addon.version &&
+          this.existingAddon.userDisabled))
+    ) {
+      await this._selectXULTheme();
+    }
+
     // Reinstall existing user-disabled addon (of the same installed version).
     // If addon is marked to be uninstalled - don't reinstall it.
     if (
@@ -2316,6 +2373,7 @@ class AddonInstall {
       XPIExports.XPIProvider.activeAddons
         .get(this.existingAddon?.id)
         ?.clearPendingUpdate();
+      await this._restoreXULThemeSelection();
       if (stagedAddon.exists()) {
         recursiveRemove(stagedAddon);
       }

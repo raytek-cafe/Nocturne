@@ -5,6 +5,7 @@
 import {
   AddonManagerListenerHandler,
   isPending,
+  isPendingRestartInstall,
   shouldSkipAnimations,
 } from "../aboutaddons-utils.mjs";
 
@@ -60,8 +61,14 @@ export class AddonList extends HTMLElement {
 
     // Process any pending uninstall related to this list.
     for (const addon of this.pendingUninstallAddons) {
-      if (isPending(addon, "uninstall")) {
-        addon.uninstall();
+      if (
+        isPending(addon, "uninstall") &&
+        !(
+          addon.operationsRequiringRestart &
+          AddonManager.OP_NEEDS_RESTART_UNINSTALL
+        )
+      ) {
+        Promise.resolve(addon.uninstall()).catch(Cu.reportError);
       }
     }
     this.pendingUninstallAddons.clear();
@@ -117,15 +124,45 @@ export class AddonList extends HTMLElement {
   sortByFn(aAddon, bAddon) {
     return aAddon.name.localeCompare(bAddon.name);
   }
+  isAddonForList(addon) {
+    if (this.type === "all") {
+      return true;
+    }
+    if (this.type === "xul-theme") {
+      return addon.type === "extension" && addon.isXULTheme;
+    }
+    if (this.type === "extension") {
+      return addon.type === "extension" && !addon.isXULTheme;
+    }
+    return addon.type === this.type;
+  }
 
   async getAddons() {
     if (!this.type) {
       throw new Error(`type must be set to find add-ons`);
     }
 
-    // Find everything matching our type, null will find all types.
-    let type = this.type == "all" ? null : [this.type];
-    let addons = await AddonManager.getAddonsByTypes(type);
+    // XUL themes use the extension provider but have their own UI list type.
+    let providerType = this.type === "xul-theme" ? "extension" : this.type;
+    let type = providerType == "all" ? null : [providerType];
+    let [addons, installs] = await Promise.all([
+      AddonManager.getAddonsByTypes(type),
+      this.type === "xul-theme"
+        ? AddonManager.getAllInstalls()
+        : AddonManager.getInstallsByTypes(type),
+    ]);
+    const addonIds = new Set(addons.map(addon => addon.id));
+    for (const install of installs) {
+      if (
+        install.state === AddonManager.STATE_INSTALLED &&
+        install.addon &&
+        !addonIds.has(install.addon.id)
+      ) {
+        addons.push(install.addon);
+        addonIds.add(install.addon.id);
+      }
+    }
+    addons = addons.filter(addon => this.isAddonForList(addon));
 
     if (type == "theme") {
       await lazy.BuiltInThemes.ensureBuiltInThemes();
@@ -176,11 +213,15 @@ export class AddonList extends HTMLElement {
     const undo = document.createElement("button");
     undo.setAttribute("action", "undo");
     undo.addEventListener("click", () => {
-      addon.cancelUninstall();
+      Promise.resolve(addon.cancelUninstall()).catch(Cu.reportError);
     });
     undo.setAttribute("slot", "actions");
 
-    document.l10n.setAttributes(mb, "pending-uninstall-description2", {
+    const messageId =
+      addon.operationsRequiringRestart & AddonManager.OP_NEEDS_RESTART_UNINSTALL
+        ? "pending-uninstall-restart-description"
+        : "pending-uninstall-description2";
+    document.l10n.setAttributes(mb, messageId, {
       addon: addon.name,
     });
     mb.setAttribute("data-l10n-attrs", "message");
@@ -195,6 +236,66 @@ export class AddonList extends HTMLElement {
     if (messagebar) {
       messagebar.remove();
     }
+  }
+  createRestartBar() {
+    const message = document.createElement("moz-message-bar");
+    message.className = "xul-theme-restart";
+    message.setAttribute("type", "warning");
+    message.hidden = true;
+    document.l10n.setAttributes(message, "xul-theme-restart-required-message");
+
+    const restart = document.createElement("button");
+    restart.setAttribute("slot", "actions");
+    restart.setAttribute("action", "restart");
+    document.l10n.setAttributes(restart, "addon-page-restart");
+    restart.addEventListener("click", () => {
+      const cancel = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+        Ci.nsISupportsPRBool
+      );
+      Services.obs.notifyObservers(
+        cancel,
+        "quit-application-requested",
+        "restart"
+      );
+      if (!cancel.data) {
+        Services.startup.quit(
+          Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart
+        );
+      }
+    });
+    message.append(restart);
+    return message;
+  }
+
+  async updateRestartBar() {
+    if (!this.restartBar) {
+      return;
+    }
+    const [addons, installs] = await Promise.all([
+      AddonManager.getAddonsByTypes(["extension"]),
+      AddonManager.getAllInstalls(),
+    ]);
+    const needsRestart = addon =>
+      addon.isXULTheme &&
+      !!(
+        (addon.pendingOperations & AddonManager.PENDING_UNINSTALL &&
+          addon.operationsRequiringRestart &
+            AddonManager.OP_NEEDS_RESTART_UNINSTALL) ||
+        (addon.pendingOperations & AddonManager.PENDING_ENABLE &&
+          addon.operationsRequiringRestart &
+            AddonManager.OP_NEEDS_RESTART_ENABLE) ||
+        (addon.pendingOperations & AddonManager.PENDING_DISABLE &&
+          addon.operationsRequiringRestart &
+            AddonManager.OP_NEEDS_RESTART_DISABLE)
+      );
+    this.restartBar.hidden = !(
+      addons.some(needsRestart) ||
+      installs.some(
+        install =>
+          install.state === AddonManager.STATE_INSTALLED &&
+          install.addon?.isXULTheme
+      )
+    );
   }
 
   createSectionHeading(headingIndex) {
@@ -228,6 +329,13 @@ export class AddonList extends HTMLElement {
         emptyMessage = "list-empty-get-dictionaries-message";
         linkPref = "browser.dictionaries.download.url";
       }
+    }
+
+    if (this.type === "xul-theme") {
+      let messageContainer = document.createElement("p");
+      messageContainer.id = "empty-addons-message";
+      document.l10n.setAttributes(messageContainer, "xul-theme-empty-message");
+      return messageContainer;
     }
 
     let messageContainer = document.createElement("p");
@@ -268,8 +376,8 @@ export class AddonList extends HTMLElement {
   }
 
   addAddon(addon) {
-    // Only insert add-ons of the right type.
-    if (addon.type != this.type && this.type != "all") {
+    // Only insert add-ons belonging to this UI list.
+    if (!this.isAddonForList(addon)) {
       this.sendEvent("skip-add", "type-mismatch");
       return;
     }
@@ -309,7 +417,7 @@ export class AddonList extends HTMLElement {
     } else if (this._addonSectionIndex(addon) == -1) {
       // Try to remove the add-on right away.
       this._updateAddon(addon);
-    } else if (this.isUserFocused) {
+    } else if (this.isUserFocused && this.type !== "xul-theme") {
       // Queue up a change for when the focus is cleared.
       this.updateLater(addon);
     } else {
@@ -486,6 +594,12 @@ export class AddonList extends HTMLElement {
     for (let addon of this.pendingUninstallAddons) {
       this.addPendingUninstallBar(addon);
     }
+    if (this.type === "xul-theme") {
+      this.restartBar = this.createRestartBar();
+      frag.appendChild(this.restartBar);
+      this.updateRestartBar().catch(Cu.reportError);
+    }
+
     frag.appendChild(this.pendingUninstallStack);
 
     if (this.type == "mlmodel") {
@@ -543,47 +657,91 @@ export class AddonList extends HTMLElement {
       this.removePendingUninstallBar(addon);
     }
     this.updateAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
+  }
+
+  onPropertyChanged(addon, properties) {
+    if (
+      this.type === "xul-theme" &&
+      properties.some(property =>
+        ["userDisabled", "appDisabled"].includes(property)
+      )
+    ) {
+      this.updateAddon(addon);
+      this.updateRestartBar().catch(Cu.reportError);
+    }
+  }
+
+  onEnabling(addon) {
+    this.updateAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
+  }
+
+  onDisabling(addon) {
+    this.updateAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onEnabled(addon) {
     this.updateAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onDisabled(addon) {
     this.updateAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onUninstalling(addon) {
-    if (
-      isPending(addon, "uninstall") &&
-      (this.type === "all" || addon.type === this.type)
-    ) {
+    if (isPending(addon, "uninstall") && this.isAddonForList(addon)) {
       this.pendingUninstallAddons.add(addon);
       this.addPendingUninstallBar(addon);
       this.updateAddon(addon);
     }
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onInstalled(addon) {
     this.updateAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
+  }
+
+  onInstallEnded(install) {
+    if (isPendingRestartInstall(install)) {
+      this.updateAddon(install.addon);
+    }
+    this.updateRestartBar().catch(Cu.reportError);
+  }
+
+  onInstallCancelled(install) {
+    if (!install.existingAddon && install.addon) {
+      const card = this.getCard(install.addon);
+      if (card?.addon === install.addon) {
+        this.removeAddon(install.addon);
+      }
+    }
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onUninstalled(addon) {
     this.pendingUninstallAddons.delete(addon);
     this.removePendingUninstallBar(addon);
     this.removeAddon(addon);
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onNewInstall(install) {
     if (this._listeningForInstallUpdates) {
       this._updateOnNewInstall(install);
     }
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   onInstallPostponed(install) {
     if (this._listeningForInstallUpdates) {
       this._updateOnNewInstall(install);
     }
+    this.updateRestartBar().catch(Cu.reportError);
   }
 
   listenForUpdates() {

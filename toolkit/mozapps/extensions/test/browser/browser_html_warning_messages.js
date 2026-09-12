@@ -325,6 +325,25 @@ add_task(async function testUnsignedEnabled() {
   await SpecialPowers.popPrefEnv();
 });
 
+add_task(async function testUnsignedXULTheme() {
+  await SpecialPowers.pushPrefEnv({
+    set: [["extensions.ui.disableUnsignedWarnings", false]],
+  });
+  const id = "unsigned-xul-theme@mochi.test";
+  gProvider.createAddons([
+    {
+      id,
+      name: "Unsigned XUL Theme",
+      type: "extension",
+      isXULTheme: true,
+      signedState: AddonManager.SIGNEDSTATE_MISSING,
+    },
+  ]);
+
+  await checkMessageState(id, "xul-theme", null);
+  await SpecialPowers.popPrefEnv();
+});
+
 add_task(async function testUnsignedLangpackEnabled() {
   await SpecialPowers.pushPrefEnv({
     set: [

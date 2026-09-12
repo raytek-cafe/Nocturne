@@ -25,6 +25,8 @@ list-empty-get-language-packs-message =
 list-empty-installed =
     .value = You don’t have any add-ons of this type installed
 
+xul-theme-empty-message = You don’t have any XUL themes installed.
+
 list-empty-available-updates =
     .value = No updates found
 
@@ -141,6 +143,12 @@ detail-rating =
 addon-restart-now =
     .label = Restart now
 
+addon-page-restart = Restart { -brand-short-name }
+    .accesskey = R
+
+xul-theme-restart-required-message =
+    .message = Restart { -brand-short-name } to apply your XUL theme changes.
+
 disabled-unsigned-heading =
     .value = Some add-ons have been disabled
 
@@ -184,6 +192,9 @@ addon-category-extension-title =
 addon-category-theme = Themes
 addon-category-theme-title =
     .title = Themes
+addon-category-xul-theme = XUL themes
+addon-category-xul-theme-title =
+    .title = { addon-category-xul-theme }
 addon-category-plugin = Plugins
 addon-category-plugin-title =
     .title = Plugins
@@ -424,6 +435,9 @@ extension-disabled-heading = Disabled
 theme-enabled-heading = Enabled
 theme-disabled-heading2 = Saved Themes
 
+xul-theme-selected-heading = Selected
+xul-theme-available-heading = Available XUL themes
+
 plugin-enabled-heading = Enabled
 plugin-disabled-heading = Disabled
 
@@ -464,8 +478,27 @@ addon-detail-reviews-link =
        *[other] { $numberOfReviews } reviews
     }
 
-## Pending uninstall message bar
-
+# Variables:
+#   $addon (string) - Name of the add-on
+pending-restart-install-description =
+    .message = { $addon } will be installed when { -brand-short-name } restarts.
+pending-restart-install-cancel-button = Cancel
+# Variables:
+#   $addon (string) - Name of the add-on
+pending-restart-enable-description =
+    .message = { $addon } will be enabled when { -brand-short-name } restarts.
+# Variables:
+#   $addon (string) - Name of the add-on
+pending-restart-disable-description =
+    .message = { $addon } will be disabled when { -brand-short-name } restarts.
+# Variables:
+#   $addon (string) - Name of the add-on
+pending-restart-update-description =
+    .message = { $addon } will be updated when { -brand-short-name } restarts.
+# Variables:
+#   $addon (string) - Name of the add-on
+pending-uninstall-restart-description =
+    .message = { $addon } will be removed when { -brand-short-name } restarts.
 # Variables:
 #   $addon (string) - Name of the add-on
 pending-uninstall-description2 =
@@ -564,6 +597,7 @@ recommended-theme-1 = Feeling creative? <a data-l10n-name="link">Build your own 
 
 extension-heading = Manage Your Extensions
 theme-heading = Manage Your Themes
+xul-theme-heading = Manage Your XUL themes
 plugin-heading = Manage Your Plugins
 brightwork-heading = Manage Your Brightwork Add-ons
 dictionary-heading = Manage Your Dictionaries
