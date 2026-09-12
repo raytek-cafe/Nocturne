@@ -304,10 +304,10 @@ export class Port {
  * basics of sendMessage, onMessage, connect and onConnect.
  */
 export class Messenger {
-  constructor(context) {
+  constructor(context, childId = context.childManager.id) {
     this.context = context;
     this.conduit = context.openConduit(this, {
-      childId: context.childManager.id,
+      childId,
       query: ["NativeMessage", "RuntimeMessage", "PortConnect"],
       recv: ["RuntimeMessage", "PortConnect"],
     });

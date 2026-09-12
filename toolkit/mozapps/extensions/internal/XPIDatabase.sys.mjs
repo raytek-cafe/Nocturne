@@ -989,6 +989,11 @@ export class AddonWrapper {
       }
       return addon.optionsURL;
     }
+    if (addon.startupData?.hasEmbeddedWebExtension) {
+      const extension = WebExtensionPolicy.getByID(addon.id)?.extension;
+      const page = extension?.optionsPageProperties?.page;
+      return page ? new URL(page, extension.baseURL).href : null;
+    }
 
     return null;
   }
@@ -1009,6 +1014,13 @@ export class AddonWrapper {
           return hasOptionsURL ? addon.optionsType : null;
       }
       return null;
+    }
+    if (hasOptionsURL && addon.startupData?.hasEmbeddedWebExtension) {
+      const options = WebExtensionPolicy.getByID(addon.id)?.extension
+        ?.optionsPageProperties;
+      return options?.open_in_tab
+        ? lazy.AddonManager.OPTIONS_TYPE_TAB
+        : lazy.AddonManager.OPTIONS_TYPE_INLINE_BROWSER;
     }
 
     return null;
@@ -1050,8 +1062,10 @@ export class AddonWrapper {
 
     let canUseIconURLs = this.isActive;
     if (canUseIconURLs && addon.iconURL) {
-      icons[32] = addon.iconURL;
-      icons[48] = addon.iconURL;
+      let path = addon.iconURL.replace(/^\//, "");
+      let iconURL = this.getResourceURI(path).spec;
+      icons[32] = iconURL;
+      icons[48] = iconURL;
     }
 
     Object.freeze(icons);

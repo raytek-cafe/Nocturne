@@ -348,6 +348,120 @@ add_task(async function test_legacy_xul_bridge() {
   }
 });
 
+add_task(async function test_explicit_override_wins_over_skin_mapping() {
+  const id = "legacy-skin-override@test.invalid";
+  const packageName = "legacyskinoverride";
+  const extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
+    manifest: getManifest(id),
+    files: {
+      "bootstrap.js": "",
+      "chrome.manifest": `
+        content ${packageName} content/
+        skin ${packageName} classic/1.0 skin/
+        override chrome://${packageName}/skin/probe.css chrome://${packageName}/content/explicit.css
+      `,
+      "content/explicit.css": ":root { --legacy-skin-source: explicit; }",
+      "skin/probe.css": ":root { --legacy-skin-source: generated; }",
+    },
+  });
+  let started = false;
+
+  try {
+    await extension.startup();
+    started = true;
+
+    const chromeRegistry = Cc[
+      "@mozilla.org/chrome/chrome-registry;1"
+    ].getService(Ci.nsIChromeRegistry);
+    const resolvedURI = chromeRegistry.convertChromeURL(
+      Services.io.newURI(`chrome://${packageName}/skin/probe.css`)
+    );
+
+    ok(
+      resolvedURI.spec.endsWith("/content/explicit.css"),
+      "The chrome registry resolves the skin URL to the explicit override"
+    );
+  } finally {
+    if (started) {
+      await extension.unload();
+    } else {
+      try {
+        await extension.unload();
+      } catch {}
+    }
+  }
+});
+
+add_task(async function test_target_stylesheet_is_not_an_overlay_source() {
+  const id = "legacy-target-stylesheet@test.invalid";
+  const packageName = "legacytargetstylesheet";
+  const injectedNodeID = "legacy-target-stylesheet-injection";
+  const marker = "__legacyTargetStylesheetOverlayRuns";
+  const hadMarker = Object.prototype.hasOwnProperty.call(window, marker);
+  const originalMarker = window[marker];
+  const targetStylesheet = document.createProcessingInstruction(
+    "xml-stylesheet",
+    'href="chrome://global/skin/global.css" type="text/css"'
+  );
+  const extension = ExtensionTestUtils.loadExtension({
+    useAddonManager: "temporary",
+    manifest: getManifest(id, "xul"),
+    files: {
+      "chrome.manifest": `
+        content ${packageName} content/
+        overlay ${BROWSER_URL} chrome://${packageName}/content/overlay.xhtml
+      `,
+      "content/overlay.xhtml": `<?xml version="1.0"?>
+        <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+          <toolbox id="navigator-toolbox">
+            <hbox id="${injectedNodeID}" hidden="true" />
+          </toolbox>
+          <script src="script.js" />
+        </overlay>`,
+      "content/script.js": `window.${marker} = (window.${marker} || 0) + 1;`,
+    },
+  });
+  let started = false;
+
+  window[marker] = 0;
+  document.insertBefore(targetStylesheet, document.documentElement);
+
+  try {
+    await extension.startup();
+    started = true;
+
+    is(window[marker], 1, "The package-local overlay script executed");
+    ok(
+      document.getElementById(injectedNodeID),
+      "The overlay completed while the target stylesheet remained present"
+    );
+    is(
+      targetStylesheet.parentNode,
+      document,
+      "The target document retained its existing stylesheet"
+    );
+  } finally {
+    try {
+      if (started) {
+        await extension.unload();
+      } else {
+        try {
+          await extension.unload();
+        } catch {}
+      }
+    } finally {
+      targetStylesheet.remove();
+      document.getElementById(injectedNodeID)?.remove();
+      if (hadMarker) {
+        window[marker] = originalMarker;
+      } else {
+        delete window[marker];
+      }
+    }
+  }
+});
+
 add_task(async function test_restartless_overlay_scripts_are_rejected() {
   const id = "legacy-overlay-script@test.invalid";
   const packageName = "legacyoverlayscripttest";

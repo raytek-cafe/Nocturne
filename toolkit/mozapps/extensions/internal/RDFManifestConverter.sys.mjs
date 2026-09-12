@@ -131,7 +131,9 @@ export class InstallRDF extends Manifest {
       "optionsType",
       "aboutURL",
       "iconURL",
+      "icon64URL",
       "bootstrap",
+      "hasEmbeddedWebExtension",
       "unpack",
       "strictCompatibility",
     ]);

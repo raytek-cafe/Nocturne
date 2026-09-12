@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { XPCOMUtils } from "resource://gre/modules/XPCOMUtils.sys.mjs";
+import { LegacyModuleLoader } from "resource://gre/modules/addons/LegacyModuleLoader.sys.mjs";
+import { LegacyProtocolRegistry } from "resource://gre/modules/addons/LegacyProtocolRegistry.sys.mjs";
 
 const componentManager = Components.manager;
 const registrar = componentManager.QueryInterface(Ci.nsIComponentRegistrar);
@@ -13,7 +14,6 @@ const SERVICE_PREFIX = "service,";
 const contractOwnershipStacks = new Map();
 const categoryOwnershipStacks = new Map();
 const pendingFactoryCleanups = new Set();
-const legacyFactoryQI = ChromeUtils.generateQI(["nsIFactory"]);
 let factoryCleanupTimer = null;
 
 const tombstoneFactory = {
@@ -197,50 +197,6 @@ function requireString(value, description) {
   return value;
 }
 
-function generateNSGetFactory(components) {
-  const factories = new Map();
-
-  for (const component of components) {
-    const prototype = component.prototype;
-    const classID = prototype?.classID;
-    if (!(classID instanceof Components.ID)) {
-      throw new Error(
-        `classID missing or incorrect for legacy component ${component}`
-      );
-    }
-
-    const factory = prototype._xpcom_factory ?? {
-      createInstance(iid) {
-        return new component().QueryInterface(iid);
-      },
-      QueryInterface: legacyFactoryQI,
-    };
-    factories.set(classID.toString(), factory);
-  }
-
-  return cid => {
-    const factory = factories.get(cid.toString());
-    if (!factory) {
-      throw Components.Exception("", Cr.NS_ERROR_FACTORY_NOT_REGISTERED);
-    }
-    return factory;
-  };
-}
-
-function loadComponentSubScript(uri, sandbox) {
-  const factoryGenerator = XPCOMUtils.generateNSGetFactory;
-  XPCOMUtils.generateNSGetFactory ??= generateNSGetFactory;
-  try {
-    Services.scriptloader.loadSubScript(uri.spec, sandbox, "UTF-8");
-  } finally {
-    if (factoryGenerator === undefined) {
-      delete XPCOMUtils.generateNSGetFactory;
-    } else {
-      XPCOMUtils.generateNSGetFactory = factoryGenerator;
-    }
-  }
-}
-
 // Unload keeps component sandboxes alive for existing factories and instances.
 // App shutdown retains all registrations.
 export class LegacyComponentRegistry {
@@ -256,6 +212,8 @@ export class LegacyComponentRegistry {
     this._sandboxes = [];
     this._modulesByURI = new Map();
     this._notifiedCategories = new Set();
+    this._moduleLoader = null;
+    this._protocolRegistry = null;
   }
 
   async register() {
@@ -265,6 +223,14 @@ export class LegacyComponentRegistry {
 
     const entries = this._prepareEntries();
     try {
+      this._protocolRegistry = new LegacyProtocolRegistry(
+        this.manifest.extension.id,
+        this.manifest.package.rootURI
+      );
+      this._moduleLoader = new LegacyModuleLoader(
+        this.manifest.extension.id,
+        this._protocolRegistry
+      );
       for (const { cid, uri } of entries.components) {
         const module = this._loadComponentModule(uri);
         const factory = this._wrapFactory(module.getFactory(cid), uri, cid);
@@ -297,6 +263,10 @@ export class LegacyComponentRegistry {
           ownership = { baseCID: currentCID, stack: [] };
         }
 
+        this._protocolRegistry.registerProtocol(
+          contractId,
+          this._factories.find(record => sameCID(record.cid, cid))?.factory
+        );
         registrar.registerFactory(cid, "", contractId, null);
         if (isNewOwnership) {
           contractOwnershipStacks.set(contractId, ownership);
@@ -369,6 +339,10 @@ export class LegacyComponentRegistry {
     }
 
     this._registered = false;
+    this._moduleLoader?.destroy({ nukeSandboxes: false });
+    this._moduleLoader = null;
+    this._protocolRegistry?.destroy();
+    this._protocolRegistry = null;
     this._restoreCategories();
     this._restoreContracts();
     this._releaseFactories();
@@ -518,19 +492,24 @@ export class LegacyComponentRegistry {
 
     const sandbox = Cu.Sandbox(systemPrincipal, {
       freshCompartment: true,
+      freezeBuiltins: false,
       sandboxName: `Legacy component ${uri.spec}`,
-      wantComponents: true,
-      wantGlobalProperties: ["ChromeUtils", "atob", "btoa"],
+      wantComponents: false,
+      wantGlobalProperties: ["atob", "btoa"],
       wantXrays: false,
     });
     sandbox.__LOCATION__ = getComponentFile(uri);
     sandbox.__URI__ = uri.spec;
     sandbox.__SCRIPT_URI_SPEC__ = uri.spec;
     sandbox.console = console;
-    sandbox.Services = Services;
+    Object.assign(sandbox, this._moduleLoader.createGlobals(sandbox));
     this._sandboxes.push(sandbox);
 
-    loadComponentSubScript(uri, sandbox);
+    Services.scriptloader.loadSubScriptWithOptions(uri.spec, {
+      target: sandbox,
+      charset: "UTF-8",
+      allowUnsafeURL: true,
+    });
 
     const nsGetFactory = this._getSandboxFunction(sandbox, "NSGetFactory", uri);
     let module;
