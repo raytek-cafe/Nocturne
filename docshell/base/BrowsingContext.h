@@ -268,6 +268,9 @@ struct EmbedderColorSchemes {
   /* Whether we can execute scripts in this BrowsingContext. Has no effect    \
    * unless scripts are also allowed in the parent WindowContext. */          \
   FIELD(AllowJavascript, bool)                                                \
+  /* The owning process can restrict scripts without changing the parent     \
+   * process's AllowJavascript flag. */                                       \
+  FIELD(AllowJavascriptInDocShell, bool)                                      \
   /* The count of request that are used to prevent the browsing context tree  \
    * from being suspended, which would ONLY be modified on the top level      \
    * context in the chrome process because that's a non-atomic counter */     \
@@ -1541,6 +1544,9 @@ class BrowsingContext : public nsILoadContext, public nsWrapperCache {
   CanSetResult CanSet(FieldIndex<IDX_AllowJavascript>, bool aValue,
                       ContentParent* aSource);
   void DidSet(FieldIndex<IDX_AllowJavascript>, bool aOldValue);
+  CanSetResult CanSet(FieldIndex<IDX_AllowJavascriptInDocShell>, bool aValue,
+                      ContentParent* aSource);
+  void DidSet(FieldIndex<IDX_AllowJavascriptInDocShell>, bool aOldValue);
 
   bool CanSet(FieldIndex<IDX_ForceDesktopViewport>, bool aValue,
               ContentParent* aSource) {

@@ -2069,8 +2069,9 @@ static nsresult CreateNativeGlobalForInner(
       aDocument->GetBrowsingContext()->Top()->GetLanguageOverride(),
       aDocument->GetBrowsingContext()->Top()->GetTimezoneOverride());
 
-  // Determine if we need the Components object.
-  bool needComponents = principal->IsSystemPrincipal();
+  // Verified legacy documents install their scoped compatibility globals.
+  bool needComponents = principal->IsSystemPrincipal() &&
+                        !NS_IsLegacyLocalUIChannel(aDocument->GetChannel());
   uint32_t flags = needComponents ? 0 : xpc::OMIT_COMPONENTS_OBJECT;
   flags |= xpc::DONT_FIRE_ONNEWGLOBALHOOK;
 
@@ -6675,6 +6676,10 @@ nsresult nsGlobalWindowOuter::GetInterfaceInternal(const nsIID& aIID,
   } else if (aIID.Equals(NS_GET_IID(nsIDocShell))) {
     nsCOMPtr<nsIDocShell> docShell = mDocShell;
     docShell.forget(aSink);
+  }
+  else if (aIID.Equals(NS_GET_IID(nsIDOMWindowUtils))) {
+    nsCOMPtr<nsIDOMWindowUtils> windowUtils = WindowUtils();
+    windowUtils.forget(aSink);
   }
 #ifdef NS_PRINTING
   else if (aIID.Equals(NS_GET_IID(nsIWebBrowserPrint))) {

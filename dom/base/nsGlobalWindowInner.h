@@ -937,6 +937,9 @@ class nsGlobalWindowInner final : public mozilla::dom::EventTarget,
   void GetInterface(JSContext* aCx, JS::Handle<JS::Value> aIID,
                     JS::MutableHandle<JS::Value> aRetval,
                     mozilla::ErrorResult& aError);
+  void LegacyQueryInterface(JSContext* aCx, JS::Handle<JS::Value> aIID,
+                            JS::MutableHandle<JS::Value> aRetval,
+                            mozilla::ErrorResult& aError);
 
   already_AddRefed<nsWindowRoot> GetWindowRoot(mozilla::ErrorResult& aError);
 

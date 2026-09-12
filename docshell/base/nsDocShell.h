@@ -64,6 +64,7 @@ class DocumentLoadListener;
 }  // namespace mozilla
 
 class nsIController;
+class nsIChannel;
 class nsIDocShellTreeOwner;
 class nsIDocumentViewer;
 class nsIHttpChannel;
@@ -367,6 +368,7 @@ class nsDocShell final : public nsDocLoader,
   }
 
   static bool CanLoadInParentProcess(nsIURI* aURI);
+  static bool CanLoadInParentProcess(nsIURI* aURI, nsIChannel* aChannel);
 
   // Returns true if the current load is a force reload (started by holding
   // shift while triggering reload)

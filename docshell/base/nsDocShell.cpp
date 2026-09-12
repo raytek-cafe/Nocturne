@@ -1878,6 +1878,22 @@ nsDocShell::NotifyReflowObservers(bool aInterruptible,
 }
 
 NS_IMETHODIMP
+nsDocShell::GetAllowJavascript(bool* aAllowJavascript) {
+  NS_ENSURE_ARG_POINTER(aAllowJavascript);
+  *aAllowJavascript = mBrowsingContext->AllowJavascript() &&
+                      mBrowsingContext->GetAllowJavascriptInDocShell();
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsDocShell::SetAllowJavascript(bool aAllowJavascript) {
+  if (mWillChangeProcess) {
+    return NS_ERROR_FAILURE;
+  }
+  return mBrowsingContext->SetAllowJavascriptInDocShell(aAllowJavascript);
+}
+
+NS_IMETHODIMP
 nsDocShell::GetAllowMetaRedirects(bool* aReturn) {
   NS_ENSURE_ARG_POINTER(aReturn);
 
@@ -2033,6 +2049,19 @@ nsDocShell::GetAllDocShellsInSubtree(int32_t aItemType,
   }
 
   return NS_OK;
+}
+
+NS_IMETHODIMP
+nsDocShell::GetDocShellEnumerator(
+    int32_t aItemType, DocShellEnumeratorDirection aDirection,
+    nsISimpleEnumerator** aResult) {
+  nsTArray<RefPtr<nsIDocShell>> docShells;
+  nsresult rv = GetAllDocShellsInSubtree(aItemType, aDirection, docShells);
+  if (NS_FAILED(rv)) {
+    return rv;
+  }
+
+  return NS_NewDocShellEnumerator(std::move(docShells), aResult);
 }
 
 NS_IMETHODIMP
@@ -9005,6 +9034,11 @@ bool nsDocShell::CanLoadInParentProcess(nsIURI* aURI) {
     return true;
   }
   return false;
+}
+
+/* static */
+bool nsDocShell::CanLoadInParentProcess(nsIURI* aURI, nsIChannel* aChannel) {
+  return CanLoadInParentProcess(aURI) || NS_IsLegacyLocalUIChannel(aChannel);
 }
 
 nsIPrincipal* nsDocShell::GetInheritedPrincipal(

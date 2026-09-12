@@ -559,6 +559,7 @@ static bool gBrowserTabsRemoteAutostart = false;
 static E10sStatus gBrowserTabsRemoteStatus;
 static bool gBrowserTabsRemoteAutostartInitialized = false;
 const char* kForceDisableE10sPref = "browser.e10s.disabled";
+const char* kLegacyInsecurePref = "extensions.legacy.insecure.enabled";
 
 namespace mozilla {
 
@@ -910,6 +911,12 @@ nsIXULRuntime::ContentWin32kLockdownState GetWin32kLockdownState() {
 // - The MOZ_FORCE_ENABLE_FISSION environment variable: If set to any value,
 //   Fission will be enabled.
 //
+// - The MOZ_FORCE_DISABLE_FISSION environment variable: If set to any value,
+//   Fission will be disabled.
+//
+// - The extensions.legacy.insecure.enabled preference: If enabled, Fission
+//   will be disabled without disabling multiprocess mode.
+//
 // - The 'fission.autostart' preference, if it has been configured by the user.
 static const char kPrefFissionAutostart[] = "fission.autostart";
 
@@ -953,6 +960,9 @@ static void EnsureFissionAutostartInitialized() {
   } else if (EnvHasValue("MOZ_FORCE_DISABLE_FISSION")) {
     gFissionAutostart = false;
     gFissionDecisionStatus = nsIXULRuntime::eFissionDisabledByEnv;
+  } else if (Preferences::GetBool(kLegacyInsecurePref, false)) {
+    gFissionAutostart = false;
+    gFissionDecisionStatus = nsIXULRuntime::eFissionDisabledByUserPref;
   } else {
     // NOTE: This will take into account changes to the default due to
     // `InitializeFissionExperimentStatus`.

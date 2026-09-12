@@ -5166,6 +5166,21 @@ void nsGlobalWindowInner::GetInterface(JSContext* aCx,
   dom::GetInterface(aCx, this, aIID, aRetval, aError);
 }
 
+void nsGlobalWindowInner::LegacyQueryInterface(
+    JSContext* aCx, JS::Handle<JS::Value> aIID,
+    JS::MutableHandle<JS::Value> aRetval, ErrorResult& aError) {
+  Maybe<nsIID> iid = xpc::JSValue2ID(aCx, aIID);
+  if (!iid) {
+    aError.Throw(NS_ERROR_XPC_BAD_CONVERT_JS);
+    return;
+  }
+  RefPtr<nsISupports> result;
+  aError = QueryInterface(*iid, getter_AddRefs(result));
+  if (!aError.Failed() && !dom::WrapObject(aCx, result, iid.ptr(), aRetval)) {
+    aError.Throw(NS_ERROR_FAILURE);
+  }
+}
+
 already_AddRefed<CacheStorage> nsGlobalWindowInner::GetCaches(
     ErrorResult& aRv) {
   if (!mCacheStorage) {

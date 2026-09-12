@@ -306,8 +306,10 @@ nsresult nsHTMLDocument::StartDocumentLoad(
   }
 
   bool html = contentType.EqualsLiteral(TEXT_HTML);
+  bool xul = contentType.EqualsLiteral(APPLICATION_XUL_XML);
   bool xhtml = !html && (contentType.EqualsLiteral(APPLICATION_XHTML_XML) ||
-                         contentType.EqualsLiteral(APPLICATION_WAPXHTML_XML));
+                         contentType.EqualsLiteral(APPLICATION_WAPXHTML_XML) ||
+                         xul);
   mIsPlainText =
       !html && !xhtml && nsContentUtils::IsPlainTextType(contentType);
   if (!(html || xhtml || mIsPlainText || mViewSource)) {
@@ -331,6 +333,9 @@ nsresult nsHTMLDocument::StartDocumentLoad(
                                             aContainer, aDocListener, aReset);
   if (NS_FAILED(rv)) {
     return rv;
+  }
+  if (xul && !NodePrincipal()->IsSystemPrincipal()) {
+    return NS_ERROR_DOM_BAD_URI;
   }
 
   nsCOMPtr<nsIURI> uri;

@@ -564,6 +564,8 @@ partial interface Window {
   readonly attribute object? content;
 
   [Throws, ChromeOnly] any getInterface(any iid);
+  [Throws, ChromeOnly, BinaryName="LegacyQueryInterface"]
+  any QueryInterface(any iid);
 
   /**
    * Same as nsIDOMWindow.windowRoot, useful for event listener targeting.

@@ -97,7 +97,7 @@ interface nsIScheduledGCCallback : nsISupports
 /**
 * interface of Components.utils
 */
-[scriptable, builtinclass, uuid(86003fe3-ee9a-4620-91dc-eef8b1e58815)]
+[scriptable, builtinclass, uuid(5fb3b2af-fda0-4db3-ab8b-98d9215e7b44)]
 interface nsIXPCComponents_Utils : nsISupports
 {
     /*
@@ -329,6 +329,15 @@ interface nsIXPCComponents_Utils : nsISupports
      * the ChromeUtils.importESModule method etc. Returns false otherwise.
      */
     boolean isESModuleLoaded(in AUTF8String aResourceURI);
+
+    /*
+     * Loads a legacy JavaScript module synchronously and imports its exported
+     * symbols into targetObj. If targetObj is omitted, the scripted caller's
+     * global is used. The resulting target object is returned.
+     */
+    [implicit_jscontext, optional_argc]
+    jsval import(in AUTF8String registryLocation,
+                 [optional] in jsval targetObj);
 
     /*
      * Imports global properties (like DOM constructors) into the scope, defining

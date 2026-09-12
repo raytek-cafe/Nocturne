@@ -780,13 +780,22 @@ Result<NavigationIsolationOptions, nsresult> IsolationOptionsForNavigation(
       // one of our other edge-cases. If the load started in the parent process,
       // and it's safe for it to end in the parent process, we should finish the
       // load there.
-      bool isUIResource = false;
-      if (aCurrentRemoteType.IsEmpty() &&
-          (aChannelCreationURI->SchemeIs("about") ||
-           (NS_SUCCEEDED(NS_URIChainHasFlags(
-                aChannelCreationURI, nsIProtocolHandler::URI_IS_UI_RESOURCE,
-                &isUIResource)) &&
-            isUIResource))) {
+      bool canLoadInParent =
+          (!aParentWindow ||
+           (Preferences::GetBool("extensions.legacy.insecure.enabled", false) &&
+            !BrowserTabsRemoteAutostart())) &&
+          NS_IsLegacyLocalUIChannel(aChannel);
+      if (!canLoadInParent) {
+        bool isUIResource = false;
+        canLoadInParent =
+            aCurrentRemoteType.IsEmpty() &&
+            (aChannelCreationURI->SchemeIs("about") ||
+             (NS_SUCCEEDED(NS_URIChainHasFlags(
+                  aChannelCreationURI, nsIProtocolHandler::URI_IS_UI_RESOURCE,
+                  &isUIResource)) &&
+              isUIResource));
+      }
+      if (canLoadInParent) {
         behavior = IsolationBehavior::Parent;
       } else {
         // In general, we don't want to load documents with a system principal

@@ -212,7 +212,7 @@ SubstitutingJARURI::Write(nsIObjectOutputStream* aStream) {
   return NS_OK;
 }
 
-nsresult SubstitutingJARURI::Clone(nsIURI** aURI) {
+NS_IMETHODIMP SubstitutingJARURI::Clone(nsIURI** aURI) {
   RefPtr<SubstitutingJARURI> uri = new SubstitutingJARURI();
   // SubstitutingJARURI's mSource/mResolved isn't mutable.
   uri->mSource = mSource;

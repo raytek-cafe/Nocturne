@@ -74,7 +74,7 @@ interface nsIURIMutator;
  * we will need to add additional checks there for all intermediate IIDs, until
  * ContentPrincipal is fixed to serialize its URIs as nsISupports (bug 662693).
  */
-[scriptable, builtinclass, uuid(92073a54-6d78-4f30-913a-b871813208c6)]
+[scriptable, builtinclass, uuid(d638ae30-6d82-4d27-94bb-bef96103a188)]
 interface nsIURI : nsISupports
 {
     /************************************************************************
@@ -189,6 +189,11 @@ interface nsIURI : nsISupports
      * NOTE: some implementations may have no concept of a relative URI.
      */
     AUTF8String resolve(in AUTF8String relativePath);
+
+    /**
+     * Returns a distinct URI with the same concrete type and value.
+     */
+    nsIURI clone();
 
 
     /************************************************************************

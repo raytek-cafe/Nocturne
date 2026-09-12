@@ -927,8 +927,15 @@ nsBinaryInputStream::ReadObject(bool aIsStrongRef, nsISupports** aObject) {
       0x4adb,
       {0xa3, 0xfd, 0xaf, 0x98, 0xc8, 0xa1, 0xaf, 0x11}};
 
+  static const nsIID oldURIiid5 = {
+      0x92073a54,
+      0x6d78,
+      0x4f30,
+      {0x91, 0x3a, 0xb8, 0x71, 0x81, 0x32, 0x08, 0xc6}};
+
   if (iid.Equals(oldURIiid) || iid.Equals(oldURIiid2) ||
-      iid.Equals(oldURIiid3) || iid.Equals(oldURIiid4)) {
+      iid.Equals(oldURIiid3) || iid.Equals(oldURIiid4) ||
+      iid.Equals(oldURIiid5)) {
     const nsIID newURIiid = NS_IURI_IID;
     iid = newURIiid;
   }

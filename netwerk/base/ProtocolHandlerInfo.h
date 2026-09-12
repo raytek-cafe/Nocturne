@@ -54,6 +54,8 @@ class ProtocolHandlerInfo {
   // Get the main-thread-only nsIProtocolHandler instance.
   already_AddRefed<nsIProtocolHandler> Handler() const
       MOZ_REQUIRES(sMainThreadCapability);
+  // Whether this metadata describes a handler registered at runtime.
+  bool IsRuntime() const { return mInner.is<RuntimeProtocolHandler>(); }
 
  private:
   Variant<const xpcom::StaticProtocolHandler*, RuntimeProtocolHandler> mInner;
