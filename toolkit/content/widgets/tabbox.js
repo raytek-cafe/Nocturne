@@ -171,6 +171,19 @@
   customElements.define("tabbox", MozTabbox);
 
   class MozDeck extends MozXULElement {
+    static get observedAttributes() {
+      return ["selectedIndex"];
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      super.attributeChangedCallback(name, oldValue, newValue);
+      const index = this.selectedIndex;
+      if (oldValue !== newValue && index >= 0 && index < this.children.length &&
+          this.children[index] !== this._selectedPanel) {
+        this.selectedIndex = index;
+      }
+    }
+
     get isAsync() {
       return this.getAttribute("async") == "true";
     }

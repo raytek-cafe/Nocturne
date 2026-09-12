@@ -24,6 +24,34 @@
       this.currentNotification = null;
     }
 
+    get localName() {
+      return "notificationbox";
+    }
+
+    get ownerDocument() {
+      return document;
+    }
+
+    get style() {
+      return this.stack.style;
+    }
+
+    appendChild(node) {
+      return this.stack.appendChild(node);
+    }
+
+    insertBefore(node, reference) {
+      return this.stack.insertBefore(node, reference);
+    }
+
+    removeChild(node) {
+      return this.stack.removeChild(node);
+    }
+
+    getElementsByTagName(name) {
+      return this.stack.getElementsByTagName(name);
+    }
+
     get stack() {
       if (!this._stack) {
         let stack = document.createXULElement("vbox");
@@ -56,9 +84,13 @@
 
       var closedNotification = this._closedNotification;
       var notifications = [
-        ...this.stack.getElementsByTagName("notification-message"),
+        ...this.stack.querySelectorAll("notification, notification-message"),
       ];
-      return notifications.filter(n => n != closedNotification);
+      return notifications.filter(
+        n =>
+          n != closedNotification &&
+          !n.parentElement.closest("notification")
+      );
     }
 
     getNotificationWithValue(aValue) {
@@ -69,6 +101,75 @@
         }
       }
       return null;
+    }
+
+    appendNotification(...args) {
+      if (typeof args[1] === "string") {
+        return this._appendLegacyNotification(...args);
+      }
+      return this._appendNotification(...args);
+    }
+
+    _appendLegacyNotification(label, value, image, priority, buttons, eventCallback) {
+      if (priority < this.PRIORITY_SYSTEM || priority > this.PRIORITY_CRITICAL_HIGH) {
+        throw new Error("Invalid notification priority " + priority);
+      }
+      const notification = document.createXULElement("notification");
+      notification.setAttribute("value", value);
+      notification.priority = priority;
+      notification.persistence = 0;
+      notification.timeout = 0;
+      notification.eventCallback = eventCallback;
+      Object.defineProperties(notification, {
+        control: { value: this },
+        close: { value: () => this.removeNotification(notification) },
+        label: {
+          get: () => label,
+          set(newLabel) {
+            label = newLabel;
+            if (notification._messageElement) {
+              notification._messageElement.label = newLabel;
+            }
+          },
+        },
+        image: {
+          get: () => image,
+          set(newImage) {
+            image = newImage;
+            const element = notification._messageElement?.messageImage;
+            if (element) {
+              element.hidden = !newImage;
+              if (newImage) {
+                element.src = newImage;
+              }
+            }
+          },
+        },
+      });
+      this.insertBefore(notification, null);
+      const options = {
+        get label() {
+          return notification.label;
+        },
+        get priority() {
+          return notification.priority;
+        },
+        get eventCallback() {
+          return notification.eventCallback;
+        },
+      };
+      const legacyButtons = buttons?.map(button =>
+        button.callback
+          ? {
+              ...button,
+              callback: (_element, ...args) => button.callback(notification, ...args),
+            }
+          : button
+      );
+      this._appendNotification(
+        value, options, legacyButtons, false, true, notification
+      ).catch(Cu.reportError);
+      return notification;
     }
 
     /**
@@ -142,12 +243,13 @@
      *
      * @returns {Promise<object>} The <notification-message> element that is shown.
      */
-    async appendNotification(
+    async _appendNotification(
       aType,
       aNotification,
       aButtons,
       aDisableClickJackingDelay = false,
-      dismissable = true
+      dismissable = true,
+      legacyNotification = null
     ) {
       if (
         aNotification.priority < this.PRIORITY_SYSTEM ||
@@ -174,12 +276,19 @@
           throw err;
         }
       }
+      if (legacyNotification && !legacyNotification.isConnected) {
+        return null;
+      }
       newitem = document.createElement("notification-message");
       newitem.dismissable = dismissable;
       newitem.setAttribute("message-bar-type", "infobar");
 
       // Append or prepend notification, based on stack preference.
-      if (this.stack.hasAttribute("prepend-notifications")) {
+      if (legacyNotification) {
+        legacyNotification._messageElement = newitem;
+        newitem.style.flex = "1";
+        legacyNotification.append(newitem);
+      } else if (this.stack.hasAttribute("prepend-notifications")) {
         this.stack.prepend(newitem);
       } else {
         this.stack.append(newitem);
@@ -279,7 +388,13 @@
         newitem.setAlertRole();
       }
 
-      this._showNotification(newitem, true);
+      if (legacyNotification) {
+        legacyNotification.image = legacyNotification.image;
+      }
+      if (legacyNotification && !legacyNotification.isConnected) {
+        return newitem;
+      }
+      this._showNotification(legacyNotification || newitem, true);
 
       // Fire event for accessibility APIs
       var event = document.createEvent("Events");
@@ -290,6 +405,7 @@
     }
 
     removeNotification(aItem, aSkipAnimation) {
+      aItem = aItem.closest("notification") || aItem;
       if (!aItem.parentNode) {
         return;
       }
@@ -357,21 +473,22 @@
     _showNotification(aNotification, aSlideIn, aSkipAnimation) {
       this._finishAnimation();
 
-      let { marginTop, marginBottom } = getComputedStyle(aNotification);
-      let baseHeight = aNotification.getBoundingClientRect().height;
+      const element = aNotification._messageElement || aNotification;
+      let { marginTop, marginBottom } = getComputedStyle(element);
+      let baseHeight = element.getBoundingClientRect().height;
       var height =
         baseHeight + parseInt(marginTop, 10) + parseInt(marginBottom, 10);
       var skipAnimation =
         aSkipAnimation || baseHeight == 0 || !this._allowAnimation;
-      aNotification.classList.toggle("animated", !skipAnimation);
+      element.classList.toggle("animated", !skipAnimation);
 
       if (aSlideIn) {
         this.currentNotification = aNotification;
-        aNotification.style.removeProperty("display");
-        aNotification.style.removeProperty("position");
-        aNotification.style.removeProperty("top");
-        aNotification.style.removeProperty("margin-top");
-        aNotification.style.removeProperty("opacity");
+        element.style.removeProperty("display");
+        element.style.removeProperty("position");
+        element.style.removeProperty("top");
+        element.style.removeProperty("margin-top");
+        element.style.removeProperty("opacity");
 
         if (skipAnimation) {
           return;
@@ -388,8 +505,8 @@
           return;
         }
 
-        aNotification.style.marginTop = -height + "px";
-        aNotification.style.opacity = 0;
+        element.style.marginTop = -height + "px";
+        element.style.opacity = 0;
       }
 
       this._animating = true;

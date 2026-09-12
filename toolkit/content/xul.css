@@ -94,6 +94,7 @@ checkbox,
 menulist,
 radiogroup,
 richlistbox,
+listbox,
 tree,
 browser,
 editor,
@@ -479,6 +480,7 @@ tabpanels > *|*:not(:-moz-native-anonymous) {
 
 deck > *|*:not(:-moz-native-anonymous) {
   visibility: hidden;
+  -moz-subtree-hidden-only-visually: 1;
 }
 
 tabpanels > .deck-selected,
@@ -656,14 +658,16 @@ wizardpage {
 
 /********** Rich Listbox ********/
 
-richlistbox {
+richlistbox,
+listbox {
   flex-direction: column;
   overflow: auto;
   min-width: 0;
   min-height: 0;
 }
 
-richlistitem {
+richlistitem,
+listitem {
   flex-shrink: 0;
 }
 

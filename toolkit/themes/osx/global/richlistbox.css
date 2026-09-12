@@ -4,7 +4,8 @@
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
-richlistbox {
+richlistbox,
+listbox {
   appearance: auto;
   -moz-default-appearance: listbox;
   margin: 2px 4px;
@@ -13,18 +14,31 @@ richlistbox {
   border: 1px solid ThreeDShadow;
 }
 
-richlistbox[disabled] {
+richlistbox[disabled],
+listbox[disabled] {
   color: GrayText;
 }
 
-richlistitem[selected="true"] {
+richlistitem[selected="true"],
+listitem[selected="true"] {
   background-color: -moz-Dialog;
   color: -moz-DialogText;
 }
 
-richlistbox:where(:focus) > richlistitem[selected="true"] {
+richlistbox:where(:focus) > richlistitem[selected="true"],
+listbox:where(:focus) > listitem[selected="true"] {
   background-color: SelectedItem;
   color: SelectedItemText;
+}
+
+listbox[seltype="multiple"]:focus > listitem[current="true"] {
+  outline: var(--default-focusring);
+  outline-color: SelectedItem;
+  outline-offset: calc(-1 * var(--default-focusring-width));
+}
+
+listbox[seltype="multiple"]:focus > listitem[current="true"][selected="true"] {
+  outline-color: SelectedItemText;
 }
 
 richlistbox.theme-listbox > richlistitem {
@@ -35,7 +49,8 @@ richlistbox.theme-listbox:not(:focus) > richlistitem[selected="true"] {
   background-color: -moz-cellhighlight;
 }
 
-richlistbox.theme-listbox > richlistitem > label {
+richlistbox.theme-listbox > richlistitem > label,
+listbox > listitem > label {
   margin: 0;
   padding-bottom: 1px;
   padding-inline-start: 4px;

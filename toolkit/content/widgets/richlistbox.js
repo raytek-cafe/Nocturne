@@ -274,12 +274,14 @@
     get selectedCount() {
       return this.selectedItems.length;
     }
+    get itemTagName() {
+      return "richlistitem";
+    }
 
     get itemChildren() {
-      let children = Array.from(this.children).filter(
-        node => node.localName == "richlistitem"
+      return Array.from(this.children).filter(
+        node => node.localName == this.itemTagName
       );
-      return children;
     }
 
     set suppressOnSelect(val) {
@@ -336,7 +338,7 @@
         aStartItem = aStartItem.nextSibling;
         if (
           aStartItem &&
-          aStartItem.localName == "richlistitem" &&
+          aStartItem.localName == this.itemTagName &&
           (!this._userSelecting || this.canUserSelect(aStartItem))
         ) {
           --aDelta;
@@ -353,7 +355,7 @@
         aStartItem = aStartItem.previousSibling;
         if (
           aStartItem &&
-          aStartItem.localName == "richlistitem" &&
+          aStartItem.localName == this.itemTagName &&
           (!this._userSelecting || this.canUserSelect(aStartItem))
         ) {
           --aDelta;
@@ -366,7 +368,7 @@
     }
 
     appendItem(aLabel, aValue) {
-      var item = this.ownerDocument.createXULElement("richlistitem");
+      var item = this.ownerDocument.createXULElement(this.itemTagName);
       item.setAttribute("value", aValue);
 
       var label = this.ownerDocument.createXULElement("label");
@@ -651,7 +653,7 @@
         : aDirection;
     }
 
-    _refreshSelection() {
+    _refreshSelection(selectCurrentItem = true) {
       // when this method is called, we know that either the currentItem
       // and selectedItems we have are null (ctor) or a reference to an
       // element no longer in the DOM (template).
@@ -735,7 +737,7 @@
         }
       }
 
-      if (this.selType != "multiple" && this.selectedCount == 0) {
+      if (selectCurrentItem && this.selType != "multiple" && this.selectedCount == 0) {
         this.selectedItem = this.currentItem;
       }
     }
@@ -1001,7 +1003,7 @@
     get control() {
       var parent = this.parentNode;
       while (parent) {
-        if (parent.localName == "richlistbox") {
+        if (parent instanceof MozElements.RichListBox) {
           return parent;
         }
         parent = parent.parentNode;

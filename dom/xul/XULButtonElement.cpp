@@ -645,7 +645,11 @@ bool XULButtonElement::OnPointerClicked(WidgetGUIEvent& aEvent) {
 
   if (NodeInfo()->Equals(nsGkAtoms::checkbox)) {
     // Toggle `checked` now so that command handling sees the right state.
-    SetBoolAttr(nsGkAtoms::checked, !GetBoolAttr(nsGkAtoms::checked));
+    if (GetBoolAttr(nsGkAtoms::checked)) {
+      UnsetAttr(kNameSpaceID_None, nsGkAtoms::checked, true);
+    } else {
+      SetAttr(kNameSpaceID_None, nsGkAtoms::checked, u"true"_ns, true);
+    }
   }
 
   // Have the content handle the event, propagating it according to normal DOM

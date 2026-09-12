@@ -518,6 +518,22 @@ EVENT(webkitAnimationStart, eWebkitAnimationStart, EventNameType_All,
 EVENT(webkitTransitionEnd, eWebkitTransitionEnd, EventNameType_All,
       eTransitionEventClass)
 #ifndef MESSAGE_TO_EVENT
+EVENT(broadcast, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(commandupdate, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(dialogaccept, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(dialogcancel, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(dialogdisclosure, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(dialogextra1, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(dialogextra2, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(dialoghelp, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(popuphidden, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(popuphiding, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(popuppositioned, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(popupshowing, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+EVENT(popupshown, eUnidentifiedEvent, EventNameType_XUL, eBasicEventClass)
+#endif
+
+#ifndef MESSAGE_TO_EVENT
 // These are only here so that IsEventAttributeName() will return the right
 // thing for these events.  We could probably remove them if we used
 // Element::GetEventNameForAttr on the input to IsEventAttributeName before
