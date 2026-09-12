@@ -226,6 +226,10 @@
       return this.scrollbox[this.#verticalMode ? "scrollTop" : "scrollLeft"];
     }
 
+    set scrollPosition(value) {
+      this.scrollbox[this.#verticalMode ? "scrollTop" : "scrollLeft"] = value;
+    }
+
     get startEndProps() {
       return this.#verticalMode
         ? MozArrowScrollbox.#startEndVertical
