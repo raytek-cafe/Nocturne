@@ -17251,9 +17251,6 @@ class CGDescriptor(CGThing):
             cgThings.append(CGDefineHTMLAttributeSlots(descriptor))
 
         for m in descriptor.interface.members:
-            if m.isMethod() and m.identifier.name == "QueryInterface":
-                continue
-
             props = memberProperties(m, descriptor)
 
             if m.isMethod():

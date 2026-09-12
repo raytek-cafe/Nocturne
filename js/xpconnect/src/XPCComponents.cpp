@@ -20,6 +20,7 @@
 #include "js/friend/WindowProxy.h"  // js::ToWindowProxyIfWindow
 #include "js/Object.h"              // JS::GetClass, JS::GetCompartment
 #include "js/PropertyAndElement.h"  // JS_DefineProperty, JS_DefinePropertyById, JS_Enumerate, JS_GetProperty, JS_GetPropertyById, JS_HasProperty, JS_SetProperty, JS_SetPropertyById
+#include "js/String.h"  // JS_NewStringCopyUTF8N
 #include "js/SavedFrameAPI.h"
 #include "js/StructuredClone.h"
 #include "mozilla/AppShutdown.h"
@@ -87,6 +88,35 @@ static bool JSValIsInterfaceOfType(JSContext* cx, HandleValue v, REFNSIID iid) {
              wn->Native()->QueryInterface(iid, getter_AddRefs(iface))) &&
          iface;
 }
+
+static nsresult CallLegacyModuleExport(JSContext* aCx,
+                                       const nsACString& aModuleURI,
+                                       const char* aExportName,
+                                       const JS::HandleValueArray& aArgs,
+                                       JS::MutableHandleValue aRetval) {
+  RefPtr<mozJSModuleLoader> moduleLoader = mozJSModuleLoader::Get();
+  MOZ_ASSERT(moduleLoader);
+
+  JS::RootedObject moduleNamespace(aCx);
+  nsresult rv =
+      moduleLoader->ImportESModule(aCx, aModuleURI, &moduleNamespace);
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  JS::RootedValue function(aCx);
+  {
+    JSAutoRealm ar(aCx, moduleNamespace);
+    if (!JS_GetProperty(aCx, moduleNamespace, aExportName, &function)) {
+      return NS_ERROR_XPC_JAVASCRIPT_ERROR;
+    }
+  }
+
+  if (!JS_WrapValue(aCx, &function) ||
+      !JS_CallFunctionValue(aCx, nullptr, function, aArgs, aRetval)) {
+    return NS_ERROR_XPC_JAVASCRIPT_ERROR;
+  }
+  return NS_OK;
+}
+
 
 /***************************************************************************/
 /***************************************************************************/
@@ -220,13 +250,14 @@ nsXPCComponents_Interfaces::Resolve(nsIXPConnectWrappedNative* wrapper,
   RootedString str(cx, id.toString());
   JS::UniqueChars name = JS_EncodeStringToLatin1(cx, str);
 
-  // we only allow interfaces by name here
-  if (name && name[0] != '{') {
-    const nsXPTInterfaceInfo* info = nsXPTInterfaceInfo::ByName(name.get());
-    if (!info) {
-      return NS_OK;
-    }
+  // We only allow interfaces by name here.
+  if (!name || name[0] == '{') {
+    return NS_OK;
+  }
 
+  // Registered interfaces always take precedence over compatibility aliases.
+  if (const nsXPTInterfaceInfo* info =
+          nsXPTInterfaceInfo::ByName(name.get())) {
     RootedValue iidv(cx);
     if (xpc::IfaceID2JSValue(cx, *info, &iidv)) {
       *resolvedp = true;
@@ -234,7 +265,40 @@ nsXPCComponents_Interfaces::Resolve(nsIXPConnectWrappedNative* wrapper,
                                        JSPROP_ENUMERATE | JSPROP_READONLY |
                                            JSPROP_PERMANENT | JSPROP_RESOLVING);
     }
+    return NS_OK;
   }
+
+  if (!StringBeginsWith(nsDependentCString(name.get()), "nsIDOM"_ns) &&
+      strcmp(name.get(), "nsIPrefBranch2") != 0 &&
+      strcmp(name.get(), "nsICache") != 0 &&
+      strcmp(name.get(), "nsIBadCertListener2") != 0 &&
+      strcmp(name.get(), "nsITreeBoxObject") != 0 &&
+      strcmp(name.get(), "nsIXMLHttpRequest") != 0 &&
+      strcmp(name.get(), "inIDOMUtils") != 0 &&
+      strcmp(name.get(), "nsIMessageListener") != 0) {
+    return NS_OK;
+  }
+
+  RootedValue nameValue(cx);
+  RootedString nameString(cx, JS_NewStringCopyZ(cx, name.get()));
+  if (!nameString) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
+  nameValue.setString(nameString);
+
+  RootedValue legacyInterface(cx);
+  nsresult rv = CallLegacyModuleExport(
+      cx, "resource://gre/modules/addons/LegacyInterfaces.sys.mjs"_ns,
+      "getLegacyInterface", HandleValueArray(nameValue), &legacyInterface);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (legacyInterface.isUndefined()) {
+    return NS_OK;
+  }
+
+  *resolvedp = true;
+  *_retval = JS_DefinePropertyById(cx, obj, id, legacyInterface,
+                                   JSPROP_ENUMERATE | JSPROP_READONLY |
+                                       JSPROP_PERMANENT | JSPROP_RESOLVING);
   return NS_OK;
 }
 
@@ -1559,6 +1623,49 @@ nsXPCComponents_Utils::IsESModuleLoaded(const nsACString& aResourceURI,
   RefPtr moduleloader = mozJSModuleLoader::Get();
   MOZ_ASSERT(moduleloader);
   return moduleloader->IsESModuleLoaded(aResourceURI, retval);
+}
+
+NS_IMETHODIMP
+nsXPCComponents_Utils::Import(const nsACString& aRegistryLocation,
+                              HandleValue aTargetObj, JSContext* aCx,
+                              uint8_t aOptionalArgc,
+                              MutableHandleValue aRetval) {
+  // Capture the scripted caller before importing the helper changes realms.
+  RootedObject callerGlobal(aCx, JS::GetScriptedCallerGlobal(aCx));
+  if (!callerGlobal) {
+    return NS_ERROR_UNEXPECTED;
+  }
+
+  RootedValue target(aCx);
+  if (aOptionalArgc) {
+    target.set(aTargetObj);
+    if (!JS_WrapValue(aCx, &target)) {
+      return NS_ERROR_XPC_JAVASCRIPT_ERROR;
+    }
+  } else {
+    target.setUndefined();
+  }
+
+  RootedString location(
+      aCx, JS_NewStringCopyUTF8N(
+               aCx, JS::UTF8Chars(aRegistryLocation.BeginReading(),
+                                  aRegistryLocation.Length())));
+  if (!location) {
+    return NS_ERROR_OUT_OF_MEMORY;
+  }
+
+  RootedValue callerGlobalValue(aCx, ObjectValue(*callerGlobal));
+  if (!JS_WrapValue(aCx, &callerGlobalValue)) {
+    return NS_ERROR_XPC_JAVASCRIPT_ERROR;
+  }
+  JS::RootedValueArray<3> args(aCx);
+  args[0].setString(location);
+  args[1].set(target);
+  args[2].set(callerGlobalValue);
+
+  return CallLegacyModuleExport(
+      aCx, "resource://gre/modules/addons/LegacyModuleLoader.sys.mjs"_ns,
+      "importLegacyModule", args, aRetval);
 }
 
 NS_IMETHODIMP

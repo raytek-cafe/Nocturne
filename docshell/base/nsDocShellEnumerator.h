@@ -9,6 +9,7 @@
 
 class nsDocShell;
 class nsIDocShell;
+class nsISimpleEnumerator;
 
 class MOZ_STACK_CLASS nsDocShellEnumerator {
  public:
@@ -19,6 +20,7 @@ class MOZ_STACK_CLASS nsDocShellEnumerator {
 
  public:
   nsresult BuildDocShellArray(nsTArray<RefPtr<nsIDocShell>>& aItemArray);
+
 
  private:
   nsresult BuildArrayRecursiveForwards(
@@ -33,5 +35,9 @@ class MOZ_STACK_CLASS nsDocShellEnumerator {
 
   const EnumerationDirection mDirection;
 };
+
+nsresult NS_NewDocShellEnumerator(
+    nsTArray<RefPtr<nsIDocShell>>&& aItems,
+    nsISimpleEnumerator** aResult);
 
 #endif  // nsDocShellEnumerator_h_

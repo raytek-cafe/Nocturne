@@ -156,9 +156,9 @@ class SubstitutingJARURI : public nsIJARURI,
                     : mSource->GetDisplayPrePath(aDisplayPrePath);
   }
   NS_IMETHOD Mutate(nsIURIMutator** _retval) override;
+  NS_IMETHOD Clone(nsIURI** aURI) override;
 
  private:
-  nsresult Clone(nsIURI** aURI);
   nsresult SetSpecInternal(const nsACString& input) {
     return NS_ERROR_NOT_IMPLEMENTED;
   }

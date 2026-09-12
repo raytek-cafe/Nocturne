@@ -366,6 +366,8 @@ BrowsingContext::FieldValues BrowsingContext::ComputeInitialFields(
     fields.Get<IDX_DefaultLoadFlags>() = inherit->GetDefaultLoadFlags();
     fields.Get<IDX_UseGlobalHistory>() = inherit->GetUseGlobalHistory();
     fields.Get<IDX_AllowJavascript>() = inherit->GetAllowJavascript();
+    fields.Get<IDX_AllowJavascriptInDocShell>() =
+        inherit->GetAllowJavascriptInDocShell();
     fields.Get<IDX_IPAddressSpace>() = inherit->GetIPAddressSpace();
     fields.Get<IDX_ParentalControlsEnabled>() =
         inherit->GetParentalControlsEnabled();
@@ -3437,9 +3439,20 @@ void BrowsingContext::DidSet(FieldIndex<IDX_AllowJavascript>, bool aOldValue) {
   RecomputeCanExecuteScripts();
 }
 
+auto BrowsingContext::CanSet(FieldIndex<IDX_AllowJavascriptInDocShell>,
+                             bool aValue, ContentParent* aSource)
+    -> CanSetResult {
+  return LegacyRevertIfNotOwningOrParentProcess(aSource);
+}
+
+void BrowsingContext::DidSet(FieldIndex<IDX_AllowJavascriptInDocShell>,
+                             bool aOldValue) {
+  RecomputeCanExecuteScripts();
+}
+
 void BrowsingContext::RecomputeCanExecuteScripts() {
   const bool old = mCanExecuteScripts;
-  if (!AllowJavascript()) {
+  if (!AllowJavascript() || !GetAllowJavascriptInDocShell()) {
     // Scripting has been explicitly disabled on our BrowsingContext.
     mCanExecuteScripts = false;
   } else if (GetParentWindowContext()) {

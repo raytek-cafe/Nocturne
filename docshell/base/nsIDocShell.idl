@@ -56,6 +56,7 @@ interface nsIDOMStorage;
 interface nsIPrincipal;
 interface nsIPrivacyTransitionObserver;
 interface nsIReflowObserver;
+interface nsISimpleEnumerator;
 interface nsIScrollObserver;
 interface nsIRemoteTab;
 interface nsIBrowserChild;
@@ -84,7 +85,7 @@ webidl Document;
  * https://firefox-source-docs.mozilla.org/dom/navigation/embedding.html
  * https://firefox-source-docs.mozilla.org/dom/navigation/nav_replace.html
  */
-[scriptable, builtinclass, uuid(049234fe-da10-478b-bc5d-bc6f9a1ba63d)]
+[scriptable, builtinclass, uuid(f77a9c8a-437a-4c57-a36f-97cbb6d04e72)]
 interface nsIDocShell : nsIDocShellTreeItem
 {
   void setCancelContentJSEpoch(in long aEpoch);
@@ -171,6 +172,8 @@ interface nsIDocShell : nsIDocShellTreeItem
    */
   attribute boolean cssErrorReportingEnabled;
 
+  attribute boolean allowJavascript;
+
   /**
    * Attribute stating if refresh based redirects can be allowed
    */
@@ -232,6 +235,14 @@ interface nsIDocShell : nsIDocShellTreeItem
 
   Array<nsIDocShell> getAllDocShellsInSubtree(in long aItemType,
                                               in nsIDocShell_DocShellEnumeratorDirection aDirection);
+
+  /**
+   * Return an enumerator over this docShell and its children, using the same
+   * filtering and traversal order as getAllDocShellsInSubtree.
+   */
+  nsISimpleEnumerator getDocShellEnumerator(
+    in long aItemType,
+    in nsIDocShell_DocShellEnumeratorDirection aDirection);
 
   /**
    * The type of application that created this window.

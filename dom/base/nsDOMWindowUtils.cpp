@@ -239,6 +239,18 @@ nsDOMWindowUtils::nsDOMWindowUtils(nsGlobalWindowOuter* aWindow) {
 
 nsDOMWindowUtils::~nsDOMWindowUtils() { OldWindowSize::GetAndRemove(mWindow); }
 
+NS_IMETHODIMP
+nsDOMWindowUtils::GetCurrentInnerWindowID(uint64_t* aWindowID) {
+  nsCOMPtr<nsPIDOMWindowOuter> window = do_QueryReferent(mWindow);
+  nsPIDOMWindowInner* inner =
+      window ? window->GetCurrentInnerWindow() : nullptr;
+  if (!inner) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+  *aWindowID = inner->WindowID();
+  return NS_OK;
+}
+
 nsIDocShell* nsDOMWindowUtils::GetDocShell() {
   nsCOMPtr<nsPIDOMWindowOuter> window = do_QueryReferent(mWindow);
   if (!window) {

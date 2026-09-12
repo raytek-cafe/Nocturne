@@ -59,7 +59,7 @@ ParentProcessDocumentChannel::RedirectToRealChannel(
   if (XRE_IsE10sParentProcess()) {
     nsCOMPtr<nsIURI> uri;
     MOZ_ALWAYS_SUCCEEDS(NS_GetFinalChannelURI(channel, getter_AddRefs(uri)));
-    if (!nsDocShell::CanLoadInParentProcess(uri)) {
+    if (!nsDocShell::CanLoadInParentProcess(uri, channel)) {
       nsAutoCString msg;
       uri->GetSpec(msg);
       msg.Insert(

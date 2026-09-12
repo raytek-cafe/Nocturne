@@ -61,6 +61,8 @@ interface nsISynthesizedEventCallback : nsISupports {
 [builtinclass, scriptable, uuid(4d6732ca-9da7-4176-b8a1-8dde15cd0bf9)]
 interface nsIDOMWindowUtils : nsISupports {
 
+  readonly attribute unsigned long long currentInnerWindowID;
+
   /**
    * Image animation mode of the window. When this attribute's value
    * is changed, the implementation should set all images in the window

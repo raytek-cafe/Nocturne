@@ -2073,7 +2073,7 @@ bool DocumentLoadListener::MaybeTriggerProcessSwitch(
       currentRemoteType != NOT_REMOTE_TYPE) {
     nsCOMPtr<nsIURI> uri;
     MOZ_ALWAYS_SUCCEEDS(NS_GetFinalChannelURI(mChannel, getter_AddRefs(uri)));
-    if (NS_WARN_IF(!nsDocShell::CanLoadInParentProcess(uri))) {
+    if (NS_WARN_IF(!nsDocShell::CanLoadInParentProcess(uri, mChannel))) {
       MOZ_LOG(gProcessIsolationLog, LogLevel::Error,
               ("Process Switch Abort: %s is not loadable in the parent",
                uri->GetSpecOrDefault().get()));
