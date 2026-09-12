@@ -568,6 +568,9 @@ export class UrlbarView {
     this.window.removeEventListener("blur", this);
 
     this.controller.notify(this.controller.NOTIFICATIONS.VIEW_CLOSE);
+    this.panel.dispatchEvent(
+      new this.window.CustomEvent("popuphidden", { bubbles: true })
+    );
 
     // Revoke icon blob URLs that were created while the view was open.
     if (this.#blobUrlsByResultUrl) {
@@ -1092,6 +1095,9 @@ export class UrlbarView {
     this.window.addEventListener("blur", this);
 
     this.controller.notify(this.controller.NOTIFICATIONS.VIEW_OPEN);
+    this.panel.dispatchEvent(
+      new this.window.CustomEvent("popupshown", { bubbles: true })
+    );
 
     this.maybeRollupPopups();
   }

@@ -27,6 +27,9 @@
   locale/@AB_CD@/global/filepicker.properties           (%chrome/global/filepicker.properties)
   locale/@AB_CD@/global/intl.css                        (%chrome/global/intl.css)
   locale/@AB_CD@/global/keys.properties                 (%chrome/global/keys.properties)
+  locale/@AB_CD@/global/textcontext.dtd                  (%chrome/global/textcontext.dtd)
+  locale/@AB_CD@/global/customizeToolbar.dtd             (%chrome/global/customizeToolbar.dtd)
+  locale/@AB_CD@/global/notification.dtd                 (%chrome/global/notification.dtd)
 #ifndef MOZ_GECKOVIEW
   locale/@AB_CD@/global/narrate.properties              (%chrome/global/narrate.properties)
 #endif
@@ -47,6 +50,7 @@
   locale/@AB_CD@/mozapps/downloads/unknownContentType.properties  (%chrome/mozapps/downloads/unknownContentType.properties)
   locale/@AB_CD@/mozapps/downloads/downloads.properties           (%chrome/mozapps/downloads/downloads.properties)
   locale/@AB_CD@/mozapps/profile/profileSelection.properties      (%chrome/mozapps/profile/profileSelection.properties)
+  locale/@AB_CD@/mozapps/extensions/extensions.dtd       (%chrome/mozapps/extensions/extensions.dtd)
 #ifndef MOZ_GECKOVIEW
   locale/@AB_CD@/mozapps/update/updates.properties                (%chrome/mozapps/update/updates.properties)
 #endif
