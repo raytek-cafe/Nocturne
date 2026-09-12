@@ -105,6 +105,8 @@ const PROP_JSON_FIELDS = [
   "version",
   "type",
   "loader",
+  "bootstrap",
+  "unpack",
   "updateURL",
   "installOrigins",
   "manifestVersion",
@@ -256,6 +258,7 @@ export class AddonInternal {
     this._wrapper = null;
     this._selectedLocale = null;
     this.active = false;
+    this.bootstrap = true;
     this.visible = false;
     this.userDisabled = false;
     this.appDisabled = false;
@@ -1000,6 +1003,7 @@ export class AddonWrapper {
 
     if (addon.optionsType) {
       switch (parseInt(addon.optionsType, 10)) {
+        case lazy.AddonManager.OPTIONS_TYPE_DIALOG:
         case lazy.AddonManager.OPTIONS_TYPE_TAB:
         case lazy.AddonManager.OPTIONS_TYPE_INLINE_BROWSER:
           return hasOptionsURL ? addon.optionsType : null;
@@ -1230,11 +1234,25 @@ export class AddonWrapper {
   }
 
   get operationsRequiringRestart() {
-    return 0;
+    let addon = addonFor(this);
+    let operations = lazy.AddonManager.OP_NEEDS_RESTART_NONE;
+    if (XPIExports.XPIProvider.installRequiresRestart(addon)) {
+      operations |= lazy.AddonManager.OP_NEEDS_RESTART_INSTALL;
+    }
+    if (XPIExports.XPIProvider.uninstallRequiresRestart(addon)) {
+      operations |= lazy.AddonManager.OP_NEEDS_RESTART_UNINSTALL;
+    }
+    if (XPIExports.XPIProvider.enableRequiresRestart(addon)) {
+      operations |= lazy.AddonManager.OP_NEEDS_RESTART_ENABLE;
+    }
+    if (XPIExports.XPIProvider.disableRequiresRestart(addon)) {
+      operations |= lazy.AddonManager.OP_NEEDS_RESTART_DISABLE;
+    }
+    return operations;
   }
 
   get isDebuggable() {
-    return this.isActive;
+    return this.isActive && addonFor(this).bootstrap;
   }
 
   get permissions() {
@@ -1249,12 +1267,12 @@ export class AddonWrapper {
     if (!Services.appinfo.inSafeMode) {
       return true;
     }
-    return XPIExports.XPIInternal.canRunInSafeMode(addon);
+    return addon.bootstrap && XPIExports.XPIInternal.canRunInSafeMode(addon);
   }
 
   get startupPromise() {
     let addon = addonFor(this);
-    if (!this.isActive) {
+    if (!XPIExports.XPIInternal.hasLifecycleScope(addon) || !this.isActive) {
       return null;
     }
 
@@ -1481,7 +1499,7 @@ export class AddonWrapper {
 
   cancelUninstall() {
     let addon = addonFor(this);
-    XPIExports.XPIInstall.cancelUninstallAddon(addon);
+    return XPIExports.XPIInstall.cancelUninstallAddon(addon);
   }
 
   findUpdates(aListener, aReason, aAppVersion, aPlatformVersion) {
@@ -1803,6 +1821,10 @@ export const XPIDatabase = {
   blocklistAttentionAddonIdsSet: new Set(),
 
   _saveTask: null,
+  _saveImmediatelyPromise: Promise.resolve(),
+  _saveImmediatelyPending: 0,
+  _saveChangesBatchDepth: 0,
+  _saveAfterImmediate: false,
 
   // Saved error object if we fail to read an existing database
   _loadError: null,
@@ -1843,6 +1865,7 @@ export const XPIDatabase = {
         // Reading the DB worked once, so we don't need the load error
         this._loadError = null;
       }
+      this._saveError = null;
     } catch (error) {
       logger.warn("Failed to save XPI database", error);
       this._saveError = error;
@@ -1850,6 +1873,38 @@ export const XPIDatabase = {
       if (!DOMException.isInstance(error) || error.name !== "AbortError") {
         throw error;
       }
+    }
+  },
+
+  _armDeferredSaveIfNeeded() {
+    if (
+      !this._saveImmediatelyPending &&
+      !this._saveChangesBatchDepth &&
+      this._saveAfterImmediate
+    ) {
+      this._saveAfterImmediate = false;
+      this.saveChanges();
+    }
+  },
+
+  _beginSaveChangesBatch() {
+    this._saveChangesBatchDepth++;
+    if (this._saveTask?.isArmed) {
+      this._saveAfterImmediate = true;
+      this._saveTask.disarm();
+    }
+  },
+
+  _endSaveChangesBatch(scheduleDeferredSave = true) {
+    if (!this._saveChangesBatchDepth) {
+      throw new Error("No XPI database save changes batch is active");
+    }
+    this._saveChangesBatchDepth--;
+    if (!scheduleDeferredSave) {
+      this._saveAfterImmediate = false;
+      this._saveTask?.disarm();
+    } else {
+      this._armDeferredSaveIfNeeded();
     }
   },
 
@@ -1870,6 +1925,11 @@ export const XPIDatabase = {
       Glean.xpiDatabase.lateStack.set(stack);
     }
 
+    if (this._saveImmediatelyPending || this._saveChangesBatchDepth) {
+      this._saveAfterImmediate = true;
+      return;
+    }
+
     if (!this._saveTask) {
       this._saveTask = new lazy.DeferredTask(
         () => this._saveNow(),
@@ -1880,7 +1940,31 @@ export const XPIDatabase = {
     this._saveTask.arm();
   },
 
+  saveChangesImmediately() {
+    this._saveImmediatelyPending++;
+    let savePromise = this._saveImmediatelyPromise.then(async () => {
+      this._saveTask?.disarm();
+      if (this._saveTask?._runningPromise) {
+        await this._saveTask._runningPromise;
+      }
+      this._saveAfterImmediate = false;
+      await this._saveNow();
+      if (this._saveError) {
+        throw this._saveError;
+      }
+    });
+    this._saveImmediatelyPromise = savePromise.catch(() => {});
+    return savePromise.finally(() => {
+      this._saveImmediatelyPending--;
+      this._armDeferredSaveIfNeeded();
+    });
+  },
+
   async finalize() {
+    while (this._saveImmediatelyPending) {
+      await this._saveImmediatelyPromise;
+    }
+
     // handle the "in memory only" and "saveChanges never called" cases
     if (!this._saveTask) {
       return;
@@ -2196,6 +2280,10 @@ export const XPIDatabase = {
       delete this._dbPromise;
       // same for the deferred save
       delete this._saveTask;
+      this._saveImmediatelyPromise = Promise.resolve();
+      this._saveImmediatelyPending = 0;
+      this._saveChangesBatchDepth = 0;
+      this._saveAfterImmediate = false;
       // re-enable the schema version setter
       delete this._schemaVersionSet;
     }
@@ -2661,6 +2749,10 @@ export const XPIDatabase = {
    * @returns {boolean} Whether the addon should be disabled for being legacy
    */
   isDisabledLegacy(addon) {
+    if (!addon.isWebExtension && addon.loader === "bootstrap") {
+      return false;
+    }
+
     // We still have tests that use a legacy addon type, allow them
     // if we're in automation.  Otherwise, disable if not a webextension.
     if (!Cu.isInAutomation) {
@@ -3097,37 +3189,47 @@ export const XPIDatabase = {
 
     // Have we just gone back to the current state?
     if (isDisabled != aAddon.active) {
+      let activeScope = XPIExports.XPIProvider.activeAddons.get(aAddon.id);
+      if (activeScope) {
+        activeScope._pendingDisable = false;
+      }
       lazy.AddonManagerPrivate.callAddonListeners(
         "onOperationCancelled",
         wrapper
       );
     } else {
-      if (isDisabled) {
-        lazy.AddonManagerPrivate.callAddonListeners(
-          "onDisabling",
-          wrapper,
-          false
-        );
-      } else {
-        lazy.AddonManagerPrivate.callAddonListeners(
-          "onEnabling",
-          wrapper,
-          false
-        );
-      }
+      let needsRestart = isDisabled
+        ? XPIExports.XPIProvider.disableRequiresRestart(aAddon)
+        : XPIExports.XPIProvider.enableRequiresRestart(aAddon);
+      lazy.AddonManagerPrivate.callAddonListeners(
+        isDisabled ? "onDisabling" : "onEnabling",
+        wrapper,
+        needsRestart
+      );
 
-      this.updateAddonActive(aAddon, !isDisabled);
-      this.maybeUpdateBlocklistAttentionAddonIdsSet(aAddon);
-
-      let bootstrap = XPIExports.XPIInternal.BootstrapScope.get(aAddon);
-      if (isDisabled) {
-        await bootstrap.disable();
-        lazy.AddonManagerPrivate.callAddonListeners("onDisabled", wrapper);
+      if (needsRestart) {
+        let activeScope = XPIExports.XPIProvider.activeAddons.get(aAddon.id);
+        if (activeScope) {
+          activeScope._pendingDisable = isDisabled;
+        }
       } else {
-        await bootstrap.startup(
-          XPIExports.XPIInternal.BOOTSTRAP_REASONS.ADDON_ENABLE
+        this.updateAddonActive(aAddon, !isDisabled);
+        this.maybeUpdateBlocklistAttentionAddonIdsSet(aAddon);
+
+        if (XPIExports.XPIInternal.hasLifecycleScope(aAddon)) {
+          let bootstrap = XPIExports.XPIInternal.BootstrapScope.get(aAddon);
+          if (isDisabled) {
+            await bootstrap.disable();
+          } else {
+            await bootstrap.startup(
+              XPIExports.XPIInternal.BOOTSTRAP_REASONS.ADDON_ENABLE
+            );
+          }
+        }
+        lazy.AddonManagerPrivate.callAddonListeners(
+          isDisabled ? "onDisabled" : "onEnabled",
+          wrapper
         );
-        lazy.AddonManagerPrivate.callAddonListeners("onEnabled", wrapper);
       }
     }
 
@@ -3561,7 +3663,8 @@ export const XPIDatabaseReconcile = {
       try {
         manifest = XPIExports.XPIInstall.syncLoadManifest(
           aAddonState,
-          aLocation
+          aLocation,
+          aOldAddon
         );
       } catch (err) {
         // If we can no longer read the manifest, it is no longer compatible.
@@ -3760,6 +3863,34 @@ export const XPIDatabaseReconcile = {
     let findManifest = (loc, id) => {
       return (aManifests[loc.name] && aManifests[loc.name][id]) || null;
     };
+    let getStagedLifecycleJournal = addon => {
+      let staged =
+        XPIExports.XPIInternal.XPIStates.findStagedAddonForPackage(addon) ??
+        XPIExports.XPIInternal.XPIStates.findStagedAddonForPackage(
+          addon,
+          "oldAddon"
+        );
+      if (!staged) {
+        const candidate = XPIExports.XPIInternal.XPIStates.findStagedAddon(
+          addon.id
+        );
+        const oldIdentity = candidate?.record.oldAddon;
+        if (
+          candidate?.record.type === "uninstall" &&
+          candidate.record.lifecycle?.oldUninstall?.complete &&
+          ((!oldIdentity && candidate.record.filesComplete) ||
+            (oldIdentity.location === addon.location?.name &&
+              oldIdentity.version === addon.version))
+        ) {
+          staged = candidate;
+        }
+      }
+      return staged
+        ? (aManifests.__stagedLifecycleJournals?.get(
+            staged.record.generation
+          ) ?? null)
+        : null;
+    };
 
     let previousAddons = new lazy.ExtensionUtils.DefaultMap(() => new Map());
     let currentAddons = new lazy.ExtensionUtils.DefaultMap(() => new Map());
@@ -3874,8 +4005,14 @@ export const XPIDatabaseReconcile = {
       let xpiState =
         !findManifest(addon.location, id) && addonStates.get(addon);
 
+      let previousAddon = previousVisible.get(id);
       promises.push(
-        this.applyStartupChange(addon, previousVisible.get(id), xpiState)
+        this.applyStartupChange(
+          addon,
+          previousAddon,
+          xpiState,
+          getStagedLifecycleJournal(addon)
+        )
       );
       previousVisible.delete(id);
     }
@@ -3892,7 +4029,14 @@ export const XPIDatabaseReconcile = {
         ) {
           continue;
         }
-        XPIExports.XPIInternal.BootstrapScope.get(addon).uninstall();
+        if (
+          XPIExports.XPIInternal.hasLifecycleScope(addon) &&
+          !getStagedLifecycleJournal(addon)
+        ) {
+          XPIExports.XPIInternal.awaitPromise(
+            XPIExports.XPIInternal.BootstrapScope.get(addon).uninstall()
+          );
+        }
         addon.location.removeAddon(id);
         addon.visible = false;
         addon.active = false;
@@ -3914,8 +4058,10 @@ export const XPIDatabaseReconcile = {
         xpiState.syncWithDB(addon);
       }
     }
-    XPIExports.XPIInternal.XPIStates.save();
-    XPIDatabase.saveChanges();
+    if (!aManifests.__stagedLifecycleJournals?.size) {
+      XPIExports.XPIInternal.XPIStates.save();
+      XPIDatabase.saveChanges();
+    }
     XPIDatabase.rebuildingDatabase = false;
 
     if (aUpdateCompatibility || aSchemaChange) {
@@ -3968,11 +4114,18 @@ export const XPIDatabaseReconcile = {
    *        The add-on as it existed in the previous session.
    * @param {XPIState?} xpiState
    *        The XPIState entry for this add-on, if one exists.
+   * @param {object?} [stagedLifecycleJournal = null]
+   *        The persisted journal for a staged replacement.
    * @returns {Promise?}
    *        If an update was performed, returns a promise which resolves
    *        when the appropriate bootstrap methods have been called.
    */
-  applyStartupChange(currentAddon, previousAddon, xpiState) {
+  applyStartupChange(
+    currentAddon,
+    previousAddon,
+    xpiState,
+    stagedLifecycleJournal = null
+  ) {
     let promise;
     let { id } = currentAddon;
 
@@ -3986,24 +4139,63 @@ export const XPIDatabaseReconcile = {
           id
         );
 
-        // Bug 1664144:  If the addon changed on disk we will catch it during
-        // the second scan initiated by getNewSideloads.  The addon may have
-        // already started, if so we need to ensure it restarts during the
-        // update, otherwise we're left in a state where the addon is enabled
-        // but not started.  We use the bootstrap started state to check that.
-        // isActive alone is not sufficient as that changes the characteristics
-        // of other updates and breaks many tests.
-        let restart =
-          isActive &&
-          XPIExports.XPIInternal.BootstrapScope.get(currentAddon).started;
-        if (restart) {
-          logger.warn(
-            `Updating and restart addon ${previousAddon.id} that changed on disk after being already started.`
+        let previousHasLifecycleScope =
+          XPIExports.XPIInternal.hasLifecycleScope(previousAddon);
+        let currentHasLifecycleScope =
+          XPIExports.XPIInternal.hasLifecycleScope(currentAddon);
+        if (stagedLifecycleJournal) {
+          promise = XPIExports.XPIProvider.ensureStagedLifecycleIdentities(
+            stagedLifecycleJournal,
+            previousAddon,
+            currentAddon
+          ).then(journal =>
+            XPIExports.XPIProvider.runStagedLifecycle(
+              journal,
+              "newInstall",
+              currentHasLifecycleScope
+                ? () =>
+                    XPIExports.XPIInternal.BootstrapScope.get(
+                      currentAddon
+                    ).installStagedUpdate(previousAddon)
+                : null
+            )
           );
+        } else if (previousHasLifecycleScope && currentHasLifecycleScope) {
+          // Bug 1664144: If the addon changed on disk we will catch it during
+          // the second scan initiated by getNewSideloads. The addon may have
+          // already started, if so we need to ensure it restarts during the
+          // update, otherwise we're left in a state where the addon is enabled
+          // but not started.
+          let restart =
+            isActive &&
+            XPIExports.XPIInternal.BootstrapScope.get(currentAddon).started;
+          if (restart) {
+            logger.warn(
+              `Updating and restart addon ${previousAddon.id} that changed on disk after being already started.`
+            );
+          }
+          promise = XPIExports.XPIInternal.BootstrapScope.get(
+            previousAddon
+          ).update(currentAddon, restart);
+        } else if (!previousHasLifecycleScope && currentHasLifecycleScope) {
+          let reason = XPIExports.XPIInstall.newVersionReason(
+            previousAddon.version,
+            currentAddon.version
+          );
+          promise = XPIExports.XPIInternal.BootstrapScope.get(
+            currentAddon
+          ).install(reason, isActive, {
+            oldVersion: previousAddon.version,
+          });
+        } else if (previousHasLifecycleScope) {
+          let reason = XPIExports.XPIInstall.newVersionReason(
+            previousAddon.version,
+            currentAddon.version
+          );
+          promise = XPIExports.XPIInternal.BootstrapScope.get(
+            previousAddon
+          ).uninstall(reason, { newVersion: currentAddon.version });
         }
-        promise = XPIExports.XPIInternal.BootstrapScope.get(
-          previousAddon
-        ).update(currentAddon, restart);
       }
 
       if (isActive != wasActive) {
@@ -4036,8 +4228,27 @@ export const XPIDatabaseReconcile = {
         lazy.AddonManager.STARTUP_CHANGE_INSTALLED,
         id
       );
-      let scope = XPIExports.XPIInternal.BootstrapScope.get(currentAddon);
-      scope.install();
+      if (stagedLifecycleJournal) {
+        promise = XPIExports.XPIProvider.ensureStagedLifecycleIdentities(
+          stagedLifecycleJournal,
+          null,
+          currentAddon
+        ).then(journal =>
+          XPIExports.XPIProvider.runStagedLifecycle(
+            journal,
+            "newInstall",
+            XPIExports.XPIInternal.hasLifecycleScope(currentAddon)
+              ? () =>
+                  XPIExports.XPIInternal.BootstrapScope.get(
+                    currentAddon
+                  ).install(undefined, false)
+              : null
+          )
+        );
+      } else if (XPIExports.XPIInternal.hasLifecycleScope(currentAddon)) {
+        let scope = XPIExports.XPIInternal.BootstrapScope.get(currentAddon);
+        promise = scope.install();
+      }
     }
 
     XPIDatabase.makeAddonVisible(currentAddon);
