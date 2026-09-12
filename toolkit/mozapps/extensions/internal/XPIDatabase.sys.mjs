@@ -517,6 +517,10 @@ export class AddonInternal {
     );
   }
 
+  get isXULTheme() {
+    return this.startupData?.legacyTheme === true;
+  }
+
   get isPlatformCompatible() {
     if (!this.targetPlatforms.length) {
       return true;
@@ -701,6 +705,9 @@ export class AddonInternal {
   }
 
   async setUserDisabled(val, allowSystemAddons = false) {
+    if (!val && this.isXULTheme) {
+      await XPIDatabase.selectXULTheme(this);
+    }
     if (val == (this.userDisabled || this.softDisabled)) {
       return;
     }
@@ -726,6 +733,25 @@ export class AddonInternal {
       // When enabling remove the softDisabled flag
       if (!val) {
         this.softDisabled = false;
+      }
+    }
+    if (this.isXULTheme) {
+      const staged = this.location.staged[this.id];
+      if (staged?.type === "install") {
+        staged.metadata.userDisabled = this.userDisabled;
+        staged.metadata.softDisabled = this.softDisabled;
+        if (this.pendingUpgrade) {
+          this.pendingUpgrade.userDisabled = this.userDisabled;
+          this.pendingUpgrade.softDisabled = this.softDisabled;
+        }
+        XPIExports.XPIInternal.XPIStates.save();
+      }
+      if (!this.inDatabase) {
+        lazy.AddonManagerPrivate.callAddonListeners(
+          "onPropertyChanged",
+          this.wrapper,
+          ["userDisabled"]
+        );
       }
     }
   }
@@ -813,6 +839,19 @@ export class AddonInternal {
 
     // Add-ons that aren't installed cannot be modified in any way
     if (!this.inDatabase) {
+      if (
+        this.isXULTheme &&
+        this._install?.state === lazy.AddonManager.STATE_INSTALLED &&
+        !this.appDisabled
+      ) {
+        if (this.userDisabled || this.softDisabled) {
+          permissions |= lazy.AddonManager.PERM_CAN_ENABLE;
+        } else if (
+          Services.policies?.isAllowed(`disable-extension:${this.id}`) !== false
+        ) {
+          permissions |= lazy.AddonManager.PERM_CAN_DISABLE;
+        }
+      }
       return permissions;
     }
 
@@ -1611,6 +1650,7 @@ function defineAddonWrapperProperty(name, getter) {
   "version",
   "type",
   "isWebExtension",
+  "isXULTheme",
   "isCompatible",
   "isPlatformCompatible",
   "providesUpdatesSecurely",
@@ -2398,6 +2438,41 @@ export const XPIDatabase = {
       PREF_XPI_PERMISSIONS_BRANCH,
       XPIExports.XPIInternal.XPI_PERMISSION
     );
+  },
+
+  async selectXULTheme(aAddon) {
+    if (!aAddon.isXULTheme) {
+      return;
+    }
+
+    const pending = Array.from(XPIExports.XPIInstall.installs)
+      .filter(install => install.state === lazy.AddonManager.STATE_INSTALLED)
+      .map(install => install.addon);
+    const candidates = new Set([...this.getAddons(), ...pending]);
+    for (const other of candidates) {
+      if (
+        other !== aAddon &&
+        other.id !== aAddon.id &&
+        other.isXULTheme &&
+        !other.userDisabled
+      ) {
+        await other.setUserDisabled(true);
+      }
+    }
+  },
+
+  /**
+   * Repairs profiles which predate exclusive XUL theme selection. The
+   * lexicographically first ID is retained so migration is deterministic.
+   */
+  normalizeXULThemeSelection() {
+    const selected = this.getAddons()
+      .filter(addon => addon.visible && addon.isXULTheme && !addon.disabled)
+      .sort((a, b) => a.id.localeCompare(b.id));
+    for (const addon of selected.slice(1)) {
+      this.setAddonProperties(addon, { userDisabled: true });
+      this.updateXPIStates(addon);
+    }
   },
 
   /**
@@ -4043,13 +4118,17 @@ export const XPIDatabaseReconcile = {
         ) {
           continue;
         }
+        const needsEarlyUninstall =
+          XPIExports.XPIInternal.requiresEarlyLifecycleUninstall(addon);
         if (
           XPIExports.XPIInternal.hasLifecycleScope(addon) &&
-          !getStagedLifecycleJournal(addon)
+          (!getStagedLifecycleJournal(addon) || !needsEarlyUninstall)
         ) {
-          XPIExports.XPIInternal.awaitPromise(
-            XPIExports.XPIInternal.BootstrapScope.get(addon).uninstall()
-          );
+          const uninstall =
+            XPIExports.XPIInternal.BootstrapScope.get(addon).uninstall();
+          if (needsEarlyUninstall) {
+            XPIExports.XPIInternal.awaitPromise(uninstall);
+          }
         }
         addon.location.removeAddon(id);
         addon.visible = false;

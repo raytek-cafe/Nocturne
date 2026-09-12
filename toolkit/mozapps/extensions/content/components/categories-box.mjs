@@ -52,6 +52,14 @@ const CATEGORIES = [
     defaultHidden: false,
   },
   {
+    name: "xul-theme",
+    viewId: "addons://list/xul-theme",
+    iconSrc: "chrome://mozapps/skin/extensions/category-themes.svg",
+    l10nId: "addon-category-xul-theme",
+    titleL10nId: "addon-category-xul-theme-title",
+    defaultHidden: false,
+  },
+  {
     name: "theme",
     viewId: "addons://list/theme",
     iconSrc: "chrome://mozapps/skin/extensions/category-themes.svg",
@@ -225,7 +233,7 @@ class CategoriesBox extends MozLitElement {
   }
 
   onInstalled(addon) {
-    const name = addon.type;
+    const name = addon.isXULTheme ? "xul-theme" : addon.type;
     if (CATEGORIES.some(c => c.name === name)) {
       const hidden = new Set(this._hiddenCategories);
       hidden.delete(name);

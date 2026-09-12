@@ -16,6 +16,8 @@ import {
   hasPermission,
   isAllowedInPrivateBrowsing,
   isInState,
+  isPendingRestartInstall,
+  openOptionsInDialog,
   openOptionsInTab,
   shouldShowPermissionsPrompt,
   showPermissionsPrompt,
@@ -53,6 +55,8 @@ const PRIVATE_BROWSING_PERMS = {
  * @property {string} [linkUrl]
  * @property {string} [linkId]
  * @property {string} [linkSumoPage]
+ * @property {string} [action]
+ * @property {string} [actionId]
  */
 
 /**
@@ -306,10 +310,14 @@ export class AddonCard extends AboutAddonsHTMLElement {
 
     if (e.type == "click") {
       switch (action) {
-        case "toggle-disabled":
-          // Keep the checked state the same until the add-on's state changes.
-          e.target.checked = !addon.userDisabled;
-          if (addon.userDisabled) {
+        case "toggle-disabled": {
+          const isSelected =
+            addon.isXULTheme && !addon.userDisabled && !addon.appDisabled;
+          // Keep toggle state unchanged until the add-on's state changes.
+          if (!addon.isXULTheme) {
+            e.target.checked = !addon.userDisabled;
+          }
+          if (addon.isXULTheme ? !isSelected : addon.userDisabled) {
             if (shouldShowPermissionsPrompt(addon)) {
               await showPermissionsPrompt(addon);
             } else {
@@ -318,7 +326,9 @@ export class AddonCard extends AboutAddonsHTMLElement {
           } else {
             await addon.disable();
           }
+          this.update();
           break;
+        }
         case "always-activate":
           addon.userDisabled = false;
           break;
@@ -339,23 +349,27 @@ export class AddonCard extends AboutAddonsHTMLElement {
           }
           break;
         }
-        case "install-update":
+        case "install-update": {
+          const updateInstall = this.updateInstall;
+          if (!updateInstall) {
+            break;
+          }
           // Make sure that an update handler is attached to the install object
           // before starting the update installation (otherwise the user would
           // not be prompted for the new permissions requested if necessary),
           // and also make sure that a prompt handler attached from a closed
           // about:addons tab is replaced by the one attached by the currently
           // active about:addons tab.
-          attachUpdateHandler(this.updateInstall);
-          this.updateInstall.install().then(
+          attachUpdateHandler(updateInstall);
+          Promise.resolve(updateInstall.install()).then(
             () => {
-              detachUpdateHandler(this.updateInstall);
+              detachUpdateHandler(updateInstall);
               // The card will update with the new add-on when it gets
               // installed.
               this.sendEvent("update-installed");
             },
             () => {
-              detachUpdateHandler(this.updateInstall);
+              detachUpdateHandler(updateInstall);
               // Update our state if the install is cancelled.
               this.update();
               this.sendEvent("update-cancelled");
@@ -365,11 +379,28 @@ export class AddonCard extends AboutAddonsHTMLElement {
           // available updates (whether it succeeds or fails).
           this.updateInstall = null;
           break;
+        }
+        case "cancel-install": {
+          const install = addon.install;
+          if (isPendingRestartInstall(install)) {
+            await install.cancel();
+          }
+          break;
+        }
+        case "cancel-update": {
+          const updateInstall = getUpdateInstall(addon);
+          if (updateInstall && isInState(updateInstall, "installed")) {
+            await updateInstall.cancel();
+          }
+          break;
+        }
         case "contribute":
           windowRoot.window.openWebLinkIn(addon.contributionURL, "tab");
           break;
         case "preferences":
-          if (getOptionsType(addon) == "tab") {
+          if (getOptionsType(addon) == "dialog") {
+            openOptionsInDialog(addon);
+          } else if (getOptionsType(addon) == "tab") {
             openOptionsInTab(addon.optionsURL);
           } else if (getOptionsType(addon) == "inline") {
             gViewController.loadView(`detail/${this.addon.id}/preferences`);
@@ -427,6 +458,7 @@ export class AddonCard extends AboutAddonsHTMLElement {
         default:
           // Handle a click on the card itself.
           if (
+            (!isPendingRestartInstall(addon.install) || addon.isXULTheme) &&
             !this.expanded &&
             (e.target === this.addonNameEl || !e.target.closest("a")) &&
             // moz-button handles its own click/toggle; exclude it here to
@@ -524,20 +556,25 @@ export class AddonCard extends AboutAddonsHTMLElement {
     let { addon, card } = this;
 
     card.setAttribute("active", addon.isActive);
+    this.toggleAttribute("xul-theme", !!addon.isXULTheme);
 
-    // Set the icon or theme preview.
+    // Set the icon and theme preview.
     let iconEl = card.querySelector(".addon-icon");
     let preview = card.querySelector(".card-heading-image");
-    if (addon.type == "theme") {
-      iconEl.hidden = true;
+    if (addon.type == "theme" || addon.isXULTheme) {
       let screenshotUrl = getScreenshotUrlForAddon(addon);
       if (screenshotUrl) {
         preview.src = screenshotUrl;
+      } else {
+        preview.removeAttribute("src");
       }
       preview.hidden = !screenshotUrl;
     } else {
       preview.hidden = true;
-      iconEl.hidden = false;
+    }
+
+    iconEl.hidden = addon.type == "theme";
+    if (!iconEl.hidden) {
       if (addon.type == "plugin") {
         iconEl.src = PLUGIN_ICON_URL;
       } else {
@@ -549,7 +586,12 @@ export class AddonCard extends AboutAddonsHTMLElement {
 
     // Update the name.
     let name = this.addonNameEl;
-    let setDisabledStyle = !(addon.isActive || addon.type === "theme");
+    let setDisabledStyle = !(
+      addon.isActive ||
+      addon.type === "theme" ||
+      addon.isXULTheme ||
+      isPendingRestartInstall(addon.install)
+    );
     if (!setDisabledStyle) {
       name.textContent = addon.name;
       name.removeAttribute("data-l10n-id");
@@ -562,9 +604,14 @@ export class AddonCard extends AboutAddonsHTMLElement {
 
     let toggleDisabledButton = card.querySelector('[action="toggle-disabled"]');
     if (toggleDisabledButton) {
-      let toggleDisabledAction = addon.userDisabled ? "enable" : "disable";
-      toggleDisabledButton.hidden = !hasPermission(addon, toggleDisabledAction);
-      if (addon.type === "theme") {
+      const isSelected = addon.isXULTheme
+        ? !addon.userDisabled && !addon.appDisabled
+        : !addon.userDisabled;
+      let toggleDisabledAction = isSelected ? "disable" : "enable";
+      toggleDisabledButton.hidden =
+        (isPendingRestartInstall(addon.install) && !addon.isXULTheme) ||
+        !hasPermission(addon, toggleDisabledAction);
+      if (addon.type === "theme" || addon.isXULTheme) {
         document.l10n.setAttributes(
           toggleDisabledButton,
           `${toggleDisabledAction}-addon-button`
@@ -655,6 +702,8 @@ export class AddonCard extends AboutAddonsHTMLElement {
 
     const resolveMessageInfo = AddonCard.#getAddonMessageInfoHook;
     const {
+      action,
+      actionId,
       linkUrl,
       linkId,
       linkSumoPage,
@@ -665,7 +714,11 @@ export class AddonCard extends AboutAddonsHTMLElement {
       isCardExpanded: this.expanded,
       isInDisabledSection:
         !this.expanded &&
-        !!this.closest(`section.${this.addon.type}-disabled-section`),
+        !!this.closest(
+          `section.${
+            this.addon.isXULTheme ? "xul-theme" : this.addon.type
+          }-disabled-section`
+        ),
     });
 
     if (messageId) {
@@ -674,6 +727,13 @@ export class AddonCard extends AboutAddonsHTMLElement {
       messageBar.setAttribute("data-l10n-attrs", "message");
 
       messageBar.innerHTML = "";
+      if (action && actionId) {
+        const actionButton = document.createElement("button");
+        document.l10n.setAttributes(actionButton, actionId);
+        actionButton.setAttribute("action", action);
+        actionButton.setAttribute("slot", "actions");
+        messageBar.append(actionButton);
+      }
       if (linkUrl) {
         const linkButton = document.createElement("button");
         document.l10n.setAttributes(linkButton, linkId);
@@ -730,15 +790,21 @@ export class AddonCard extends AboutAddonsHTMLElement {
     this.setAttribute("addon-id", addon.id);
 
     this.card = AddonCard.fragment.firstElementChild;
+    this.card
+      .querySelector(".card-heading-image")
+      .addEventListener("error", event => {
+        event.target.hidden = true;
+      });
     let headingId = lazy.ExtensionCommon.makeWidgetId(`${addon.id}-heading`);
     this.card.setAttribute("aria-labelledby", headingId);
 
-    // Remove the toggle-disabled button(s) based on type.
-    if (addon.type != "theme") {
+    // XUL themes keep their extension provider type, but use the native theme
+    // button because selection takes effect on the next application start.
+    if (addon.type != "theme" && !addon.isXULTheme) {
       this.card.querySelector(".theme-enable-button").remove();
     }
     if (
-      addon.type != "extension" &&
+      (addon.type != "extension" || addon.isXULTheme) &&
       addon.type != "sitepermission" &&
       addon.type != "brightwork"
     ) {
@@ -749,7 +815,10 @@ export class AddonCard extends AboutAddonsHTMLElement {
     let nameHeading = document.createElement(headingLevel);
     nameHeading.classList.add("addon-name");
     nameHeading.id = headingId;
-    if (!this.expanded) {
+    if (
+      !this.expanded &&
+      (!isPendingRestartInstall(addon.install) || addon.isXULTheme)
+    ) {
       let name = document.createElement("a");
       name.classList.add("addon-name-link");
       name.href = `addons://detail/${addon.id}`;
@@ -818,12 +887,33 @@ export class AddonCard extends AboutAddonsHTMLElement {
   }
 
   onInstallEnded(install) {
-    this.setAddon(install.addon);
+    const addon =
+      install.existingAddon &&
+      install.addon.pendingOperations & AddonManager.PENDING_INSTALL
+        ? install.existingAddon
+        : install.addon;
+    this.setAddon(addon);
   }
 
   onInstallPostponed(install) {
     this.updateInstall = install;
     this.sendEvent("update-postponed");
+  }
+
+  onDisabling(_addon, needsRestart) {
+    if (needsRestart) {
+      this.update();
+    }
+  }
+
+  onEnabling(_addon, needsRestart) {
+    if (needsRestart) {
+      this.update();
+    }
+  }
+
+  onOperationCancelled() {
+    this.update();
   }
 
   onDisabled() {
@@ -857,7 +947,12 @@ export class AddonCard extends AboutAddonsHTMLElement {
   onPropertyChanged(addon, changed) {
     if (this.details && changed.includes("applyBackgroundUpdates")) {
       this.details.update();
-    } else if (addon.type == "plugin" && changed.includes("userDisabled")) {
+    } else if (
+      (addon.type == "plugin" || addon.isXULTheme) &&
+      changed.some(property =>
+        ["userDisabled", "appDisabled"].includes(property)
+      )
+    ) {
       this.update();
     }
 

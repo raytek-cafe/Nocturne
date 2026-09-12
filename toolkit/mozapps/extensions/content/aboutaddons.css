@@ -172,7 +172,7 @@ message-bar-stack > * {
   }
 }
 
-addon-list:not([type="theme"]) addon-card:not([expanded]):not([panelopen]) > .addon.card[active="false"]:not(:focus-within):not(:hover) {
+addon-list:not([type="theme"], [type="xul-theme"]) addon-card:not([expanded]):not([panelopen]) > .addon.card[active="false"]:not(:focus-within):not(:hover) {
   opacity: 0.6;
 }
 
@@ -234,6 +234,16 @@ addon-card[expanded] .update-postponed-bar,
    * For details, see https://bugzilla.mozilla.org/show_bug.cgi?id=1546123 */
   height: calc(var(--page-main-content-width) * 92 / 680);
   object-fit: cover;
+}
+
+addon-card[xul-theme] .card-heading-image:not([hidden]) {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 240px;
+  margin-inline: auto;
+  object-fit: contain;
 }
 
 .card-heading-icon {
