@@ -13,6 +13,9 @@
 #include "mozilla/dom/ContentParent.h"
 #include "mozilla/dom/Geolocation.h"
 #include "mozilla/dom/WindowGlobalChild.h"
+#ifdef XP_WIN
+#  include "mozilla/WindowsVersion.h"
+#endif
 #include "nsIObserverService.h"
 #include "nsIPermission.h"
 #include "nsIPermissionMonitor.h"
@@ -131,6 +134,11 @@ NS_IMETHODIMP SystemPermissionObserver::Observe(nsISupports*,
 void EnsureOSMonitoring(PermissionName aName) {
   MOZ_ASSERT(NS_IsMainThread());
   MOZ_ASSERT(XRE_IsParentProcess());
+#ifdef XP_WIN
+  if (!IsWin10May2019UpdateOrLater()) {
+    return;
+  }
+#endif
   if (!sSystemObserver) {
     nsCOMPtr<nsIObserverService> observerService =
         services::GetObserverService();
