@@ -100,10 +100,15 @@ class TestWifiMonitor : public ::testing::Test {
     // Reduce wifi-polling interval.  0 turns polling off.
     mOldScanInterval = Preferences::GetInt(WIFI_SCAN_INTERVAL_MS_PREF);
     Preferences::SetInt(WIFI_SCAN_INTERVAL_MS_PREF, kTestWifiScanIntervalMs);
+    mOldScanningDisabled =
+        Preferences::GetBool("network.wifi.scanning.disabled");
+    Preferences::SetBool("network.wifi.scanning.disabled", false);
   }
 
   ~TestWifiMonitor() {
     Preferences::SetInt(WIFI_SCAN_INTERVAL_MS_PREF, mOldScanInterval);
+    Preferences::SetBool("network.wifi.scanning.disabled",
+                         mOldScanningDisabled);
 
     // Restore network link type
     const char* linkType = nullptr;
@@ -390,6 +395,7 @@ class TestWifiMonitor : public ::testing::Test {
   RefPtr<MockWifiListener> mWifiListener;
 
   int mOldScanInterval;
+  bool mOldScanningDisabled;
   uint32_t mOrigLinkType = 0;
   bool mOrigIsLinkUp = false;
   bool mOrigLinkStatusKnown = false;

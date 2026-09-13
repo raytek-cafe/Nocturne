@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "mozilla/SpinEventLoopUntil.h"
+#include "mozilla/Preferences.h"
 #include "nsCOMPtr.h"
 #include "nsIWifiListener.h"
 #include "nsWifiMonitor.h"
@@ -100,6 +101,9 @@ NS_IMPL_ISUPPORTS(MockWifiListener, nsIWifiListener)
 class TestWifiMonitor {
  public:
   explicit TestWifiMonitor(bool aExpectOnChange) {
+    mOldScanningDisabled =
+        Preferences::GetBool("network.wifi.scanning.disabled");
+    Preferences::SetBool("network.wifi.scanning.disabled", false);
     // Add two listeners so the one can stopWatching before we notify the
     // other one.
     mWifiMonitor =
@@ -118,10 +122,13 @@ class TestWifiMonitor {
     // after the tests run, which is too late to avoid a gtest memory-leak
     // error.
     mWifiMonitor->Close();
+    Preferences::SetBool("network.wifi.scanning.disabled",
+                         mOldScanningDisabled);
   }
 
  private:
   RefPtr<nsWifiMonitor> mWifiMonitor;
+  bool mOldScanningDisabled;
 };
 
 TEST(TestWifiMonitorListenerRemoval, RemoveDuringOnChange)

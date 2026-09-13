@@ -16934,6 +16934,12 @@
   value: false
   mirror: always
 
+# Disable Necko Wi-Fi scans, including scans requested on network changes.
+- name: network.wifi.scanning.disabled
+  type: RelaxedAtomicBool
+  value: true
+  mirror: always
+
 # Wifi-scan polling period, in ms, when on a mobile network.
 # A value of 0 indicates that no polling should be done.
 - name: network.wifi.scanning_period

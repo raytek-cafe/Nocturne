@@ -323,6 +323,10 @@ void nsWifiMonitor::Scan(uint64_t aPollingId) {
 nsresult nsWifiMonitor::DoScan() {
   MOZ_ASSERT(IsBackgroundThread());
 
+  if (StaticPrefs::network_wifi_scanning_disabled()) {
+    return NS_ERROR_NOT_AVAILABLE;
+  }
+
   EnsureWifiScanner();
   MOZ_ASSERT(mWifiScanner);
 
@@ -393,6 +397,10 @@ nsresult nsWifiMonitor::CallWifiListeners(
     const nsTArray<RefPtr<nsIWifiAccessPoint>>& aAccessPoints,
     bool aAccessPointsChanged) {
   MOZ_ASSERT(NS_IsMainThread());
+  if (StaticPrefs::network_wifi_scanning_disabled()) {
+    return PassErrorToWifiListeners(NS_ERROR_NOT_AVAILABLE);
+  }
+
   LOG(("Sending wifi access points to the listeners"));
   return NotifyListeners(
       [&](nsIWifiListener* aListener, WifiListenerData& aListenerData) {
