@@ -86,8 +86,16 @@ FILETIME MicrosecondsToFileTime(int64_t us) {
 }
 
 int64_t CurrentWallclockMicroseconds() {
+  static const auto get_system_time_precise_as_file_time =
+      reinterpret_cast<decltype(&::GetSystemTimePreciseAsFileTime)>(
+          ::GetProcAddress(::GetModuleHandleW(L"kernel32.dll"),
+                           "GetSystemTimePreciseAsFileTime"));
   FILETIME ft;
-  ::GetSystemTimePreciseAsFileTime(&ft);
+  if (get_system_time_precise_as_file_time) {
+    get_system_time_precise_as_file_time(&ft);
+  } else {
+    ::GetSystemTimeAsFileTime(&ft);
+  }
   return FileTimeToMicroseconds(ft);
 }
 
