@@ -50,6 +50,8 @@ Nocturne keeps the browser feeling familiar while adding Windows-focused polish 
 - JPEG XL support
 - GPU/hardware acceleration in VMware Workstation 16 and above
 - `general.useragent.override.(website)` is back
+- XUL Extensions are back!
+- XUL theme support!
 - Instant one-off searches
 - Ability to disable CSP
 - Ability to visit websites on ports that Firefox rejects
