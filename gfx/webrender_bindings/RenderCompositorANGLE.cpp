@@ -505,6 +505,8 @@ RenderedFrameId RenderCompositorANGLE::EndFrame(
 
     const UINT interval =
         mFirstPresent ||
+                (XRE_IsGPUProcess() &&
+                 !mWidget->AsWindows()->GetCompositorHwnd()) ||
                 StaticPrefs::
                     gfx_webrender_dcomp_video_swap_chain_present_interval_0()
             ? 0
