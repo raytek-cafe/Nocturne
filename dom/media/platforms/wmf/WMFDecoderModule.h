@@ -50,6 +50,9 @@ class WMFDecoderModule : public PlatformDecoderModule {
   static bool CanCreateMFTDecoder(const WMFStreamType& aType);
 
  private:
+  already_AddRefed<MediaDataDecoder> CreateVP9Decoder(
+      const CreateDecoderParams& aParams);
+
   WMFDecoderModule() = default;
   virtual ~WMFDecoderModule() = default;
 
