@@ -18,6 +18,7 @@
 #include "VPXDecoder.h"
 #include "WMFAudioMFTManager.h"
 #include "WMFMediaDataDecoder.h"
+#include "WMFVP9DXVA2Manager.h"
 #include "WMFVideoMFTManager.h"
 #include "mozilla/DebugOnly.h"
 #include "mozilla/Maybe.h"
@@ -62,6 +63,12 @@ static const GUID CLSID_CMSAACDecMFT = {
     {0x88, 0x76, 0xDD, 0x77, 0x27, 0x3A, 0x89, 0x99}};
 
 static Atomic<bool> sDXVAEnabled(false);
+
+static bool IsVP9DXVA2Allowed() {
+  return sDXVAEnabled && IsVistaOrLater() &&
+         StaticPrefs::media_wmf_vp9_enabled() &&
+         StaticPrefs::media_wmf_vp9_dxva2_enabled();
+}
 
 /* static */
 already_AddRefed<PlatformDecoderModule> WMFDecoderModule::Create() {
@@ -287,6 +294,10 @@ bool WMFDecoderModule::CanCreateMFTDecoder(const WMFStreamType& aType) {
       if (!StaticPrefs::media_wmf_vp9_enabled()) {
         return false;
       }
+      if (aType == WMFStreamType::VP9 &&
+          !StaticPrefs::media_wmf_vp9_mft_enabled()) {
+        return false;
+      }
       break;
 #ifdef MOZ_AV1
     case WMFStreamType::AV1:
@@ -378,6 +389,12 @@ media::DecodeSupportSet WMFDecoderModule::Supports(
       return media::DecodeSupport::SoftwareDecode;
     }
   }
+  if (type == WMFStreamType::VP9 && IsVP9DXVA2Allowed() &&
+      !aParams.mOptions.contains(
+          CreateDecoderParams::Option::HardwareDecoderNotAllowed) &&
+      (!videoInfo || videoInfo->mColorDepth == gfx::ColorDepth::COLOR_8)) {
+    return media::DecodeSupport::HardwareDecode;
+  }
   StaticMutexAutoLock lock(sMutex);
   return sLackOfExtensionTypes.contains(type)
              ? media::DecodeSupport::UnsureDueToLackOfExtension
@@ -389,6 +406,65 @@ nsresult WMFDecoderModule::Startup() {
                                                            : NS_ERROR_FAILURE;
 }
 
+already_AddRefed<MediaDataDecoder> WMFDecoderModule::CreateVP9Decoder(
+    const CreateDecoderParams& aParams) {
+  if (!StaticPrefs::media_wmf_vp9_enabled() || !sDXVAEnabled ||
+      aParams.VideoConfig().HasAlpha() ||
+      aParams.mOptions.contains(CreateDecoderParams::Option::LowLatency) ||
+      aParams.mOptions.contains(
+          CreateDecoderParams::Option::HardwareDecoderNotAllowed)) {
+    return nullptr;
+  }
+
+  const bool mftAllowed = CanCreateMFTDecoder(WMFStreamType::VP9);
+  const bool dxva2Allowed = IsVP9DXVA2Allowed();
+  const bool dxva2First =
+      dxva2Allowed &&
+      (!mftAllowed || StaticPrefs::media_wmf_vp9_dxva2_preferred());
+  MediaResult result = NS_ERROR_DOM_MEDIA_NOT_SUPPORTED_ERR;
+  auto createManager = [&](bool aDirect) -> UniquePtr<MFTManager> {
+    if (aDirect) {
+      auto manager = MakeUnique<WMFVP9DXVA2Manager>(
+          aParams.VideoConfig(), aParams.mKnowsCompositor,
+          aParams.mImageContainer);
+      result = manager->Init();
+      if (NS_SUCCEEDED(result)) {
+        return manager;
+      }
+    } else {
+      auto manager = MakeUnique<WMFVideoMFTManager>(
+          aParams.VideoConfig(), aParams.mKnowsCompositor,
+          aParams.mImageContainer, aParams.mRate.mValue, aParams.mOptions,
+          sDXVAEnabled, aParams.mTrackingId);
+      result = manager->Init();
+      if (NS_SUCCEEDED(result)) {
+        return manager;
+      }
+    }
+    return nullptr;
+  };
+
+  UniquePtr<MFTManager> manager;
+  if (mftAllowed && !dxva2First) {
+    manager = createManager(false);
+  }
+  if (!manager && dxva2Allowed) {
+    manager = createManager(true);
+  }
+  if (!manager && mftAllowed && dxva2First) {
+    manager = createManager(false);
+  }
+  if (!manager) {
+    if (aParams.mError) {
+      *aParams.mError = result;
+    }
+    return nullptr;
+  }
+  LOG("Created %s", manager->GetDescriptionName().get());
+  RefPtr<MediaDataDecoder> decoder = new WMFMediaDataDecoder(manager.release());
+  return decoder.forget();
+}
+
 already_AddRefed<MediaDataDecoder> WMFDecoderModule::CreateVideoDecoder(
     const CreateDecoderParams& aParams) {
   // In GPU process, only support decoding if an accelerated compositor is
@@ -396,6 +472,9 @@ already_AddRefed<MediaDataDecoder> WMFDecoderModule::CreateVideoDecoder(
   if (XRE_IsGPUProcess() &&
       !IsRemoteAcceleratedCompositor(aParams.mKnowsCompositor)) {
     return nullptr;
+  }
+  if (VPXDecoder::IsVP9(aParams.VideoConfig().mMimeType)) {
+    return CreateVP9Decoder(aParams);
   }
 
   UniquePtr<WMFVideoMFTManager> manager(new WMFVideoMFTManager(

@@ -65,6 +65,8 @@ class WMFDecoderModule : public PlatformDecoderModule {
   static inline Atomic<bool> sForceEnableHEVC{false};
 
   static bool IsHEVCSupported();
+  already_AddRefed<MediaDataDecoder> CreateVP9Decoder(
+      const CreateDecoderParams& aParams);
 
   WMFDecoderModule() = default;
   virtual ~WMFDecoderModule() = default;
