@@ -596,36 +596,6 @@ static bool GetColorFromImagePattern(const GValue* aValue, nscolor* aColor) {
   return false;
 }
 
-// Sets |aLightColor| and |aDarkColor| to colors from |aContext|.  Returns
-// true if |aContext| uses these colors to render a visible border.
-// If returning false, then the colors returned are a fallback from the
-// border-color value even though |aContext| does not use these colors to
-// render a border.
-static Maybe<nscolor> GetBorderColor(GtkStyleContext* aContext) {
-  // Determine whether the border on this style context is visible.
-  GtkStateFlags state = gtk_style_context_get_state(aContext);
-  GtkBorderStyle borderStyle = GTK_BORDER_STYLE_NONE;
-  gtk_style_context_get(aContext, state, GTK_STYLE_PROPERTY_BORDER_STYLE,
-                        &borderStyle, nullptr);
-  if (borderStyle == GTK_BORDER_STYLE_NONE ||
-      borderStyle == GTK_BORDER_STYLE_HIDDEN) {
-    return {};
-  }
-  // GTK has an initial value of zero for border-widths, and so themes
-  // need to explicitly set border-widths to make borders visible.
-  GtkBorder border;
-  gtk_style_context_get_border(aContext, state, &border);
-  if (!border.top && !border.right && !border.bottom && !border.left) {
-    return {};
-  }
-
-  // The initial value for the border-color is the foreground color, and so
-  // this will usually return a color distinct from the background even if
-  // there is no visible border detected.
-  GdkRGBA color{};
-  gtk_style_context_get_border_color(aContext, state, &color);
-  return Some(GDK_RGBA_TO_NS_RGBA(color));
-}
 // Finds ideal cell highlight colors used for unfocused+selected cells distinct
 // from both Highlight, used as focused+selected background, and the listbox
 // background which is assumed to be similar to -moz-field
@@ -934,23 +904,11 @@ nsresult nsLookAndFeel::PerThemeData::GetColor(ColorID aID,
     case ColorID::Visitedtext:
       aColor = mNativeVisitedHyperLinkText;
       break;
-    case ColorID::MozColheader:
-      aColor = mMozColHeader.mBg;
-      break;
     case ColorID::MozColheadertext:
-      aColor = mMozColHeader.mFg;
-      break;
-    case ColorID::MozColheaderhover:
-      aColor = mMozColHeaderHover.mBg;
+      aColor = mMozColHeaderText;
       break;
     case ColorID::MozColheaderhovertext:
-      aColor = mMozColHeaderHover.mFg;
-      break;
-    case ColorID::MozColheaderactive:
-      aColor = mMozColHeaderActive.mBg;
-      break;
-    case ColorID::MozColheaderactivetext:
-      aColor = mMozColHeaderActive.mFg;
+      aColor = mMozColHeaderHoverText;
       break;
     case ColorID::Activetext:
     case ColorID::SpellCheckerUnderline:
@@ -1442,7 +1400,7 @@ void nsLookAndFeel::ConfigureTheme(const LookAndFeelTheme& aTheme) {
   g_object_set(settings, "gtk-theme-name", aTheme.themeName().get(),
                "gtk-application-prefer-dark-theme",
                aTheme.preferDarkTheme() ? TRUE : FALSE, nullptr);
-  moz_gtk_refresh();
+  GtkWidgets::Refresh();
 }
 
 void nsLookAndFeel::RestoreSystemTheme() {
@@ -2143,7 +2101,8 @@ static bool GtkThemeExists(const nsACString& aName) {
     for (const nsACString& dir :
          nsCCharSeparatedTokenizer(nsDependentCString(dataDirs), ':')
              .ToRange()) {
-      if (hasTheme(PromiseFlatCString(dir).get())) {
+      nsAutoCString flatDir(dir);
+      if (hasTheme(flatDir.get())) {
         return true;
       }
     }
@@ -2668,9 +2627,8 @@ void nsLookAndFeel::PerThemeData::Init() {
 
   // Column header colors
   style = GtkWidgets::GetStyle(GtkWidgets::Type::TreeHeaderCell);
-  mMozColHeader = GetColorPair(style, GTK_STATE_FLAG_NORMAL);
-  mMozColHeaderHover = GetColorPair(style, GTK_STATE_FLAG_NORMAL);
-  mMozColHeaderActive = GetColorPair(style, GTK_STATE_FLAG_ACTIVE);
+  mMozColHeaderText = GetColorPair(style, GTK_STATE_FLAG_NORMAL).mFg;
+  mMozColHeaderHoverText = mMozColHeaderText;
 
   // Compute cell highlight colors
   InitCellHighlightColors();

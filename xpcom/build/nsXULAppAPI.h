@@ -245,6 +245,7 @@ enum NSLocationType {
   NS_BOOTSTRAPPED_LOCATION = 3,
 };
 
+MOZ_CAN_RUN_SCRIPT
 nsresult XRE_AddManifestLocation(NSLocationType aType, nsIFile* aLocation);
 
 /**
@@ -342,7 +343,7 @@ namespace mozilla {
 enum class BinPathType { Self, PluginContainer };
 }
 mozilla::BinPathType XRE_GetChildProcBinPathType(GeckoProcessType aProcessType);
-
+MOZ_CAN_RUN_SCRIPT
 int XRE_XPCShellMain(int argc, char** argv, char** envp,
                      const XREShellData* aShellData);
 
