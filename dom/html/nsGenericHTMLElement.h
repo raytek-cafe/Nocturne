@@ -1246,6 +1246,7 @@ class nsGenericHTMLFormControlElement : public nsGenericHTMLFormElement,
 
   // EventTarget
   void GetEventTargetParent(mozilla::EventChainPreVisitor& aVisitor) override;
+  MOZ_CAN_RUN_SCRIPT
   nsresult PreHandleEvent(mozilla::EventChainVisitor& aVisitor) override;
   // nsIFormControl
   mozilla::dom::HTMLFieldSetElement* GetFieldSet() override;

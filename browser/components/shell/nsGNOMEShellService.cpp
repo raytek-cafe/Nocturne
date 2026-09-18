@@ -169,10 +169,7 @@ bool nsGNOMEShellService::CheckHandlerMatchesAppName(
 }
 
 NS_IMETHODIMP
-nsGNOMEShellService::CancelPortableMode() {
-  return NS_OK;
-}
-
+nsGNOMEShellService::CancelPortableMode() { return NS_OK; }
 
 NS_IMETHODIMP
 nsGNOMEShellService::IsDefaultBrowser(bool aForAllTypes,
@@ -298,19 +295,19 @@ nsGNOMEShellService::SetDefaultBrowser(bool aClaimAllTypes, bool aForAllUsers) {
 
     // set handler for the protocols
     for (auto appProtocol : appProtocols) {
-      if (appProtocols[i].essential || aClaimAllTypes)
-      appInfo->SetAsDefaultForURIScheme(nsDependentCString(appProtocol.name));
+      if (appProtocol.essential || aClaimAllTypes)
+        appInfo->SetAsDefaultForURIScheme(nsDependentCString(appProtocol.name));
     }
 
     // set handler for .html and xhtml files and MIME types:
     // Add mime types for html, xhtml extension and set app to just created
     // appinfo.
     if (aClaimAllTypes)
-    for (auto appType : appTypes) {
-      appInfo->SetAsDefaultForMimeType(nsDependentCString(appType.mimeType));
-      appInfo->SetAsDefaultForFileExtensions(
-          nsDependentCString(appType.extensions));
-    }
+      for (auto appType : appTypes) {
+        appInfo->SetAsDefaultForMimeType(nsDependentCString(appType.mimeType));
+        appInfo->SetAsDefaultForFileExtensions(
+            nsDependentCString(appType.extensions));
+      }
   }
 
   nsCOMPtr<nsIPrefBranch> prefs(do_GetService(NS_PREFSERVICE_CONTRACTID));

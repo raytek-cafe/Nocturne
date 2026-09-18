@@ -199,6 +199,7 @@ static bool HasFlag(int argc, char* argv[], const char* s) {
 
 constinit Bootstrap::UniquePtr gBootstrap;
 
+MOZ_CAN_RUN_SCRIPT
 static int do_main(int argc, char* argv[], char* envp[]) {
   // Allow firefox.exe to launch XULRunner apps via -app <application.ini>
   // Note that -app must be the *first* argument.
@@ -337,6 +338,7 @@ static void ExpandFileDescriptorTable() {
 }
 #endif
 
+MOZ_CAN_RUN_SCRIPT
 int main(int argc, char* argv[], char* envp[]) {
 #if defined(XP_UNIX)
   ReserveDefaultFileDescriptors();
@@ -513,14 +515,14 @@ int main(int argc, char* argv[], char* envp[]) {
     (void)result;  // Ignore errors since some tools block DPI calls
   }
 
-  #if defined(MOZ_LAUNCHER_PROCESS)
-    // Once the browser process hits the main function, we no longer need
-    // a writable section handle because all dependent modules have been
-    // loaded.
-    mozilla::freestanding::gSharedSection.ConvertToReadOnly();
+#  if defined(MOZ_LAUNCHER_PROCESS)
+  // Once the browser process hits the main function, we no longer need
+  // a writable section handle because all dependent modules have been
+  // loaded.
+  mozilla::freestanding::gSharedSection.ConvertToReadOnly();
 
-    mozilla::CreateAndStorePreXULSkeletonUI(GetModuleHandle(nullptr), argc, argv);
-  #endif
+  mozilla::CreateAndStorePreXULSkeletonUI(GetModuleHandle(nullptr), argc, argv);
+#  endif
 #endif
 
   nsresult rv = InitXPCOMGlue(LibLoadingStrategy::ReadAhead);

@@ -367,7 +367,7 @@ static void FreeArgv(char** argv, int argc) {
 #define PROCESS_TYPE_CHILD 1
 #define PROCESS_TYPE_XPCSHELL 2
 
-extern "C" APKOPEN_EXPORT void MOZ_JNICALL
+extern "C" APKOPEN_EXPORT MOZ_CAN_RUN_SCRIPT void MOZ_JNICALL
 Java_org_mozilla_gecko_mozglue_GeckoLoader_nativeRun(JNIEnv* jenv, jclass jc,
                                                      jobjectArray jargs,
                                                      jintArray jfds,

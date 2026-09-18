@@ -49,8 +49,9 @@ class BootstrapImpl final : public Bootstrap {
     ::XRE_StopLateWriteChecks();
   }
 
-  virtual int XRE_XPCShellMain(int argc, char** argv, char** envp,
-                               const XREShellData* aShellData) override {
+  MOZ_CAN_RUN_SCRIPT
+  int XRE_XPCShellMain(int argc, char** argv, char** envp,
+                       const XREShellData* aShellData) override {
     return ::XRE_XPCShellMain(argc, argv, envp, aShellData);
   }
 
