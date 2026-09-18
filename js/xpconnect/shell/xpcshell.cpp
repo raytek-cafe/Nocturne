@@ -36,6 +36,7 @@
 #  include "FuzzerDefs.h"
 #endif
 
+MOZ_CAN_RUN_SCRIPT
 int main(int argc, char** argv, char** envp) {
 #ifdef MOZ_WIDGET_GTK
   // A default display may or may not be required for xpcshell tests, and so

@@ -361,7 +361,8 @@ nsresult nsTextControlFrame::SetFormProperty(nsAtom* aName,
 }
 
 already_AddRefed<TextEditor> nsTextControlFrame::GetTextEditor() {
-  return do_AddRef(ControlElement()->GetTextEditor());
+  RefPtr<TextControlElement> controlElement = ControlElement();
+  return do_AddRef(controlElement->GetTextEditor());
 }
 
 NS_IMETHODIMP

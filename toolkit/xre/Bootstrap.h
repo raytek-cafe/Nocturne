@@ -94,6 +94,7 @@ class Bootstrap {
 
   virtual void XRE_StopLateWriteChecks() = 0;
 
+  MOZ_CAN_RUN_SCRIPT
   virtual int XRE_XPCShellMain(int argc, char** argv, char** envp,
                                const XREShellData* aShellData) = 0;
 

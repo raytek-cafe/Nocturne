@@ -23,6 +23,7 @@ interface nsIComponentRegistrar : nsISupports
      * @note Formerly this method would register component files directly. This
      *       is no longer supported.
      */
+    [can_run_script]
     void autoRegister(in nsIFile aSpec);
 
     /**
