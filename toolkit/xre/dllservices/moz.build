@@ -40,4 +40,9 @@ TEST_DIRS += [
     "tests",
 ]
 
+if CONFIG["OS_TARGET"] == "WINNT":
+    OS_LIBS += ["psapi"]
+    # Resolve GetMappedFileNameW from psapi.dll on pre-Windows 7 systems.
+    DEFINES["PSAPI_VERSION"] = "1"
+
 include("/ipc/chromium/chromium-config.mozbuild")
