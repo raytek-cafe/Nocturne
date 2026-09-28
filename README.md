@@ -71,6 +71,7 @@ If I've forgotten to put your name here, please let me know and I'll add it.
 - [Isabella Lulamoon](https://github.com/kawapure) - Native Controls Patch
 - [Feodor2](https://github.com/Feodor2/) - Portable mode and Vista compatibility changes from Mypal68
 - [goodusername123](https://github.com/goodusername123/) - Graphical acceleration in VMware Workstation
+- [EAZY BLACK](https://github.com/EAZYBLACK) - VP9 hardware decoding with DXVA (Originally from [Dactyloidae](https://repo.dactyloidae.xyz/Dactyloidae/UXP))
 - [i486](https://github.com/i486/) - Fixed non-native menus
 - [leadweedy](https://github.com/leadweedy) - Improved active tab indicator from Firefox-Proton-Square
 - [bbc-chi](https://github.com/bbc-chi/) - Fullscreen transition fix
