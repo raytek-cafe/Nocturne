@@ -282,6 +282,12 @@ LRESULT CALLBACK WinEventWindow::WndProc(HWND hwnd, UINT msg, WPARAM wParam,
       evtwin_details::NotifyThemeChanged(widget::ThemeChangeKind::Style);
     } break;
 
+    case WM_DWMCOLORIZATIONCOLORCHANGED: {
+      if (!IsWin10OrLater()) {
+        evtwin_details::NotifyThemeChanged(widget::ThemeChangeKind::Style);
+      }
+    } break;
+
     case WM_THEMECHANGED: {
       // We assume pretty much everything could've changed here.
       evtwin_details::NotifyThemeChanged(
