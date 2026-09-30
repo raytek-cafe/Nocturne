@@ -41,6 +41,12 @@ appmenu-update-other-instance-message = A new { -brand-shorter-name } update is 
 appmenu-theme-installed =
     .secondarybuttonlabel = Undo
     .secondarybuttonaccesskey = U
+appmenu-xul-theme-installed =
+    .buttonlabel = Restart Now
+    .buttonaccesskey = R
+    .secondarybuttonlabel = Not Now
+    .secondarybuttonaccesskey = N
+appmenu-xul-theme-post-install-message = Restart { -brand-shorter-name } to apply your theme.
 appmenu-addon-post-install-message3 = Manage your add-ons and themes through the application menu.
 
 # This string is used in the confirmation popup displayed after an extension
