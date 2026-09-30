@@ -683,7 +683,41 @@ export var ExtensionsUI = {
           DEFAULT_EXTENSION_ICON
         : "chrome://browser/skin/addons/addon-install-installed.svg";
 
-      if (addon.type == "theme") {
+      if (addon.isXULTheme) {
+        let restartAction = {
+          callback: () => {
+            const cancel = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+              Ci.nsISupportsPRBool
+            );
+            Services.obs.notifyObservers(
+              cancel,
+              "quit-application-requested",
+              "restart"
+            );
+            resolve();
+            if (!cancel.data) {
+              Services.startup.quit(
+                Ci.nsIAppStartup.eAttemptQuit | Ci.nsIAppStartup.eRestart
+              );
+            }
+          },
+        };
+        let options = {
+          name: addon.name,
+          message,
+          popupIconURL: icon,
+          onDismissed: () => {
+            lazy.AppMenuNotifications.removeNotification("xul-theme-installed");
+            resolve();
+          },
+        };
+        lazy.AppMenuNotifications.showNotification(
+          "xul-theme-installed",
+          restartAction,
+          { callback: resolve },
+          options
+        );
+      } else if (addon.type == "theme") {
         const { previousActiveThemeID } = addon;
 
         async function themeActionUndo() {
