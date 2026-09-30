@@ -543,6 +543,7 @@ class WinUtils {
   */
   typedef HRESULT (WINAPI*DwmExtendFrameIntoClientAreaProc)(HWND hWnd, const MARGINS *pMarInset);
   typedef HRESULT (WINAPI*DwmIsCompositionEnabledProc)(BOOL *pfEnabled);
+  typedef HRESULT (WINAPI*DwmGetColorizationColorProc)(DWORD *pcrColorization, BOOL *pfOpaqueBlend);
   typedef HRESULT (WINAPI*DwmSetIconicThumbnailProc)(HWND hWnd, HBITMAP hBitmap, DWORD dwSITFlags);
   typedef HRESULT (WINAPI*DwmSetIconicLivePreviewBitmapProc)(HWND hWnd, HBITMAP hBitmap, POINT *pptClient, DWORD dwSITFlags);
   typedef HRESULT (WINAPI*DwmGetWindowAttributeProc)(HWND hWnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
@@ -554,6 +555,7 @@ class WinUtils {
 
   static DwmExtendFrameIntoClientAreaProc dwmExtendFrameIntoClientAreaPtr;
   static DwmIsCompositionEnabledProc dwmIsCompositionEnabledPtr;
+  static DwmGetColorizationColorProc dwmGetColorizationColorPtr;
   static DwmSetIconicThumbnailProc dwmSetIconicThumbnailPtr;
   static DwmSetIconicLivePreviewBitmapProc dwmSetIconicLivePreviewBitmapPtr;
   static DwmGetWindowAttributeProc dwmGetWindowAttributePtr;

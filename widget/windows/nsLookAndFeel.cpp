@@ -1077,6 +1077,20 @@ void nsLookAndFeel::EnsureInit() {
   mTitlebarColors = ComputeTitlebarColors();
 
   mColorAccent = [&] {
+    if (!IsWin10OrLater()) {
+      BOOL compositionEnabled = FALSE;
+      DWORD color;
+      BOOL opaque;
+      if (!nsUXThemeData::IsHighContrastOn() &&
+          WinUtils::dwmIsCompositionEnabledPtr &&
+          SUCCEEDED(WinUtils::dwmIsCompositionEnabledPtr(&compositionEnabled)) &&
+          compositionEnabled && WinUtils::dwmGetColorizationColorPtr &&
+          SUCCEEDED(WinUtils::dwmGetColorizationColorPtr(&color, &opaque))) {
+        // DWM uses AARRGGBB; UI accents must be opaque.
+        return NS_RGB((color >> 16) & 0xff, (color >> 8) & 0xff, color & 0xff);
+      }
+      return GetColorForSysColorIndex(COLOR_HIGHLIGHT);
+    }
     if (auto accent = WindowsUIUtils::GetAccentColor()) {
       return *accent;
     }
