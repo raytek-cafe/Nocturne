@@ -80,7 +80,7 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export class SportsFeed {
   constructor() {
     this.initialized = false;
-    this.cache = this.PersistentCache(CACHE_KEY, true);
+    this.cache = this.PersistentCache(CACHE_KEY);
     this.merino = this.MerinoClient(MERINO_CLIENT_KEY);
 
     // Adaptive live-polling state. visibleTabs is the set of port IDs that
