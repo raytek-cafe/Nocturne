@@ -35,6 +35,7 @@ impl<'a> RawtestHarness<'a> {
     pub fn run(mut self) {
         self.test_snapping();
         self.test_hit_testing();
+        self.test_rounded_clear();
         self.test_resize_image();
         self.test_retained_blob_images_test();
         self.test_blob_update_test();
@@ -140,6 +141,43 @@ impl<'a> RawtestHarness<'a> {
             clip_chain_id,
             spatial_id,
             flags: PrimitiveFlags::default(),
+        }
+    }
+
+    fn test_rounded_clear(&mut self) {
+        println!("\trounded clear...");
+        let mut builder = DisplayListBuilder::new(self.wrench.root_pipeline_id);
+        builder.begin();
+        let background = rect(0.0, 0.0, 400.0, 250.0).to_box2d();
+        builder.push_rect(
+            &self.make_common_properties(background),
+            background,
+            ColorF::new(0.0, 0.0, 1.0, 1.0),
+        );
+
+        let bounds = rect(50.0, 50.0, 200.0, 100.0).to_box2d();
+        let mut radius = BorderRadius::zero();
+        radius.bottom_left = size2(32.0, 32.0);
+        radius.bottom_right = size2(32.0, 32.0);
+        let mut info = self.make_common_properties(bounds);
+        let clip = builder.define_clip_rounded_rect(
+            info.spatial_id,
+            ComplexClipRegion::new(bounds, radius, ClipMode::Clip),
+        );
+        info.clip_chain_id = builder.define_clip_chain(None, [clip]);
+        builder.push_clear_rect(&info, bounds);
+
+        let pixels =
+            self.render_display_list_and_get_pixels(builder, FramebufferIntSize::new(400, 250));
+        let pixel = |x: usize, y: usize| {
+            let offset = (x + (249 - y) * 400) * 4;
+            &pixels[offset..offset + 4]
+        };
+        for point in [(50, 50), (249, 50), (150, 100), (150, 149)] {
+            assert_eq!(pixel(point.0, point.1), &[0, 0, 0, 0]);
+        }
+        for point in [(50, 149), (249, 149)] {
+            assert_eq!(pixel(point.0, point.1), &[0, 0, 255, 255]);
         }
     }
 
