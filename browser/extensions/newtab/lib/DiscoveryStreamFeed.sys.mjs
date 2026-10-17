@@ -136,7 +136,7 @@ export class DiscoveryStreamFeed {
     this.loaded = false;
 
     // Persistent cache for remote endpoint data.
-    this.cache = new lazy.PersistentCache(CACHE_KEY, true);
+    this.cache = new lazy.PersistentCache(CACHE_KEY);
     this.locale = Services.locale.appLocaleAsBCP47;
     this._impressionId = this.getOrCreateImpressionId();
     // Internal in-memory cache for parsing json prefs.

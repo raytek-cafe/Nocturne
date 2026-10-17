@@ -24,7 +24,7 @@ const CACHE_KEY = "lists_widget";
 export class ListsFeed {
   constructor() {
     this.initialized = false;
-    this.cache = this.PersistentCache(CACHE_KEY, true);
+    this.cache = this.PersistentCache(CACHE_KEY);
   }
 
   get enabled() {
