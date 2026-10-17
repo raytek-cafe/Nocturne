@@ -80,6 +80,8 @@ class nsUXThemeData {
   static bool sCommandButtonMetricsInitialized;
   static SIZE sCommandButtonBoxMetrics;
   static bool sCommandButtonBoxMetricsInitialized;
+  static mozilla::Maybe<SIZE> sNativeAeroButtonSize;
+  static float sNativeAeroButtonDpi;
 
   static const wchar_t* GetClassName(nsUXThemeClass);
   static void EnsureCommandButtonMetrics();
@@ -98,6 +100,7 @@ class nsUXThemeData {
 
   // nsWindow calls this to update desktop settings info
   static void UpdateTitlebarInfo(HWND aWnd);
+  static mozilla::Maybe<RECT> GetNativeAeroButtonBounds(HWND);
 
   static SIZE GetCommandButtonMetrics(CmdButtonIdx aMetric) {
     EnsureCommandButtonMetrics();

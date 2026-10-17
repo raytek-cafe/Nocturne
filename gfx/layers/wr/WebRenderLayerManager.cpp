@@ -255,6 +255,11 @@ bool WebRenderLayerManager::BeginTransaction(const nsCString& aURL) {
 bool WebRenderLayerManager::EndEmptyTransaction(EndTransactionFlags aFlags) {
   auto clearTarget = MakeScopeExit([&] { mTarget = nullptr; });
 
+  // Widget overlays are not part of the retained Gecko display list.
+  if (mWindowOverlayChanged) {
+    return false;
+  }
+
   // If we haven't sent a display list (since creation or since the last time we
   // sent ClearDisplayList to the parent) then we can't do an empty transaction
   // because the parent doesn't have a display list for us and we need to send a
@@ -487,6 +492,10 @@ void WebRenderLayerManager::EndTransactionWithoutLayer(
         mTransactionIdAllocator->GetVsyncId(), aRenderOffscreen,
         mTransactionIdAllocator->GetVsyncStart(), refreshStart,
         mTransactionStart, mURL);
+
+    if (!aRenderOffscreen) {
+      mWindowOverlayChanged = false;
+    }
 
     WrBridge()->SendSetFocusTarget(mFocusTarget);
     mFocusTarget = FocusTarget();

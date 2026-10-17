@@ -5,6 +5,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include <algorithm>
+
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/WindowsVersion.h"
 
@@ -34,6 +36,8 @@ SIZE nsUXThemeData::sCommandButtonMetrics[NUM_COMMAND_BUTTONS];
 bool nsUXThemeData::sCommandButtonMetricsInitialized = false;
 SIZE nsUXThemeData::sCommandButtonBoxMetrics;
 bool nsUXThemeData::sCommandButtonBoxMetricsInitialized = false;
+Maybe<SIZE> nsUXThemeData::sNativeAeroButtonSize;
+float nsUXThemeData::sNativeAeroButtonDpi = 0;
 
 bool nsUXThemeData::sTitlebarInfoPopulatedAero = false;
 bool nsUXThemeData::sTitlebarInfoPopulatedThemed = false;
@@ -200,6 +204,79 @@ void nsUXThemeData::EnsureCommandButtonBoxMetrics() {
 }
 
 // static
+Maybe<RECT> nsUXThemeData::GetNativeAeroButtonBounds(HWND aWnd) {
+  TITLEBARINFOEX info = {};
+  info.cbSize = sizeof(info);
+  // The widget's message handler can describe Gecko's Basic buttons.
+  ::DefWindowProcW(aWnd, WM_GETTITLEBARINFOEX, 0,
+                   reinterpret_cast<LPARAM>(&info));
+  RECT bounds = info.rgrect[2];
+  for (const int index : {2, 3, 5}) {
+    const RECT& rect = info.rgrect[index];
+    if ((info.rgstate[index] &
+         (STATE_SYSTEM_INVISIBLE | STATE_SYSTEM_OFFSCREEN)) ||
+        rect.right <= rect.left || rect.bottom <= rect.top) {
+      return Nothing();
+    }
+    bounds.left = std::min(bounds.left, rect.left);
+    bounds.top = std::min(bounds.top, rect.top);
+    bounds.right = std::max(bounds.right, rect.right);
+    bounds.bottom = std::max(bounds.bottom, rect.bottom);
+  }
+  const float dpi =
+      WinUtils::MonitorDPI(::MonitorFromWindow(aWnd, MONITOR_DEFAULTTONEAREST));
+  if (!::IsZoomed(aWnd)) {
+    sNativeAeroButtonSize =
+        Some(SIZE{bounds.right - bounds.left, bounds.bottom - bounds.top});
+    sNativeAeroButtonDpi = dpi;
+    return Some(bounds);
+  }
+
+  if (!sNativeAeroButtonSize || sNativeAeroButtonDpi != dpi) {
+    RECT client;
+    POINT position = {};
+    if (!::GetClientRect(aWnd, &client) ||
+        !::ClientToScreen(aWnd, &position)) {
+      return Nothing();
+    }
+    const int borderX =
+        WinUtils::GetSystemMetricsForDpi(SM_CXFRAME, UINT(dpi)) +
+        WinUtils::GetSystemMetricsForDpi(SM_CXPADDEDBORDER, UINT(dpi));
+    const int borderY =
+        WinUtils::GetSystemMetricsForDpi(SM_CYFRAME, UINT(dpi)) +
+        WinUtils::GetSystemMetricsForDpi(SM_CXPADDEDBORDER, UINT(dpi));
+    position.x += borderX;
+    position.y += borderY;
+    const int width = client.right - client.left - 2 * borderX;
+    const int height = client.bottom - client.top - 2 * borderY;
+    if (width <= 0 || height <= 0) {
+      return Nothing();
+    }
+    HWND probe = ::CreateWindowExW(
+        WS_EX_NOACTIVATE, L"STATIC", L"", WS_OVERLAPPEDWINDOW, position.x,
+        position.y, width, height, nullptr, nullptr, nullptr, nullptr);
+    if (!probe) {
+      return Nothing();
+    }
+    Maybe<RECT> normalBounds;
+    if (::SetWindowPos(probe, aWnd, position.x, position.y, width, height,
+                       SWP_NOACTIVATE | SWP_SHOWWINDOW)) {
+      normalBounds = GetNativeAeroButtonBounds(probe);
+    }
+    ::DestroyWindow(probe);
+    if (!normalBounds || !sNativeAeroButtonSize ||
+        sNativeAeroButtonDpi != dpi) {
+      return Nothing();
+    }
+  }
+
+  // Maximized accessibility bounds clip the top and include the right frame.
+  bounds.right = bounds.left + sNativeAeroButtonSize->cx;
+  bounds.top = bounds.bottom - sNativeAeroButtonSize->cy;
+  return Some(bounds);
+}
+
+// static
 void nsUXThemeData::UpdateTitlebarInfo(HWND aWnd) {
   if (!aWnd) return;
 
@@ -208,20 +285,37 @@ void nsUXThemeData::UpdateTitlebarInfo(HWND aWnd) {
           ? false
           : gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
 
-  if (!sTitlebarInfoPopulatedAero && dwmCompositionEnabled) {
-    RECT captionButtons;
+  if (!sTitlebarInfoPopulatedAero && dwmCompositionEnabled &&
+      ::IsWindowVisible(aWnd) && !::IsIconic(aWnd)) {
+    Maybe<SIZE> buttonBoxMetrics;
+    if (StaticPrefs::widget_native_controls_override_win_version() < 10) {
+      if (auto bounds = GetNativeAeroButtonBounds(aWnd)) {
+        buttonBoxMetrics = Some(SIZE{
+            bounds->right - bounds->left,
+            bounds->bottom - bounds->top + GetSystemMetrics(SM_CYFRAME) +
+                GetSystemMetrics(SM_CXPADDEDBORDER)});
+      }
+    }
     int overrideCaptionButtonsWidth = StaticPrefs::
         widget_native_controls_override_aero_caption_buttons_mask_width();
     int overrideCaptionButtonsHeight = StaticPrefs::
         widget_native_controls_override_aero_caption_buttons_mask_height();
 
-    if (SUCCEEDED(WinUtils::dwmGetWindowAttributePtr(aWnd, DWMWA_CAPTION_BUTTON_BOUNDS,
-                                        &captionButtons,
-                                        sizeof(captionButtons)))) {
-      sCommandButtonBoxMetrics.cx =
-          captionButtons.right - captionButtons.left - 3;
-      sCommandButtonBoxMetrics.cy =
-          (captionButtons.bottom - captionButtons.top) - 1;
+    if (!buttonBoxMetrics) {
+      RECT captionButtons;
+      if (SUCCEEDED(WinUtils::dwmGetWindowAttributePtr(
+              aWnd, DWMWA_CAPTION_BUTTON_BOUNDS, &captionButtons,
+              sizeof(captionButtons))) &&
+          captionButtons.right - captionButtons.left > 3 &&
+          captionButtons.bottom - captionButtons.top > 1) {
+        buttonBoxMetrics = Some(SIZE{
+            captionButtons.right - captionButtons.left - 3,
+            captionButtons.bottom - captionButtons.top - 1});
+      }
+    }
+
+    if (buttonBoxMetrics) {
+      sCommandButtonBoxMetrics = *buttonBoxMetrics;
 
       if (overrideCaptionButtonsWidth > 0) {
         sCommandButtonBoxMetrics.cx = overrideCaptionButtonsWidth;
@@ -335,8 +429,9 @@ bool nsUXThemeData::IsHighContrastOn() { return sIsHighContrastOn; }
 
 // static
 void nsUXThemeData::UpdateNativeThemeInfo() {
-  // Trigger a refresh of themed button metrics if needed
-  sTitlebarInfoPopulatedThemed = !IsVistaOrLater();
+  // Trigger a refresh of caption button metrics if needed.
+  sTitlebarInfoPopulatedAero = sTitlebarInfoPopulatedThemed = !IsVistaOrLater();
+  sNativeAeroButtonSize.reset();
 
   sIsDefaultWindowsTheme = false;
   sThemeId = WindowsTheme::Generic;

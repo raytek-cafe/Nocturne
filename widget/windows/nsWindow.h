@@ -630,6 +630,8 @@ class nsWindow final : public nsIWidget {
     return mTransparencyMode;
   }
   void UpdateGlass();
+  bool MaybeUpdateAeroTitlebarInfo();
+  void ClearWindowButtonsRect();
   bool IsSimulatedClientArea(int32_t clientX, int32_t clientY);
   bool IsWindowButton(int32_t hitTestResult);
 
@@ -853,6 +855,7 @@ class nsWindow final : public nsIWidget {
   TransparencyMode mTransparencyMode = TransparencyMode::Opaque;
   nsIntRegion mPossiblyTransparentRegion;
   MARGINS mGlassMargins = {0, 0, 0, 0};
+  bool mLastForceDwmReportOff = false;
 
   // Win7 Gesture processing and management
   nsWinGesture mGesture;
@@ -886,6 +889,7 @@ class nsWindow final : public nsIWidget {
 
   // The location of the window buttons in the window.
   mozilla::Maybe<LayoutDeviceIntRect> mWindowButtonsRect;
+  mozilla::Maybe<LayoutDeviceIntRect> mWindowButtonsThemeRect;
 
   // Caching for hit test results (in client coordinates)
   LayoutDeviceIntPoint mCachedHitTestPoint;
