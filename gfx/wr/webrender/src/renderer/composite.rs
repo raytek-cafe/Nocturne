@@ -1178,14 +1178,18 @@ impl Renderer {
                     }
                 }
                 TileKind::Clear => {
-                    // Clear tiles are specific to how we render the window buttons on
-                    // Windows 8. They clobber what's under them so they can be treated as opaque.
-                    // Add to occlusion tracking before the special-case handling.
-                    layer.occlusion.add(&rect, true, OcclusionItemKey {
-                        tile_index: idx,
-                        needs_mask: false,
+                    let needs_mask = tile.clip_index.is_some();
+                    // Clipped clears must preserve the content under their rounded corners.
+                    if !needs_mask {
+                        layer.occlusion.add(&rect, true, OcclusionItemKey {
+                            tile_index: idx,
+                            needs_mask: false,
+                        });
+                    }
+                    layer.clear_tiles.push(occlusion::Item {
+                        rectangle: rect,
+                        key: OcclusionItemKey { tile_index: idx, needs_mask },
                     });
-                    layer.clear_tiles.push(occlusion::Item { rectangle: rect, key: OcclusionItemKey { tile_index: idx, needs_mask: false } });
                 }
             }
         }

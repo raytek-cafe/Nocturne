@@ -310,6 +310,7 @@ impl<'de> Deserialize<'de> for BuiltDisplayList {
                 Debug::RoundedRectClip(v) => Real::RoundedRectClip(v),
                 Debug::ImageMaskClip(v) => Real::ImageMaskClip(v),
                 Debug::Rectangle(v) => Real::Rectangle(v),
+                Debug::ClearRectangle(v) => Real::ClearRectangle(v),
                 Debug::HitTest(v) => Real::HitTest(v),
                 Debug::Line(v) => Real::Line(v),
                 Debug::Image(v) => Real::Image(v),
