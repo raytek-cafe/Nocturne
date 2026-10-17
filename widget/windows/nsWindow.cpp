@@ -4596,7 +4596,18 @@ void nsWindow::AddWindowOverlayWebRenderCommands(
     wr::IpcResourceUpdateQueue& aResources) {
   if (mWindowButtonsRect) {
     wr::LayoutRect rect = wr::ToLayoutRect(*mWindowButtonsRect);
-    aBuilder.PushClearRect(rect);
+    if (StaticPrefs::widget_native_controls_aero_caption_buttons_mask_rounded()) {
+      auto region = wr::ToComplexClipRegion(
+          RoundedRect(IntRectToRect(mWindowButtonsRect->ToUnknownRect()),
+                      RectCornerRadii(0, 0, 3, 3)));
+      auto clipId = aBuilder.DefineRoundedRectClip(Nothing(), region);
+      auto clipChainId = aBuilder.DefineClipChain(
+          {&clipId, 1}, aBuilder.CurrentClipChainIdIfNotRoot());
+      wr::SpaceAndClipChainHelper clipHelper(aBuilder, clipChainId);
+      aBuilder.PushClearRect(rect);
+    } else {
+      aBuilder.PushClearRect(rect);
+    }
   }
 }
 

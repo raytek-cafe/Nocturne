@@ -20316,6 +20316,12 @@
   value: 0
   mirror: always
 
+# Round the lower corners of Aero caption-button masks. Changes apply live.
+- name: widget.native-controls.aero-caption-buttons-mask-rounded
+  type: bool
+  value: true
+  mirror: always
+
 - name: widget.native-controls.scrollbar-style
   type: int32_t
   value: 2
