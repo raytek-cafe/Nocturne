@@ -1861,6 +1861,7 @@ var BrowserAddonUI = {
     let checkboxMessage = null;
     if (
       gAddonAbuseReportEnabled &&
+      !addon.isXULTheme &&
       ["extension", "theme"].includes(addon.type)
     ) {
       checkboxMessage = await lazy.l10n.formatValue(
