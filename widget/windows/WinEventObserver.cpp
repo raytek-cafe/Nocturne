@@ -24,6 +24,7 @@
 #include "mozilla/LookAndFeel.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/WindowsVersion.h"
+#include "mozilla/layers/WebRenderLayerManager.h"
 #include "nsLookAndFeel.h"
 #include "nsStringFwd.h"
 #include "nsWindow.h"
@@ -49,6 +50,8 @@ static bool sHiddenWindowShutdown = false;
 HDEVNOTIFY sDeviceNotifyHandle = nullptr;
 
 constexpr char kForceDwmOffPref[] = "widget.native-controls.force-dwm-report-off";
+constexpr char kRoundedCaptionMaskPref[] =
+    "widget.native-controls.aero-caption-buttons-mask-rounded";
 
 static BOOL CALLBACK RefreshDwmPresentation(HWND aHwnd, LPARAM) {
   if (RefPtr<nsWindow> window = WinUtils::GetNSWindowPtr(aHwnd)) {
@@ -62,6 +65,25 @@ static BOOL CALLBACK RefreshDwmPresentation(HWND aHwnd, LPARAM) {
 static void OnDwmReportingChanged(const char*, void*) {
   MOZ_ASSERT(NS_IsMainThread());
   ::EnumWindows(RefreshDwmPresentation, 0);
+}
+
+static BOOL CALLBACK RefreshCaptionMask(HWND aHwnd, LPARAM) {
+  if (RefPtr<nsWindow> window = WinUtils::GetNSWindowPtr(aHwnd)) {
+    if (!window->DestroyCalled()) {
+      if (auto* renderer = window->GetWindowRenderer()) {
+        if (auto* layerManager = renderer->AsWebRender()) {
+          layerManager->SetWindowOverlayChanged();
+        }
+      }
+      window->Invalidate();
+    }
+  }
+  return TRUE;
+}
+
+static void OnCaptionMaskRoundingChanged(const char*, void*) {
+  MOZ_ASSERT(NS_IsMainThread());
+  ::EnumWindows(RefreshCaptionMask, 0);
 }
 }  // namespace evtwin_details
 }  // namespace
@@ -99,11 +121,15 @@ void WinEventWindow::Ensure() {
 
   sDeviceNotifyHandle = InputDeviceUtils::RegisterNotification(sHiddenWindow);
   Preferences::RegisterCallback(OnDwmReportingChanged, kForceDwmOffPref);
+  Preferences::RegisterCallback(OnCaptionMaskRoundingChanged,
+                               kRoundedCaptionMaskPref);
 
   // It should be harmless to leak this window until destruction -- but other
   // parts of Gecko may expect all windows to be destroyed, so do that.
   mozilla::RunOnShutdown([]() {
     Preferences::UnregisterCallback(OnDwmReportingChanged, kForceDwmOffPref);
+    Preferences::UnregisterCallback(OnCaptionMaskRoundingChanged,
+                                   kRoundedCaptionMaskPref);
     InputDeviceUtils::UnregisterNotification(sDeviceNotifyHandle);
 
     sHiddenWindowShutdown = true;
