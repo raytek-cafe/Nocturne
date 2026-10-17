@@ -512,6 +512,8 @@ static constexpr struct {
      widget::ThemeChangeKind::Style},
     {"widget.windows.uwp-system-colors.highlight-accent"_ns,
      widget::ThemeChangeKind::Style},
+    {"widget.native-controls.force-dwm-report-off"_ns,
+     widget::ThemeChangeKind::StyleAndLayout},
     // Affects env().
     {"layout.css.prefers-color-scheme.content-override"_ns,
      widget::ThemeChangeKind::Style},

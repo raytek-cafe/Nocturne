@@ -1969,6 +1969,11 @@ void nsWindow::Show(bool aState) {
     }
   }
 
+  if (mWnd && aState && mWindowType == WindowType::TopLevel &&
+      StaticPrefs::widget_native_controls_force_dwm_report_off()) {
+    UpdateGlass();
+  }
+
   if (!wasVisible && aState) {
     Invalidate();
     if (syncInvalidate && !mInDtor && !mOnDestroyCalled) {
@@ -3404,10 +3409,8 @@ TransparencyMode nsWindow::GetTransparencyMode() {
 }
 
 void nsWindow::SetTransparencyMode(TransparencyMode aMode) {
-  bool dwmCompositionEnabled =
-      StaticPrefs::widget_native_controls_force_dwm_report_off()
-          ? false
-          : gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
+  const bool dwmCompositionEnabled =
+      gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
 
   nsWindow* window = GetTopLevelWindow(true);
   MOZ_ASSERT(window);
@@ -3453,6 +3456,9 @@ void nsWindow::UpdateOpaqueRegion(const LayoutDeviceIntRegion& aOpaqueRegion) {
     mGlassMargins = margins;
     UpdateGlass();
   }
+  if (MaybeUpdateAeroTitlebarInfo()) {
+    NotifyThemeChanged(widget::ThemeChangeKind::StyleAndLayout);
+  }
 }
 
 /**************************************************************
@@ -3469,11 +3475,31 @@ void nsWindow::UpdateWindowDraggingRegion(
   mDraggableRegion = aRegion;
 }
 
+bool nsWindow::MaybeUpdateAeroTitlebarInfo() {
+  if (nsUXThemeData::sTitlebarInfoPopulatedAero ||
+      StaticPrefs::widget_native_controls_force_dwm_report_off() || !mWnd ||
+      !HasGlass() ||
+      !gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled() ||
+      !ShouldCacheTitleBarInfo(mWindowType, mBorderStyle) || mHideChrome ||
+      !::IsWindowVisible(mWnd) || ::IsIconic(mWnd) ||
+      mFrameState->GetSizeMode() == nsSizeMode_Fullscreen) {
+    return false;
+  }
+  nsUXThemeData::UpdateTitlebarInfo(mWnd);
+  return nsUXThemeData::sTitlebarInfoPopulatedAero;
+}
+
 void nsWindow::UpdateGlass() {
-  bool dwmCompositionEnabled =
-      StaticPrefs::widget_native_controls_force_dwm_report_off()
-          ? false
-          : gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
+  const bool osDwmCompositionEnabled =
+      gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
+  mLastForceDwmReportOff =
+      StaticPrefs::widget_native_controls_force_dwm_report_off();
+  const bool dwmCompositionEnabled =
+      osDwmCompositionEnabled && !mLastForceDwmReportOff;
+
+  if (!HasGlass() || !dwmCompositionEnabled) {
+    ClearWindowButtonsRect();
+  }
 
   MARGINS margins = mGlassMargins;
 
@@ -3499,13 +3525,18 @@ void nsWindow::UpdateGlass() {
       break;
   }
 
+  if (mLastForceDwmReportOff) {
+    margins = {0, 0, 0, 0};
+    policy = DWMNCRP_DISABLED;
+  }
+
   MOZ_LOG(gWindowsLog, LogLevel::Info,
           ("glass margins: left:%d top:%d right:%d bottom:%d\n",
            margins.cxLeftWidth, margins.cyTopHeight, margins.cxRightWidth,
            margins.cyBottomHeight));
 
   // Extends the window frame behind the client area
-  if (dwmCompositionEnabled) {
+  if (osDwmCompositionEnabled) {
     WinUtils::dwmExtendFrameIntoClientAreaPtr(mWnd, &margins);
     WinUtils::dwmSetWindowAttributePtr(mWnd, DWMWA_NCRENDERING_POLICY, &policy,
                           sizeof policy);
@@ -3594,6 +3625,7 @@ void nsWindow::HideWindowChrome(bool aShouldHide) {
   Styles newChrome{}, oldChrome{};
 
   mHideChrome = aShouldHide;
+  ClearWindowButtonsRect();
   if (aShouldHide) {
     newChrome = kFullscreenChrome;
     oldChrome = currentChrome;
@@ -4455,8 +4487,35 @@ nsresult nsWindow::OnDefaultButtonLoaded(
   return NS_OK;
 }
 
+void nsWindow::ClearWindowButtonsRect() {
+  mWindowButtonsThemeRect = Nothing();
+  if (!mWindowButtonsRect) {
+    return;
+  }
+  mWindowButtonsRect = Nothing();
+  if (mWindowRenderer) {
+    if (auto* layerManager = mWindowRenderer->AsWebRender()) {
+      layerManager->SetWindowOverlayChanged();
+    }
+  }
+  Invalidate(false, false, false);
+}
+
 void nsWindow::UpdateThemeGeometries(
     const nsTArray<ThemeGeometry>& aThemeGeometries) {
+  const auto previousRect = mWindowButtonsRect;
+  mWindowButtonsRect = Nothing();
+  auto updateOverlay = MakeScopeExit([&] {
+    if (!mWindowButtonsRect) {
+      mWindowButtonsThemeRect = Nothing();
+    }
+    if (mWindowButtonsRect != previousRect && mWindowRenderer) {
+      if (auto* layerManager = mWindowRenderer->AsWebRender()) {
+        layerManager->SetWindowOverlayChanged();
+      }
+    }
+  });
+
   bool dwmCompositionEnabled =
       StaticPrefs::widget_native_controls_force_dwm_report_off()
           ? false
@@ -4465,30 +4524,68 @@ void nsWindow::UpdateThemeGeometries(
   int winVerOverride =
       StaticPrefs::widget_native_controls_override_win_version();
 
+  auto* renderer = GetWindowRenderer();
   RefPtr<WebRenderLayerManager> layerManager =
-      GetWindowRenderer() ? GetWindowRenderer()->AsWebRender() : nullptr;
+      renderer ? renderer->AsWebRender() : nullptr;
   if (!layerManager) {
     return;
   }
 
-  if (!HasGlass() || !dwmCompositionEnabled) {
+  const auto sizeMode = mFrameState->GetSizeMode();
+  if (!HasGlass() || !dwmCompositionEnabled || mHideChrome ||
+      sizeMode == nsSizeMode_Minimized || sizeMode == nsSizeMode_Fullscreen) {
     return;
   }
-
-  mWindowButtonsRect = Nothing();
 
   if (!(winVerOverride >= 10)) {
     for (size_t i = 0; i < aThemeGeometries.Length(); i++) {
       if (aThemeGeometries[i].mType ==
           nsNativeThemeWin::eThemeGeometryTypeWindowButtons) {
         LayoutDeviceIntRect bounds = aThemeGeometries[i].mRect;
+        if (previousRect && mWindowButtonsThemeRect &&
+            *mWindowButtonsThemeRect == bounds) {
+          mWindowButtonsRect = previousRect;
+          break;
+        }
+        mWindowButtonsThemeRect = Some(bounds);
+        if (mWindowType == WindowType::TopLevel &&
+            mBorderStyle != BorderStyle::None) {
+          if (mWnd && ::IsWindowVisible(mWnd) && !::IsIconic(mWnd)) {
+            if (auto nativeBounds =
+                    nsUXThemeData::GetNativeAeroButtonBounds(mWnd)) {
+              if (StaticPrefs::
+                      widget_native_controls_override_aero_caption_buttons_mask_width() <=
+                  0) {
+                bounds.SetWidth(nativeBounds->right - nativeBounds->left);
+              }
+              const bool automaticHeight =
+                  StaticPrefs::
+                      widget_native_controls_override_aero_caption_buttons_mask_height() <=
+                  0;
+              if (automaticHeight) {
+                bounds.SetHeight(nativeBounds->bottom - nativeBounds->top);
+              }
+              const auto anchor =
+                  LayoutDeviceIntPoint{nativeBounds->right, nativeBounds->top} -
+                  WidgetToScreenOffset();
+              bounds.MoveTo(anchor.x - bounds.Width(), anchor.y);
+              if (bounds.Y() > 0) {
+                if (automaticHeight) {
+                  bounds.SetHeight(bounds.Height() + bounds.Y());
+                }
+                bounds.MoveTo(bounds.X(), 0);
+              }
+            }
+          } else {
+            mWindowButtonsThemeRect = Nothing();
+          }
+        }
         // Extend the bounds by one pixel to the right, because that's how much
         // the actual window button shape extends past the client area of the
         // window (and overlaps the right window frame).
         bounds.SetWidth(bounds.Width() + 1);
-        if (!mWindowButtonsRect) {
-          mWindowButtonsRect = Some(bounds);
-        }
+        mWindowButtonsRect = Some(bounds);
+        break;
       }
     }
   }
@@ -5438,6 +5535,7 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
     } break;
 
     case WM_THEMECHANGED: {
+      ClearWindowButtonsRect();
       // Update non-client margin offsets
       UpdateNonClientMargins();
       nsUXThemeData::UpdateNativeThemeInfo();
@@ -5501,7 +5599,9 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
     }
 
     case WM_GETTITLEBARINFOEX: {
-      if (!mCustomNonClient) {
+      if (!mCustomNonClient ||
+          (dwmCompositionEnabled && !isWin10 && HasGlass() && !mHideChrome &&
+           mFrameState->GetSizeMode() != nsSizeMode_Fullscreen)) {
         break;
       }
       auto* info = reinterpret_cast<TITLEBARINFOEX*>(lParam);
@@ -6502,6 +6602,8 @@ bool nsWindow::ProcessMessageInternal(UINT msg, WPARAM& wParam, LPARAM& lParam,
         }
       }
 
+      ClearWindowButtonsRect();
+
       UpdateNonClientMargins();
       BroadcastMsg(mWnd, WM_DWMCOMPOSITIONCHANGED);
       // TODO: Why is NotifyThemeChanged needed, what does it affect? And can we
@@ -6835,15 +6937,22 @@ int32_t nsWindow::ClientMarginHitTestPoint(int32_t aX, int32_t aY) {
       StaticPrefs::widget_native_controls_force_dwm_report_off()
           ? false
           : gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled();
+  const bool chromeOwnsButtons =
+      !dwmCompositionEnabled ||
+      StaticPrefs::widget_native_controls_override_win_version() >= 10 ||
+      !HasGlass() || mHideChrome;
 
-  if (mWindowBtnRect[WindowButtonType::Minimize].Contains(pt)) {
+  if (chromeOwnsButtons &&
+      mWindowBtnRect[WindowButtonType::Minimize].Contains(pt)) {
     testResult = dwmCompositionEnabled ? HTMINBUTTON : HTCLIENT;
-  } else if (mWindowBtnRect[WindowButtonType::Maximize].Contains(pt)) {
+  } else if (chromeOwnsButtons &&
+             mWindowBtnRect[WindowButtonType::Maximize].Contains(pt)) {
 #ifdef ACCESSIBILITY
     a11y::Compatibility::SuppressA11yForSnapLayouts();
 #endif
     testResult = dwmCompositionEnabled ? HTMAXBUTTON : HTCLIENT;
-  } else if (mWindowBtnRect[WindowButtonType::Close].Contains(pt)) {
+  } else if (chromeOwnsButtons &&
+             mWindowBtnRect[WindowButtonType::Close].Contains(pt)) {
     testResult = dwmCompositionEnabled ? HTCLOSE : HTCLIENT;
   } else if (!inResizeRegion) {
     // If we're in the resize region, avoid overriding that with either a
@@ -7708,6 +7817,7 @@ void nsWindow::OnResize(const LayoutDeviceIntSize& aSize) {
 
 void nsWindow::OnSizeModeChange() {
   const nsSizeMode mode = mFrameState->GetSizeMode();
+  ClearWindowButtonsRect();
 
   MOZ_LOG(gWindowsLog, LogLevel::Info,
           ("nsWindow::OnSizeModeChange() sizeMode %d", mode));
@@ -7806,6 +7916,7 @@ void nsWindow::OnDPIChanged(int32_t x, int32_t y, int32_t width,
   if (StaticPrefs::layout_css_devPixelsPerPx() > 0.0) {
     return;
   }
+  ClearWindowButtonsRect();
   mDefaultScale = -1.0;  // force recomputation of scale factor
 
   if (mResizeState != RESIZING &&
@@ -7999,6 +8110,16 @@ a11y::LocalAccessible* nsWindow::GetAccessible() {
 
 void nsWindow::SetWindowTranslucencyInner(TransparencyMode aMode) {
   if (aMode == mTransparencyMode) {
+    if (mLastForceDwmReportOff !=
+        StaticPrefs::widget_native_controls_force_dwm_report_off()) {
+      ClearWindowButtonsRect();
+      const bool reflowWindow = UpdateNonClientMargins(false);
+      UpdateGlass();
+      if (reflowWindow) {
+        ResetLayout();
+      }
+      Invalidate(true, true, true);
+    }
     return;
   }
 
@@ -8050,6 +8171,7 @@ void nsWindow::SetWindowTranslucencyInner(TransparencyMode aMode) {
 
   if (HasGlass()) memset(&mGlassMargins, 0, sizeof mGlassMargins);
   mTransparencyMode = aMode;
+  ClearWindowButtonsRect();
 
   if (mCompositorWidgetDelegate) {
     mCompositorWidgetDelegate->UpdateTransparency(aMode);

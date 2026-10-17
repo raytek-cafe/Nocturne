@@ -119,6 +119,8 @@ class WebRenderLayerManager final : public WindowRenderer {
 
   void ScheduleComposite(wr::RenderReasons aReasons);
 
+  void SetWindowOverlayChanged() { mWindowOverlayChanged = true; }
+
   void SetNeedsComposite(bool aNeedsComposite) {
     mNeedsComposite = aNeedsComposite;
   }
@@ -238,6 +240,7 @@ class WebRenderLayerManager final : public WindowRenderer {
   WebRenderScrollData mScrollData;
 
   bool mNeedsComposite;
+  bool mWindowOverlayChanged = false;
   bool mIsFirstPaint;
   bool mDestroyed;
   FocusTarget mFocusTarget;

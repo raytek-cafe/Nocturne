@@ -14,6 +14,7 @@
 #include "ScreenHelperWin.h"
 #include "WindowsUIUtils.h"
 #include "WinWindowOcclusionTracker.h"
+#include "WinUtils.h"
 
 #include "gfxDWriteFonts.h"
 #include "gfxPlatform.h"
@@ -21,9 +22,11 @@
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/Logging.h"
 #include "mozilla/LookAndFeel.h"
+#include "mozilla/Preferences.h"
 #include "mozilla/WindowsVersion.h"
 #include "nsLookAndFeel.h"
 #include "nsStringFwd.h"
+#include "nsWindow.h"
 #include "nsWindowDbg.h"
 #include "nsdefs.h"
 #include "nsXULAppAPI.h"
@@ -44,6 +47,22 @@ namespace evtwin_details {
 static HWND sHiddenWindow = nullptr;
 static bool sHiddenWindowShutdown = false;
 HDEVNOTIFY sDeviceNotifyHandle = nullptr;
+
+constexpr char kForceDwmOffPref[] = "widget.native-controls.force-dwm-report-off";
+
+static BOOL CALLBACK RefreshDwmPresentation(HWND aHwnd, LPARAM) {
+  if (RefPtr<nsWindow> window = WinUtils::GetNSWindowPtr(aHwnd)) {
+    if (!window->DestroyCalled()) {
+      window->SetTransparencyMode(window->GetTransparencyMode());
+    }
+  }
+  return TRUE;
+}
+
+static void OnDwmReportingChanged(const char*, void*) {
+  MOZ_ASSERT(NS_IsMainThread());
+  ::EnumWindows(RefreshDwmPresentation, 0);
+}
 }  // namespace evtwin_details
 }  // namespace
 
@@ -79,10 +98,12 @@ void WinEventWindow::Ensure() {
   }
 
   sDeviceNotifyHandle = InputDeviceUtils::RegisterNotification(sHiddenWindow);
+  Preferences::RegisterCallback(OnDwmReportingChanged, kForceDwmOffPref);
 
   // It should be harmless to leak this window until destruction -- but other
   // parts of Gecko may expect all windows to be destroyed, so do that.
   mozilla::RunOnShutdown([]() {
+    Preferences::UnregisterCallback(OnDwmReportingChanged, kForceDwmOffPref);
     InputDeviceUtils::UnregisterNotification(sDeviceNotifyHandle);
 
     sHiddenWindowShutdown = true;

@@ -457,6 +457,7 @@ void nsWindow::CreateCompositor() {
 }
 
 void nsWindow::DestroyCompositor() {
+  ClearWindowButtonsRect();
   MaybeEnableWindowOcclusion(/* aEnable */ false);
 
   nsIWidget::DestroyCompositor();
