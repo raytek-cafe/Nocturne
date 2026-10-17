@@ -7476,6 +7476,13 @@
   value: false
   mirror: always
 
+#ifdef XP_WIN
+- name: gfx.compositor.force-dwmless-vsync
+  type: bool
+  value: false
+  mirror: once
+#endif
+
 #ifdef XP_MACOSX
 # Whether GL contexts can be migrated to a different GPU (to match the one the
 # OS is using for composition).

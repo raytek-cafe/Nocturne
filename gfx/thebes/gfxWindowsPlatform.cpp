@@ -1632,7 +1632,10 @@ class D3DVsyncSource final : public VsyncSource {
   }
 
   void SetVsyncRate() {
-    if (!gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled()) {
+    bool forceDwmlessVsync =
+        StaticPrefs::gfx_compositor_force_dwmless_vsync_AtStartup();
+    if (!gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled() &&
+        !forceDwmlessVsync) {
       mVsyncRate = TimeDuration::FromMilliseconds(1000.0 / 60.0);
       return;
     }
@@ -1648,9 +1651,21 @@ class D3DVsyncSource final : public VsyncSource {
           ((float)refreshRate.uiDenominator / (float)refreshRate.uiNumerator) *
           1000;
       mVsyncRate = TimeDuration::FromMilliseconds(rate);
+    } else if (forceDwmlessVsync) {
+      mVsyncRate = GetDisplaySettingsVsyncRate();
     } else {
       mVsyncRate = TimeDuration::FromMilliseconds(1000.0 / 60.0);
     }
+  }
+
+  static TimeDuration GetDisplaySettingsVsyncRate() {
+    DEVMODEW mode = {};
+    mode.dmSize = sizeof(mode);
+    if (::EnumDisplaySettingsW(nullptr, ENUM_CURRENT_SETTINGS, &mode) &&
+        mode.dmDisplayFrequency >= 24 && mode.dmDisplayFrequency <= 1000) {
+      return TimeDuration::FromMilliseconds(1000.0 / mode.dmDisplayFrequency);
+    }
+    return TimeDuration::FromMilliseconds(1000.0 / 60.0);
   }
 
   virtual void Shutdown() override {
@@ -1790,7 +1805,8 @@ class D3DVsyncSource final : public VsyncSource {
       // so we have to check every time that it's available.
       // When it is unavailable, we fallback to software but will try
       // to get back to dwm rendering once it's re-enabled
-      if (!gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled()) {
+      if (!gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled() &&
+          !StaticPrefs::gfx_compositor_force_dwmless_vsync_AtStartup()) {
         ScheduleSoftwareVsync(vsync);
         return;
       }
@@ -1910,7 +1926,8 @@ already_AddRefed<mozilla::gfx::VsyncSource>
 gfxWindowsPlatform::CreateGlobalHardwareVsyncSource() {
   MOZ_RELEASE_ASSERT(NS_IsMainThread(), "GFX: Not in main thread.");
 
-  if (!DwmCompositionEnabled()) {
+  if (!DwmCompositionEnabled() &&
+      !StaticPrefs::gfx_compositor_force_dwmless_vsync_AtStartup()) {
     NS_WARNING("DWM not enabled, falling back to software vsync");
     return GetSoftwareVsyncSource();
   }
