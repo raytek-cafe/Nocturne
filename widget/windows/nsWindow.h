@@ -630,6 +630,7 @@ class nsWindow final : public nsIWidget {
     return mTransparencyMode;
   }
   void UpdateGlass();
+  void ClearGlassRegion();
   bool MaybeUpdateAeroTitlebarInfo();
   void ClearWindowButtonsRect();
   bool IsSimulatedClientArea(int32_t clientX, int32_t clientY);

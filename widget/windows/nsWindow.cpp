@@ -3540,7 +3540,48 @@ void nsWindow::UpdateGlass() {
     WinUtils::dwmExtendFrameIntoClientAreaPtr(mWnd, &margins);
     WinUtils::dwmSetWindowAttributePtr(mWnd, DWMWA_NCRENDERING_POLICY, &policy,
                           sizeof policy);
+    if (HasGlass()) {
+      auto* compositor = GetWindowRenderer()->AsKnowsCompositor();
+      if (compositor && compositor->GetUseCompositorWnd()) {
+        ClearGlassRegion();
+      }
+    }
   }
+}
+
+void nsWindow::ClearGlassRegion() {
+  if (mLastForceDwmReportOff ||
+      !gfxWindowsPlatform::GetPlatform()->DwmCompositionEnabled()) {
+    return;
+  }
+
+  // Clear beneath the compositor child, but preserve the opaque backing pixels.
+  HDC hdc = ::GetDCEx(mWnd, nullptr, DCX_WINDOW | DCX_CACHE);
+  if (!hdc) {
+    return;
+  }
+
+  RECT windowRect;
+  ::GetWindowRect(mWnd, &windowRect);
+  if (mGlassMargins.cxLeftWidth >= 0) {
+    RECT opaqueRect;
+    ::GetClientRect(mWnd, &opaqueRect);
+    ::MapWindowPoints(mWnd, nullptr, reinterpret_cast<POINT*>(&opaqueRect), 2);
+    ::OffsetRect(&opaqueRect, -windowRect.left, -windowRect.top);
+    const int32_t adjustment =
+        mTransparencyMode == TransparencyMode::BorderlessGlass
+            ? kGlassMarginAdjustment
+            : 0;
+    ::ExcludeClipRect(
+        hdc, opaqueRect.left + mGlassMargins.cxLeftWidth + adjustment,
+        opaqueRect.top + mGlassMargins.cyTopHeight + adjustment,
+        opaqueRect.right - mGlassMargins.cxRightWidth - adjustment,
+        opaqueRect.bottom - mGlassMargins.cyBottomHeight - adjustment);
+  }
+  ::OffsetRect(&windowRect, -windowRect.left, -windowRect.top);
+  ::FillRect(hdc, &windowRect,
+             reinterpret_cast<HBRUSH>(::GetStockObject(BLACK_BRUSH)));
+  ::ReleaseDC(mWnd, hdc);
 }
 
 /**************************************************************
@@ -8188,21 +8229,6 @@ void nsWindow::SetWindowTranslucencyInner(TransparencyMode aMode) {
     mCompositorWidgetDelegate->UpdateTransparency(aMode);
   }
   UpdateGlass();
-
-  // Clear window by transparent black when compositor window is used in GPU
-  // process and non-client area rendering by DWM is enabled.
-  // It is for showing non-client area rendering. See nsWindow::UpdateGlass().
-  if (HasGlass() && GetWindowRenderer()->AsKnowsCompositor() &&
-      GetWindowRenderer()->AsKnowsCompositor()->GetUseCompositorWnd()) {
-    HDC hdc;
-    RECT rect;
-    hdc = ::GetDCEx(mWnd, nullptr, DCX_WINDOW | DCX_CACHE | DCX_CLIPCHILDREN);
-    ::GetWindowRect(mWnd, &rect);
-    ::MapWindowPoints(nullptr, mWnd, (LPPOINT)&rect, 2);
-    ::FillRect(hdc, &rect,
-               reinterpret_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
-    ReleaseDC(mWnd, hdc);
-  }
 }
 
 /**************************************************************
