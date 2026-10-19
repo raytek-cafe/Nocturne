@@ -195,9 +195,9 @@ void nsUXThemeData::EnsureCommandButtonBoxMetrics() {
   sCommandButtonBoxMetrics.cx = sCommandButtonMetrics[0].cx +
                                 sCommandButtonMetrics[1].cx +
                                 sCommandButtonMetrics[2].cx;
-  sCommandButtonBoxMetrics.cy = sCommandButtonMetrics[0].cy +
-                                sCommandButtonMetrics[1].cy +
-                                sCommandButtonMetrics[2].cy;
+  sCommandButtonBoxMetrics.cy =
+      std::max({sCommandButtonMetrics[0].cy, sCommandButtonMetrics[1].cy,
+                sCommandButtonMetrics[2].cy});
 
   // Trigger a refresh on the next layout.
   sTitlebarInfoPopulatedAero = sTitlebarInfoPopulatedThemed = false;

@@ -443,7 +443,8 @@ bool RenderCompositorANGLE::BeginFrame() {
 
   if (!UseCompositor()) {
     if (mDCLayerTree) {
-      bool useAlpha = mWidget->AsWindows()->HasGlass();
+      bool useAlpha = gfx::gfxVars::DwmCompositionEnabled() &&
+                      mWidget->AsWindows()->HasGlass();
       // When Alpha usage is changed, SwapChain needs to be recreatd.
       if (useAlpha != mUseAlpha) {
         DestroyEGLSurface();
@@ -453,6 +454,7 @@ bool RenderCompositorANGLE::BeginFrame() {
             CreateSwapChainForDComp(mUseTripleBuffering, useAlpha);
         if (swapChain1) {
           mSwapChain = swapChain1;
+          mSwapChain1 = swapChain1;
           mUseAlpha = useAlpha;
           mDCLayerTree->SetDefaultSwapChain(swapChain1);
           // When alpha is used, we want to disable partial present.

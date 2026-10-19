@@ -166,14 +166,7 @@ bool nsWindow::OnPaint(HDC aDC, uint32_t aNestingLevel) {
   // process and non-client area rendering by DWM is enabled.
   // It is for showing non-client area rendering. See nsWindow::UpdateGlass().
   if (HasGlass() && knowsCompositor && knowsCompositor->GetUseCompositorWnd()) {
-    HDC hdc;
-    RECT rect;
-    hdc = ::GetDCEx(mWnd, nullptr, DCX_WINDOW | DCX_CACHE | DCX_CLIPCHILDREN);
-    ::GetWindowRect(mWnd, &rect);
-    ::MapWindowPoints(nullptr, mWnd, (LPPOINT)&rect, 2);
-    ::FillRect(hdc, &rect,
-               reinterpret_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
-    ReleaseDC(mWnd, hdc);
+    ClearGlassRegion();
   }
 
   if (mClearNCEdge) {
