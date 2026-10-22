@@ -5116,6 +5116,10 @@
   !define INSTALLTYPE_CUSTOM    2
 !endif
 
+!ifndef INSTALLTYPE_PORTABLE
+  !define INSTALLTYPE_PORTABLE  3
+!endif
+
 /**
  * Checks whether to display the current page (e.g. if not performing a custom
  * install don't display the custom pages).
@@ -5708,6 +5712,7 @@
       Push $R9
 
       IntCmp $InstallType ${INSTALLTYPE_CUSTOM} end +1 +1
+      IntCmp $InstallType ${INSTALLTYPE_PORTABLE} end +1 +1
       ${CanWriteToInstallDir} $R9
       StrCmp "$R9" "false" end +1
       ${CheckDiskSpace} $R9

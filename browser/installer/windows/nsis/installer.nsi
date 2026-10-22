@@ -50,6 +50,7 @@ Var InstallOptionalExtensions
 Var ExtensionRecommender
 Var PageName
 Var PreventRebootRequired
+Var PrtChkb
 Var RegisterDefaultAgent
 ; Will be the registry hive that we are going to write things like class keys
 ; into. This will generally be HKLM if running with elevation, otherwise HKCU.
@@ -310,11 +311,13 @@ Section "-InstallStartCleanup"
     ClearErrors
   ${EndIf}
 
+  ${If} $InstallType != ${INSTALLTYPE_PORTABLE}
   ; setup the application model id registration value
   ${InitHashAppModelId} "$INSTDIR" "Software\${CompanyName}\${BrandShortName}\TaskBarIDs"
 
   ; Clean up old maintenance service logs
   ${CleanMaintenanceServiceLogs} "Mozilla\Firefox"
+  ${EndIf}
 
   ${RemoveDeprecatedFiles}
   ${RemovePrecompleteEntries} "false"
@@ -358,6 +361,16 @@ Section "-Application" APP_IDX
                       "$(ERROR_CREATE_DIRECTORY_PREFIX)" \
                       "$(ERROR_CREATE_DIRECTORY_SUFFIX)"
 
+  ${If} $InstallType == ${INSTALLTYPE_PORTABLE}
+    Delete "$INSTDIR\browser\pmprt.mod"
+    Delete "$INSTDIR\browser\pmundprt.mod"
+    ${If} $PrtChkb == 1
+      FileOpen $0 "$INSTDIR\browser\pmprt.mod" w
+    ${Else}
+      FileOpen $0 "$INSTDIR\browser\pmundprt.mod" w
+    ${EndIf}
+    FileClose $0
+  ${Else}
   ; Register DLLs
   ; XXXrstrong - AccessibleMarshal.dll can be used by multiple applications but
   ; is only registered for the last application installed. When the last
@@ -707,6 +720,7 @@ Section "-Application" APP_IDX
       ${EndIf}
     ${EndUnless}
   ${EndIf}
+  ${EndIf}
 
 !ifdef MOZ_OPTIONAL_EXTENSIONS
   ${If} ${FileExists} "$INSTDIR\distribution\optional-extensions"
@@ -744,6 +758,7 @@ Section "-Application" APP_IDX
   ${EndIf}
 !endif
 
+  ${If} $InstallType != ${INSTALLTYPE_PORTABLE}
 !ifdef MOZ_MAINTENANCE_SERVICE
   ${If} $RegHive == "HKLM"
     ; Add the registry keys for allowed certificates.
@@ -779,6 +794,7 @@ Section "-Application" APP_IDX
   WriteRegDWORD HKCU "Software\${CompanyName}\${BrandShortName}\Installer\$AppUserModelID" \
                      "DidRegisterDefaultBrowserAgent" $RegisterDefaultAgent
 !endif
+  ${EndIf}
 
 SectionEnd
 
@@ -810,6 +826,7 @@ Section "-InstallEndCleanup"
     StrCpy $PostSigningData "msi:none"
   ${EndIf}
 
+  ${If} $InstallType != ${INSTALLTYPE_PORTABLE}
   ${Unless} ${Silent}
     ClearErrors
     ${MUI_INSTALLOPTIONS_READ} $0 "summary.ini" "Field 4" "State"
@@ -881,6 +898,7 @@ Section "-InstallEndCleanup"
   ${DeleteProtocolRegistryIfSetToInstallation} "$1" "firefox"
   ${DeleteProtocolRegistryIfSetToInstallation} "$1" "firefox-private"
   Pop $1
+  ${EndIf}
 
   ${InstallEndCleanupCommon}
 
@@ -923,7 +941,9 @@ Section "-InstallEndCleanup"
     ${EndIf}
   ${EndIf}
 
-  Call WriteInstallationTelemetryData
+  ${If} $InstallType != ${INSTALLTYPE_PORTABLE}
+    Call WriteInstallationTelemetryData
+  ${EndIf}
 
   StrCpy $InstallResult "success"
 SectionEnd
@@ -997,6 +1017,63 @@ FunctionEnd
 
 ################################################################################
 # Helper Functions
+
+Function SetPortableInstallDir
+  Push $0
+  Push $1
+  Push $2
+  Push $3
+  Push $4
+  Push $5
+
+  StrCpy $INSTDIR "$EXEDIR\${BrandFullName}"
+  System::Call "kernel32::GetCurrentProcessId() i.r0"
+  System::Call "kernel32::CreateToolhelp32Snapshot(i 2, i 0) p.r1"
+  ${If} $1 != -1
+    ; PROCESSENTRY32W in the 32-bit NSIS installer.
+    System::Call "*(i 556, i, i, p, i, i, i, i, i, &w260) p.r2"
+    ${If} $2 != 0
+      ${Do}
+        System::Call "kernel32::Process32FirstW(p r1, p r2) i.r3"
+        ${DoWhile} $3 != 0
+          System::Call "*$2(i, i, i.r3, p, i, i, i.r4)"
+          ${If} $3 == $0
+            StrCpy $0 $4
+            ${ExitDo}
+          ${EndIf}
+          System::Call "kernel32::Process32NextW(p r1, p r2) i.r3"
+        ${Loop}
+        ${If} $3 == 0
+          ${ExitDo}
+        ${EndIf}
+        System::Call "kernel32::OpenProcess(i 0x1000, i 0, i r0) p.r5"
+        ${If} $5 == 0
+          ${ExitDo}
+        ${EndIf}
+        System::Call "kernel32::QueryFullProcessImageNameW(p r5, i 0, w .r4, *i ${NSIS_MAX_STRLEN}) i.r3"
+        System::Call "kernel32::CloseHandle(p r5)"
+        ${If} $3 == 0
+          ${ExitDo}
+        ${EndIf}
+        ; UAC starts another setup.exe; find the outer archive instead.
+        ${If} $4 != $EXEPATH
+          ${GetParent} "$4" $4
+          StrCpy $INSTDIR "$4\${BrandFullName}"
+          ${ExitDo}
+        ${EndIf}
+      ${Loop}
+      System::Free $2
+    ${EndIf}
+    System::Call "kernel32::CloseHandle(p r1)"
+  ${EndIf}
+
+  Pop $5
+  Pop $4
+  Pop $3
+  Pop $2
+  Pop $1
+  Pop $0
+FunctionEnd
 
 Function AddQuickLaunchShortcut
   CreateShortCut "$QUICKLAUNCH\${BrandShortName}.lnk" "$INSTDIR\${FileMainEXE}"
@@ -1290,8 +1367,16 @@ Function leaveOptions
   ${MUI_INSTALLOPTIONS_READ} $R0 "options.ini" "Field 3" "State"
   StrCmp $R0 "1" +1 +2
   StrCpy $InstallType ${INSTALLTYPE_CUSTOM}
+  ${MUI_INSTALLOPTIONS_READ} $R0 "options.ini" "Field 4" "State"
+  StrCmp $R0 "1" +1 +2
+  StrCpy $InstallType ${INSTALLTYPE_PORTABLE}
+  ${MUI_INSTALLOPTIONS_READ} $PrtChkb "options.ini" "Field 7" "State"
 
-  ${LeaveOptionsCommon}
+  ${If} $InstallType == ${INSTALLTYPE_PORTABLE}
+    Call SetPortableInstallDir
+  ${Else}
+    ${LeaveOptionsCommon}
+  ${EndIf}
 
   ${If} $InstallType == ${INSTALLTYPE_BASIC}
     Call CheckExistingInstall
@@ -1339,6 +1424,7 @@ FunctionEnd
 
 !ifdef MOZ_MAINTENANCE_SERVICE
 Function preComponents
+  ${CheckCustomCommon}
   ; If the service already exists, don't show this page
   ServicesHelper::IsInstalled "MozillaMaintenance"
   Pop $R9
@@ -1367,7 +1453,6 @@ Function preComponents
   ${EndIf}
 
   StrCpy $PageName "Components"
-  ${CheckCustomCommon}
   !insertmacro MUI_HEADER_TEXT "$(COMPONENTS_PAGE_TITLE)" "$(COMPONENTS_PAGE_SUBTITLE)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "components.ini"
 FunctionEnd
@@ -1540,6 +1625,7 @@ Function preSummary
   ; should be displayed.
   DeleteINISec "$PLUGINSDIR\summary.ini" "Field 4"
 
+  ${If} $InstallType != ${INSTALLTYPE_PORTABLE}
   ; Check if it is possible to write to HKLM
   ClearErrors
   WriteRegStr HKLM "Software\${CompanyName}" "${BrandShortName}InstallerTest" "Write Test"
@@ -1562,6 +1648,7 @@ Function preSummary
       WriteINIStr "$PLUGINSDIR\summary.ini" "Field 4" Bottom "53"
     ${EndIf}
   ${EndUnless}
+  ${EndIf}
 
   ${If} "$TmpVal" == "true"
     ; If there is already a Type entry in the "Field 4" section with a value of
@@ -1759,7 +1846,7 @@ Function .onInit
   !insertmacro InitInstallOptionsFile "extensions.ini"
   !insertmacro InitInstallOptionsFile "summary.ini"
 
-  WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "5"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Settings" NumFields "7"
 
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 1" Type   "label"
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 1" Text   "$(OPTIONS_SUMMARY)"
@@ -1785,19 +1872,35 @@ Function .onInit
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 3" Bottom "65"
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 3" State  "0"
 
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Type   "label"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Text   "$(OPTION_STANDARD_DESC)"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Left   "15"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Type   "RadioButton"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Text   "$(OPTION_PORTABLE_RADIO)"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Left   "0"
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Right  "-1"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Top    "37"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Bottom "57"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Top    "85"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" Bottom "95"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 4" State  "0"
 
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Type   "label"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Text   "$(OPTION_CUSTOM_DESC)"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Text   "$(OPTION_STANDARD_DESC)"
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Left   "15"
   WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Right  "-1"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Top    "67"
-  WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Bottom "87"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Top    "37"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 5" Bottom "57"
+
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Type   "label"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Text   "$(OPTION_CUSTOM_DESC)"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Left   "15"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Right  "-1"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Top    "67"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 6" Bottom "87"
+
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" Type   "checkbox"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" Text   "$(OPTION_PORTABLE_DESC)"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" Left   "15"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" Right  "-1"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" Top    "97"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" Bottom "117"
+  WriteINIStr "$PLUGINSDIR\options.ini" "Field 7" State  "0"
 
   ${If} ${IsPinningSupportedByWindowsVersionWithoutSystemPopup}
     WriteINIStr "$PLUGINSDIR\shortcuts.ini" "Settings" NumFields "4"
