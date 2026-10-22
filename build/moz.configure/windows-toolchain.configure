@@ -250,12 +250,26 @@ def vc_path(target_windows_abi, host_windows_abi, vc_toolchain_search_path):
 
 with only_when(target_is_windows):
 
+    option(
+        env="MOZ_DXC_DLL_PATH_OVERRIDE",
+        nargs=1,
+        help="Path to a dxcompiler.dll compatible with the bundled C++ runtime",
+    )
+
     @depends(target)
     def dxc_task_name(target):
         return "dxc-" + target.cpu + "-pc-windows-msvc"
 
-    @depends_if(bootstrap_path(dxc_task_name))
-    def dxc_dll_path(bootstrap):
+    @depends_if(
+        "MOZ_DXC_DLL_PATH_OVERRIDE",
+        bootstrap_path(
+            dxc_task_name,
+            when=depends("MOZ_DXC_DLL_PATH_OVERRIDE")(lambda x: not x),
+        ),
+    )
+    def dxc_dll_path(override, bootstrap):
+        if override:
+            return override[0]
         return os.path.join(bootstrap, "dxcompiler.dll")
 
     @depends_if(vc_path)
