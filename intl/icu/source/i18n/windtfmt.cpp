@@ -243,16 +243,24 @@ void Win32DateFormat::formatDate(const SYSTEMTIME *st, UnicodeString &appendTo) 
 
     result = GetDateFormatW(fLCID, dfFlags[fDateStyle - kDateOffset], st, nullptr, buffer, STACK_BUFFER_SIZE);
 
-    if (result == 0) {
-        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-            int newLength = GetDateFormatW(fLCID, dfFlags[fDateStyle - kDateOffset], st, nullptr, nullptr, 0);
-
-            buffer = NEW_ARRAY(wchar_t, newLength);
-            GetDateFormatW(fLCID, dfFlags[fDateStyle - kDateOffset], st, nullptr, buffer, newLength);
+    if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+        int newLength =
+            GetDateFormatW(fLCID, dfFlags[fDateStyle - kDateOffset], st, nullptr, nullptr, 0);
+        if (newLength <= 0) {
+            return;
         }
+        buffer = NEW_ARRAY(wchar_t, newLength);
+        if (!buffer) {
+            appendTo.setToBogus();
+            return;
+        }
+        result =
+            GetDateFormatW(fLCID, dfFlags[fDateStyle - kDateOffset], st, nullptr, buffer, newLength);
     }
 
-    appendTo.append((const char16_t *)buffer, (int32_t) wcslen(buffer));
+    if (result > 0) {
+        appendTo.append((const char16_t *)buffer, result - 1);
+    }
 
     if (buffer != stackBuffer) {
         DELETE_ARRAY(buffer);
@@ -269,16 +277,22 @@ void Win32DateFormat::formatTime(const SYSTEMTIME *st, UnicodeString &appendTo) 
 
     result = GetTimeFormatW(fLCID, tfFlags[fTimeStyle], st, nullptr, buffer, STACK_BUFFER_SIZE);
 
-    if (result == 0) {
-        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-            int newLength = GetTimeFormatW(fLCID, tfFlags[fTimeStyle], st, nullptr, nullptr, 0);
-
-            buffer = NEW_ARRAY(wchar_t, newLength);
-            GetDateFormatW(fLCID, tfFlags[fTimeStyle], st, nullptr, buffer, newLength);
+    if (result == 0 && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+        int newLength = GetTimeFormatW(fLCID, tfFlags[fTimeStyle], st, nullptr, nullptr, 0);
+        if (newLength <= 0) {
+            return;
         }
+        buffer = NEW_ARRAY(wchar_t, newLength);
+        if (!buffer) {
+            appendTo.setToBogus();
+            return;
+        }
+        result = GetTimeFormatW(fLCID, tfFlags[fTimeStyle], st, nullptr, buffer, newLength);
     }
 
-    appendTo.append((const char16_t *)buffer, (int32_t) wcslen(buffer));
+    if (result > 0) {
+        appendTo.append((const char16_t *)buffer, result - 1);
+    }
 
     if (buffer != stackBuffer) {
         DELETE_ARRAY(buffer);
