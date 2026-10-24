@@ -22,7 +22,7 @@ class SharedSurface_D3D11Interop final : public SharedSurface {
     const RefPtr<DXInterop2Device> interop;
     HANDLE lockHandle;
     RefPtr<ID3D11Texture2D> texD3D;
-    HANDLE dxgiHandle;
+    HANDLE dxgiHandle = nullptr;
     UniquePtr<Renderbuffer> interopRb;
     UniquePtr<MozFramebuffer> interopFbIfNeedsIndirect;
   };

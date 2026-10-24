@@ -117,9 +117,9 @@ void* SharedTextureD3D11::GetSharedTextureHandle() {
     return 0;
   }
 
-  HANDLE sharedHandle;
+  HANDLE sharedHandle = nullptr;
   HRESULT hr = resource->GetSharedHandle(&sharedHandle);
-  if (FAILED(hr)) {
+  if (FAILED(hr) || !sharedHandle) {
     gfxCriticalNoteOnce << "GetSharedHandle failed: " << gfx::hexa(hr);
     return 0;
   }
@@ -135,9 +135,14 @@ Maybe<layers::SurfaceDescriptor> SharedTextureD3D11::ToSurfaceDescriptor() {
   MOZ_ASSERT(fencesHolderMap);
   fencesHolderMap->SetWriteFence(mFencesHolderId, mWriteFence);
 
+  const auto sharedHandle = GetSharedTextureHandle();
+  if (!sharedHandle) {
+    return Nothing();
+  }
+
   const auto format = gfx::SurfaceFormat::B8G8R8A8;
   return Some(layers::SurfaceDescriptorD3D10(
-      (WindowsHandle)GetSharedTextureHandle(),
+      (WindowsHandle)sharedHandle,
       /* gpuProcessTextureId */ Nothing(),
       /* arrayIndex */ 0, format, gfx::IntSize(mWidth, mHeight),
       gfx::ColorSpace2::SRGB, gfx::ColorRange::FULL,

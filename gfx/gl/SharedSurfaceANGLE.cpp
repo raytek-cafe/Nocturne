@@ -101,7 +101,7 @@ SharedSurface_ANGLEShareHandle::Create(const SharedSurfaceDesc& desc) {
   }
 
   hr = texDXGI->GetSharedHandle(&shareHandle);
-  if (FAILED(hr)) {
+  if (FAILED(hr) || !shareHandle) {
     return nullptr;
   }
 
