@@ -358,7 +358,11 @@ UniquePtr<SharedSurface_D3D11Interop> SharedSurface_D3D11Interop::Create(
     return nullptr;
   }
 
-  texDXGI->GetSharedHandle(&data.dxgiHandle);
+  hr = texDXGI->GetSharedHandle(&data.dxgiHandle);
+  if (FAILED(hr) || !data.dxgiHandle) {
+    NS_WARNING("Failed to get shared texture handle!");
+    return nullptr;
+  }
 
   ////
 
