@@ -61,7 +61,11 @@ media::DecodeSupportSet RemoteDecoderModule::SupportsMimeType(
 media::DecodeSupportSet RemoteDecoderModule::Supports(
     const SupportDecoderParams& aParams,
     DecoderDoctorDiagnostics* aDiagnostics) const {
+  // Media Engine streams require an existing engine. Capability preflight
+  // queries RemoteMediaManagerChild directly before an engine is available.
   bool supports =
+      (mLocation != RemoteMediaIn::UtilityProcess_MFMediaEngineCDM ||
+       aParams.mMediaEngineId) &&
       RemoteMediaManagerChild::Supports(mLocation, aParams, aDiagnostics);
 #ifdef MOZ_WMF_CDM
   // This should only be supported by mf media engine cdm process.

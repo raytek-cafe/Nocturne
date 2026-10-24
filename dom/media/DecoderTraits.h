@@ -23,10 +23,11 @@ enum CanPlayStatus { CANPLAY_NO, CANPLAY_MAYBE, CANPLAY_YES };
 
 class DecoderTraits {
  public:
-  // Returns the CanPlayStatus indicating if we can handle this container type.
+  // Reports ordinary decoder support unless the caller can select an external
+  // Media Engine state machine for this playback.
   static CanPlayStatus CanHandleContainerType(
       const MediaContainerType& aContainerType,
-      DecoderDoctorDiagnostics* aDiagnostics);
+      DecoderDoctorDiagnostics* aDiagnostics, bool aAllowMediaEngine = false);
 
   // Returns true if we should handle this MIME type when it appears
   // as an <object> or as a toplevel page. If, in practice, our support
@@ -38,7 +39,8 @@ class DecoderTraits {
   // Create a demuxer for the given MIME type aType.  Returns null if we
   // were unable to create the demuxer.
   static already_AddRefed<MediaDataDemuxer> CreateDemuxer(
-      const MediaContainerType& aType, MediaResource* aResource);
+      const MediaContainerType& aType, MediaResource* aResource,
+      bool aAllowMediaEngine = false);
 
   // Create a reader for thew given MIME type aType. Returns null
   // if we were unable to create the reader.

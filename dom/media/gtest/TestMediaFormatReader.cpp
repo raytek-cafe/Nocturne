@@ -8,6 +8,7 @@
 #include "MockMediaDataDemuxer.h"
 #include "MockMediaDecoderOwner.h"
 #include "PDMFactory.h"
+#include "PDMFactorySupport.h"
 #include "ReaderProxy.h"
 #include "TimeUnits.h"
 #include "VideoFrameContainer.h"
@@ -205,4 +206,81 @@ TEST(TestMediaFormatReader, WaitingForDemuxAfterInternalSeek)
   // Clean up.
   WaitForResolve(proxy->Shutdown());
   drainPromise.Reject(NS_ERROR_ILLEGAL_DURING_SHUTDOWN, __func__);
+}
+
+TEST(TestMediaFormatReader, ExternalEngineMetadataAdmission)
+{
+  RefPtr pdm = new MockDecoderModule();
+  ON_CALL(*pdm, SupportsMimeType)
+      .WillByDefault(Return(media::DecodeSupportSet{}));
+  EXPECT_CALL(*pdm, CreateVideoDecoder).Times(0);
+  EXPECT_CALL(*pdm, CreateAudioDecoder).Times(0);
+  {
+    PDMFactory::AutoForcePDM autoForcePDM(pdm);
+    PDMFactorySupport::Invalidate();
+    const MediaFormatReader::TrackSet layouts[] = {
+        {TrackType::kAudioTrack},
+        {TrackType::kVideoTrack},
+        {TrackType::kAudioTrack, TrackType::kVideoTrack}};
+    for (const auto& tracks : layouts) {
+      // A fresh ordinary reader must still reject these codecs after an
+      // external reader has accepted metadata for engine-specific preflight.
+      for (bool useExternalEngine : {true, false}) {
+        RefPtr demuxer = new MockMediaDataDemuxer();
+        RefPtr video =
+            new MockMediaTrackDemuxer("video/x-test; width=640; height=360");
+        RefPtr audio = new MockMediaTrackDemuxer("audio/x-test");
+        ON_CALL(*audio, GetInfo).WillByDefault([]() {
+          auto info = MakeUnique<AudioInfo>();
+          info->mMimeType = "audio/x-test"_ns;
+          info->mRate = 48000;
+          info->mChannels = 2;
+          return info;
+        });
+        for (auto* track : {audio.get(), video.get()}) {
+          ON_CALL(*track, MockGetSamples).WillByDefault([]() {
+            RefPtr sample = new MediaRawData;
+            sample->mTime = TimeUnit::Zero();
+            RefPtr<SamplesHolder> samples = new SamplesHolder;
+            samples->AppendSample(std::move(sample));
+            return SamplesPromise::CreateAndResolve(samples, __func__);
+          });
+        }
+        ON_CALL(*demuxer, GetNumberTracks)
+            .WillByDefault([tracks](TrackType aType) {
+              return tracks.contains(aType) ? 1u : 0u;
+            });
+        ON_CALL(*demuxer, GetTrackDemuxer)
+            .WillByDefault([video, audio](TrackType aType, uint32_t) {
+              return do_AddRef(aType == TrackType::kVideoTrack ? video : audio);
+            });
+        auto owner = std::make_unique<MockMediaDecoderOwner>();
+        RefPtr container = new VideoFrameContainer(
+            owner.get(),
+            MakeAndAddRef<ImageContainer>(ImageUsageType::VideoFrameContainer,
+                                          ImageContainer::SYNCHRONOUS));
+        MediaFormatReaderInit init;
+        init.mVideoFrameContainer = container;
+        init.mUseExternalEngine = useExternalEngine;
+        RefPtr reader = new MediaFormatReader(init, demuxer);
+        RefPtr proxy = new ReaderProxy(AbstractThread::MainThread(), reader);
+        EXPECT_NS_SUCCEEDED(reader->Init());
+        if (useExternalEngine) {
+          auto metadata = WaitForResolve(proxy->ReadMetadata());
+          EXPECT_EQ(metadata.mInfo->HasAudio(),
+                    tracks.contains(TrackType::kAudioTrack));
+          EXPECT_EQ(metadata.mInfo->HasVideo(),
+                    tracks.contains(TrackType::kVideoTrack));
+          auto cached = WaitForResolve(proxy->ReadMetadata());
+          EXPECT_EQ(cached.mInfo->HasAudio(), metadata.mInfo->HasAudio());
+          EXPECT_EQ(cached.mInfo->HasVideo(), metadata.mInfo->HasVideo());
+        } else {
+          MediaResult error = WaitForReject(proxy->ReadMetadata());
+          EXPECT_EQ(error.Code(), NS_ERROR_DOM_MEDIA_METADATA_ERR);
+        }
+        WaitForResolve(proxy->Shutdown());
+      }
+    }
+  }
+  PDMFactorySupport::Invalidate();
 }

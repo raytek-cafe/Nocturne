@@ -480,7 +480,9 @@ void FFmpegDataDecoder<LIBAV_VER>::ReleaseFrame() {
       continue;
     }
 
-    if (codec->capabilities & AV_CODEC_CAP_HARDWARE) {
+    // Native AV1 requires a hwaccel without setting AV_CODEC_CAP_HARDWARE.
+    if ((codec->capabilities & AV_CODEC_CAP_HARDWARE) ||
+        (aCodec == AV_CODEC_ID_AV1 && strcmp(codec->name, "av1") == 0)) {
       continue;
     }
 

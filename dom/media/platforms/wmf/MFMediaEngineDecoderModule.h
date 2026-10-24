@@ -6,9 +6,10 @@
 #define DOM_MEDIA_PLATFORM_WMF_MFMEDIAENGINEDECODERMODULE_H
 
 #include "PlatformDecoderModule.h"
-#include "WMFUtils.h"
 
 namespace mozilla {
+
+enum class WMFStreamType;
 
 // MFMediaEngineDecoderModule is used for the media engine playback, which only
 // supports hardware decoding.
@@ -18,8 +19,10 @@ class MFMediaEngineDecoderModule final : public PlatformDecoderModule {
 
   static already_AddRefed<PlatformDecoderModule> Create();
 
-  // Used in the content process to query if the config is supported or not.
-  // If in the MFCDM process, should use SupportsMimeType or Supports instead.
+  static bool IsEnabledForChannelDecoder();
+
+  // Queries codec capabilities in the content process before an engine exists.
+  // In the MFCDM process, use SupportsMimeType or Supports instead.
   static bool SupportsConfig(const TrackInfo& aConfig);
 
   already_AddRefed<MediaDataDecoder> CreateVideoDecoder(
