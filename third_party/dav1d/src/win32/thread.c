@@ -90,8 +90,8 @@ COLD int dav1d_pthread_once(pthread_once_t *const once_control,
     if (InitOnceBeginInitialize(once_control, 0, &pending, NULL) != TRUE)
         return 1;
 
-    if (pending == TRUE)
-        init_routine();
+    if (pending != TRUE) return 0;
+    init_routine();
 
     return !InitOnceComplete(once_control, 0, NULL);
 }
