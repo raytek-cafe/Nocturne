@@ -38,6 +38,10 @@ GlobalInterfaceTableCookie::GlobalInterfaceTableCookie(IUnknown* aObject,
 }
 
 GlobalInterfaceTableCookie::~GlobalInterfaceTableCookie() {
+  if (!IsValid()) {
+    return;
+  }
+
   IGlobalInterfaceTable* git = ObtainGit();
   MOZ_ASSERT(git);
   if (!git) {
@@ -60,6 +64,14 @@ GlobalInterfaceTableCookie::~GlobalInterfaceTableCookie() {
 
 HRESULT GlobalInterfaceTableCookie::GetInterface(REFIID aIid,
                                                  void** aOutInterface) const {
+  if (!aOutInterface) {
+    return E_INVALIDARG;
+  }
+  *aOutInterface = nullptr;
+  if (!IsValid()) {
+    return E_UNEXPECTED;
+  }
+
   IGlobalInterfaceTable* git = ObtainGit();
   MOZ_ASSERT(git);
   if (!git) {
@@ -147,6 +159,10 @@ void AgileReference::Clear() {
 }
 
 AgileReference& AgileReference::operator=(const AgileReference& aOther) {
+  if (this == &aOther) {
+    return *this;
+  }
+
   Clear();
   mIid = aOther.mIid;
   mAgileRef = aOther.mAgileRef;
@@ -156,6 +172,10 @@ AgileReference& AgileReference::operator=(const AgileReference& aOther) {
 }
 
 AgileReference& AgileReference::operator=(AgileReference&& aOther) {
+  if (this == &aOther) {
+    return *this;
+  }
+
   Clear();
   mIid = aOther.mIid;
   mAgileRef = std::move(aOther.mAgileRef);
@@ -183,7 +203,7 @@ AgileReference::Resolve(REFIID aIid, void** aOutInterface) const {
     return mAgileRef->Resolve(aIid, aOutInterface);
   }
 
-  if (!mGitCookie) {
+  if (!mGitCookie || !mGitCookie->IsValid()) {
     return E_UNEXPECTED;
   }
 
