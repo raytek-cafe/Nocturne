@@ -32,6 +32,10 @@
 #include "WaveDecoder.h"
 #include "WaveDemuxer.h"
 
+#ifdef MOZ_WMF_MEDIA_ENGINE
+#  include "MFMediaEngineDecoderModule.h"
+#endif
+
 namespace mozilla {
 
 extern LazyLogModule gMediaDecoderLog;
@@ -50,8 +54,9 @@ bool DecoderTraits::IsHttpLiveStreamingType(const MediaContainerType& aType) {
       mimeType == MEDIAMIMETYPE("audio/x-mpegurl");
 }
 
-static CanPlayStatus CanHandleCodecsType(
-    const MediaContainerType& aType, DecoderDoctorDiagnostics* aDiagnostics) {
+static CanPlayStatus CanHandleCodecsType(const MediaContainerType& aType,
+                                         DecoderDoctorDiagnostics* aDiagnostics,
+                                         bool aAllowMediaEngine) {
   // We should have been given a codecs string, though it may be empty.
   MOZ_ASSERT(aType.ExtendedType().HaveCodecs());
 
@@ -83,8 +88,9 @@ static CanPlayStatus CanHandleCodecsType(
     return CANPLAY_NO;
   }
   if (MP4Decoder::IsSupportedType(mimeType,
-                                  /* DecoderDoctorDiagnostics* */ nullptr)) {
-    if (MP4Decoder::IsSupportedType(aType, aDiagnostics)) {
+                                  nullptr /* DecoderDoctorDiagnostics */,
+                                  aAllowMediaEngine)) {
+    if (MP4Decoder::IsSupportedType(aType, aDiagnostics, aAllowMediaEngine)) {
       return CANPLAY_YES;
     }
     // We can only reach this position if a particular codec was requested,
@@ -129,8 +135,9 @@ static CanPlayStatus CanHandleCodecsType(
   return CANPLAY_MAYBE;
 }
 
-static CanPlayStatus CanHandleMediaType(
-    const MediaContainerType& aType, DecoderDoctorDiagnostics* aDiagnostics) {
+static CanPlayStatus CanHandleMediaType(const MediaContainerType& aType,
+                                        DecoderDoctorDiagnostics* aDiagnostics,
+                                        bool aAllowMediaEngine) {
   if (DecoderTraits::IsHttpLiveStreamingType(aType)) {
     glean::hls::canplay_requested.Add();
   }
@@ -145,7 +152,8 @@ static CanPlayStatus CanHandleMediaType(
 #endif
 
   if (aType.ExtendedType().HaveCodecs()) {
-    CanPlayStatus result = CanHandleCodecsType(aType, aDiagnostics);
+    CanPlayStatus result =
+        CanHandleCodecsType(aType, aDiagnostics, aAllowMediaEngine);
     if (result == CANPLAY_NO || result == CANPLAY_YES) {
       return result;
     }
@@ -160,7 +168,7 @@ static CanPlayStatus CanHandleMediaType(
   if (WaveDecoder::IsSupportedType(mimeType)) {
     return CANPLAY_MAYBE;
   }
-  if (MP4Decoder::IsSupportedType(mimeType, aDiagnostics)) {
+  if (MP4Decoder::IsSupportedType(mimeType, aDiagnostics, aAllowMediaEngine)) {
     return CANPLAY_MAYBE;
   }
   if (WebMDecoder::IsSupportedType(mimeType)) {
@@ -184,8 +192,8 @@ static CanPlayStatus CanHandleMediaType(
 /* static */
 CanPlayStatus DecoderTraits::CanHandleContainerType(
     const MediaContainerType& aContainerType,
-    DecoderDoctorDiagnostics* aDiagnostics) {
-  return CanHandleMediaType(aContainerType, aDiagnostics);
+    DecoderDoctorDiagnostics* aDiagnostics, bool aAllowMediaEngine) {
+  return CanHandleMediaType(aContainerType, aDiagnostics, aAllowMediaEngine);
 }
 
 /* static */
@@ -205,17 +213,23 @@ bool DecoderTraits::ShouldHandleMediaType(
     return false;
   }
 
-  return CanHandleMediaType(*containerType, aDiagnostics) != CANPLAY_NO;
+  bool allowMediaEngine = false;
+#ifdef MOZ_WMF_MEDIA_ENGINE
+  allowMediaEngine = MFMediaEngineDecoderModule::IsEnabledForChannelDecoder();
+#endif
+  return CanHandleMediaType(*containerType, aDiagnostics, allowMediaEngine) !=
+         CANPLAY_NO;
 }
 
 /* static */
 already_AddRefed<MediaDataDemuxer> DecoderTraits::CreateDemuxer(
-    const MediaContainerType& aType, MediaResource* aResource) {
+    const MediaContainerType& aType, MediaResource* aResource,
+    bool aAllowMediaEngine) {
   MOZ_ASSERT(NS_IsMainThread());
   RefPtr<MediaDataDemuxer> demuxer;
 
-  if (MP4Decoder::IsSupportedType(aType,
-                                  /* DecoderDoctorDiagnostics* */ nullptr)) {
+  if (MP4Decoder::IsSupportedType(aType, nullptr /* DecoderDoctorDiagnostics */,
+                                  aAllowMediaEngine)) {
     demuxer = new MP4Demuxer(aResource);
   } else if (MP3Decoder::IsSupportedType(aType)) {
     demuxer = new MP3Demuxer(aResource);
@@ -245,7 +259,8 @@ MediaFormatReader* DecoderTraits::CreateReader(const MediaContainerType& aType,
                                                MediaFormatReaderInit& aInit) {
   MOZ_ASSERT(NS_IsMainThread());
 
-  RefPtr<MediaDataDemuxer> demuxer = CreateDemuxer(aType, aInit.mResource);
+  RefPtr<MediaDataDemuxer> demuxer =
+      CreateDemuxer(aType, aInit.mResource, aInit.mUseExternalEngine);
   if (!demuxer) {
     return nullptr;
   }
@@ -276,10 +291,15 @@ bool DecoderTraits::IsSupportedInVideoDocument(const nsACString& aType) {
     return false;
   }
 
+  bool allowMediaEngine = false;
+#ifdef MOZ_WMF_MEDIA_ENGINE
+  allowMediaEngine = MFMediaEngineDecoderModule::IsEnabledForChannelDecoder();
+#endif
+
   return OggDecoder::IsSupportedType(*type) ||
          WebMDecoder::IsSupportedType(*type) ||
-         MP4Decoder::IsSupportedType(*type,
-                                     /* DecoderDoctorDiagnostics* */ nullptr) ||
+         MP4Decoder::IsSupportedType(
+             *type, nullptr /* DecoderDoctorDiagnostics */, allowMediaEngine) ||
          MP3Decoder::IsSupportedType(*type) ||
          ADTSDecoder::IsSupportedType(*type) ||
          FlacDecoder::IsSupportedType(*type) ||

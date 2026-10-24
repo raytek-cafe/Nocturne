@@ -62,6 +62,7 @@ class RemoteMediaManagerChild final
   static void SetSupported(RemoteMediaIn aLocation,
                            const media::MediaCodecsSupported& aSupported);
 
+  // Queries codec capabilities without checking decoder routing options.
   // Can be called from any thread.
   static bool Supports(RemoteMediaIn aLocation,
                        const SupportDecoderParams& aParams,

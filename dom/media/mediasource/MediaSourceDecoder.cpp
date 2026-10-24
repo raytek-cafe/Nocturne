@@ -54,7 +54,6 @@ MediaSourceDecoder::CreateStateMachine(bool aDisableExternalEngine) {
   static Atomic<uint32_t> sTrackingIdCounter(0);
   init.mTrackingId.emplace(TrackingId::Source::MSEDecoder, sTrackingIdCounter++,
                            TrackingId::TrackAcrossProcesses::Yes);
-  mReader = new MediaFormatReader(init, mDemuxer);
 #ifdef MOZ_WMF_CDM
   // ExternalEngineStateMachine is primarily used for encrypted playback when
   // the key system is supported via the WMF-based CDM. However, we cannot
@@ -81,8 +80,12 @@ MediaSourceDecoder::CreateStateMachine(bool aDisableExternalEngine) {
   // via ExternalEngineStateMachine as well by modifying the preference value.
   bool isCDMNotSupported =
       !!mOwner->GetCDMProxy() && !mOwner->GetCDMProxy()->AsWMFCDMProxy();
-  if (StaticPrefs::media_wmf_media_engine_enabled() && !isCDMNotSupported &&
-      !aDisableExternalEngine) {
+  init.mUseExternalEngine = StaticPrefs::media_wmf_media_engine_enabled() &&
+                            !isCDMNotSupported && !aDisableExternalEngine;
+#endif
+  mReader = new MediaFormatReader(init, mDemuxer);
+#ifdef MOZ_WMF_CDM
+  if (init.mUseExternalEngine) {
     return MakeAndAddRef<ExternalEngineStateMachine>(this, mReader);
   }
 #endif

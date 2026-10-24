@@ -20,9 +20,11 @@ class MP4Decoder {
  public:
   // Returns true if aContainerType is an MP4 type that we think we can render
   // with the a platform decoder backend.
-  // If provided, codecs are checked for support.
+  // If provided, codecs are checked for support. External playback callers may
+  // additionally query Media Engine capabilities before an engine exists.
   static bool IsSupportedType(const MediaContainerType& aContainerType,
-                              DecoderDoctorDiagnostics* aDiagnostics);
+                              DecoderDoctorDiagnostics* aDiagnostics,
+                              bool aAllowMediaEngine = false);
 
   // Return true if aMimeType is a one of the strings used by our demuxers to
   // identify H264. Does not parse general content type strings, i.e. white

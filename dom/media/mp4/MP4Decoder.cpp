@@ -17,6 +17,10 @@
 #include "nsMimeTypes.h"
 #include "nsReadableUtils.h"
 
+#ifdef MOZ_WMF_MEDIA_ENGINE
+#  include "MFMediaEngineDecoderModule.h"
+#endif
+
 namespace mozilla {
 
 static bool IsTypeValid(const MediaContainerType& aType) {
@@ -126,7 +130,8 @@ nsTArray<UniquePtr<TrackInfo>> MP4Decoder::GetTracksInfo(
 
 /* static */
 bool MP4Decoder::IsSupportedType(const MediaContainerType& aType,
-                                 DecoderDoctorDiagnostics* aDiagnostics) {
+                                 DecoderDoctorDiagnostics* aDiagnostics,
+                                 bool aAllowMediaEngine) {
   if (!IsEnabled()) {
     return false;
   }
@@ -138,15 +143,33 @@ bool MP4Decoder::IsSupportedType(const MediaContainerType& aType,
   }
 
   if (!tracks.IsEmpty()) {
-    // Look for exact match as we know used codecs.
+    // All tracks must work through one playback path. Combining a track only
+    // supported by the engine with one only supported by ordinary decoding
+    // would advertise a resource that neither state machine can play.
+    bool ordinarySupported = true;
     for (const auto& track : tracks) {
-      if (!track || PDMFactorySupport::IsSupported(SupportDecoderParams(*track),
-                                                   aDiagnostics)
-                        .isEmpty()) {
+      if (!track) {
         return false;
       }
+      ordinarySupported =
+          ordinarySupported && !PDMFactorySupport::IsSupported(
+                                    SupportDecoderParams(*track), aDiagnostics)
+                                    .isEmpty();
     }
-    return true;
+    if (ordinarySupported) {
+      return true;
+    }
+#ifdef MOZ_WMF_MEDIA_ENGINE
+    if (aAllowMediaEngine) {
+      for (const auto& track : tracks) {
+        if (!MFMediaEngineDecoderModule::SupportsConfig(*track)) {
+          return false;
+        }
+      }
+      return true;
+    }
+#endif
+    return false;
   }
 
   // We have only container info so try to guess the content type.
@@ -179,6 +202,12 @@ bool MP4Decoder::IsSupportedType(const MediaContainerType& aType,
                       .isEmpty()) {
       return true;
     }
+#ifdef MOZ_WMF_MEDIA_ENGINE
+    if (track && aAllowMediaEngine &&
+        MFMediaEngineDecoderModule::SupportsConfig(*track)) {
+      return true;
+    }
+#endif
   }
   return false;
 }

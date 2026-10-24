@@ -64,9 +64,11 @@ namespace mozilla {
 //     "Windows Media Feature Pack"
 //   * Some Linux Desktop.
 // 2. If H264 hardware acceleration is not available.
-static bool IsVP9Forced(DecoderDoctorDiagnostics* aDiagnostics) {
-  bool mp4supported = MP4Decoder::IsSupportedType(
-      MediaContainerType(MEDIAMIMETYPE(VIDEO_MP4)), aDiagnostics);
+static bool IsVP9Forced(DecoderDoctorDiagnostics* aDiagnostics,
+                        bool aAllowMediaEngine) {
+  bool mp4supported =
+      MP4Decoder::IsSupportedType(MediaContainerType(MEDIAMIMETYPE(VIDEO_MP4)),
+                                  aDiagnostics, aAllowMediaEngine);
   bool hwsupported = gfx::gfxVars::CanUseHardwareVideoDecoding();
 #ifdef MOZ_WIDGET_ANDROID
   return !mp4supported || !hwsupported || gfx::gfxVars::UseVP9HwDecode();
@@ -141,8 +143,13 @@ void MediaSource::IsTypeSupported(const nsAString& aType,
     return aRv.ThrowNotSupportedError("Unknown type");
   }
 
-  if (DecoderTraits::CanHandleContainerType(*containerType, aDiagnostics) ==
-      CANPLAY_NO) {
+  bool allowMediaEngine = false;
+#ifdef MOZ_WMF_CDM
+  // Only this build configuration can select an external state machine for MSE.
+  allowMediaEngine = StaticPrefs::media_wmf_media_engine_enabled();
+#endif
+  if (DecoderTraits::CanHandleContainerType(*containerType, aDiagnostics,
+                                            allowMediaEngine) == CANPLAY_NO) {
     return aRv.ThrowNotSupportedError("Can't play type");
   }
 
@@ -169,7 +176,8 @@ void MediaSource::IsTypeSupported(const nsAString& aType,
   if (mimeType == MEDIAMIMETYPE("video/mp4") ||
       mimeType == MEDIAMIMETYPE("audio/mp4")) {
     if (!StaticPrefs::media_mediasource_vp9_enabled() && hasVP9 &&
-        !IsVP9Forced(aDiagnostics) && !shouldResistFingerprinting) {
+        !IsVP9Forced(aDiagnostics, allowMediaEngine) &&
+        !shouldResistFingerprinting) {
       // Don't leak information about the fact that it's pref-disabled; just act
       // like we can't play it.  Or should this throw "Unknown type"?
       return aRv.ThrowNotSupportedError("Can't play type");
@@ -179,7 +187,8 @@ void MediaSource::IsTypeSupported(const nsAString& aType,
   }
   if (mimeType == MEDIAMIMETYPE("video/webm")) {
     if (!StaticPrefs::media_mediasource_vp9_enabled() && hasVP9 &&
-        !IsVP9Forced(aDiagnostics) && !shouldResistFingerprinting) {
+        !IsVP9Forced(aDiagnostics, allowMediaEngine) &&
+        !shouldResistFingerprinting) {
       // Don't leak information about the fact that it's pref-disabled; just act
       // like we can't play it.  Or should this throw "Unknown type"?
       return aRv.ThrowNotSupportedError("Can't play type");

@@ -925,6 +925,7 @@ MediaFormatReader::MediaFormatReader(MediaFormatReaderInit& aInit,
                 "MediaFormatReader::mBuffered (Canonical)"),
       mFrameStats(aInit.mFrameStats),
       mMediaDecoderOwnerID(aInit.mMediaDecoderOwnerID),
+      mUseExternalEngine(aInit.mUseExternalEngine),
       mTrackingId(std::move(aInit.mTrackingId)),
       mReadMetadataStartTime(Nothing()),
       mReadMetaDataTime(TimeDuration::Zero()),
@@ -1215,7 +1216,9 @@ void MediaFormatReader::OnDemuxerInitDone(const MediaResult& aResult) {
 
   UniquePtr<MetadataTags> tags(MakeUnique<MetadataTags>());
 
-  const bool checkSupport = !IsWaitingOnCDMResource();
+  // External playback validates all tracks in its own metadata callback before
+  // creating the engine. Ordinary decoder support is not its admission policy.
+  const bool checkSupport = !mUseExternalEngine && !IsWaitingOnCDMResource();
 
   // To decode, we need valid video and a place to put it.
   bool videoActive = !!mDemuxer->GetNumberTracks(TrackInfo::kVideoTrack) &&

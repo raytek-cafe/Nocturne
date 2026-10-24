@@ -670,8 +670,17 @@ static Sequence<MediaKeySystemMediaCapability> GetSupportedCapabilities(
     // and subtype names are case-insensitive."'. We're using
     // nsContentTypeParser and that is case-insensitive and converts all its
     // parameter outputs to lower case.)
-    const bool supportedInMP4 =
-        MP4Decoder::IsSupportedType(containerType, aDiagnostics);
+    bool allowMediaEngine = false;
+#ifdef MOZ_WMF_CDM
+    const uint32_t engineMode = StaticPrefs::media_wmf_media_engine_enabled();
+    allowMediaEngine =
+        (engineMode == 1 || engineMode == 2) &&
+        (IsPlayReadyKeySystemAndSupported(aKeySystem.mKeySystem) ||
+         IsWidevineExperimentKeySystemAndSupported(aKeySystem.mKeySystem) ||
+         IsWMFClearKeySystemAndSupported(aKeySystem.mKeySystem));
+#endif
+    const bool supportedInMP4 = MP4Decoder::IsSupportedType(
+        containerType, aDiagnostics, allowMediaEngine);
     if (supportedInMP4 && !aKeySystem.mMP4.IsSupported()) {
       EME_LOG(
           "MediaKeySystemConfiguration (label='{}') "

@@ -16,6 +16,10 @@
 #include "mozilla/Preferences.h"
 #include "mozilla/StaticPrefs_media.h"
 
+#ifdef MOZ_WMF_MEDIA_ENGINE
+#  include "MFMediaEngineDecoderModule.h"
+#endif
+
 namespace mozilla {
 
 using TimeUnit = media::TimeUnit;
@@ -175,9 +179,13 @@ ChannelMediaDecoder::ChannelMediaDecoder(MediaDecoderInit& aInit)
 already_AddRefed<ChannelMediaDecoder> ChannelMediaDecoder::Create(
     MediaDecoderInit& aInit, DecoderDoctorDiagnostics* aDiagnostics) {
   MOZ_ASSERT(NS_IsMainThread());
+  bool allowMediaEngine = false;
+#ifdef MOZ_WMF_MEDIA_ENGINE
+  allowMediaEngine = MFMediaEngineDecoderModule::IsEnabledForChannelDecoder();
+#endif
   RefPtr<ChannelMediaDecoder> decoder;
-  if (DecoderTraits::CanHandleContainerType(aInit.mContainerType,
-                                            aDiagnostics) != CANPLAY_NO) {
+  if (DecoderTraits::CanHandleContainerType(aInit.mContainerType, aDiagnostics,
+                                            allowMediaEngine) != CANPLAY_NO) {
     decoder = new ChannelMediaDecoder(aInit);
     return decoder.forget();
   }
@@ -192,8 +200,13 @@ bool ChannelMediaDecoder::CanClone() {
 
 already_AddRefed<ChannelMediaDecoder> ChannelMediaDecoder::Clone(
     MediaDecoderInit& aInit) {
-  if (!mResource || DecoderTraits::CanHandleContainerType(
-                        aInit.mContainerType, nullptr) == CANPLAY_NO) {
+  bool allowMediaEngine = false;
+#ifdef MOZ_WMF_MEDIA_ENGINE
+  allowMediaEngine = MFMediaEngineDecoderModule::IsEnabledForChannelDecoder();
+#endif
+  if (!mResource ||
+      DecoderTraits::CanHandleContainerType(aInit.mContainerType, nullptr,
+                                            allowMediaEngine) == CANPLAY_NO) {
     return nullptr;
   }
   RefPtr<ChannelMediaDecoder> decoder = new ChannelMediaDecoder(aInit);
@@ -219,19 +232,18 @@ ChannelMediaDecoder::CreateStateMachine(bool aDisableExternalEngine) {
   init.mTrackingId.emplace(TrackingId::Source::ChannelDecoder,
                            sTrackingIdCounter++,
                            TrackingId::TrackAcrossProcesses::Yes);
+#ifdef MOZ_WMF_MEDIA_ENGINE
+  init.mUseExternalEngine =
+      MFMediaEngineDecoderModule::IsEnabledForChannelDecoder() &&
+      !aDisableExternalEngine;
+#endif
   mReader = DecoderTraits::CreateReader(ContainerType(), init);
   if (NS_WARN_IF(!mReader)) {
     return nullptr;
   }
 
 #ifdef MOZ_WMF_MEDIA_ENGINE
-  // This state machine is mainly used for the encrypted playback. However, for
-  // testing purpose we would also use it the non-encrypted playback.
-  // 1=enabled encrypted and clear, 3=enabled clear
-  if ((StaticPrefs::media_wmf_media_engine_enabled() == 1 ||
-       StaticPrefs::media_wmf_media_engine_enabled() == 3) &&
-      StaticPrefs::media_wmf_media_engine_channel_decoder_enabled() &&
-      !aDisableExternalEngine) {
+  if (init.mUseExternalEngine) {
     return MakeAndAddRef<ExternalEngineStateMachine>(this, mReader);
   }
 #endif

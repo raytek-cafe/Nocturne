@@ -25,6 +25,9 @@
 #ifdef MOZ_ANDROID_HLS_SUPPORT
 #  include "HLSDecoder.h"
 #endif
+#ifdef MOZ_WMF_MEDIA_ENGINE
+#  include "MFMediaEngineDecoderModule.h"
+#endif
 #include "HTMLMediaElement.h"
 #include "ImageContainer.h"
 #include "MP4Decoder.h"
@@ -5637,8 +5640,12 @@ CanPlayStatus HTMLMediaElement::GetCanPlay(
   if (!containerType) {
     return CANPLAY_NO;
   }
-  CanPlayStatus status =
-      DecoderTraits::CanHandleContainerType(*containerType, aDiagnostics);
+  bool allowMediaEngine = false;
+#ifdef MOZ_WMF_MEDIA_ENGINE
+  allowMediaEngine = MFMediaEngineDecoderModule::IsEnabledForChannelDecoder();
+#endif
+  CanPlayStatus status = DecoderTraits::CanHandleContainerType(
+      *containerType, aDiagnostics, allowMediaEngine);
   if (status == CANPLAY_YES &&
       (*containerType).ExtendedType().Codecs().IsEmpty()) {
     // Per spec: 'Generally, a user agent should never return "probably" for a

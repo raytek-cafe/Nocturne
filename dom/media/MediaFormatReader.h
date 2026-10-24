@@ -66,6 +66,7 @@ struct MOZ_STACK_CLASS MediaFormatReaderInit {
   // Used in bug 1393399 for temporary telemetry.
   MediaDecoderOwnerID mMediaDecoderOwnerID = nullptr;
   Maybe<TrackingId> mTrackingId;
+  bool mUseExternalEngine = false;
 };
 
 DDLoggedTypeDeclName(MediaFormatReader);
@@ -924,6 +925,9 @@ class MediaFormatReader final
   bool IsDecoderWaitingForCDM(TrackType aTrack);
 
   void GetDebugInfo(dom::MediaFormatReaderDebugInfo& aInfo);
+
+  // The external state machine checks native codec support after metadata.
+  const bool mUseExternalEngine;
 
   // Only be used on Windows when the media engine playback is enabled.
   Maybe<uint64_t> mMediaEngineId;

@@ -8,6 +8,10 @@
 
 #include "nsNetUtil.h"
 
+#ifdef MOZ_WMF_MEDIA_ENGINE
+#  include "MFMediaEngineDecoderModule.h"
+#endif
+
 #include "mozilla/Atomics.h"
 #include "mozilla/BasePrincipal.h"
 #include "mozilla/Components.h"
@@ -4119,8 +4123,12 @@ bool CheckPreloadAttrs(const nsAttrValue& aAs, const nsAString& aType,
       return false;
     }
     DecoderDoctorDiagnostics diagnostics;
-    CanPlayStatus status =
-        DecoderTraits::CanHandleContainerType(*mimeType, &diagnostics);
+    bool allowMediaEngine = false;
+#ifdef MOZ_WMF_MEDIA_ENGINE
+    allowMediaEngine = MFMediaEngineDecoderModule::IsEnabledForChannelDecoder();
+#endif
+    CanPlayStatus status = DecoderTraits::CanHandleContainerType(
+        *mimeType, &diagnostics, allowMediaEngine);
     // Preload if this return CANPLAY_YES and CANPLAY_MAYBE.
     return status != CANPLAY_NO;
   }
