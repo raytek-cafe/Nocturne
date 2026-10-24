@@ -266,6 +266,10 @@ UnicodeString &Win32NumberFormat::format(int32_t numDigits, UnicodeString &appen
 
     /* Just to make sure of the above statement, we add this assert */
     U_ASSERT(result >=0);
+    if (result < 0) {
+        appendTo.setToBogus();
+        return appendTo;
+    }
     // The following code is not used because _vscwprintf isn't available on MinGW at the moment.
     /*if (result < 0) {
         int newLength;
@@ -302,7 +306,6 @@ UnicodeString &Win32NumberFormat::format(int32_t numDigits, UnicodeString &appen
     FormatInfo formatInfo;
 
     formatInfo = *fFormatInfo;
-    buffer[0] = 0x0000;
 
     if (fCurrency) {
         if (fFractionDigitsSet) {
@@ -320,10 +323,15 @@ UnicodeString &Win32NumberFormat::format(int32_t numDigits, UnicodeString &appen
 
             if (lastError == ERROR_INSUFFICIENT_BUFFER) {
                 int newLength = GetCurrencyFormatW(fLCID, 0, nBuffer, &formatInfo.currency, nullptr, 0);
-
+                if (newLength <= 0) {
+                    return appendTo;
+                }
                 buffer = NEW_ARRAY(wchar_t, newLength);
-                buffer[0] = 0x0000;
-                GetCurrencyFormatW(fLCID, 0, nBuffer,  &formatInfo.currency, buffer, newLength);
+                if (!buffer) {
+                    appendTo.setToBogus();
+                    return appendTo;
+                }
+                result = GetCurrencyFormatW(fLCID, 0, nBuffer, &formatInfo.currency, buffer, newLength);
             }
         }
     } else {
@@ -340,15 +348,22 @@ UnicodeString &Win32NumberFormat::format(int32_t numDigits, UnicodeString &appen
         if (result == 0) {
             if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
                 int newLength = GetNumberFormatW(fLCID, 0, nBuffer, &formatInfo.number, nullptr, 0);
-
+                if (newLength <= 0) {
+                    return appendTo;
+                }
                 buffer = NEW_ARRAY(wchar_t, newLength);
-                buffer[0] = 0x0000;
-                GetNumberFormatW(fLCID, 0, nBuffer, &formatInfo.number, buffer, newLength);
+                if (!buffer) {
+                    appendTo.setToBogus();
+                    return appendTo;
+                }
+                result = GetNumberFormatW(fLCID, 0, nBuffer, &formatInfo.number, buffer, newLength);
             }
         }
     }
 
-    appendTo.append((char16_t *)buffer, (int32_t) wcslen(buffer));
+    if (result > 0) {
+        appendTo.append((char16_t *)buffer, result - 1);
+    }
 
     if (buffer != stackBuffer) {
         DELETE_ARRAY(buffer);
