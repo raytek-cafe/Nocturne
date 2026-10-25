@@ -413,7 +413,9 @@ tooltip {
   }
   @media (-moz-platform: windows) {
     @media not -moz-pref("widget.non-native-theme.enabled") {
-      color-scheme: light;
+      @media -moz-pref("widget.native-controls.tooltip-style", 0) {
+        color-scheme: light !important;
+      }
     }
 
     @media -moz-pref("widget.non-native-theme.enabled") {

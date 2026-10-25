@@ -20327,9 +20327,11 @@
   value: 2
   mirror: always
 
+# Windows tooltip rendering: 0 = native, 1 = non-native, 2 = automatic.
+# Automatic uses native in light mode and non-native in dark mode.
 - name: widget.native-controls.tooltip-style
   type: int32_t
-  value: 0
+  value: 2
   mirror: always
 
 # GTK themes sometimes ship rules keyed on Firefox's style-cache widget name
