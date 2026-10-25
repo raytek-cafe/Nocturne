@@ -99,9 +99,15 @@ auto nsNativeThemeWin::IsWidgetNonNative(nsIFrame* aFrame,
     }
   }
 
-  if (aAppearance == StyleAppearance::Tooltip &&
-      StaticPrefs::widget_native_controls_tooltip_style() == 0) {
-    return NonNative::No;
+  if (aAppearance == StyleAppearance::Tooltip) {
+    switch (StaticPrefs::widget_native_controls_tooltip_style()) {
+      case 0:
+        return NonNative::No;
+      case 1:
+        return NonNative::Always;
+      default:
+        break;
+    }
   }
 
   if (aAppearance == StyleAppearance::FocusOutline &&
